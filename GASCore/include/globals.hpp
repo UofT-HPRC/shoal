@@ -22,6 +22,7 @@ typedef ap_uint<22> uint_22_t;
 typedef ap_uint<23> uint_23_t;
 typedef ap_uint<32> uint_32_t;
 typedef ap_uint<64> uint_64_t;
+typedef ap_uint<72> uint_72_t;
 
 template<int D>
 struct uaxis_l{

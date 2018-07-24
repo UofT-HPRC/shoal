@@ -4,19 +4,19 @@
 
 
 #define CALL_TB am_rx(axis_handler, axis_net,axis_s2mmCommand,axis_s2mm, \
-        axis_s2mmStatus, token_get, token_get_v, record, release);
+        axis_s2mmStatus, token_get, token_get_v, record, release, dbgState);
 
-#define AXIS_EMPTY axis_handler.empty() && axis_net.empty() && \
-    axis_s2mmCommand.empty() && axis_s2mm.empty() && axis_s2mmStatus.empty()
+// #define AXIS_EMPTY axis_handler.empty() && axis_net.empty() && \
+//     axis_s2mmCommand.empty() && axis_s2mm.empty() && axis_s2mmStatus.empty()
 
-#define READ_AXIS(Aaxis) i = 0; \
-    readSize = Aaxis.size(); \
-    while (i < readSize){ \
-        if(!Aaxis.empty()){ \
-            Aaxis.read(axis_word); \
-            i++; \
-        } \
-    }
+// #define READ_AXIS(Aaxis) i = 0; \
+//     readSize = Aaxis.size(); \
+//     while (i < readSize){ \
+//         if(!Aaxis.empty()){ \
+//             Aaxis.read(axis_word); \
+//             i++; \
+//         } \
+//     }
 
 #define PRINT_AXIS std::cout << "Stream statuses:\n"; \
     std::cout << "  Handler: " << axis_handler.size() << "\n"; \
@@ -25,7 +25,23 @@
     std::cout << "  s2mm: " << axis_s2mm.size() << "\n"; \
     std::cout << "  s2mmStatus: " << axis_s2mmStatus.size() << "\n";
 
-int main(){
+int main(int argc, char* argv[]){
+    int i;
+    int verbose = 0;
+    for(i = 1; i < argc; i++){
+        if (std::string(argv[i]).compare("-v") == 0) {
+            verbose++;
+        // } else if (argv[i] == "-p") {
+        //     myPath = argv[i + 1];
+        // } else if (argv[i] == "-o") {
+        //     myOutPath = argv[i + 1];
+        } else {
+            std::cout << "Not enough or invalid arguments, please try again.\n";
+            return 2;
+        }
+    }
+
+    std::cout << "Verbosity set to level " << verbose << "\n";
 
     axis_32a_t axis_handler; //output
     axis_32a_t axis_net; //input
@@ -42,7 +58,7 @@ int main(){
     uint_1_t release; //output
 
     axis_word_32a_t axis_word;
-
+    axis_word_72a_t axis_word_s2mmCommand;
     token_get = 0xABCD;
     token_get_v = 1;
 
@@ -54,20 +70,23 @@ int main(){
     gc_AMargs_t args;
     gc_AMhandler_t handler;
 
-    int i;
-    int readSize;
-
-    uint_32_t readData;
+    uint_72_t readData;
     uint_1_t readLast;
 
+    int dbgState;
+
+    #ifdef VIVADO
     std::ifstream testData("am_rx.dat");
+    #else
+    std::ifstream testData("./testbench/am_rx.dat");
+    #endif
     if (!testData){
         std::cout << "Unable to open test data file\n";
         return -1;
     }
 
     std::string key, key_gold;
-    uint_32_t hexData, hexData_gold;
+    uint_72_t hexData, hexData_gold;
     uint_1_t hexLast, hexLast_gold, callEnable, callEnable_gold;
     while(testData >> key >> hexData >> hexLast >> callEnable){
         if(key.compare("Token") == 0){
@@ -81,26 +100,41 @@ int main(){
                 if(key_gold.compare("END") == 0 && hexLast_gold == 1){
                     break;
                 }
+                else if(key_gold.compare("DEBUG") == 0){
+                    if(hexData_gold == 0){
+                        PRINT_AXIS
+                    }
+                    else if(hexData_gold == 1){
+                        std::cout << "Current State: " << dbgState << "\n";
+                    }
+                }
                 else{
                 	if(key_gold.compare("axis_s2mmCommand") == 0){
-                		//READ_WORD(axis_word, readData, readLast, &map2[key])
-                		std::cout << "Unsupported stream access\n";
-                        return -1;
+                        axis_s2mmCommand.read(axis_word_s2mmCommand);
+                        readData = axis_word_s2mmCommand.data;
+                        readLast = axis_word_s2mmCommand.last;
                     }
                 	else if(key_gold.compare("axis_handler") == 0){
                 		READ_WORD(axis_word, readData, readLast, axis_handler)
                     }
-                    else if(key_gold.compare("axis_s2mm")){
+                    else if(key_gold.compare("axis_s2mm") == 0){
                         READ_WORD(axis_word, readData, readLast, axis_s2mm)
                     }
                     else{
-                        std::cout << "ERROR in reading words\n";
+                        std::cout << "Unknown key: " << key_gold << "\n";
+                        return 1;
                     }
-                    if(hexData_gold != readData && hexLast_gold != readLast){
+                    if(hexData_gold != readData || hexLast_gold != readLast){
                         valid = false;
-                        std::cout << "Expected: " << hexData_gold << " " << 
+                        std::cout << "Mismatch:\n";
+                        std::cout << std::hex << "   Expected: " << hexData_gold << " " << 
                             hexLast_gold << "\n";
-                        std::cout << "Received: " << readData << " " << 
+                        std::cout << std::hex << "   Received: " << readData << " " << 
+                            readLast << "\n";
+                    }
+                    else if(verbose > 0){
+                        std::cout << "Match:\n";
+                        std::cout << std::hex << "   Received: " << readData << " " << 
                             readLast << "\n";
                     }
                 }
@@ -110,6 +144,14 @@ int main(){
             }
             else{
                 std::cout << "Test " << std::hex << hexData_gold << " successful\n";
+            }
+        }
+        else if(key.compare("DEBUG") == 0){
+            if(hexData == 0){
+                PRINT_AXIS
+            }
+            else if(hexData == 1){
+                std::cout << "Current State: " << dbgState << "\n";
             }
         }
         else{

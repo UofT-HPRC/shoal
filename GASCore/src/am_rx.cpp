@@ -13,7 +13,9 @@ void am_rx(
     uint_8_t &record, //output
 
     //axis_handler release
-    uint_1_t &release //output
+    uint_1_t &release, //output
+
+    int &dbg_state
 ){
 	#pragma HLS data_pack variable=axis_s2mmCommand struct_level
     #pragma HLS INTERFACE axis port=axis_handler
@@ -84,6 +86,7 @@ void am_rx(
                 if(isLongxAM(axis_word_net.data(7,0))){
                     release = 0;
                 }
+                axis_word_net.last = 0;
                 axis_handler.write(axis_word_net);
                 if(isShortAM(axis_word_net.data(7,0))){
                     if(axis_word_net.data(15,8) == 0){
@@ -103,7 +106,7 @@ void am_rx(
             break;
         }
         case st_AMHandlerArgs:{
-            static gc_AMargs_t argCount;
+            gc_AMargs_t argCount;
             axis_word_32a_t axis_word;
             if(isShortAM(AMtype)){
                 axis_word.data = AMtoken;
@@ -211,7 +214,7 @@ void am_rx(
             break;
         }
         case st_AMLongVector:{
-            static int i;
+            int i = 0;
             for(i = 0; i < AMdstVectorNum; i++){
                 if(!axis_net.empty()){
                     axis_net.read(axis_word_net);
@@ -230,7 +233,7 @@ void am_rx(
                 }
             }
             s2mmWriteCommand(axis_s2mmCommand, 0, 0, AMvectorDestLower[0](31,0),
-                AMvectorDestLower[0](1,0) != 0, AMdstVectorNum != 1, 
+                AMvectorDestLower[0](1,0) != 0, AMdstVectorNum == 1, 
                 AMvectorDestLower[0](1,0), 1, AMvectorSize[0]);
             if (AMargs == 0){
                 currentState = st_AMpayload;
@@ -241,19 +244,18 @@ void am_rx(
             break;
         }
         case st_AMpayload:{
-            static int i;
-            static gc_payloadSize_t writeCount = 0;
-            static gc_destinationLower_t strideDest = AMdestinationLower + AMstride;
-            static gc_strideBlockNum_t strideCount = 0;
-            static gc_dstVectorNum_t vectorCount = 0;
+            gc_payloadSize_t i = 0;
+            gc_payloadSize_t writeCount = 0;
+            gc_destinationLower_t strideDest = AMdestinationLower + AMstride;
+            gc_strideBlockNum_t strideCount = 0;
+            gc_dstVectorNum_t vectorCount = 0;
             while(i < AMpayloadSize){
-                if(!axis_net.empty()){
-                    axis_net.read(axis_word_net);
-                    writeCount++;
-                    i++;
+                while(axis_net.empty()){
+                    //busy loop
                 }
-                else
-                    continue;
+                axis_net.read(axis_word_net);
+                writeCount++;
+                i++;
                 if(isMediumAM(AMtype)){
                     axis_handler.write(axis_word_net);
                 }
@@ -269,6 +271,12 @@ void am_rx(
                                 axis_s2mm.write(axis_word_net);
                             }
                         }
+                        else if(writeCount == AMstrideBlockSize){
+                            if(!axis_s2mm.full()){
+                                axis_word_net.last = 1;
+                                axis_s2mm.write(axis_word_net);
+                            }
+                        }
                         else{
                             s2mmWriteCommand(axis_s2mmCommand, 0, 0, 
                                 strideDest, 
@@ -280,7 +288,7 @@ void am_rx(
                             if(!axis_s2mm.full()){
                                 axis_s2mm.write(axis_word_net);
                             }
-                            writeCount = 0;
+                            writeCount = 1;
                         }
                     }
                     else{
@@ -289,18 +297,24 @@ void am_rx(
                                 axis_s2mm.write(axis_word_net);
                             }
                         }
+                        else if(writeCount == AMvectorSize[vectorCount]){
+                            if(!axis_s2mm.full()){
+                                axis_word_net.last = 1;
+                                axis_s2mm.write(axis_word_net);
+                            }
+                        }
                         else{
                             vectorCount++;
                             s2mmWriteCommand(axis_s2mmCommand, 0, 0, 
-                                AMvectorDestLower[vectorCount], 
-                                AMvectorDestLower[vectorCount] != 0, 
-                                AMdstVectorNum != vectorCount, 
-                                AMvectorDestLower[vectorCount](1,0), 1, 
+                                AMvectorDestLower[vectorCount], //address
+                                AMvectorDestLower[vectorCount](1,0) != 0, //drr 
+                                AMdstVectorNum != vectorCount, //eof
+                                AMvectorDestLower[vectorCount](1,0), 1, //dsa, type
                                 AMvectorSize[vectorCount]);
                             if(!axis_s2mm.full()){
                                 axis_s2mm.write(axis_word_net);
                             }
-                            writeCount = 0;
+                            writeCount = 1;
                         }
                     }
                 }
@@ -312,6 +326,7 @@ void am_rx(
             if(isShortAM(AMtype) && AMargs == 0){
                 axis_word_32a_t axis_word;
                 axis_word.data = AMtoken;
+                axis_word.last = 1;
                 axis_handler.write(axis_word);
                 currentState = st_header;
             }
@@ -339,6 +354,9 @@ void am_rx(
             break;
         }
     }
+
+    dbg_state = currentState;
+
 }
 
 inline void s2mmWriteCommand(
@@ -352,16 +370,16 @@ inline void s2mmWriteCommand(
     uint_1_t type,
     uint_23_t btt
 ){
-    s2mmCommand command;
-    command.reserved = reserved;
-    command.tag = tag;
-    command.address = address;
-    command.ddr = ddr;
-    command.eof = eof;
-    command.dsa = dsa;
-    command.type = type;
-    command.btt = btt;
+    axis_word_72a_t axis_word_s2mmCommand;
+    axis_word_s2mmCommand.data(71,68) = reserved;
+    axis_word_s2mmCommand.data(67,64) = tag;
+    axis_word_s2mmCommand.data(63,32) = address;
+    axis_word_s2mmCommand.data[31] = ddr;
+    axis_word_s2mmCommand.data[30] = eof;
+    axis_word_s2mmCommand.data(29, 24) = dsa;
+    axis_word_s2mmCommand.data[23] = type;
+    axis_word_s2mmCommand.data(22,0) = btt;
     if(!axis_s2mmCommand.full()){
-        axis_s2mmCommand.write(command);
+        axis_s2mmCommand.write(axis_word_s2mmCommand);
     }
 }
