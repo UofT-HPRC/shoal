@@ -1,22 +1,12 @@
 #include <fstream>
 #include <iostream>
+#include <cstdlib>
 #include "am_rx.hpp"
 
+#define DAT_FILE "/GASCore/testbench/am_rx.dat" //relative to repo root
 
 #define CALL_TB am_rx(axis_handler, axis_net,axis_s2mmCommand,axis_s2mm, \
         axis_s2mmStatus, token_get, token_get_v, record, release, dbgState);
-
-// #define AXIS_EMPTY axis_handler.empty() && axis_net.empty() && \
-//     axis_s2mmCommand.empty() && axis_s2mm.empty() && axis_s2mmStatus.empty()
-
-// #define READ_AXIS(Aaxis) i = 0; \
-//     readSize = Aaxis.size(); \
-//     while (i < readSize){ \
-//         if(!Aaxis.empty()){ \
-//             Aaxis.read(axis_word); \
-//             i++; \
-//         } \
-//     }
 
 #define PRINT_AXIS std::cout << "Stream statuses:\n"; \
     std::cout << "  Handler: " << axis_handler.size() << "\n"; \
@@ -75,11 +65,13 @@ int main(int argc, char* argv[]){
 
     int dbgState;
 
-    #ifdef VIVADO
-    std::ifstream testData("am_rx.dat");
-    #else
-    std::ifstream testData("./testbench/am_rx.dat");
-    #endif
+    char const* tmp_repo_path = std::getenv("SHOAL_PATH");
+    if(tmp_repo_path == NULL){
+        std::cout << "SHOAL_PATH not set in environment\n";
+        return -1;
+    }
+    std::string repo_path(tmp_repo_path);
+    std::ifstream testData(repo_path.append(DAT_FILE).c_str());
     if (!testData){
         std::cout << "Unable to open test data file\n";
         return -1;

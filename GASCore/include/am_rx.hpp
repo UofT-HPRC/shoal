@@ -1,8 +1,7 @@
 #ifndef AM_RX_H_
 #define AM_RX_H_
 
-#include "globals.hpp"
-#include "packet_defs.hpp"
+#include "gascore.hpp"
 
 /* Handler Request Packet Schema
 
@@ -49,16 +48,18 @@
 
 */
 
-typedef uaxis_l<72> axis_word_72a_t;
+typedef uaxis_l<GC_ADDR_WIDTH+40> s2mmCommand_word_t;
+typedef hls::stream<s2mmCommand_word_t> s2mmCommand_t;
 
-typedef hls::stream<axis_word_72a_t> s2mmCommand_t;
+typedef uaxis_l<8> axis_word_8a_t;
+typedef hls::stream<axis_word_8a_t> axis_s2mmStatus_t;
 
 void am_rx(
-    axis_32a_t &axis_handler, //output
-    axis_32a_t &axis_net, //input
+    axis_t &axis_handler, //output
+    axis_t &axis_net, //input
     s2mmCommand_t &axis_s2mmCommand, //output
-    axis_32a_t &axis_s2mm, //output
-    axis_32a_t &axis_s2mmStatus, //input
+    axis_t &axis_s2mm, //output
+    axis_s2mmStatus_t &axis_s2mmStatus, //input
 
     //token RAM
     uint_16_t token_get, //input
@@ -66,9 +67,7 @@ void am_rx(
     uint_8_t &record, //output
 
     //axis_handler release
-    uint_1_t &release, //output
-
-    int &dbg_state
+    uint_1_t &release //output
 );
 
 void s2mmWriteCommand(

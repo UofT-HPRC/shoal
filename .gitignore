@@ -2,6 +2,13 @@
 *.dat
 *.code-workspace
 .vscode/
+vivado*.log
+vivado*.jou
+GASCore/vivado_hls/projects/
+GASCore/build/
+GASCore/repo
+share/build/
+*_out.json
 
 # Prerequisites
 *.d

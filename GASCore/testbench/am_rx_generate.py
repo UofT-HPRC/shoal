@@ -1,6 +1,13 @@
+import os
+
 def main():
 
-    testFileName = "testbench/am_rx.dat"
+    repo_path = os.environ.get('SHOAL_PATH')
+    if repo_path is None:
+        print("Error: SHOAL_PATH not defined in env")
+        exit(-1)
+    
+    testFileName = repo_path + "/GASCore/testbench/am_rx.dat"
     f_test = open(testFileName, "w+")
 
     #Long Message C

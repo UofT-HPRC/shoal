@@ -1,8 +1,7 @@
 #ifndef AM_TX_H_
 #define AM_TX_H_
 
-#include "globals.hpp"
-#include "packet_defs.hpp"
+#include "gascore.hpp"
 
 /* AM Request Packet Schema
 
