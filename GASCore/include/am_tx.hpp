@@ -6,6 +6,60 @@
 /* AM Request Packet Schema
 
     Short
+    |0                             64|
+    | SRC (16) | DST (16) | Payload (words) (12) | Handler (4) | Type (8) | # Args (8) |
+    |                   Handler args               |
+    
+    Medium (FIFO 0)
+    |0                             64|
+    | SRC (16) | DST (16) | Payload (words) (12) | Handler (4) | Type (8) | # Args (8) |
+    |                   SRC addr                   |
+    |                   Handler args               |
+
+    Medium (FIFO 1)
+    |0                             64|
+    | SRC (16) | DST (16) | Payload (words) (12) | Handler (4) | Type (8) | # Args (8) |
+    |                   Handler args               |
+    |                   Payload ...                |
+
+    Long (FIFO 0)
+    |0                             64|
+    | SRC (16) | DST (16) | Payload (words) (12) | Handler (4) | Type (8) | # Args (8) |
+    |                   Source Addr                |
+    |                   Destination                |
+    |                   Handler args               |
+
+    Long (FIFO 1)
+    |0                             64|
+    | SRC (16) | DST (16) | Payload (words) (12) | Handler (4) | Type (8) | # Args (8) |
+    |                   Destination                |
+    |                   Handler args               |
+    |                   Payload ...                |
+
+    Long Stride 
+    |0                             64|
+    | SRC (16) | DST (16) | Payload (words) (12) | Handler (4) | Type (8) | # Args (8) |
+    | Stride (32) | Cont. block size (12) | Reserved (4) | # blocks (12) | Reserved (4) |
+    |                   Source addr                |
+    | Stride (32) | Cont. block size (12) | Reserved (4) | # blocks (12) | Reserved (4) |
+    |                   Dest.  addr                |
+    |                   Handler args               |
+
+    Long Vector 
+    |0                             64|
+    | SRC (16) | DST (16) | Payload (words) (12) | Handler (4) | Type (8) | # Args (8) |
+    | # src vectors (4) | # dst vectors (4) | src Size 1 (12) | dst Size 1 (12) | Reserved (32) |
+    |                   src   addr.                |
+    |                   dst   addr.                |
+    | src size 2... (12) | Reserved (52) |
+    |                   src   addr.                |
+    ...
+    | dst size 2... (12) | Reserved (52) |
+    |                   dst   addr.                |
+    ...    
+    |                   Handler args               |
+
+    Short
     | Type (8) | # Arguments (8) | Token (16)  |
     |       Handler ID (16)      | Source (16) |
     |           0...16 Handler arguments       |
@@ -75,5 +129,7 @@
     |           0...16 Handler arguments       |
 
 */
+
+typedef uint_4_t gc_srcVectorNum_t;
 
 #endif

@@ -48,38 +48,27 @@
 
 */
 
-typedef uaxis_l<GC_ADDR_WIDTH+40> s2mmCommand_word_t;
-typedef hls::stream<s2mmCommand_word_t> s2mmCommand_t;
-
-typedef uaxis_l<8> axis_word_8a_t;
-typedef hls::stream<axis_word_8a_t> axis_s2mmStatus_t;
-
 void am_rx(
     axis_t &axis_handler, //output
     axis_t &axis_net, //input
-    s2mmCommand_t &axis_s2mmCommand, //output
+    dataMoverCommand_t &axis_s2mmCommand, //output
     axis_t &axis_s2mm, //output
-    axis_s2mmStatus_t &axis_s2mmStatus, //input
-
-    //token RAM
-    uint_16_t token_get, //input
-    uint_1_t token_get_v, //input
-    uint_8_t &record, //output
+    dataMoverStatus_t &axis_s2mmStatus, //input
 
     //axis_handler release
     uint_1_t &release //output
 );
 
-void s2mmWriteCommand(
-    s2mmCommand_t &axis_s2mmCommand, //output
-    uint_4_t reserved,
-    uint_4_t tag,
-    uint_32_t address,
-    uint_1_t ddr,
-    uint_1_t eof,
-    uint_6_t dsa,
-    uint_1_t type,
-    uint_23_t btt
-);
+// void s2mmWriteCommand(
+//     dataMoverCommand_t &axis_s2mmCommand, //output
+//     uint_4_t reserved,
+//     uint_4_t tag,
+//     uint_32_t address,
+//     uint_1_t ddr,
+//     uint_1_t eof,
+//     uint_6_t dsa,
+//     uint_1_t type,
+//     uint_23_t btt
+// );
 
 #endif

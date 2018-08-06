@@ -42,7 +42,7 @@ sort -k 1nr | cut -f2-)
 dep = $(src:%.cpp=$(obj_dir)/%.d)
 dep += $(share_src:%.cpp=$(share_obj_dir)/%.d)
 
-helper_objs = $(share_obj_dir)/globals.o $(obj_dir)/packet_defs.o
+# helper_objs = $(share_obj_dir)/st.o $(obj_dir)/packet_defs.o
 
 CC = g++
 CFLAGS  = -g -Wall -I$(include_dir) -I$(share_include_dir) \
@@ -62,7 +62,7 @@ CFLAGS  = -g -Wall -I$(include_dir) -I$(share_include_dir) \
 init:
 	./init.sh
 
-test: $(bin_dir)/am_rx_tb
+test: $(bin_dir)/am_rx_tb $(bin_dir)/xpams_tb $(bin_dir)/am_tx_tb
 	python $(test_dir)/am_rx_generate.py
 	$(bin_dir)/am_rx_tb
 
@@ -74,9 +74,17 @@ test-v1: $(bin_dir)/am_rx_tb
 # Executables
 #------------------------------------------------------------------------------
 
-$(bin_dir)/am_rx_tb: $(obj_dir)/am_rx_tb.o $(obj_dir)/am_rx.o $(helper_objs)
+$(bin_dir)/am_rx_tb: $(obj_dir)/am_rx_tb.o $(obj_dir)/am_rx.o $(obj_dir)/gascore.o
 	$(CC) $(CFLAGS) -o $(bin_dir)/am_rx_tb $(obj_dir)/am_rx_tb.o \
-	$(obj_dir)/am_rx.o $(helper_objs)
+	$(obj_dir)/am_rx.o $(obj_dir)/gascore.o
+
+$(bin_dir)/xpams_tb: $(obj_dir)/xpams_tb.o $(obj_dir)/xpams.o $(obj_dir)/gascore.o
+	$(CC) $(CFLAGS) -o $(bin_dir)/xpams_tb $(obj_dir)/xpams_tb.o \
+	$(obj_dir)/xpams.o $(obj_dir)/gascore.o
+
+$(bin_dir)/am_tx_tb: $(obj_dir)/am_tx_tb.o $(obj_dir)/am_tx.o $(obj_dir)/gascore.o
+	$(CC) $(CFLAGS) -o $(bin_dir)/am_tx_tb $(obj_dir)/am_tx_tb.o \
+	$(obj_dir)/am_tx.o $(obj_dir)/gascore.o
 
 #------------------------------------------------------------------------------
 # Object Files
@@ -85,15 +93,30 @@ $(bin_dir)/am_rx_tb: $(obj_dir)/am_rx_tb.o $(obj_dir)/am_rx.o $(helper_objs)
 $(obj_dir)/am_rx_tb.o: $(test_dir)/am_rx_tb.cpp
 	$(CC) $(CFLAGS) -o $(obj_dir)/am_rx_tb.o -c $(test_dir)/am_rx_tb.cpp
 
+$(obj_dir)/xpams_tb.o: $(test_dir)/xpams_tb.cpp
+	$(CC) $(CFLAGS) -o $(obj_dir)/xpams_tb.o -c $(test_dir)/xpams_tb.cpp
+
+$(obj_dir)/am_tx_tb.o: $(test_dir)/am_tx_tb.cpp
+	$(CC) $(CFLAGS) -o $(obj_dir)/am_tx_tb.o -c $(test_dir)/am_tx_tb.cpp
+
 $(obj_dir)/am_rx.o: $(src_dir)/am_rx.cpp
 	$(CC) $(CFLAGS) -o $(obj_dir)/am_rx.o -c $(src_dir)/am_rx.cpp
 
-$(obj_dir)/packet_defs.o: $(src_dir)/packet_defs.cpp
-	$(CC) $(CFLAGS) -o $(obj_dir)/packet_defs.o -c $(src_dir)/packet_defs.cpp
+$(obj_dir)/xpams.o: $(src_dir)/xpams.cpp
+	$(CC) $(CFLAGS) -o $(obj_dir)/xpams.o -c $(src_dir)/xpams.cpp
 
-$(share_obj_dir)/globals.o: $(share_src_dir)/globals.cpp
-	$(CC) $(CFLAGS) -o $(share_obj_dir)/globals.o \
-	-c $(share_src_dir)/globals.cpp
+$(obj_dir)/am_tx.o: $(src_dir)/am_tx.cpp
+	$(CC) $(CFLAGS) -o $(obj_dir)/am_tx.o -c $(src_dir)/am_tx.cpp
+	
+$(obj_dir)/gascore.o: $(src_dir)/gascore.cpp
+	$(CC) $(CFLAGS) -o $(obj_dir)/gascore.o -c $(src_dir)/gascore.cpp
+
+#$(obj_dir)/packet_defs.o: $(src_dir)/packet_defs.cpp
+#	$(CC) $(CFLAGS) -o $(obj_dir)/packet_defs.o -c $(src_dir)/packet_defs.cpp
+
+#$(share_obj_dir)/globals.o: $(share_src_dir)/globals.cpp
+#	$(CC) $(CFLAGS) -o $(share_obj_dir)/globals.o \
+#	-c $(share_src_dir)/globals.cpp
 
 -include $(dep)
 

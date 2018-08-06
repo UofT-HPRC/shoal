@@ -1,96 +1,450 @@
-/*
-This is a sample comment
-*/
-
-{ "packets": [
-  {
-    "type": "csim", //this is another comment
-    "interface": "Token",
-    "width": 0,
-    "payload": [
-      {"data": "0xAAAA","keep": 0,"last": 0,"custom": 0}
-    ]
-  },{
-    "type": "flit",
-    "interface": "axis_net",
-    "width": 32,
-    "payload": [
-      {"data": "0x0114CCAA","keep": 15,"last": 0,"custom": 1},
-      {"data": "0x00FF0006","keep": "ALL","last": 0,"custom": 1},
-      {"data": "0x00010C20","keep": "ALL","last": 0,"custom": 1},
-      {"data": "0x0000000C","keep": "ALL","last": 0,"custom": 0},
-      {"data": "0x00000000","keep": "ALL","last": 0,"custom": 0},
-      {"data": "0x00000000","keep": "ALL","last": 0,"custom": 0},
-      {"data": "0x00000100","keep": "ALL","last": 0,"custom": 0},
-      {"data": "0x0000FF00","keep": "ALL","last": 0,"custom": 0},
-      {"data": "0x00000000","keep": "ALL","last": 0,"custom": 1},
-      {"loop": {
-        "start": 0, "end": 3, "index": "i",
-        "body": [
-          {"data": 123,"keep": "ALL","last": 0,"custom": 0},
-          {"loop": {
-            "start": 0, "end": 2, "index": "j",
-            "body": [
-              {"data": 321,"keep": "ALL","last": 0,"custom": 0}
-            ]
-          }}
-        ]
-      }}
-    ]
-  },{
-    "type": "loop",
-    "start": 0, "end": 3, "index": "i",
-    "body": [{
-        "type": "loop",
-        "start" : 0, "end": 2, "index": "j",
-        "body": [{
-          "type": "flit",
-          "interface": "axis_net",
-          "width": 32,
-          "payload": [
-            {"data": "0xBEEFDEAD","keep": "ALL","last": 0,"custom": 0}
-          ]
-        }]
-      },{
-        "type": "flit",
-        "interface": "axis_net",
-        "width": 32,
+{ 
+  "concurrent": [
+    { "sequential": [
+      /*************************************************************************
+      * Long Message C
+      *************************************************************************/
+      {
+        //use a token of 0xAAAA in CSim
+        "type": "csim", "interface": "Token", "width": 0,
         "payload": [
-          {"data": "0xDEADBEEF","keep": "ALL","last": 0,"custom": 0}
+          {"data": "0xAAAA","keep": 0,"last": 0,"custom": 0}
+        ]
+      },{
+        //send header
+        "type": "flit", "interface": "axis_net", "width": 32,
+        "payload": [
+          {"data": "0x0114CCAA","keep": "ALL","last": 0,"custom": 1}, //header: 0x114 words coming from AA to CC
+          {"data": "0x00FF0006","keep": "ALL","last": 0,"custom": 1}, //AM header: Long vector message with 0 args calling handler FF
+          {"data": "0x00010C20","keep": "ALL","last": 0,"custom": 1}, //Vector payload and number
+          {"data": "0x0000000C","keep": "ALL","last": 0,"custom": 0}, //Payload size: 12 words
+          {"data": "0x00000000","keep": "ALL","last": 0,"custom": 0}, //destination address (lower)
+          {"data": "0x00000000","keep": "ALL","last": 0,"custom": 0}, //destination address (upper)
+          {"data": "0x00000100","keep": "ALL","last": 0,"custom": 0}, //Payload size: 256 words
+          {"data": "0x0000FF00","keep": "ALL","last": 0,"custom": 0}, //destination address (lower)
+          {"data": "0x00000000","keep": "ALL","last": 0,"custom": 1}, //destination address (upper)
+          {"loop": { "start": 0, "end": 3, "index": "i", "body": [
+            {"loop": { "start": 0, "end": 3, "index": "j", "body": [
+              {"data": "0xBEEFDEAD","keep": "ALL","last": 0,"custom": 0} //Payload 0-2, 4-6, 8-10
+            ]}},
+            {"data": "0xDEADBEEF","keep": "ALL","last": 0,"custom": 0} //Payload 3, 7, 11
+          ]}},
+          {"loop": { "start": 0, "end": 255, "index": "i", "body": [
+            {"data": "0xFFAAFFAA","keep": "ALL","last": 0,"custom": 0} //Payload 0-254
+          ]}},
+          {"data": "0xDDDDDDDD","keep": "ALL","last": 1,"custom": 1} //Payload 255
+        ]
+      },{
+        //send status good
+        "type": "flit", "interface": "axis_s2mmStatus", "width": 8,
+        "payload": [
+          {"data": "0x80","keep": "ALL","last": 0,"custom": 0}
+        ]
+      },{
+        "type": "csim", "interface": "END", "width": 0,
+        "payload": [
+          {"data": "0x00000006","keep": 0,"last": 0,"custom": 0}
+        ]
+      },
+      /*----------------------------------------------------------------------*/
+      {
+        "type": "flit", "interface": "axis_handler", "width": 32,
+        "payload": [
+          {"data": "0x00FF0006","keep": 15,"last": 0,"custom": 0}, //AM header
+          {"data": "0x0000AAAA","keep": "ALL","last": 0,"custom": 0}, //token
+          {"data": "0x00010C20","keep": "ALL","last": 0,"custom": 0}, //Vector payload and number
+          {"data": "0x0000000C","keep": "ALL","last": 0,"custom": 0}, //Payload size: 12 words
+          {"data": "0x00000000","keep": "ALL","last": 0,"custom": 0}, //destination address (lower)
+          {"data": "0x00000000","keep": "ALL","last": 0,"custom": 0}, //destination address (upper)
+          {"data": "0x00000100","keep": "ALL","last": 0,"custom": 0}, //Payload size: 256 words
+          {"data": "0x0000FF00","keep": "ALL","last": 0,"custom": 0}, //destination address (lower)
+          {"data": "0x00000000","keep": "ALL","last": 0,"custom": 0} //destination address (upper)
+        ]
+      },{
+        "type": "flit", "interface": "axis_s2mmCommand", "width": 72,
+        "payload": [
+          {"data": "0x000000000080000C","keep": 0,"last": 0,"custom": 0} //configure datamover
+        ]
+      },{
+        //read payload
+        "type": "flit", "interface": "axis_s2mm", "width": 32,
+        "payload": [
+          {"loop": { "start": 0, "end": 2, "index": "i", "body": [
+            {"loop": { "start": 0, "end": 3, "index": "j", "body": [
+              {"data": "0xBEEFDEAD","keep": "ALL","last": 0,"custom": 0}
+            ]}},
+            {"data": "0xDEADBEEF","keep": "ALL","last": 0,"custom": 0}
+          ]}},
+          {"loop": { "start": 0, "end": 3, "index": "j", "body": [
+            {"data": "0xBEEFDEAD","keep": "ALL","last": 0,"custom": 0}
+          ]}},
+          {"data": "0xDEADBEEF","keep": "ALL","last": 1,"custom": 0}
+        ]
+      },{
+        "type": "flit", "interface": "axis_s2mmCommand", "width": 72,
+        "payload": [
+          {"data": "0x0000FF0040800100","keep": 0,"last": 0,"custom": 0} //configure datamover
+        ]
+      },{
+        //read payload
+        "type": "flit", "interface": "axis_s2mm", "width": 32,
+        "payload": [
+          {"loop": { "start": 0, "end": 255, "index": "i", "body": [
+            {"data": "0xFFAAFFAA","keep": "ALL","last": 0,"custom": 0}
+          ]}},
+          {"data": "0xDDDDDDDD","keep": "ALL","last": 1,"custom": 0}
+        ]
+      },{
+        "type": "csim", "interface": "END", "width": 0,
+        "payload": [
+          {"data": "0x00000006","keep": 0,"last": 1,"custom": 0}
+        ]
+      },
+      
+      /*************************************************************************
+      * Long Message B
+      *************************************************************************/
+      {
+        //use a token of 0xAAAA in CSim
+        "type": "csim", "interface": "Token", "width": 0,
+        "payload": [
+          {"data": "0xAAAA","keep": 0,"last": 0,"custom": 0}
+        ]
+      },{
+        //send header
+        "type": "flit", "interface": "axis_net", "width": 32,
+        "payload": [
+          {"data": "0x0015CCAA","keep": "ALL","last": 0,"custom": 1}, //header: 0x15 words coming from AA to CC
+          {"data": "0x00FF0205","keep": "ALL","last": 0,"custom": 1}, //AM header: Long strided message with 2 args calling handler FF
+          {"data": "0x0000000C","keep": "ALL","last": 0,"custom": 1}, //Payload size: 12 words
+          {"data": "0x00000000","keep": "ALL","last": 0,"custom": 0}, //destination address (lower)
+          {"data": "0x00000000","keep": "ALL","last": 0,"custom": 1}, //destination address (upper)
+          {"data": "0x00000004","keep": "ALL","last": 0,"custom": 0}, //cont. block size
+          {"data": "0x00000004","keep": "ALL","last": 0,"custom": 0}, //number of cont. blocks
+          {"data": "0x00000100","keep": "ALL","last": 0,"custom": 1}, //stride between blocks
+          {"data": "0xAABBCCDD","keep": "ALL","last": 0,"custom": 0}, //handler arg 0
+          {"data": "0xDDCCBBAA","keep": "ALL","last": 0,"custom": 1}, //handler arg 1
+          {"loop": { "start": 0, "end": 2, "index": "i", "body": [
+            {"loop": { "start": 0, "end": 3, "index": "j", "body": [
+              {"data": "0xBEEFDEAD","keep": "ALL","last": 0,"custom": 0} //Payload 0-2, 4-6
+            ]}},
+            {"data": "0xDEADBEEF","keep": "ALL","last": 0,"custom": 0} //Payload 3, 7
+          ]}},
+          {"loop": { "start": 0, "end": 3, "index": "i", "body": [
+            {"data": "0xBEEFDEAD","keep": "ALL","last": 0,"custom": 0} //Payload 8-10
+          ]}},
+          {"data": "0xDEADBEEF","keep": "ALL","last": 1,"custom": 1} //Payload 11
+        ]
+      },{
+        //send status good
+        "type": "flit", "interface": "axis_s2mmStatus", "width": 8,
+        "payload": [
+          {"data": "0x80","keep": "ALL","last": 0,"custom": 0}
+        ]
+      },{
+        "type": "csim", "interface": "END", "width": 0,
+        "payload": [
+          {"data": "0x00000005","keep": 0,"last": 0,"custom": 0}
+        ]
+      },
+      /*----------------------------------------------------------------------*/
+      {
+        "type": "flit", "interface": "axis_handler", "width": 32,
+        "payload": [
+          {"data": "0x00FF0205","keep": 15,"last": 0,"custom": 0}, //AM header
+          {"data": "0x0000AAAA","keep": "ALL","last": 0,"custom": 0}, //token
+          {"data": "0x0000000C","keep": "ALL","last": 0,"custom": 0}, //Payload size: 12 words
+          {"data": "0x00000000","keep": "ALL","last": 0,"custom": 0}, //destination address (lower)
+          {"data": "0x00000000","keep": "ALL","last": 0,"custom": 0}, //destination address (upper)
+          {"data": "0x00000004","keep": "ALL","last": 0,"custom": 0}, //cont. block size
+          {"data": "0x00000004","keep": "ALL","last": 0,"custom": 0}, //number of cont. blocks
+          {"data": "0x00000100","keep": "ALL","last": 0,"custom": 0}, //stride between blocks
+          {"data": "0xAABBCCDD","keep": "ALL","last": 0,"custom": 0}, //handler arg 0
+          {"data": "0xDDCCBBAA","keep": "ALL","last": 0,"custom": 0} //handler arg 1
+        ]
+      },{
+        "type": "flit", "interface": "axis_s2mmCommand", "width": 72,
+        "payload": [
+          {"data": "0x0000000040800004","keep": 0,"last": 0,"custom": 0} //configure datamover
+        ]
+      },{
+        //read payload
+        "type": "flit", "interface": "axis_s2mm", "width": 32,
+        "payload": [
+          {"loop": { "start": 0, "end": 3, "index": "j", "body": [
+            {"data": "0xBEEFDEAD","keep": "ALL","last": 0,"custom": 0}
+          ]}},
+          {"data": "0xDEADBEEF","keep": "ALL","last": 1,"custom": 0}
+        ]
+      },{
+        "type": "flit", "interface": "axis_s2mmCommand", "width": 72,
+        "payload": [
+          {"data": "0x0000010040800004","keep": 0,"last": 0,"custom": 0} //configure datamover
+        ]
+      },{
+        //read payload
+        "type": "flit", "interface": "axis_s2mm", "width": 32,
+        "payload": [
+          {"loop": { "start": 0, "end": 3, "index": "j", "body": [
+            {"data": "0xBEEFDEAD","keep": "ALL","last": 0,"custom": 0}
+          ]}},
+          {"data": "0xDEADBEEF","keep": "ALL","last": 1,"custom": 0}
+        ]
+      },{
+        "type": "flit", "interface": "axis_s2mmCommand", "width": 72,
+        "payload": [
+          {"data": "0x0000020040800004","keep": 0,"last": 0,"custom": 0} //configure datamover
+        ]
+      },{
+        //read payload
+        "type": "flit", "interface": "axis_s2mm", "width": 32,
+        "payload": [
+          {"loop": { "start": 0, "end": 3, "index": "j", "body": [
+            {"data": "0xBEEFDEAD","keep": "ALL","last": 0,"custom": 0}
+          ]}},
+          {"data": "0xDEADBEEF","keep": "ALL","last": 1,"custom": 0}
+        ]
+      },{
+        "type": "csim", "interface": "END", "width": 0,
+        "payload": [
+          {"data": "0x00000005","keep": 0,"last": 1,"custom": 0}
+        ]
+      },
+
+      /*************************************************************************
+      * Long Message A
+      *************************************************************************/
+      {
+        //use a token of 0xAAAA in CSim
+        "type": "csim", "interface": "Token", "width": 0,
+        "payload": [
+          {"data": "0xAAAA","keep": 0,"last": 0,"custom": 0}
+        ]
+      },{
+        //send header
+        "type": "flit", "interface": "axis_net", "width": 32,
+        "payload": [
+          {"data": "0x0104CCAA","keep": "ALL","last": 0,"custom": 1}, //header: 0x104 words coming from AA to CC
+          {"data": "0x00FF0004","keep": "ALL","last": 0,"custom": 1}, //AM header: Long message with 0 args calling handler FF
+          {"data": "0x00000100","keep": "ALL","last": 0,"custom": 1}, //Payload size: 256 words
+          {"data": "0xAABBCCD8","keep": "ALL","last": 0,"custom": 0}, //destination address (lower)
+          {"data": "0x00000000","keep": "ALL","last": 0,"custom": 1}, //destination address (upper)
+          {"loop": { "start": 0, "end": 255, "index": "i", "body": [
+            {"data": "0xDEADBEEF","keep": "ALL","last": 0,"custom": 0} //Payload 0-254
+          ]}},
+          {"data": "0xDEADBEEF","keep": "ALL","last": 1,"custom": 1} //Payload 255
+        ]
+      },{
+        //send status good
+        "type": "flit", "interface": "axis_s2mmStatus", "width": 8,
+        "payload": [
+          {"data": "0x80","keep": "ALL","last": 0,"custom": 0}
+        ]
+      },{
+        "type": "csim", "interface": "END", "width": 0,
+        "payload": [
+          {"data": "0x00000004","keep": 0,"last": 0,"custom": 0}
+        ]
+      },
+      /*----------------------------------------------------------------------*/
+      {
+        "type": "flit", "interface": "axis_handler", "width": 32,
+        "payload": [
+          {"data": "0x00FF0004","keep": 15,"last": 0,"custom": 0}, //AM header
+          {"data": "0x0000AAAA","keep": "ALL","last": 0,"custom": 0}, //token
+          {"data": "0x00000100","keep": "ALL","last": 0,"custom": 0}, //Payload size: 256 words
+          {"data": "0xAABBCCD8","keep": "ALL","last": 0,"custom": 0}, //destination address (lower)
+          {"data": "0x00000000","keep": "ALL","last": 0,"custom": 0} //destination address (upper)
+        ]
+      },{
+        "type": "flit", "interface": "axis_s2mmCommand", "width": 72,
+        "payload": [
+          {"data": "0xAABBCCD840800100","keep": 0,"last": 0,"custom": 0} //configure datamover
+        ]
+      },{
+        //read payload
+        "type": "flit", "interface": "axis_s2mm", "width": 32,
+        "payload": [
+          {"loop": { "start": 0, "end": 255, "index": "j", "body": [
+            {"data": "0xDEADBEEF","keep": "ALL","last": 0,"custom": 0}
+          ]}},
+          {"data": "0xDEADBEEF","keep": "ALL","last": 1,"custom": 0}
+        ]
+      },{
+        "type": "csim", "interface": "END", "width": 0,
+        "payload": [
+          {"data": "0x00000004","keep": 0,"last": 1,"custom": 0}
+        ]
+      },
+
+      /*************************************************************************
+      * Medium Message B
+      *************************************************************************/
+      {
+        //use a token of 0xAAAA in CSim
+        "type": "csim", "interface": "Token", "width": 0,
+        "payload": [
+          {"data": "0xAAAA","keep": 0,"last": 0,"custom": 0}
+        ]
+      },{
+        //send header
+        "type": "flit", "interface": "axis_net", "width": 32,
+        "payload": [
+          {"data": "0x0108CCAA","keep": "ALL","last": 0,"custom": 1}, //header: 0x108 words coming from AA to CC
+          {"data": "0x00FF0602","keep": "ALL","last": 0,"custom": 1}, //AM header: Medium message with 6 args calling handler FF
+          {"data": "0x00000100","keep": "ALL","last": 0,"custom": 1}, //Payload size: 256 words
+          {"loop": { "start": 0, "end": 5, "index": "i", "body": [
+            {"data": "0x98765432","keep": "ALL","last": 0,"custom": 0} //Handler arg 0-4
+          ]}},
+          {"data": "0x98765432","keep": "ALL","last": 0,"custom": 1}, //Handler arg 5
+          {"loop": { "start": 0, "end": 255, "index": "i", "body": [
+            {"data": "0xDEADBEEF","keep": "ALL","last": 0,"custom": 0} //Payload 0-254
+          ]}},
+          {"data": "0xDEADBEEF","keep": "ALL","last": 1,"custom": 1} //Payload 255
+        ]
+      },{
+        "type": "csim", "interface": "END", "width": 0,
+        "payload": [
+          {"data": "0x00000003","keep": 0,"last": 0,"custom": 0}
+        ]
+      },
+      /*----------------------------------------------------------------------*/
+      {
+        "type": "flit", "interface": "axis_handler", "width": 32,
+        "payload": [
+          {"data": "0x00FF0602","keep": 15,"last": 0,"custom": 0}, //AM header
+          {"data": "0x0000AAAA","keep": "ALL","last": 0,"custom": 0}, //token
+          {"data": "0x00000100","keep": "ALL","last": 0,"custom": 0}, //Payload size: 256 words
+          {"loop": { "start": 0, "end": 6, "index": "i", "body": [
+            {"data": "0x98765432","keep": "ALL","last": 0,"custom": 0}
+          ]}},
+          {"loop": { "start": 0, "end": 255, "index": "i", "body": [
+            {"data": "0xDEADBEEF","keep": "ALL","last": 0,"custom": 0}
+          ]}},
+          {"data": "0xDEADBEEF","keep": "ALL","last": 1,"custom": 0}
+        ]
+      },{
+        "type": "csim", "interface": "END", "width": 0,
+        "payload": [
+          {"data": "0x00000003","keep": 0,"last": 1,"custom": 0}
+        ]
+      },
+
+      /*************************************************************************
+      * Medium Message A
+      *************************************************************************/
+      {
+        //use a token of 0xAAAA in CSim
+        "type": "csim", "interface": "Token", "width": 0,
+        "payload": [
+          {"data": "0xAAAA","keep": 0,"last": 0,"custom": 0}
+        ]
+      },{
+        //send header
+        "type": "flit", "interface": "axis_net", "width": 32,
+        "payload": [
+          {"data": "0x0003CCAA","keep": "ALL","last": 0,"custom": 1}, //header: 3 words coming from AA to CC
+          {"data": "0x00FF0002","keep": "ALL","last": 0,"custom": 1}, //AM header: Medium message with 0 args calling handler FF
+          {"data": "0x00000001","keep": "ALL","last": 0,"custom": 1}, //Payload size: 1 word
+          {"data": "0xDEADBEEF","keep": "ALL","last": 1,"custom": 1} //Payload
+        ]
+      },{
+        "type": "csim", "interface": "END", "width": 0,
+        "payload": [
+          {"data": "0x00000002","keep": 0,"last": 0,"custom": 0}
+        ]
+      },
+      /*----------------------------------------------------------------------*/
+      {
+        "type": "flit", "interface": "axis_handler", "width": 32,
+        "payload": [
+          {"data": "0x00FF0002","keep": 15,"last": 0,"custom": 0}, //AM header
+          {"data": "0x0000AAAA","keep": "ALL","last": 0,"custom": 0}, //token
+          {"data": "0x00000001","keep": "ALL","last": 0,"custom": 0}, //Payload size: 1 word
+          {"data": "0xDEADBEEF","keep": "ALL","last": 1,"custom": 0} //payload
+        ]
+      },{
+        "type": "csim", "interface": "END", "width": 0,
+        "payload": [
+          {"data": "0x00000002","keep": 0,"last": 1,"custom": 0}
+        ]
+      },
+
+      /*************************************************************************
+      * Short Message B
+      *************************************************************************/
+      {
+        //use a token of 0xAAAA in CSim
+        "type": "csim", "interface": "Token", "width": 0,
+        "payload": [
+          {"data": "0xDCBA","keep": 0,"last": 0,"custom": 0}
+        ]
+      },{
+        //send header
+        "type": "flit", "interface": "axis_net", "width": 32,
+        "payload": [
+          {"data": "0x0001CCAA","keep": "ALL","last": 0,"custom": 1}, //header: 1 words coming from AA to CC
+          {"data": "0x00DD0001","keep": "ALL","last": 1,"custom": 1} //AM header: Short message with 0 args calling handler DD
+        ]
+      },{
+        "type": "csim", "interface": "END", "width": 0,
+        "payload": [
+          {"data": "0x00000001","keep": 0,"last": 0,"custom": 0}
+        ]
+      },
+      /*----------------------------------------------------------------------*/
+      {
+        "type": "flit", "interface": "axis_handler", "width": 32,
+        "payload": [
+          {"data": "0x00DD0001","keep": 15,"last": 0,"custom": 0}, //AM header
+          {"data": "0x0000DCBA","keep": "ALL","last": 1,"custom": 0} //token
+        ]
+      },{
+        "type": "csim", "interface": "END", "width": 0,
+        "payload": [
+          {"data": "0x00000001","keep": 0,"last": 1,"custom": 0}
+        ]
+      },
+
+      /*************************************************************************
+      * Short Message A
+      *************************************************************************/
+      {
+        //use a token of 0xAAAA in CSim
+        "type": "csim", "interface": "Token", "width": 0,
+        "payload": [
+          {"data": "0xABCD","keep": 0,"last": 0,"custom": 0}
+        ]
+      },{
+        //send header
+        "type": "flit", "interface": "axis_net", "width": 32,
+        "payload": [
+          {"data": "0x0003CCAA","keep": "ALL","last": 0,"custom": 1}, //header: 3 words coming from AA to CC
+          {"data": "0x00DD0201","keep": "ALL","last": 0,"custom": 1}, //AM header: short message with 2 args calling handler DD
+          {"data": "0xDEADBEEF","keep": "ALL","last": 0,"custom": 0}, //handler arg 0
+          {"data": "0xFEEDDEED","keep": "ALL","last": 1,"custom": 1} //handler arg 1
+        ]
+      },{
+        "type": "csim", "interface": "END", "width": 0,
+        "payload": [
+          {"data": "0x00000000","keep": 0,"last": 0,"custom": 0}
+        ]
+      },
+      /*----------------------------------------------------------------------*/
+      {
+        "type": "flit", "interface": "axis_handler", "width": 32,
+        "payload": [
+          {"data": "0x00DD0201","keep": 15,"last": 0,"custom": 0}, //AM header
+          {"data": "0x0000ABCD","keep": "ALL","last": 0,"custom": 0}, //token
+          {"data": "0xDEADBEEF","keep": "ALL","last": 0,"custom": 0}, //handler arg 0
+          {"data": "0xFEEDDEED","keep": "ALL","last": 1,"custom": 0} //handler arg 1
+        ]
+      },{
+        "type": "csim", "interface": "END", "width": 0,
+        "payload": [
+          {"data": "0x00000000","keep": 0,"last": 1,"custom": 1}
         ]
       }
-    ]
-  },{
-    "type": "loop",
-    "start": 0, "end": 1, "index": "i",
-    "body": [{
-      "type": "flit",
-      "interface": "axis_net",
-      "width": 32,
-      "payload": [
-        {"data": "0xFFAAFFAA","keep": "ALL","last": 0,"custom": 0}
-      ]
-    }]
-  },{
-    "type": "flit",
-    "interface": "axis_net",
-    "width": 32,
-    "payload": [
-      {"data": "0xDDDDDDDD","keep": "ALL","last": 1,"custom": 1}
-    ]
-  },{
-    "type": "flit",
-    "interface": "axis_s2mmStatus",
-    "width": 8,
-    "payload": [
-      {"data": "0x80","keep": "ALL","last": 0,"custom": 0}
-    ]
-  },{
-    "type": "csim",
-    "interface": "END",
-    "width": 0,
-    "payload": [
-      {"data": "0x00000006","keep": 0,"last": 0,"custom": 0}
-    ]
-  }
-]}
+    ]}
+  ]
+}

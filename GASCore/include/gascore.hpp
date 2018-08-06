@@ -14,11 +14,17 @@
 #include "stream.hpp"
 #include "types.hpp"
 
-#define GC_DATA_WIDTH 32
+#define GC_DATA_WIDTH 64
 #define GC_ADDR_WIDTH 32
+#define GC_MAX_PAYLOAD 12 //2^MAX_PAYLOAD words
+
+#define GC_DATA_BYTES (GC_DATA_WIDTH/8)
+#define GC_MAX_PAYLOAD_BYTES GC_MAX_PAYLOAD+NBITS(GC_DATA_BYTES)-1
 
 typedef uaxis_l<GC_DATA_WIDTH> axis_word_t;
 typedef hls::stream<axis_word_t> axis_t;
+typedef uint_64_t word_t;
+typedef uint_32_t addr_word_t;
 
 /*
 
@@ -32,6 +38,42 @@ Type:
     Bit 6: set if message is a reply
     Bit 7: reserved
 Active Message Packet Schema 
+    Short
+    |0                             64|
+    | SRC (16) | DST (16) | Payload (words) (12) | Handler (4) | Type (8) | # Args (8) |
+    |                   Handler args               |
+    
+    Medium
+    |0                             64|
+    | SRC (16) | DST (16) | Payload (words) (12) | Handler (4) | Type (8) | # Args (8) |
+    |                   Handler args               |
+    |                   Payload ...                |
+
+    Long
+    |0                             64|
+    | SRC (16) | DST (16) | Payload (words) (12) | Handler (4) | Type (8) | # Args (8) |
+    |                   Destination                |
+    |                   Handler args               |
+    |                   Payload ...                |
+
+    Long Stride 
+    |0                             64|
+    | SRC (16) | DST (16) | Payload (words) (12) | Handler (4) | Type (8) | # Args (8) |
+    | Stride (32) | Cont. block size (12) | Reserved (4) | # blocks (12) | Reserved (4) |
+    |                   Destination                |
+    |                   Handler args               |
+    |                   Payload ...                |
+
+    Long Vector 
+    |0                             64|
+    | SRC (16) | DST (16) | Payload (words) (12) | Handler (4) | Type (8) | # Args (8) |
+    | # src vectors (4) | # dst vectors (4) | Reserved (12) | Size 1 (12) | Reserved (32) |
+    |                   Destination                |
+    | Size 2... (12) | Reserved (52) |
+    |                   Destination                |
+    ...    
+    |                   Handler args               |
+    |                   Payload ...                |    
 
     |0                             32|
     | SRC (8) | DST (8) | Words (16) |
@@ -79,33 +121,42 @@ Active Message Packet Schema
 */
 
 //Header Types
-typedef uint_8_t gc_AMsrc_t; //[7:0] of header
-typedef uint_8_t gc_AMdst_t; //[15:8] of header
-typedef uint_16_t gc_AMwords_t; //[31:16] of header
+typedef uint_16_t gc_AMsrc_t; //[7:0] of header
+typedef uint_16_t gc_AMdst_t; //[15:8] of header
+// typedef uint_12_t gc_AMwords_t; //[31:16] of header
 
 //AM Types
 typedef uint_8_t gc_AMtype_t;
 typedef uint_8_t gc_AMargs_t;
-typedef uint_16_t gc_AMhandler_t;
+typedef uint_4_t gc_AMhandler_t;
 
 //AM Handler args
-typedef uint_32_t gc_AMhandlerArg_t;
+typedef uint_64_t gc_AMhandlerArg_t;
 
 //Payload
-typedef uint_32_t gc_payloadSize_t;
+typedef ap_uint<GC_MAX_PAYLOAD> gc_payloadSize_t;
 typedef uint_4_t gc_dstVectorNum_t;
 
 //Long
-typedef uint_32_t gc_destinationLower_t;
-typedef uint_32_t gc_destinationUpper_t;
-typedef uint_32_t gc_strideBlockSize_t;
-typedef uint_32_t gc_strideBlockNum_t;
+// typedef uint_32_t gc_destinationLower_t;
+// typedef uint_32_t gc_destinationUpper_t;
+typedef uint_64_t gc_destination_t;
+typedef gc_payloadSize_t gc_strideBlockSize_t;
+typedef uint_12_t gc_strideBlockNum_t;
 typedef uint_32_t gc_stride_t;
-typedef uint_32_t gc_vectorSize_t;
-typedef uint_32_t gc_vectorDestLower_t;
-typedef uint_32_t gc_vectorDestUpper_t;
+typedef gc_payloadSize_t gc_vectorSize_t;
+// typedef uint_32_t gc_vectorDestLower_t;
+// typedef uint_32_t gc_vectorDestUpper_t;
 
-typedef uint_32_t gc_token_t;
+// typedef uint_32_t gc_token_t;
+
+typedef uaxis_l<GC_ADDR_WIDTH+17+GC_MAX_PAYLOAD_BYTES> dataMoverCommand_word_t;
+typedef hls::stream<dataMoverCommand_word_t> dataMoverCommand_t;
+
+typedef uaxis_l<8> axis_word_8a_t;
+typedef hls::stream<axis_word_8a_t> dataMoverStatus_t;
+
+typedef ap_uint<GC_MAX_PAYLOAD_BYTES> btt_t;
 
 #define MAX_VECTOR_NUM 16
 
@@ -126,5 +177,21 @@ bool isFIFOnotMemData(gc_AMtype_t arg);
 bool isAsyncAM(gc_AMtype_t arg);
 
 bool isReplyAM(gc_AMtype_t arg);
+
+bool isMediumFIFOAM(gc_AMtype_t arg);
+
+bool isLongFIFOAM(gc_AMtype_t arg);
+
+inline void dataMoverWriteCommand(
+    dataMoverCommand_t &axis_command, //output
+    uint_4_t reserved,
+    uint_4_t tag,
+    addr_word_t address,
+    uint_1_t ddr,
+    uint_1_t eof,
+    uint_6_t dsa,
+    uint_1_t type,
+    btt_t btt
+);
 
 #endif
