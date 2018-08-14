@@ -49,11 +49,11 @@ bool isLongFIFOAM(gc_AMtype_t arg){
     return isLongAM(arg) && isFIFOnotMemData(arg);
 }
 
-inline void dataMoverWriteCommand(
+void dataMoverWriteCommand(
     dataMoverCommand_t &axis_command, //output
     uint_4_t reserved,
     uint_4_t tag,
-    word_t address,
+    addr_word_t address,
     uint_1_t ddr,
     uint_1_t eof,
     uint_6_t dsa,
@@ -61,7 +61,7 @@ inline void dataMoverWriteCommand(
     btt_t btt
 ){
     #define tmp GC_MAX_PAYLOAD_BYTES
-    #define temp tmp + GC_ADDR_WIDTH
+    #define temp (tmp + GC_ADDR_WIDTH)
     dataMoverCommand_word_t axis_word_s2mmCommand;
     axis_word_s2mmCommand.data(temp+16,temp+13) = reserved;
     axis_word_s2mmCommand.data(temp+12,temp+9) = tag;

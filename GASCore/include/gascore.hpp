@@ -14,12 +14,12 @@
 #include "stream.hpp"
 #include "types.hpp"
 
-#define GC_DATA_WIDTH 64
+#define GC_DATA_WIDTH 64UL
 #define GC_ADDR_WIDTH 32
 #define GC_MAX_PAYLOAD 12 //2^MAX_PAYLOAD words
 
 #define GC_DATA_BYTES (GC_DATA_WIDTH/8)
-#define GC_MAX_PAYLOAD_BYTES GC_MAX_PAYLOAD+NBITS(GC_DATA_BYTES)-1
+#define GC_MAX_PAYLOAD_BYTES (GC_MAX_PAYLOAD+NBITS(GC_DATA_BYTES)-1)
 
 typedef uaxis_l<GC_DATA_WIDTH> axis_word_t;
 typedef hls::stream<axis_word_t> axis_t;
@@ -41,17 +41,20 @@ Active Message Packet Schema
     Short
     |0                             64|
     | SRC (16) | DST (16) | Payload (words) (12) | Handler (4) | Type (8) | # Args (8) |
+    | Reserved (40) | Packet ID (24) |
     |                   Handler args               |
     
     Medium
     |0                             64|
     | SRC (16) | DST (16) | Payload (words) (12) | Handler (4) | Type (8) | # Args (8) |
+    | Reserved (40) | Packet ID (24) |
     |                   Handler args               |
     |                   Payload ...                |
 
     Long
     |0                             64|
     | SRC (16) | DST (16) | Payload (words) (12) | Handler (4) | Type (8) | # Args (8) |
+    | Reserved (40) | Packet ID (24) |
     |                   Destination                |
     |                   Handler args               |
     |                   Payload ...                |
@@ -59,7 +62,7 @@ Active Message Packet Schema
     Long Stride 
     |0                             64|
     | SRC (16) | DST (16) | Payload (words) (12) | Handler (4) | Type (8) | # Args (8) |
-    | Stride (32) | Cont. block size (12) | Reserved (4) | # blocks (12) | Reserved (4) |
+    | Stride (16) | Cont. block size (12) | blocks (12) | Packet ID (24) |
     |                   Destination                |
     |                   Handler args               |
     |                   Payload ...                |
@@ -67,7 +70,7 @@ Active Message Packet Schema
     Long Vector 
     |0                             64|
     | SRC (16) | DST (16) | Payload (words) (12) | Handler (4) | Type (8) | # Args (8) |
-    | # src vectors (4) | # dst vectors (4) | Reserved (12) | Size 1 (12) | Reserved (32) |
+    | # src vectors (4) | # dst vectors (4) | Reserved (12) | Size 1 (12) | Reserved (8) | Packet ID (24) |
     |                   Destination                |
     | Size 2... (12) | Reserved (52) |
     |                   Destination                |
@@ -129,6 +132,7 @@ typedef uint_16_t gc_AMdst_t; //[15:8] of header
 typedef uint_8_t gc_AMtype_t;
 typedef uint_8_t gc_AMargs_t;
 typedef uint_4_t gc_AMhandler_t;
+typedef uint_24_t gc_AMToken_t;
 
 //AM Handler args
 typedef uint_64_t gc_AMhandlerArg_t;
@@ -143,7 +147,7 @@ typedef uint_4_t gc_dstVectorNum_t;
 typedef uint_64_t gc_destination_t;
 typedef gc_payloadSize_t gc_strideBlockSize_t;
 typedef uint_12_t gc_strideBlockNum_t;
-typedef uint_32_t gc_stride_t;
+typedef uint_16_t gc_stride_t;
 typedef gc_payloadSize_t gc_vectorSize_t;
 // typedef uint_32_t gc_vectorDestLower_t;
 // typedef uint_32_t gc_vectorDestUpper_t;
@@ -182,7 +186,7 @@ bool isMediumFIFOAM(gc_AMtype_t arg);
 
 bool isLongFIFOAM(gc_AMtype_t arg);
 
-inline void dataMoverWriteCommand(
+void dataMoverWriteCommand(
     dataMoverCommand_t &axis_command, //output
     uint_4_t reserved,
     uint_4_t tag,

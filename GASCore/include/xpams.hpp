@@ -2,6 +2,7 @@
 #define XPAMS_H_
 
 #include "gascore.hpp"
+// #define DEBUG
 
 #define H_EMPTY 0
 #define H_INCR 1
@@ -18,10 +19,17 @@ typedef uint_32_t counter_t;
 #define COUNTER_NUM 4
 typedef uint_2_t counterIndex_t;
 typedef uint_2_t counterValue_t;
-
+static enum state_t{st_idle, st_AMheader, st_increment, st_sendReplyHeader, 
+    st_AMpayload, st_error} currentState;
 void xpams(
-    axis_t &axis_handler, //input
-    axis_t &axis_handler_return, //output
+    #ifdef DEBUG
+    int &dbg_currentState,
+    #endif
+    axis_t &axis_rx, //input from GASCore
+    axis_t &axis_tx_handler, //output AM reply
+    axis_t &axis_kernel_out, //output data to kernel
+    axis_t &axis_kernel_in, //input data from kernel
+    axis_t &axis_tx_kernel, //output AM from kernel
     uint_1_t &blockingWait,
     counter_t AMcounter_threshold,
     counter_t wordCounter_threshold,
@@ -31,5 +39,9 @@ void xpams(
     word_t enable,
     word_t mask
 );
+
+#ifdef DEBUG
+std::string stateParse(int state);
+#endif
 
 #endif

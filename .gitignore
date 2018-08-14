@@ -9,6 +9,7 @@ GASCore/build/
 GASCore/repo
 share/build/
 *_out.json
+*.pyc
 
 # Prerequisites
 *.d

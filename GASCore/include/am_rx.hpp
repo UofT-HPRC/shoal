@@ -3,6 +3,8 @@
 
 #include "gascore.hpp"
 
+#define DEBUG
+
 /* Handler Request Packet Schema
 
     Short
@@ -48,7 +50,15 @@
 
 */
 
+static enum state_t{st_header, st_AMHandlerArgs,
+        st_AMLongVector, st_AMdestination, st_AMToken,
+        st_AMpayload, st_AMLongStride, st_done, st_error} 
+        currentState;
+
 void am_rx(
+    #ifdef DEBUG
+    int &dbg_currentState,
+    #endif
     axis_t &axis_handler, //output
     axis_t &axis_net, //input
     dataMoverCommand_t &axis_s2mmCommand, //output
@@ -70,5 +80,9 @@ void am_rx(
 //     uint_1_t type,
 //     uint_23_t btt
 // );
+
+#ifdef DEBUG
+std::string stateParse(int state);
+#endif
 
 #endif

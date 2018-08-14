@@ -1,11 +1,14 @@
 #include "xpams.hpp"
 
 void xpams(
-    axis_t &axis_rx, //input
-    axis_t &axis_handler_tx, //output
-    axis_t &axis_kernel_out, //output
-    axis_t &axis_kernel_in, //input
-    axis_t &axis_kernel_tx, //output
+    #ifdef DEBUG
+    int &dbg_currentState,
+    #endif
+    axis_t &axis_rx, //input from GASCore
+    axis_t &axis_tx_handler, //output AM reply
+    axis_t &axis_kernel_out, //output data to kernel
+    axis_t &axis_kernel_in, //input data from kernel
+    axis_t &axis_tx_kernel, //output AM from kernel
     //connection to tx
     //connection to tx
     uint_1_t &blockingWait,
@@ -19,10 +22,10 @@ void xpams(
     word_t mask
 ){
     #pragma HLS INTERFACE axis port=axis_rx
-    #pragma HLS INTERFACE axis port=axis_handler_tx
+    #pragma HLS INTERFACE axis port=axis_tx_handler
     #pragma HLS INTERFACE axis port=axis_kernel_out
     #pragma HLS INTERFACE axis port=axis_kernel_in
-    #pragma HLS INTERFACE axis port=axis_kernel_tx
+    #pragma HLS INTERFACE axis port=axis_tx_kernel
 	#pragma HLS INTERFACE ap_ctrl_none port=return
     #pragma HLS INTERFACE ap_none port=blockingWait
     
@@ -36,11 +39,9 @@ void xpams(
 
     axis_word_t axis_word;
 
-    static enum state_t{st_idle, st_AMheader, st_increment, st_sendReplyHeader, 
-        st_AMpayload, st_error} currentState;
-
     static gc_AMsrc_t AMsrc;
     static gc_AMdst_t AMdst;
+    static gc_AMToken_t AMToken;
 
     static counter_t AMcounter = 0;
     static counter_t wordCounter = 0;
@@ -70,7 +71,7 @@ void xpams(
                     handlerCounter[i] = 0;
                 }
             }
-            currentState == axis_rx.empty() ? st_idle : st_AMheader;
+            currentState = axis_rx.empty() ? st_idle : st_AMheader;
             break;
         }
         case st_AMheader:{
@@ -82,7 +83,8 @@ void xpams(
                 AMhandler = axis_word.data(47,44);
                 AMtype = axis_word.data(55,48);
                 AMargs = axis_word.data(63,56);
-                AMhandler = axis_word.data(31,16);
+                axis_rx.read(axis_word); //read token
+                AMToken = axis_word.data(63,40);
                 AMcounter++;
                 if(enable[8] && handlerCounter_master[0](15,0) == AMhandler){
                     handlerCounter[0]++;
@@ -96,8 +98,17 @@ void xpams(
                 if(enable[11] && handlerCounter_master[3](15,0) == AMhandler){
                     handlerCounter[3]++;
                 }
+                if (AMargs != 0){ //! temporary fix
+                    gc_AMargs_t i;
+                    for(i = 0; i < AMargs; i++){
+                        axis_rx.read(axis_word);
+                    }
+                }
                 if(isMediumAM(AMtype)){
                     currentState = st_AMpayload;
+                }
+                else if(isReplyAM(AMtype)){
+                    currentState = st_idle;
                 }
                 else{
                     switch(AMhandler){
@@ -124,20 +135,26 @@ void xpams(
                 axis_rx.read(axis_word);
                 axis_kernel_out.write(axis_word);
             }
-            switch(AMhandler){
-                case H_EMPTY:{
-                    currentState = st_sendReplyHeader;
-                    break;
-                }
-                case H_INCR:{
-                    currentState = st_increment;
-                    break;
-                }
-                default:{
-                    currentState = st_error;
-                    break;
+            if(isReplyAM(AMtype)){
+                currentState = st_idle;
+            }
+            else{
+                switch(AMhandler){
+                    case H_EMPTY:{
+                        currentState = st_sendReplyHeader;
+                        break;
+                    }
+                    case H_INCR:{
+                        currentState = st_increment;
+                        break;
+                    }
+                    default:{
+                        currentState = st_error;
+                        break;
+                    }
                 }
             }
+            break;
         }
         case st_increment:{
             counterValue_t counterValue;
@@ -159,6 +176,7 @@ void xpams(
             else{
                 currentState = st_sendReplyHeader;
             }
+            break;
         }
         case st_sendReplyHeader:{
             axis_word.data(15,0) = AMdst;
@@ -167,7 +185,11 @@ void xpams(
             axis_word.data(47,44) = H_EMPTY;
             axis_word.data(55,48) = 0x41;
             axis_word.data(63,56) = 0;
-            axis_handler_tx.write(axis_word);
+            axis_tx_handler.write(axis_word);
+            axis_word.data(39,0) = 0;
+            axis_word.data(63,40) = AMToken;
+            axis_word.last = 1; //!needs to be handled better
+            axis_tx_handler.write(axis_word);
             currentState = st_idle;
             break;
         }
@@ -192,6 +214,52 @@ void xpams(
 
     if(!axis_kernel_in.empty()){
         axis_kernel_in.read(axis_word);
-        axis_kernel_out.write(axis_word);
+        axis_tx_kernel.write(axis_word);
+    }
+
+    #ifdef DEBUG
+    dbg_currentState = currentState;
+    #endif
+}
+
+std::string stateParse(int state){
+    switch(state){
+        case 0: {
+            if(st_idle == 0)
+                return "st_idle";
+            else
+                return "State Mismatch";
+        }
+        case 1: {
+            if(st_AMheader == 1)
+                return "st_AMheader";
+            else
+                return "State Mismatch";
+        }
+        case 2: {
+            if(st_increment == 2)
+                return "st_increment";
+            else
+                return "State Mismatch";
+        }
+        case 3: {
+            if(st_sendReplyHeader == 3)
+                return "st_sendReplyHeader";
+            else
+                return "State Mismatch";
+        }
+        case 4: {
+            if(st_AMpayload == 4)
+                return "st_AMpayload";
+            else
+                return "State Mismatch";
+        }
+        case 5: {
+            if(st_error == 5)
+                return "st_error";
+            else
+                return "State Mismatch";
+        }
+        default: return "Unknown State";
     }
 }

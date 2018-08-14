@@ -1,0 +1,147 @@
+{ 
+  "concurrent": [
+    { "sequential": [
+      //TODO replace width integer with defined macro and update python parser
+      //TODO add macro key to simply adding debug values + update parser
+      /*************************************************************************
+      ** Empty Handler with no Args
+      *************************************************************************/
+      /* This sends a AMheader + token with no handler args to xpams. There's 
+      an empty handler receiving it so it just sends a reply message back*/
+      {
+        "type": "flit", "interface": "axis_rx", "width": 32,
+          "id": "LMC-I-H",
+        "payload": [
+          //? Should the address/vector information be passed to the handler?
+          {"data": "{AMHeader,0xAA,0xCC,0x10C,0x0,0x6,0}","keep": "ALL",
+            "last": 0,"custom": 1},
+          {"data": "{AMToken,0x6}","keep":"ALL","last":1,"custom":1}, //token
+          {"data": "0sdbgContinue","keep":256,"last":0,"custom":1} //token
+        ]
+      },/*{
+        "type": "flit", "interface": "DEBUG", "width": 32,
+          "id": "LMC-I-D",
+        "payload": [
+          {"data": "1","keep":"ALL","last":0,"custom":0},
+          {"data": "0","keep":"ALL","last":0,"custom":0}
+        ]
+      },*/
+      /*----------------------------------------------------------------------*/
+      {
+        "type": "flit", "interface": "axis_tx_handler", "width": 32,
+          "id": "LMC-O-H",
+        "payload": [
+          {"data": "{AMHeader,0xCC,0xAA,0,0x0,0x41,0}","keep": "ALL",
+            "last": 0,"custom": 0},
+          {"data": "{AMToken,0x6}","keep":"ALL","last":1,"custom":0} //token
+        ]
+      },{
+        "type": "csim", "interface": "END", "width": 0, "id": "LMC-O-E",
+        "payload": [
+          {"data": "0x00000006","keep": 0,"last": 1,"custom": 0}
+        ]
+      },
+      
+      /*************************************************************************
+      ** Empty handler with two args
+      *************************************************************************/
+      /* This sends a AMheader + token with two handler args to xpams. There's 
+      an empty handler receiving it so it just sends a reply message back. At 
+      the moment, I'm not sure if it should accept more words from the GASCore 
+      */
+      {
+        "type": "flit", "interface": "axis_rx", "width": 32,
+          "id": "LMB-O-H",
+        "payload": [
+          {"data": "{AMHeader,0xAA,0xCC,0xC,0,0x5,2}","keep": "ALL","last": 0,
+            "custom": 1},
+          {"data": "{AMLongStride,0x100,4,3,5}","keep": "ALL","last": 0,
+            "custom": 0},
+      //     //!address is not used right now  
+      //     // {"data": "0","keep": "ALL","last": 0,"custom": 0},
+      //     //handler args
+          {"data": "0xAABBCCDD","keep": "ALL","last": 0,"custom": 0},
+          {"data": "0xDDCCBBAA","keep": "ALL","last": 0,"custom": 1},
+          {"data": "0sdbgContinue","keep":256,"last":0,"custom":1}
+        ]
+      },
+      /*----------------------------------------------------------------------*/
+      {
+        "type": "flit", "interface": "axis_tx_handler", "width": 32,
+          "id": "LMB-O-H",
+        "payload": [
+          {"data": "{AMHeader,0xCC,0xAA,0,0,0x41,0}","keep": "ALL",
+            "last": 0,"custom": 0},
+          {"data": "{AMToken,0x5}","keep":"ALL","last":1,"custom":0} //token
+        ]
+      },{
+        "type": "csim", "interface": "END", "width": 0, "id": "LMB-O-E",
+        "payload": [
+          {"data": "0x00000005","keep": 0,"last": 1,"custom": 0}
+        ]
+      },
+      /*************************************************************************
+      ** Empty handler reply message
+      *************************************************************************/
+      {
+        "type": "flit", "interface": "axis_rx", "width": 32,
+          "id": "LMA-I-H",
+        "payload": [
+          {"data": "{AMHeader,0xCC,0xAA,0,0,0x41,0}","keep": "ALL",
+            "last": 0,"custom": 1},
+          {"data": "{AMToken,0x4}","keep":"ALL","last":1,"custom":1} //token
+        ]
+      },{
+        "type": "csim", "interface": "END", "width": 0, "id": "LMA-O-E",
+        "payload": [
+          {"data": "0x00000004","keep": 0,"last": 1,"custom": 0}
+        ]
+      },
+      /*************************************************************************
+      ** Medium Message B
+      *************************************************************************/
+      /* This sends a AMheader + payload with no handler args to xpams. There's 
+      an empty handler receiving it so it sends a reply message back and passes 
+      the payload to the kernel.*/
+      {
+        "type": "flit", "interface": "axis_rx", "width": 32,
+          "id": "MMB-I-H",
+        "payload": [
+          {"data": "{AMHeader,0xAA,0xCC,0x100,0x0,0x2,0}","keep": "ALL",
+            "last": 0,"custom": 1},
+          {"data": "{AMToken,0x3}","keep":"ALL","last":1,"custom":0}, //token
+          {"loop": { "start": 0, "end": 255, "index": "i", "body": [
+            {"data": "0xDEADBEEF","keep": "ALL","last": 0,"custom": 0}
+          ]}},
+          {"data": "0xDEADBEEF","keep": "ALL","last": 1,"custom": 1},
+          {"data": "0sdbgContinue","keep":256,"last":0,"custom":1},
+          {"data": "0sdbgContinue","keep":256,"last":0,"custom":1}
+        ]
+      },
+      /*----------------------------------------------------------------------*/
+      {
+        "type": "flit", "interface": "axis_tx_handler", "width": 32,
+          "id": "MMB-O-H",
+        "payload": [
+          {"data": "{AMHeader,0xCC,0xAA,0,0x0,0x41,0}","keep": "ALL",
+            "last": 0,"custom": 0},
+          {"data": "{AMToken,0x3}","keep":"ALL","last":1,"custom":0} //token
+        ]
+      },{
+        "type": "flit", "interface": "axis_kernel_out", "width": 32,
+          "id": "MMB-O-P",
+        "payload": [
+          {"loop": { "start": 0, "end": 255, "index": "i", "body": [
+            {"data": "0xDEADBEEF","keep": "ALL","last": 0,"custom": 0}
+          ]}},
+          {"data": "0xDEADBEEF","keep": "ALL","last": 1,"custom": 0}
+        ]
+      },{
+        "type": "csim", "interface": "END", "width": 0, "id": "LMC-O-E",
+        "payload": [
+          {"data": "0x00000003","keep": 0,"last": 1,"custom": 1}
+        ]
+      }
+    ]}
+  ]
+}

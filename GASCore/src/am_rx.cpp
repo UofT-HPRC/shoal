@@ -1,6 +1,9 @@
 #include "am_rx.hpp"
 
 void am_rx(
+    #ifdef DEBUG
+    int &dbg_currentState,
+    #endif
     axis_t &axis_handler, //output
     axis_t &axis_net, //input
     dataMoverCommand_t &axis_s2mmCommand, //output
@@ -17,16 +20,11 @@ void am_rx(
 	#pragma HLS INTERFACE axis port=axis_s2mmStatus
 	#pragma HLS INTERFACE ap_ctrl_none port=return
 
-    static enum state_t{st_header, st_AMHandlerArgs,
-        st_AMLongVector, st_AMdestination,
-        st_AMpayload, st_AMLongStride, st_done, st_error} 
-        currentState;
-
     axis_word_t axis_word_net;
     axis_word_8a_t axis_word_s2mmStatus;
 
     static gc_AMsrc_t AMsrc;
-
+    static gc_AMToken_t AMToken;
     static gc_AMtype_t AMtype;
     static gc_AMargs_t AMargs;
     static gc_AMhandler_t AMhandler;
@@ -55,24 +53,37 @@ void am_rx(
                 axis_handler.write(axis_word_net);
                 release = !isLongxAM(AMtype);
 
+                
+                if(isLongStridedAM(AMtype)){
+                    currentState = st_AMLongStride;
+                }
+                else if(isLongVectoredAM(AMtype)){
+                    currentState = st_AMLongVector;
+                }
+                else{
+                    currentState = st_AMToken;
+                }
+                
+            }
+            else{
+                currentState = st_header;
+            }
+            break;
+        }
+        case st_AMToken:{
+            if(!axis_net.empty()){
+                axis_net.read(axis_word_net);
+                axis_handler.write(axis_word_net);
+                AMToken = axis_word_net.data(GC_DATA_WIDTH-1,GC_DATA_WIDTH-24);
                 if(isShortAM(AMtype)){
                     currentState = AMargs == 0 ? st_done : st_AMHandlerArgs;
                 }
                 else if(isMediumAM(AMtype)){
                     currentState = AMargs == 0 ? st_AMpayload : st_AMHandlerArgs;
                 }
-                else if(isLongVectoredAM(AMtype)){
-                    currentState = st_AMLongVector;
-                }
-                else if(isLongStridedAM(AMtype)){
-                    currentState = st_AMLongStride;
-                }
                 else{
                     currentState = st_AMdestination;
                 }
-            }
-            else{
-                currentState = st_header;
             }
             break;
         }
@@ -96,28 +107,31 @@ void am_rx(
             if(!axis_net.empty()){
                 axis_net.read(axis_word_net);
                 AMdestination = axis_word_net.data(63,0);
-            }
+                axis_handler.write(axis_word_net);
 
-            gc_strideBlockSize_t payload = isLongAM(AMtype) ? AMpayloadSize : AMstrideBlockSize;
-            addr_word_t address = AMdestination(GC_ADDR_WIDTH-1,0);
-            dataMoverWriteCommand(axis_s2mmCommand, 0, 0, address,
-                address(1,0) != 0, 1, address(1,0), 1, payload*GC_DATA_BYTES);
-            if (AMargs == 0){
-                currentState = st_AMpayload;
-            }
-            else{
-                currentState = st_AMHandlerArgs;
-            }
-            break;
+                gc_strideBlockSize_t payload = isLongAM(AMtype) ? AMpayloadSize : AMstrideBlockSize;
+                addr_word_t address = AMdestination(GC_ADDR_WIDTH-1,0);
+                dataMoverWriteCommand(axis_s2mmCommand, 0, 0, address,
+                    address(1,0) != 0, 1, address(1,0), 1, payload*GC_DATA_BYTES);
+                if (AMargs == 0){
+                    currentState = st_AMpayload;
+                }
+                else{
+                    currentState = st_AMHandlerArgs;
+                }
+                break;
+            }            
         }
         case st_AMLongStride:{
             if(!axis_net.empty()){
                 axis_net.read(axis_word_net);
-                AMstride = axis_word_net.data(31,0);
-                AMstrideBlockSize = axis_word_net.data(43,32);
-                AMstrideBlockNum = axis_word_net.data(60,48);
+                axis_handler.write(axis_word_net);
+                AMstride = axis_word_net.data(15,0);
+                AMstrideBlockSize = axis_word_net.data(27,16);
+                AMstrideBlockNum = axis_word_net.data(39,28);
+                AMToken = axis_word_net.data(63,40);
+                currentState = st_AMdestination;
             }
-            currentState = st_AMdestination;
             break;
         }
         case st_AMLongVector:{
@@ -125,6 +139,8 @@ void am_rx(
                 axis_net.read(axis_word_net);
                 AMdstVectorNum = axis_word_net.data(7,4);
                 AMvectorSize[0] = axis_word_net.data(31,20);
+                AMToken = axis_word_net.data(63,40);
+                axis_handler.write(axis_word_net);
             }
 
             if(!axis_net.empty()){
@@ -256,6 +272,68 @@ void am_rx(
         }
     }
 
+    #ifdef DEBUG
+    dbg_currentState = currentState;
+    #endif
 
+}
 
+std::string stateParse(int state){
+    switch(state){
+        case 0: {
+            if(st_header == 0)
+                return "st_header";
+            else
+                return "State Mismatch";
+        }
+        case 1: {
+            if(st_AMHandlerArgs == 1)
+                return "st_AMHandlerArgs";
+            else
+                return "State Mismatch";
+        }
+        case 2: {
+            if(st_AMLongVector == 2)
+                return "st_AMLongVector";
+            else
+                return "State Mismatch";
+        }
+        case 3: {
+            if(st_AMdestination == 3)
+                return "st_AMdestination";
+            else
+                return "State Mismatch";
+        }
+        case 4: {
+            if(st_AMToken == 4)
+                return "st_AMToken";
+            else
+                return "State Mismatch";
+        }
+        case 5: {
+            if(st_AMpayload == 5)
+                return "st_AMpayload";
+            else
+                return "State Mismatch";
+        }
+        case 6: {
+            if(st_AMLongStride == 5)
+                return "st_AMLongStride";
+            else
+                return "State Mismatch";
+        }
+        case 7: {
+            if(st_done == 5)
+                return "st_done";
+            else
+                return "State Mismatch";
+        }
+        case 8: {
+            if(st_error == 5)
+                return "st_error";
+            else
+                return "State Mismatch";
+        }
+        default: return "Unknown State";
+    }
 }

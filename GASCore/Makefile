@@ -22,6 +22,11 @@ ifeq ($(SHOAL_PATH),)
 	of the repository root)
 endif
 
+ifeq ($(SHOAL_VIVADO_HLS),)
+	$(error SHOAL_VIVADO_HLS not set in env -- must be set to the absolute path of \
+	of the Vivado HLS include/ directory)
+endif
+
 local_dir = $(SHOAL_PATH)/GASCore
 obj_dir = $(local_dir)/build
 bin_dir = $(local_dir)/build/bin
@@ -45,8 +50,8 @@ dep += $(share_src:%.cpp=$(share_obj_dir)/%.d)
 # helper_objs = $(share_obj_dir)/st.o $(obj_dir)/packet_defs.o
 
 CC = g++
-CFLAGS  = -g -Wall -I$(include_dir) -I$(share_include_dir) \
-	-I/media/sharm294/HDD_1TB/Xilinx/Vivado_HLS/2017.2/include \
+CFLAGS = -g -Wall -I$(include_dir) -I$(share_include_dir) \
+	-I$(SHOAL_VIVADO_HLS) \
 	-Wno-unknown-pragmas -Wno-comment -MMD -MP
 
 ###############################################################################
@@ -62,9 +67,11 @@ CFLAGS  = -g -Wall -I$(include_dir) -I$(share_include_dir) \
 init:
 	./init.sh
 
-test: $(bin_dir)/am_rx_tb $(bin_dir)/xpams_tb $(bin_dir)/am_tx_tb
-	python $(test_dir)/am_rx_generate.py
+test: $(bin_dir)/am_rx_tb $(bin_dir)/xpams_tb
+	python $(test_dir)/generate.py am_rx
+	python $(test_dir)/generate.py xpams
 	$(bin_dir)/am_rx_tb
+	$(bin_dir)/xpams_tb
 
 test-v1: $(bin_dir)/am_rx_tb
 	python $(test_dir)/am_rx_generate.py
@@ -110,13 +117,6 @@ $(obj_dir)/am_tx.o: $(src_dir)/am_tx.cpp
 	
 $(obj_dir)/gascore.o: $(src_dir)/gascore.cpp
 	$(CC) $(CFLAGS) -o $(obj_dir)/gascore.o -c $(src_dir)/gascore.cpp
-
-#$(obj_dir)/packet_defs.o: $(src_dir)/packet_defs.cpp
-#	$(CC) $(CFLAGS) -o $(obj_dir)/packet_defs.o -c $(src_dir)/packet_defs.cpp
-
-#$(share_obj_dir)/globals.o: $(share_src_dir)/globals.cpp
-#	$(CC) $(CFLAGS) -o $(share_obj_dir)/globals.o \
-#	-c $(share_src_dir)/globals.cpp
 
 -include $(dep)
 
