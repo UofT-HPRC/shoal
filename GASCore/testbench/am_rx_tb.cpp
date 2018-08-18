@@ -4,7 +4,7 @@
 #include "am_rx.hpp"
 #include "testbench.hpp"
 
-#define DAT_FILE "/GASCore/testbench/am_rx.dat" //relative to repo root
+#define DAT_FILE "/GASCore/testbench/build/am_rx.dat" //relative to repo root
 
 #ifdef DEBUG
 #define CALL_TB am_rx(dbg_currentState, axis_handler, axis_net,axis_s2mmCommand,axis_s2mm, \
@@ -116,14 +116,14 @@ int main(int argc, char* argv[]){
                 valid = false;
                 std::cout << "Mismatch:\n";
                 std::cout << std::hex << "   Expected: " << hexData << " " << 
-                    hexLast << "\n";
+                    hexLast << "id: " << id << "\n";
                 std::cout << std::hex << "   Received: " << readData << " " << 
-                    readLast << "\n";
+                    readLast << "id: " << id << "\n";
             }
             else if(verbose > 0){
                 std::cout << "Match:\n";
                 std::cout << std::hex << "   Received: " << readData << " " << 
-                    readLast << "\n";
+                    readLast << "id: " << id << "\n";
             }
         }
         else if(key.compare("END") != 0 && callEnable == 1){

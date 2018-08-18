@@ -8,8 +8,10 @@ GASCore/vivado_hls/projects/
 GASCore/build/
 GASCore/repo
 share/build/
+GASCore/testbench/build/
 *_out.json
 *.pyc
+.initialized
 
 # Prerequisites
 *.d

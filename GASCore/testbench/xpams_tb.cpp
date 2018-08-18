@@ -4,7 +4,7 @@
 #include "xpams.hpp"
 #include "testbench.hpp"
 
-#define DAT_FILE "/GASCore/testbench/xpams.dat" //relative to repo root
+#define DAT_FILE "/GASCore/testbench/build/xpams.dat" //relative to repo root
 
 #ifdef DEBUG
 #define CALL_TB xpams(dbg_currentState, axis_rx, axis_tx_handler,axis_kernel_out,axis_kernel_in, \
@@ -124,9 +124,9 @@ int main(int argc, char* argv[]){
                 valid = false;
                 std::cout << "Mismatch:\n";
                 std::cout << std::hex << "   Expected: " << hexData << " " << 
-                    hexLast << "\n";
+                    hexLast << "id: " << id << "\n";;
                 std::cout << std::hex << "   Received: " << readData << " " << 
-                    readLast << "\n";
+                    readLast << "id: " << id << "\n";;
             }
             else if(verbose > 0){
                 std::cout << "Match:\n";

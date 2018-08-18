@@ -67,15 +67,17 @@ CFLAGS = -g -Wall -I$(include_dir) -I$(share_include_dir) \
 init:
 	./init.sh
 
-test: $(bin_dir)/am_rx_tb $(bin_dir)/xpams_tb
+test: $(bin_dir)/am_rx_tb $(bin_dir)/xpams_tb $(bin_dir)/am_tx_tb
 	python $(test_dir)/generate.py am_rx
 	python $(test_dir)/generate.py xpams
+	python $(test_dir)/generate.py am_tx
 	$(bin_dir)/am_rx_tb
 	$(bin_dir)/xpams_tb
+	$(bin_dir)/am_tx_tb
 
-test-v1: $(bin_dir)/am_rx_tb
-	python $(test_dir)/am_rx_generate.py
-	$(bin_dir)/am_rx_tb -v
+test-v1: $(bin_dir)/am_tx_tb
+	python $(test_dir)/generate.py am_tx
+	$(bin_dir)/am_tx_tb -v
 
 #------------------------------------------------------------------------------
 # Executables

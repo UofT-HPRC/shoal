@@ -70,7 +70,7 @@ Active Message Packet Schema
     Long Vector 
     |0                             64|
     | SRC (16) | DST (16) | Payload (words) (12) | Handler (4) | Type (8) | # Args (8) |
-    | # src vectors (4) | # dst vectors (4) | Reserved (12) | Size 1 (12) | Reserved (8) | Packet ID (24) |
+    | Reserved (4) | # dst vectors (4) | Reserved (12) | Size 1 (12) | Reserved (8) | Packet ID (24) |
     |                   Destination                |
     | Size 2... (12) | Reserved (52) |
     |                   Destination                |

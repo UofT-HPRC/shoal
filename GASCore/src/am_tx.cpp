@@ -1,6 +1,9 @@
 #include "am_tx.hpp"
 
 void am_tx(
+    #ifdef DEBUG
+    int &dbg_currentState,
+    #endif
     axis_t &axis_kernel, //input
     axis_t &axis_net, //output
     dataMoverCommand_t &axis_mm2sCommand, //output
@@ -15,14 +18,11 @@ void am_tx(
 	#pragma HLS INTERFACE axis port=axis_mm2sStatus
 	#pragma HLS INTERFACE ap_ctrl_none port=return
 
-    static enum state_t{st_header, st_AMHandlerArgs,
-        st_AMLongVector, st_AMdestination, 
-        st_AMpayload, st_AMLongStride, st_done, st_error, st_AMsource} 
-        currentState;
-
+    static state_t currentState = st_header;
     axis_word_t axis_word;
 
     static gc_AMsrc_t AMsrc;
+    static gc_AMToken_t AMToken;
     // static gc_AMwords_t AMwords;
 
     static gc_AMtype_t AMtype;
@@ -58,6 +58,8 @@ void am_tx(
                 AMtype = axis_word.data(55,48);
                 AMargs = axis_word.data(63,56);                
 
+                axis_word.data(55,48) = AMtype & 0xEF; //mask out FIFO bit
+
                 axis_net.write(axis_word);
                 if((isLongxAM(AMtype) || isMediumAM(AMtype)) && 
                     !isFIFOnotMemData(AMtype)){
@@ -66,15 +68,28 @@ void am_tx(
                 else{
                     release = 1;
                 }
-
-                if(isShortAM(AMtype)){
-                    currentState = AMargs == 0 ? st_done : st_AMHandlerArgs;
-                }
-                else if(isLongStridedAM(AMtype)){
+                if(isLongStridedAM(AMtype)){
                     currentState = st_AMLongStride;
                 }
                 else if(isLongVectoredAM(AMtype)){
                     currentState = st_AMLongVector;
+                }
+                else{
+                    currentState = st_AMToken;
+                } 
+            }
+            else{
+                currentState = st_header;
+            }
+            break;
+        }
+        case st_AMToken:{
+            if(!axis_kernel.empty()){
+                axis_kernel.read(axis_word);
+                axis_net.write(axis_word);
+                AMToken = axis_word.data(GC_DATA_WIDTH-1,GC_DATA_WIDTH-24);
+                if(isShortAM(AMtype)){
+                    currentState = AMargs == 0 ? st_done : st_AMHandlerArgs;
                 }
                 else if(isLongAM(AMtype)){
                     currentState = isFIFOnotMemData(AMtype) ? st_AMdestination : st_AMsource;
@@ -88,9 +103,6 @@ void am_tx(
                     }
                 }
             }
-            else{
-                currentState = st_header;
-            }
             break;
         }
         case st_AMHandlerArgs:{
@@ -101,7 +113,7 @@ void am_tx(
                     axis_net.write(axis_word);
                 }
             }
-            currentState == isShortAM(AMtype) ? st_done : st_AMpayload;
+            currentState = isShortAM(AMtype) ? st_done : st_AMpayload;
             break;
         }
         // case st_payloadSize:{
@@ -151,7 +163,7 @@ void am_tx(
             word_t address = AMsrcAddr(GC_ADDR_WIDTH-1,0);
             dataMoverWriteCommand(axis_mm2sCommand, 0, 0, address,
                 address(1,0) != 0, 1, 
-                address(1,0), 1, AMpayloadSize);
+                address(1,0), 1, AMpayloadSize * GC_DATA_BYTES);
             if(isMediumAM(AMtype)){
                 currentState = AMargs == 0 ? st_AMpayload : st_AMHandlerArgs;
             }
@@ -202,9 +214,9 @@ void am_tx(
             gc_strideBlockNum_t srcBlockNum;
             if(!axis_kernel.empty()){ //get metadata
                 axis_kernel.read(axis_word);
-                srcStride = axis_word.data(31,0);
-                srcBlockSize = axis_word.data(43,32);
-                srcBlockNum = axis_word.data(60,48);
+                srcStride = axis_word.data(15,0);
+                srcBlockSize = axis_word.data(27,16);
+                srcBlockNum = axis_word.data(39,28);
             }
             if(!axis_kernel.empty()){ //get source address
                 axis_kernel.read(axis_word);
@@ -223,7 +235,7 @@ void am_tx(
             for(i = 0; i < srcBlockNum; i++){
                 dataMoverWriteCommand(axis_mm2sCommand, 0, 0, address,
                     address(1,0) != 0, i == srcBlockNum - 1, 
-                    address(1,0), 1, srcBlockSize);
+                    address(1,0), 1, srcBlockSize * GC_DATA_BYTES);
                 address += srcStride;
             }
             currentState = AMargs == 0 ? st_AMpayload : st_AMHandlerArgs;
@@ -235,7 +247,10 @@ void am_tx(
                 axis_kernel.read(axis_word);
                 AMsrcVectorNum = axis_word.data(3,0);
                 AMdstVectorNum = axis_word.data(7,4);
-                AMvectorSize[0] = axis_word.data(31,20);
+                AMvectorSize[0] = axis_word.data(19,8);
+                axis_word.data(3,0) = 0;
+                axis_word.data(19,8) = 0;
+                axis_net.write(axis_word);
             }
             if(!axis_kernel.empty()){ //read src address
                 axis_kernel.read(axis_word);
@@ -244,12 +259,16 @@ void am_tx(
             word_t address = AMvectorDest[0](GC_ADDR_WIDTH-1,0);
             dataMoverWriteCommand(axis_mm2sCommand, 0, 0, address,
                 address(1,0) != 0, AMsrcVectorNum == 1, 
-                address(1,0), 1, AMvectorSize[0]);
+                address(1,0), 1, AMvectorSize[0] * GC_DATA_BYTES);
             if(!axis_kernel.empty()){ //read dst address
                 axis_kernel.read(axis_word);
                 axis_net.write(axis_word);
             }
             for(i = 1; i < AMsrcVectorNum; i++){
+                if(!axis_kernel.empty()){ //read src size
+                    axis_kernel.read(axis_word);
+                    AMvectorSize[i] = axis_word.data;
+                }
                 if(!axis_kernel.empty()){ //read src address
                     axis_kernel.read(axis_word);
                     AMvectorDest[i] = axis_word.data;
@@ -257,9 +276,13 @@ void am_tx(
                 word_t address = AMvectorDest[i](GC_ADDR_WIDTH-1,0);
                 dataMoverWriteCommand(axis_mm2sCommand, 0, 0, address,
                     address(1,0) != 0, i == AMsrcVectorNum - 1, 
-                    address(1,0), 1, AMvectorSize[i]);
+                    address(1,0), 1, AMvectorSize[i] * GC_DATA_BYTES);
             }
             for(i = 1; i < AMdstVectorNum; i++){
+                if(!axis_kernel.empty()){ //read dst size
+                    axis_kernel.read(axis_word);
+                    axis_net.write(axis_word);
+                }
                 if(!axis_kernel.empty()){ //read dst address
                     axis_kernel.read(axis_word);
                     axis_net.write(axis_word);
@@ -295,4 +318,33 @@ void am_tx(
             break;
         }
     }
+
+    #ifdef DEBUG
+    dbg_currentState = currentState;
+    #endif
+
 }
+
+#ifdef DEBUG
+std::string stateParse(int state){
+    #include <sstream>
+    switch(state){
+        CHECK_STATE("st_header", st_header, 0)
+        CHECK_STATE("st_AMHandlerArgs", st_AMHandlerArgs, 1)
+        CHECK_STATE("st_AMLongVector", st_AMLongVector, 2)
+        CHECK_STATE("st_AMdestination", st_AMdestination, 3)
+        CHECK_STATE("st_AMToken", st_AMToken, 4)
+        CHECK_STATE("st_AMpayload", st_AMpayload, 5)
+        CHECK_STATE("st_AMLongStride", st_AMLongStride, 6)
+        CHECK_STATE("st_done", st_done, 7)
+        CHECK_STATE("st_error", st_error, 8)
+        CHECK_STATE("st_AMsource", st_AMsource, 9)
+        default: {
+            std::stringstream sstm;
+            sstm << "Unknown State " << state;
+            std::string result = sstm.str();
+            return result;
+        }
+    }
+}
+#endif

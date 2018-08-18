@@ -1,0 +1,489 @@
+{
+  "concurrent": [
+    { "sequential": [
+      //TODO replace width integer with defined macro and update python parser
+      /*************************************************************************
+      ** Long Message D
+      *************************************************************************/
+      {
+        /*Long vector message from 0xAA to 0xCC with 0x10C words of payload
+        across two vectors. It calls handler 0xF with zero handler args. First 
+        vector has 0xC words to address 0 and second has has 0x100 words to 
+        address 0xFF00*/
+        "type": "flit", "interface": "axis_kernel", "width": 32,
+          "id": "LMD-I-H",
+        "payload": [
+          {"data": "{AMHeader,0xAA,0xCC,0x10C,0xF,0x6,0}","keep": "ALL","last": 
+            0,"custom": 1},
+          {"data": "{AMLongVector,2,2,0xC,0xC,0x8}","keep": "ALL","last": 0,
+            "custom": 0},
+          {"data": "0x1000","keep": "ALL","last": 0,"custom": 0}, //src addr 1
+          {"data": "0x0","keep": "ALL","last": 0,"custom": 0}, //dst address 1
+          {"data": "0x100","keep": "ALL","last": 0,"custom": 0}, //src size 2
+          {"data": "0xFF00","keep": "ALL","last": 0,"custom": 0}, //src addr 2
+          {"data": "0x100","keep": "ALL","last": 0,"custom": 0}, //dst size 2
+          {"data": "0xDD00","keep": "ALL","last": 0,"custom": 1} //dst addr 2
+        ]
+      },{
+        "type": "flit", "interface": "axis_mm2s", "width": 32,
+          "id": "LMD-I-P",
+        "payload": [
+          {"loop": { "start": 0, "end": 2, "index": "i", "body": [
+            {"loop": { "start": 0, "end": 3, "index": "j", "body": [
+              {"data": "0xBEEFDEAD","keep": "ALL","last": 0,"custom": 0}
+            ]}},
+            {"data": "0xDEADBEEF","keep": "ALL","last": 0,"custom": 0}
+          ]}},
+          {"loop": { "start": 0, "end": 3, "index": "j", "body": [
+            {"data": "0xBEEFDEAD","keep": "ALL","last": 0,"custom": 0}
+          ]}},
+          {"data": "0xDEADBEEF","keep": "ALL","last": 1,"custom": 0},
+          {"loop": { "start": 0, "end": 255, "index": "i", "body": [
+            {"data": "0xFFAAFFAA","keep": "ALL","last": 0,"custom": 0}
+          ]}},
+          {"data": "0xDDDDDDDD","keep": "ALL","last": 1,"custom": 1},
+          {"data": "0sdbgContinue","keep":256,"last":0,"custom":1}
+        ]
+      },
+      /*----------------------------------------------------------------------*/
+      {
+        "type": "flit", "interface": "axis_net", "width": 32,
+          "id": "LMD-O-H",
+        "payload": [
+          //? Should the address/vector information be passed to the handler?
+          {"data": "{AMHeader,0xAA,0xCC,0x10C,0xF,0x6,0}","keep": "ALL",
+            "last": 0,"custom": 0},
+          {"data": "{AMLongVector,2,0xC,0x8}","keep": "ALL","last": 0,
+            "custom": 0},
+          {"data": "0x0","keep": "ALL","last": 0,"custom": 0}, //dst address 1
+          {"data": "0x100","keep": "ALL","last": 0,"custom": 0}, //dst size 2
+          {"data": "0xDD00","keep": "ALL","last": 0,"custom": 0}, //dst addr 2
+          {"loop": { "start": 0, "end": 2, "index": "i", "body": [
+            {"loop": { "start": 0, "end": 3, "index": "j", "body": [
+              //Payload 0-2, 4-6, 8-10
+              {"data": "0xBEEFDEAD","keep": "ALL","last": 0,"custom": 0}
+            ]}},
+            //Payload 3, 7, 11
+            {"data": "0xDEADBEEF","keep": "ALL","last": 0,"custom": 0}
+          ]}},
+          {"loop": { "start": 0, "end": 3, "index": "j", "body": [
+            //Payload 0-2, 4-6, 8-10
+            {"data": "0xBEEFDEAD","keep": "ALL","last": 0,"custom": 0}
+          ]}},
+          //Payload 3, 7, 11
+          {"data": "0xDEADBEEF","keep": "ALL","last": 1,"custom": 0},
+          {"loop": { "start": 0, "end": 255, "index": "i", "body": [
+            //Payload 0-254
+            {"data": "0xFFAAFFAA","keep": "ALL","last": 0,"custom": 0}
+          ]}},
+          //Payload 255
+          {"data": "0xDDDDDDDD","keep": "ALL","last": 1,"custom": 0}
+        ]
+      },{
+        "type": "flit", "interface": "axis_mm2sCommand", "width": 72, 
+          "id": "LMD-O-C",
+        "payload": [
+          {"data": "{dataMoverCommand,0x60,1,0,0,0,0x1000,0}","keep": "ALL",
+            "last": 0,"custom": 0},
+          {"data": "{dataMoverCommand,0x800,1,0,1,0,0xFF00,0}","keep": 0,
+            "last": 0,"custom": 0}
+        ]
+      },{
+        "type": "csim", "interface": "END", "width": 0, "id": "LMC-O-E",
+        "payload": [
+          {"data": "0x00000008","keep": 0,"last": 1,"custom": 0}
+        ]
+      },
+      
+      /*************************************************************************
+      ** Long Message C
+      *************************************************************************/
+      {
+        /*Long strided message from 0xAA to 0xCC with 0xC words of payload
+        across three vectors. It calls handler 0xD with two handler args. Each 
+        stride is 0x100 words, and it write 4 words each time*/
+        "type": "flit", "interface": "axis_kernel", "width": 32,
+          "id": "LMC-I-H",
+        "payload": [
+          {"data": "{AMHeader,0xAA,0xCC,0xC,0xD,0x5,2}","keep": "ALL","last": 0,
+            "custom": 1},
+          {"data": "{AMLongStride,0,0xC,1}","keep": "ALL","last": 0,
+            "custom": 0}, //src stride info
+          {"data": "0x200","keep": "ALL","last": 0,"custom": 0}, //src address
+          {"data": "{AMLongStride,0x100,4,3,0x5}","keep": "ALL","last": 0,
+            "custom": 0}, //dst stride info
+          {"data": "0","keep": "ALL","last": 0,"custom": 1}, //dst address
+          //handler args
+          {"data": "0xAABBCCDD","keep": "ALL","last": 0,"custom": 0},
+          {"data": "0xDDCCBBAA","keep": "ALL","last": 0,"custom": 1}
+        ]
+      },{
+        //read payload
+        "type": "flit", "interface": "axis_mm2s", "width": 32,
+          "id": "LMB-I-P",
+        "payload": [
+          {"loop": { "start": 0, "end": 2, "index": "i", "body": [
+            {"loop": { "start": 0, "end": 3, "index": "j", "body": [
+              {"data": "0xBEEFDEAD","keep": "ALL","last": 0,"custom": 0}
+            ]}},
+            {"data": "0xDEADBEEF","keep": "ALL","last": 0,"custom": 0}
+          ]}},
+          {"loop": { "start": 0, "end": 3, "index": "j", "body": [
+            {"data": "0xBEEFDEAD","keep": "ALL","last": 0,"custom": 0}
+          ]}},
+          {"data": "0xDEADBEEF","keep": "ALL","last": 1,"custom": 1},
+          {"data": "0sdbgContinue","keep": 256,"last": 0,"custom": 1}
+        ]
+      },
+      /*----------------------------------------------------------------------*/
+      {
+        "type": "flit", "interface": "axis_net", "width": 32,
+          "id": "LMB-O-H",
+        "payload": [
+          {"data": "{AMHeader,0xAA,0xCC,0xC,0xD,0x5,2}","keep": "ALL","last": 0,
+            "custom": 0},
+          {"data": "{AMLongStride,0x100,4,3,5}","keep": "ALL","last": 0,
+            "custom": 0},
+          {"data": "0","keep": "ALL","last": 0,"custom": 0}, //address
+          //handler args
+          {"data": "0xAABBCCDD","keep": "ALL","last": 0,"custom": 0},
+          {"data": "0xDDCCBBAA","keep": "ALL","last": 0,"custom": 1},
+          //payload
+          {"loop": { "start": 0, "end": 2, "index": "i", "body": [
+            {"loop": { "start": 0, "end": 3, "index": "j", "body": [
+               //Payload 0-2, 4-6
+              {"data": "0xBEEFDEAD","keep": "ALL","last": 0,"custom": 0}
+            ]}},
+             //Payload 3, 7
+            {"data": "0xDEADBEEF","keep": "ALL","last": 0,"custom": 0}
+          ]}},
+          {"loop": { "start": 0, "end": 3, "index": "i", "body": [
+             //Payload 8-10
+            {"data": "0xBEEFDEAD","keep": "ALL","last": 0,"custom": 0}
+          ]}},
+          //Payload 11
+          {"data": "0xDEADBEEF","keep": "ALL","last": 1,"custom": 0}
+        ]
+      },{
+        "type": "flit", "interface": "axis_mm2sCommand", "width": 72,
+          "id": "LMB-O-C",
+        "payload": [
+          {"data": "{dataMoverCommand,96,1,0,1,0,0x200,0}","keep": 0,"last": 0,
+            "custom": 0}
+        ]
+      },{
+        "type": "csim", "interface": "END", "width": 0, "id": "LMC-O-E",
+        "payload": [
+          {"data": "0x00000007","keep": 0,"last": 1,"custom": 0}
+        ]
+      },
+
+      /*************************************************************************
+      ** Long Message B
+      *************************************************************************/
+      {
+        /*Long message A but the data come from memory.*/
+        "type": "flit", "interface": "axis_kernel", "width": 32, 
+          "id": "LMB-I-H",
+        "payload": [
+          {"data": "{AMHeader,0xAA,0xCC,0x100,0xE,0x4,0}","keep": "ALL",
+            "last": 0,"custom": 1},
+          {"data": "{AMToken,0x6}","keep":"ALL","last":0,"custom":1},
+          {"data": "0xAABBCCD8","keep": "ALL","last": 0,"custom": 1}, //src addr
+          {"data": "8","keep": "ALL","last": 0,"custom": 1} //dst address
+        ]
+      },{
+        //read payload
+        "type": "flit", "interface": "axis_mm2s", "width": 32, "id": "LMB-I-P",
+        "payload": [
+          {"loop": { "start": 0, "end": 255, "index": "j", "body": [
+            {"data": "0xDEADBEEF","keep": "ALL","last": 0,"custom": 0}
+          ]}},
+          {"data": "0xDEADBEEF","keep": "ALL","last": 1,"custom": 1},
+          {"data": "0sdbgContinue","keep": 256,"last": 0,"custom": 0}
+        ]
+      },
+      /*----------------------------------------------------------------------*/
+      {
+        "type": "flit", "interface": "axis_net", "width": 32,
+          "id": "LMB-O-H",
+        "payload": [
+          {"data": "{AMHeader,0xAA,0xCC,0x100,0xE,0x4,0}","keep": "ALL",
+            "last": 0,"custom": 0},
+          {"data": "{AMToken,0x6}","keep":"ALL","last":0,"custom":0},
+          {"data": "8","keep": "ALL","last": 0,"custom": 0}, //address
+          {"loop": { "start": 0, "end": 255, "index": "i", "body": [
+            //Payload 0-254
+            {"data": "0xDEADBEEF","keep": "ALL","last": 0,"custom": 0}
+          ]}},
+           //Payload 255
+          {"data": "0xDEADBEEF","keep": "ALL","last": 1,"custom": 0}
+        ]
+      },{
+        "type": "flit", "interface": "axis_mm2sCommand", "width": 72,
+          "id": "LMB-O-C",
+        "payload": [
+          {"data": "{dataMoverCommand,0x800,1,0,1,0,0xAABBCCD8,0}","keep": 0,
+            "last": 0,"custom": 0}          
+        ]
+      },{
+        "type": "csim", "interface": "END", "width": 0, "id": "LMB-O-E",
+        "payload": [
+          {"data": "0x00000006","keep": 0,"last": 1,"custom": 0}
+        ]
+      },
+
+      /*************************************************************************
+      ** Long Message A
+      *************************************************************************/
+      {
+        /*Long message from 0xAA to 0xCC with 0x100 words of payload written to 
+        dst address 0xAABBCC08. It calls handler 0xE with zero handler args.*/
+        "type": "flit", "interface": "axis_kernel", "width": 32, "id": "LMA-I-H",
+        "payload": [
+          {"data": "{AMHeader,0xAA,0xCC,0x100,0xE,0x14,0}","keep": "ALL",
+            "last": 0,"custom": 1},
+          {"data": "{AMToken,0x5}","keep":"ALL","last":0,"custom":1},
+          {"data": "0xAABBCCD8","keep": "ALL","last": 0,"custom": 1}, //address
+          {"loop": { "start": 0, "end": 255, "index": "i", "body": [
+            //Payload 0-254
+            {"data": "0xDEADBEEF","keep": "ALL","last": 0,"custom": 0}
+          ]}},
+           //Payload 255
+          {"data": "0xDEADBEEF","keep": "ALL","last": 1,"custom": 1},
+          {"data": "0sdbgContinue","keep": 256,"last": 0,"custom": 1}
+        ]
+      },
+      /*----------------------------------------------------------------------*/
+      {
+        "type": "flit", "interface": "axis_net", "width": 32,
+          "id": "LMA-O-H",
+        "payload": [
+          {"data": "{AMHeader,0xAA,0xCC,0x100,0xE,0x4,0}","keep": "ALL",
+            "last": 0,"custom": 0},
+          {"data": "{AMToken,0x5}","keep":"ALL","last":0,"custom":0},
+          {"data": "0xAABBCCD8","keep": "ALL","last": 0,"custom": 0}, //address
+          {"loop": { "start": 0, "end": 255, "index": "i", "body": [
+            //Payload 0-254
+            {"data": "0xDEADBEEF","keep": "ALL","last": 0,"custom": 0}
+          ]}},
+           //Payload 255
+          {"data": "0xDEADBEEF","keep": "ALL","last": 1,"custom": 0}
+        ]
+      },{
+        "type": "csim", "interface": "END", "width": 0, "id": "LMA-O-E",
+        "payload": [
+          {"data": "0x00000005","keep": 0,"last": 1,"custom": 0}
+        ]
+      },
+
+      /*************************************************************************
+      ** Medium Message C
+      *************************************************************************/
+      {
+        /*Medium message from 0xAA to 0xCC with 0x1 word of payload from mem. 
+        It calls handler 0xE with zero handler args.*/
+        "type": "flit", "interface": "axis_kernel", "width": 32,
+          "id": "MMC-I-H",
+        "payload": [
+          {"data": "{AMHeader,0xAA,0xCC,1,0xE,0x2,0}","keep": "ALL","last": 0,
+            "custom": 1},
+          {"data": "{AMToken,0x4}","keep":"ALL","last":0,"custom":1},
+          {"data": "0x1000","keep": "ALL","last": 1,"custom": 1} //address
+        ]
+      },{
+        //read payload
+        "type": "flit", "interface": "axis_mm2s", "width": 32, "id": "MMC-I-P",
+        "payload": [
+          {"data": "0xDEADBEEF","keep": "ALL","last": 1,"custom": 1},
+          {"data": "0sdbgContinue","keep": 256,"last": 0,"custom": 1} //reset
+        ]
+      },/*{ //? Should the status be used?
+        //send status good 
+        "type": "flit", "interface": "axis_mm2sStatus", "width": 8,
+          "id": "MMC-I-C",
+        "payload": [
+          {"data": "0x80","keep": "ALL","last": 0,"custom": 0},
+          {"data": "0sdbgContinue","keep": 256,"last": 0,"custom": 1}
+        ]
+      },*/
+      /*----------------------------------------------------------------------*/
+      {
+        /*medium message reads from memory and streams the data out*/
+        "type": "flit", "interface": "axis_mm2sCommand", "width": 72,
+          "id": "MMC-O-C",
+        "payload": [
+          {"data": "{dataMoverCommand,8,1,0,1,0,0x1000,0}","keep": 0,
+            "last": 0,"custom": 0}
+        ]
+      },{
+        "type": "flit", "interface": "axis_net", "width": 32,
+          "id": "MMC-O-H",
+        "payload": [
+          {"data": "{AMHeader,0xAA,0xCC,1,0xE,0x2,0}","keep": "ALL","last": 0,
+            "custom": 0},
+          {"data": "{AMToken,0x4}","keep":"ALL","last":0,"custom":0},
+          {"data": "0xDEADBEEF","keep": "ALL","last": 1,"custom": 0} //payload
+        ]
+      },{
+        "type": "csim", "interface": "END", "width": 0, "id": "MMC-O-E",
+        "payload": [
+          {"data": "0x00000004","keep": 0,"last": 1,"custom": 0}
+        ]
+      },
+
+      /*************************************************************************
+      ** Medium Message B
+      *************************************************************************/
+      {
+        /*Medium message from 0xAA to 0xCC with 0x100 words of payload from FIFO 
+        It calls handler 0xE with six handler args.*/
+        "type": "flit", "interface": "axis_kernel", "width": 32,
+          "id": "MMB-I-H",
+        "payload": [
+          {"data": "{AMHeader,0xAA,0xCC,0x100,0xE,0x12,6}","keep": "ALL",
+            "last": 0, "custom": 1},
+          {"data": "{AMToken,0x3}","keep":"ALL","last":0,"custom":1},
+          {"loop": { "start": 0, "end": 5, "index": "i", "body": [
+            //Handler arg 0-4
+            {"data": "0x98765432","keep": "ALL","last": 0,"custom": 0}
+          ]}},
+           //Handler arg 5
+          {"data": "0x98765432","keep": "ALL","last": 0,"custom": 1},
+          {"loop": { "start": 0, "end": 255, "index": "i", "body": [
+             //Payload 0-254
+            {"data": "0xDEADBEEF","keep": "ALL","last": 0,"custom": 0}
+          ]}},
+          //Payload 255
+          {"data": "0xDEADBEEF","keep": "ALL","last": 1,"custom": 1},
+          {"data": "0sdbgContinue","keep": 256,"last": 0,"custom": 1} //reset
+        ]
+      },
+      /*----------------------------------------------------------------------*/
+      {
+        /*Medium message goes straight through with FIFO bit stripped*/
+        "type": "flit", "interface": "axis_net", "width": 32, 
+          "id": "MMB-O-H",
+        "payload": [
+          {"data": "{AMHeader,0xAA,0xCC,0x100,0xE,2,6}","keep": "ALL","last": 0,
+            "custom": 1},
+          {"data": "{AMToken,0x3}","keep":"ALL","last":0,"custom":0},//token
+          {"loop": { "start": 0, "end": 6, "index": "i", "body": [
+            {"data": "0x98765432","keep": "ALL","last": 0,"custom": 0}
+          ]}},
+          {"loop": { "start": 0, "end": 255, "index": "i", "body": [
+            {"data": "0xDEADBEEF","keep": "ALL","last": 0,"custom": 0}
+          ]}},
+          {"data": "0xDEADBEEF","keep": "ALL","last": 1,"custom": 0}
+        ]
+      },{
+        "type": "csim", "interface": "END", "width": 0, "id": "MMB-O-E",
+        "payload": [
+          {"data": "0x00000003","keep": 0,"last": 1,"custom": 0}
+        ]
+      },
+
+      /*************************************************************************
+      ** Medium Message A
+      *************************************************************************/
+      {
+        /*Medium message from 0xAA to 0xCC with 0x1 word of payload from FIFO. 
+        It calls handler 0xE with zero handler args.*/
+        "type": "flit", "interface": "axis_kernel", "width": 32,
+          "id": "MMA-I-H",
+        "payload": [
+          {"data": "{AMHeader,0xAA,0xCC,1,0xE,0x12,0}","keep": "ALL","last": 0,
+            "custom": 1},
+          {"data": "{AMToken,0x2}","keep":"ALL","last":0,"custom":1},
+          {"data": "0xDEADBEEF","keep": "ALL","last": 1,"custom": 1}, //Payload
+          {"data": "0sdbgContinue","keep": 256,"last": 0,"custom": 1}
+        ]
+      },
+      /*----------------------------------------------------------------------*/
+      {
+        /*Medium FIFO message goes straight through (with FIFO bit stripped*/
+        "type": "flit", "interface": "axis_net", "width": 32,
+          "id": "MMA-O-H",
+        "payload": [
+          {"data": "{AMHeader,0xAA,0xCC,1,0xE,0x2,0}","keep": "ALL","last": 0,
+            "custom": 0},
+          {"data": "{AMToken,0x2}","keep":"ALL","last":0,"custom":0},//token
+          {"data": "0xDEADBEEF","keep": "ALL","last": 1,"custom": 0} //payload
+        ]
+      },{
+        "type": "csim", "interface": "END", "width": 0, "id": "MMB-O-E",
+        "payload": [
+          {"data": "0x00000002","keep": 0,"last": 1,"custom": 0}
+        ]
+      },
+
+      /*************************************************************************
+      ** Short Message B
+      *************************************************************************/
+      {
+        /*Short message from 0xAA to 0xCC calling handler 0xE with zero handler 
+        args.*/
+        "type": "flit", "interface": "axis_kernel", "width": 32,
+          "id": "SMB-I-H",
+        "payload": [
+          {"data": "{AMHeader,0xAA,0xCC,0,0xE,1,0}","keep": "ALL","last": 0,
+            "custom": 1},
+          {"data": "{AMToken,0x1}","keep":"ALL","last":0,"custom":1},
+          {"data": "0sdbgContinue","keep": 256,"last": 0,"custom": 1} //reset
+        ]
+      },
+      /*----------------------------------------------------------------------*/
+      {
+        /*Short message goes straight through*/
+        "type": "flit", "interface": "axis_net", "width": 32, "id": "SMB-O-H",
+        "payload": [
+          {"data": "{AMHeader,0xAA,0xCC,0,0xE,1,0}","keep": "ALL","last": 0,
+            "custom": 0},
+          {"data": "{AMToken,0x1}","keep":"ALL","last":0,"custom":0}
+        ]
+      },{
+        "type": "csim", "interface": "END", "width": 0, "id": "SMB-O-E",
+        "payload": [
+          {"data": "0x00000001","keep": 0,"last": 0,"custom": 0}
+        ]
+      },
+
+      /*************************************************************************
+      ** Short Message A
+      *************************************************************************/
+      {
+        /*Short message from 0xAA to 0xCC calling handler 0xE with two handler 
+        args.*/
+        "type": "flit", "interface": "axis_kernel", "width": 32, 
+          "id": "SMA-I-H",
+        "payload": [
+          {"data": "{AMHeader,0xAA,0xCC,0,0xE,1,2}","keep": "ALL","last": 0,
+            "custom": 1},
+          {"data": "{AMToken,0x0}","keep":"ALL","last":0,"custom":1},
+          //handler args
+          {"data": "0xDEADBEEF","keep": "ALL","last": 0,"custom": 0},
+          {"data": "0xFEEDDEED","keep": "ALL","last": 1,"custom": 1},
+          {"data": "0sdbgContinue","keep": 256,"last": 0,"custom": 1} //reset
+        ]
+      },
+      /*----------------------------------------------------------------------*/
+      {
+        /*Short message goes straight through*/
+        "type": "flit", "interface": "axis_net", "width": 32, "id": "SMA-O-H",
+        "payload": [
+          {"data": "{AMHeader,0xAA,0xCC,0,0xE,1,2}","keep": "ALL","last": 0,
+            "custom": 0},
+          {"data": "{AMToken,0x0}","keep":"ALL","last":0,"custom":0},
+          //handler args
+          {"data": "0xDEADBEEF","keep": "ALL","last": 0,"custom": 0},
+          {"data": "0xFEEDDEED","keep": "ALL","last": 1,"custom": 1}
+        ]
+      },{
+        "type": "csim", "interface": "END", "width": 0, "id": "SMA-O-E",
+        "payload": [
+          {"data": "0x00000000","keep": 0,"last": 1,"custom": 1}
+        ]
+      }
+    ]}
+  ]
+}

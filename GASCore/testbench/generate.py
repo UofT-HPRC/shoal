@@ -2,6 +2,8 @@ import os
 import json
 import sys
 
+from testbench.utilities import printError
+
 def generate(filename):
 
     repo_path = os.environ.get('SHOAL_PATH')
@@ -14,7 +16,13 @@ def generate(filename):
     os.system("python $SHOAL_PATH/share/testbench/parse_json.py 1 " + \
         workingDirectory + filename + ".json")
 
-    f = json.load(open(workingDirectory + filename + "_out.json", "r"))
+    workingDirectory = workingDirectory + "build/"
+
+    try:
+        f = json.load(open(workingDirectory + filename + "_out.json", "r"))
+    except ValueError, e:
+        printError(1, "Unable to open JSON file. See errors above")
+        exit(1)
 
     testFileName = workingDirectory + filename + ".dat"
     f_test = open(testFileName, "w+")

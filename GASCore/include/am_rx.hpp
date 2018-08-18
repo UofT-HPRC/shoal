@@ -3,7 +3,7 @@
 
 #include "gascore.hpp"
 
-#define DEBUG
+// #define DEBUG
 
 /* Handler Request Packet Schema
 
@@ -68,18 +68,6 @@ void am_rx(
     //axis_handler release
     uint_1_t &release //output
 );
-
-// void s2mmWriteCommand(
-//     dataMoverCommand_t &axis_s2mmCommand, //output
-//     uint_4_t reserved,
-//     uint_4_t tag,
-//     uint_32_t address,
-//     uint_1_t ddr,
-//     uint_1_t eof,
-//     uint_6_t dsa,
-//     uint_1_t type,
-//     uint_23_t btt
-// );
 
 #ifdef DEBUG
 std::string stateParse(int state);

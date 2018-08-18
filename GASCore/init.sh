@@ -13,6 +13,13 @@ if [[ -z "${SHOAL_VIVADO_HLS}" ]]; then
   exit
 fi
 
+if [[ -f ${SHOAL_PATH}/.initialized ]]; then
+  echo "Initialization already run!"
+  exit
+fi
+
+touch ${SHOAL_PATH}/.initialized
+
 GASCORE_PATH=${SHOAL_PATH}/GASCore
 SHARE_PATH=${SHOAL_PATH}/share
 
@@ -21,6 +28,23 @@ mkdir -p $GASCORE_PATH/build/bin
 mkdir -p $SHARE_PATH/build
 mkdir -p $SHARE_PATH/build/bin
 mkdir -p $GASCORE_PATH/repo
+mkdir -p $GASCORE_PATH/testbench/build
+
+echo "--- Begin: added by SHOAL ---" >> ~/.bashrc
 echo "export SHOAL_PATH=$GIT_PATH" >> ~/.bashrc
 echo "export SHOAL_VIVADO_HLS=$VIVADO_PATH" >> ~/.bashrc
+echo "\n" >> ~/.bashrc
+
+echo "if [[ -z "$PYTHONPATH" ]]; then" >> ~/.bashrc
+echo "  export PYTHONPATH=$SHOAL_PATH/share" >> ~/.bashrc
+echo "else" >> ~/.bashrc
+echo "  for x in $SHOAL_PATH/share; do" >> ~/.bashrc
+echo "    case ":$PYTHONPATH:" in" >> ~/.bashrc
+echo "      *":$x:"*) :;; # already there" >> ~/.bashrc
+echo "      *) PYTHONPATH="$x:$PYTHONPATH";;" >> ~/.bashrc
+echo "    esac" >> ~/.bashrc
+echo "  done" >> ~/.bashrc
+echo "fi" >> ~/.bashrc
+echo "--- End: added by SHOAL ---" >> ~/.bashrc
+
 source ~/.bashrc

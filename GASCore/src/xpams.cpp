@@ -222,44 +222,16 @@ void xpams(
     #endif
 }
 
+#ifdef DEBUG
 std::string stateParse(int state){
     switch(state){
-        case 0: {
-            if(st_idle == 0)
-                return "st_idle";
-            else
-                return "State Mismatch";
-        }
-        case 1: {
-            if(st_AMheader == 1)
-                return "st_AMheader";
-            else
-                return "State Mismatch";
-        }
-        case 2: {
-            if(st_increment == 2)
-                return "st_increment";
-            else
-                return "State Mismatch";
-        }
-        case 3: {
-            if(st_sendReplyHeader == 3)
-                return "st_sendReplyHeader";
-            else
-                return "State Mismatch";
-        }
-        case 4: {
-            if(st_AMpayload == 4)
-                return "st_AMpayload";
-            else
-                return "State Mismatch";
-        }
-        case 5: {
-            if(st_error == 5)
-                return "st_error";
-            else
-                return "State Mismatch";
-        }
+        CHECK_STATE("st_idle", st_idle, 0)
+        CHECK_STATE("st_AMheader", st_AMheader, 1)
+        CHECK_STATE("st_increment", st_increment, 2)
+        CHECK_STATE("st_sendReplyHeader", st_sendReplyHeader, 3)
+        CHECK_STATE("st_AMpayload", st_AMpayload, 4)
+        CHECK_STATE("st_error", st_error, 5)
         default: return "Unknown State";
     }
 }
+#endif
