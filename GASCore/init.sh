@@ -36,13 +36,13 @@ echo "export SHOAL_PATH=$GIT_PATH" >> ~/.bashrc
 echo "export SHOAL_VIVADO_HLS=$VIVADO_PATH" >> ~/.bashrc
 echo "" >> ~/.bashrc
 
-echo "if [[ -z "$PYTHONPATH" ]]; then" >> ~/.bashrc
-echo "  export PYTHONPATH=$SHOAL_PATH/share" >> ~/.bashrc
+echo 'if [[ -z "$PYTHONPATH" ]]; then' >> ~/.bashrc
+echo '  export PYTHONPATH=$SHOAL_PATH/share' >> ~/.bashrc
 echo "else" >> ~/.bashrc
-echo "  for x in $SHOAL_PATH/share; do" >> ~/.bashrc
-echo "    case ":$PYTHONPATH:" in" >> ~/.bashrc
-echo "      *":$x:"*) :;; # already there" >> ~/.bashrc
-echo "      *) PYTHONPATH="$x:$PYTHONPATH";;" >> ~/.bashrc
+echo '  for x in $SHOAL_PATH/share; do' >> ~/.bashrc
+echo '    case ":$PYTHONPATH:" in' >> ~/.bashrc
+echo '      *":$x:"*) :;; # already there' >> ~/.bashrc
+echo '      *) PYTHONPATH="$x:$PYTHONPATH";;' >> ~/.bashrc
 echo "    esac" >> ~/.bashrc
 echo "  done" >> ~/.bashrc
 echo "fi" >> ~/.bashrc
