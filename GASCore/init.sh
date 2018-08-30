@@ -3,25 +3,25 @@
 GIT_PATH="/home/sharm294/Documents/masters/git_repos/shoal"
 VIVADO_PATH="/media/sharm294/HDD_1TB/Xilinx/Vivado_HLS/2017.2/include"
 
-if [[ -z "${SHOAL_PATH}" ]]; then
+if [[ -n "${SHOAL_PATH}" ]]; then
   echo "SHOAL_PATH already exists as an environment variable. Pls handle"
   exit
 fi
 
-if [[ -z "${SHOAL_VIVADO_HLS}" ]]; then
+if [[ -n "${SHOAL_VIVADO_HLS}" ]]; then
   echo "SHOAL_VIVADO_HLS already exists as an environment variable. Pls handle"
   exit
 fi
 
-if [[ -f ${SHOAL_PATH}/.initialized ]]; then
+if [[ -f ${GIT_PATH}/.initialized ]]; then
   echo "Initialization already run!"
   exit
 fi
 
-touch ${SHOAL_PATH}/.initialized
+touch ${GIT_PATH}/.initialized
 
-GASCORE_PATH=${SHOAL_PATH}/GASCore
-SHARE_PATH=${SHOAL_PATH}/share
+GASCORE_PATH=${GIT_PATH}/GASCore
+SHARE_PATH=${GIT_PATH}/share
 
 mkdir -p $GASCORE_PATH/build
 mkdir -p $GASCORE_PATH/build/bin
