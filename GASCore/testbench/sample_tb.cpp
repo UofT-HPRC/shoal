@@ -1,27 +1,16 @@
 #include <fstream>
 #include <iostream>
 #include <cstdlib>
-#include "am_rx.hpp"
-#ifndef DEBUG
+#include "sample.hpp"
 #include "testbench.hpp"
-#endif
 
-#define DAT_FILE "/GASCore/testbench/build/am_rx.dat" //relative to repo root
+#define DAT_FILE "/GASCore/testbench/build/sample_c.dat" //relative to repo root
 
-#ifdef DEBUG
-#define CALL_TB am_rx(dbg_currentState, axis_handler, axis_net,axis_s2mmCommand,axis_s2mm, \
-        axis_s2mmStatus, release);
-#else
-#define CALL_TB am_rx(axis_handler, axis_net,axis_s2mmCommand,axis_s2mm, \
-        axis_s2mmStatus, release);
-#endif
+#define CALL_TB sample(axis_input, axis_output,ack, &state_out);
 
 #define PRINT_AXIS std::cout << "Stream statuses:\n"; \
-    std::cout << "  Handler: " << axis_handler.size() << "\n"; \
-    std::cout << "  Network: " << axis_net.size() << "\n"; \
-    std::cout << "  s2mmCommand: " << axis_s2mmCommand.size() << "\n"; \
-    std::cout << "  s2mm: " << axis_s2mm.size() << "\n"; \
-    std::cout << "  s2mmStatus: " << axis_s2mmStatus.size() << "\n";
+    std::cout << "  Input: " << axis_input.size() << "\n"; \
+    std::cout << "  Output: " << axis_output.size() << "\n";
 
 int main(int argc, char* argv[]){
     int i;
@@ -35,29 +24,20 @@ int main(int argc, char* argv[]){
         }
     }
 
-    axis_t axis_handler; //output
-    axis_t axis_net; //input
-    dataMoverCommand_t axis_s2mmCommand; //output
-    axis_t axis_s2mm; //output
-    dataMoverStatus_t axis_s2mmStatus; //input
+    axis_t axis_input;
+    axis_t axis_output;
+    uint_3_t state_out;
 
-    //axis_handler release
-    uint_1_t release; //output
+    uint_1_t ack; //output
 
     axis_word_t axis_word;
-    dataMoverCommand_word_t axis_word_s2mmCommand;
-    axis_word_8a_t axis_word_s2mmStatus;
 
     uint_64_t readData;
     uint_1_t readLast;
 
-    #ifdef DEBUG
-    int dbg_currentState;
-    #endif
-
     OPEN_FILE(testData)
 
-    std::cout << "\n*** Starting AM_RX_TB ***\n\n";
+    std::cout << "\n*** Starting SAMPLE_TB ***\n\n";
 
     std::string key, id;
     uint_64_t hexData;
@@ -66,37 +46,17 @@ int main(int argc, char* argv[]){
     bool valid = true;
     while(testData >> key >> hexData >> hexLast >> callEnable >> keep >> id){
         bool read = false;
-        if(key.compare("axis_net") == 0){
+        if(key.compare("axis_input") == 0){
             CHECK_DEBUG
             else{
-                WRITE_WORD(axis_word, hexData, hexLast, axis_net)
+                WRITE_WORD(axis_word, hexData, hexLast, axis_input)
             }
         }
-        else if(key.compare("axis_s2mmStatus") == 0){
-            CHECK_DEBUG
-            else{
-                WRITE_WORD(axis_word_s2mmStatus, hexData, hexLast, axis_s2mmStatus)
-            }
-        }
-        else if(key.compare("axis_handler") == 0){
+        else if(key.compare("axis_output") == 0){
             CHECK_DEBUG
             else{
                 read = true;
-                READ_WORD(axis_word, readData, readLast, axis_handler)
-            }
-        }
-        else if(key.compare("axis_s2mmCommand") == 0){
-            CHECK_DEBUG
-            else{
-                read = true;
-                READ_WORD(axis_word_s2mmCommand, readData, readLast, axis_s2mmCommand)
-            }
-        }
-        else if(key.compare("axis_s2mm") == 0){
-            CHECK_DEBUG
-            else{
-                read = true;
-                READ_WORD(axis_word, readData, readLast, axis_s2mm)
+                READ_WORD(axis_word, readData, readLast, axis_output)
             }
         }
         else if(key.compare("END") == 0){
@@ -137,7 +97,7 @@ int main(int argc, char* argv[]){
         }
     }
 
-    std::cout << "\n*** Finishing AM_RX_TB ***\n";
+    std::cout << "\n*** Finishing SAMPLE_TB ***\n";
 
     return 0;
     

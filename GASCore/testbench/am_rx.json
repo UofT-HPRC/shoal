@@ -1,6 +1,6 @@
 { 
-  "concurrent": [
-    { "sequential": [
+  "sequential": [
+    [
       //TODO replace width integer with defined macro and update python parser
       /*************************************************************************
       ** Long Message C
@@ -10,95 +10,98 @@
         across two vectors. It calls handler 0xF with zero handler args. First 
         vector has 0xC words to address 0 and second has has 0x100 words to 
         address 0xFF00*/
-        "type": "flit", "interface": "axis_net", "width": 32, "id": "LMC-I-H",
+        "type": "axis", "interface": "axis_net", "width": 32, "id": "LMC-I-H",
         "payload": [
-          {"data": "{AMHeader,0xAA,0xCC,0x10C,0xF,0x6,0}","keep": "ALL","last": 
-            0,"custom": 1},
-          {"data": "{AMLongVector,2,0xC,0x6}","keep": "ALL","last": 0,
-            "custom": 0},
-          {"data": "0x0","keep": "ALL","last": 0,"custom": 0},
-          {"data": "0x100","keep": "ALL","last": 0,"custom": 0},
-          {"data": "0xFF00","keep": "ALL","last": 0,"custom": 1},
+          {"data": "{AMHeader,type:0x6,src:0xAA,dst:0xCC,payload:0x10C,handler:0xF,args:0}",
+            "keep": "ALL","last": 0,"callTB": 1},
+          {"data": "{AMLongVector,dst:2,dstSize:0xC,token:0x6}","keep": "ALL","last": 0,
+            "callTB": 0},
+          {"data": "0x0","keep": "ALL","last": 0,"callTB": 0},
+          {"data": "0x100","keep": "ALL","last": 0,"callTB": 0},
+          {"data": "0xFF00","keep": "ALL","last": 0,"callTB": 1},
           {"loop": { "start": 0, "end": 3, "index": "i", "body": [
             {"loop": { "start": 0, "end": 3, "index": "j", "body": [
               //Payload 0-2, 4-6, 8-10
-              {"data": "0xBEEFDEAD","keep": "ALL","last": 0,"custom": 0}
+              {"data": "0xBEEFDEAD","keep": "ALL","last": 0,"callTB": 0}
             ]}},
             //Payload 3, 7, 11
-            {"data": "0xDEADBEEF","keep": "ALL","last": 0,"custom": 0}
+            {"data": "0xDEADBEEF","keep": "ALL","last": 0,"callTB": 0}
           ]}},
           {"loop": { "start": 0, "end": 255, "index": "i", "body": [
             //Payload 0-254
-            {"data": "0xFFAAFFAA","keep": "ALL","last": 0,"custom": 0}
+            {"data": "0xFFAAFFAA","keep": "ALL","last": 0,"callTB": 0}
           ]}},
           //Payload 255
-          {"data": "0xDDDDDDDD","keep": "ALL","last": 1,"custom": 1},
-          {"data": "0sdbgContinue","keep":256,"last":0,"custom":1}
+          {"data": "0xDDDDDDDD","keep": "ALL","last": 1,"callTB": 1},
+          {"data": "0sdbgContinue","keep":1024,"last":0,"callTB":1}
         ]
       },{
         //send status good
-        "type": "flit", "interface": "axis_s2mmStatus", "width": 8, 
+        "type": "axis", "interface": "axis_s2mmStatus", "width": 8, 
           "id": "LMC-I-S",
         "payload": [
-          {"data": "0x80","keep": "ALL","last": 0,"custom": 1}
+          {"data": "0x80","keep": "ALL","last": 0,"callTB": 1}
         ]
       },
       /*----------------------------------------------------------------------*/
       {
-        "type": "flit", "interface": "axis_handler", "width": 32,
+        "type": "axis", "interface": "axis_handler", "width": 32,
           "id": "LMC-O-H",
         "payload": [
           //? Should the address/vector information be passed to the handler?
           {"data": "{AMHeader,0xAA,0xCC,0x10C,0xF,0x6,0}","keep": "ALL",
-            "last": 0,"custom": 0},
+            "last": 0,"callTB": 0},
           {"data": "{AMLongVector,2,0xC,0x6}","keep": "ALL","last": 0,
-            "custom": 0}
+            "callTB": 0}
         ]
-      },{
-        "type": "flit", "interface": "axis_s2mmCommand", "width": 72, 
-          "id": "LMC-O-C1-",
-        "payload": [
-          {"data": "{dataMoverCommand,0x60,1,0,1,0,0,0}","keep": "ALL",
-            "last": 0,"custom": 0}
-        ]
-      },{
-        "type": "flit", "interface": "axis_s2mm", "width": 32,
-          "id": "LMC-O-P1-",
-        "payload": [
-          {"loop": { "start": 0, "end": 2, "index": "i", "body": [
-            {"loop": { "start": 0, "end": 3, "index": "j", "body": [
-              {"data": "0xBEEFDEAD","keep": "ALL","last": 0,"custom": 0}
+      },[
+        {
+          "type": "axis", "interface": "axis_s2mmCommand", "width": 72, 
+            "id": "LMC-O-C1-",
+          "payload": [
+            {"data": "{dataMoverCommand,0x60,1,0,1,0,0,0}","keep": "ALL",
+              "last": 0,"callTB": 0}
+          ]
+        },{
+          "type": "axis", "interface": "axis_s2mm", "width": 32,
+            "id": "LMC-O-P1-",
+          "payload": [
+            {"loop": { "start": 0, "end": 2, "index": "i", "body": [
+              {"loop": { "start": 0, "end": 3, "index": "j", "body": [
+                {"data": "0xBEEFDEAD","keep": "ALL","last": 0,"callTB": 0}
+              ]}},
+              {"data": "0xDEADBEEF","keep": "ALL","last": 0,"callTB": 0}
             ]}},
-            {"data": "0xDEADBEEF","keep": "ALL","last": 0,"custom": 0}
-          ]}},
-          {"loop": { "start": 0, "end": 3, "index": "j", "body": [
-            {"data": "0xBEEFDEAD","keep": "ALL","last": 0,"custom": 0}
-          ]}},
-          {"data": "0xDEADBEEF","keep": "ALL","last": 1,"custom": 0}
-        ]
-      },{
-        "type": "flit", "interface": "axis_s2mmCommand", "width": 72,
-          "id": "LMC-O-C2-",
-        "payload": [
-          {"data": "{dataMoverCommand,0x800,1,0,1,0,0xFF00,0}","keep": 0,
-            "last": 0,"custom": 0}
-        ]
-      },{
-        "type": "flit", "interface": "axis_s2mm", "width": 32,
-          "id": "LMC-O-P2-",
-        "payload": [
-          {"loop": { "start": 0, "end": 255, "index": "i", "body": [
-            {"data": "0xFFAAFFAA","keep": "ALL","last": 0,"custom": 0}
-          ]}},
-          {"data": "0xDDDDDDDD","keep": "ALL","last": 1,"custom": 0}
-        ]
-      },{
+            {"loop": { "start": 0, "end": 3, "index": "j", "body": [
+              {"data": "0xBEEFDEAD","keep": "ALL","last": 0,"callTB": 0}
+            ]}},
+            {"data": "0xDEADBEEF","keep": "ALL","last": 1,"callTB": 0}
+          ]
+        },
+        {
+          "type": "axis", "interface": "axis_s2mmCommand", "width": 72,
+            "id": "LMC-O-C2-",
+          "payload": [
+            {"data": "{dataMoverCommand,0x800,1,0,1,0,0xFF00,0}","keep": "ALL",
+              "last": 0,"callTB": 0}
+          ]
+        },{
+          "type": "axis", "interface": "axis_s2mm", "width": 32,
+            "id": "LMC-O-P2-",
+          "payload": [
+            {"loop": { "start": 0, "end": 255, "index": "i", "body": [
+              {"data": "0xFFAAFFAA","keep": "ALL","last": 0,"callTB": 0}
+            ]}},
+            {"data": "0xDDDDDDDD","keep": "ALL","last": 1,"callTB": 0}
+          ]
+        }
+      ],{
         "type": "csim", "interface": "END", "width": 0, "id": "LMC-O-E",
         "payload": [
-          {"data": "0x00000006","keep": 0,"last": 1,"custom": 0}
+          {"data": "0x00000006","keep": 0,"last": 1,"callTB": 0}
         ]
-      },
-      
+      }
+    ],[      
       /*************************************************************************
       ** Long Message B
       *************************************************************************/
@@ -106,318 +109,322 @@
         /*Long strided message from 0xAA to 0xCC with 0xC words of payload
         across two vectors. It calls handler 0xD with two handler args. Each 
         stride is 0x100 words, and it write 4 words each time*/
-        "type": "flit", "interface": "axis_net", "width": 32, "id": "LMB-I-H",
+        "type": "axis", "interface": "axis_net", "width": 32, "id": "LMB-I-H",
         "payload": [
           {"data": "{AMHeader,0xAA,0xCC,0xC,0xD,0x5,2}","keep": "ALL","last": 0,
-            "custom": 1},
+            "callTB": 1},
           {"data": "{AMLongStride,0x100,4,3,0x5}","keep": "ALL","last": 0,
-            "custom": 1},
-          {"data": "0","keep": "ALL","last": 0,"custom": 1}, //Initial address
+            "callTB": 1},
+          {"data": "0","keep": "ALL","last": 0,"callTB": 1}, //Initial address
           //handler args
-          {"data": "0xAABBCCDD","keep": "ALL","last": 0,"custom": 0},
-          {"data": "0xDDCCBBAA","keep": "ALL","last": 0,"custom": 1},
+          {"data": "0xAABBCCDD","keep": "ALL","last": 0,"callTB": 0},
+          {"data": "0xDDCCBBAA","keep": "ALL","last": 0,"callTB": 1},
           //payload
           {"loop": { "start": 0, "end": 2, "index": "i", "body": [
             {"loop": { "start": 0, "end": 3, "index": "j", "body": [
                //Payload 0-2, 4-6
-              {"data": "0xBEEFDEAD","keep": "ALL","last": 0,"custom": 0}
+              {"data": "0xBEEFDEAD","keep": "ALL","last": 0,"callTB": 0}
             ]}},
              //Payload 3, 7
-            {"data": "0xDEADBEEF","keep": "ALL","last": 0,"custom": 0}
+            {"data": "0xDEADBEEF","keep": "ALL","last": 0,"callTB": 0}
           ]}},
           {"loop": { "start": 0, "end": 3, "index": "i", "body": [
              //Payload 8-10
-            {"data": "0xBEEFDEAD","keep": "ALL","last": 0,"custom": 0}
+            {"data": "0xBEEFDEAD","keep": "ALL","last": 0,"callTB": 0}
           ]}},
           //Payload 11
-          {"data": "0xDEADBEEF","keep": "ALL","last": 1,"custom": 1}
+          {"data": "0xDEADBEEF","keep": "ALL","last": 1,"callTB": 1}
         ]
       },{
         //send status good
-        "type": "flit", "interface": "axis_s2mmStatus", "width": 8, 
+        "type": "axis", "interface": "axis_s2mmStatus", "width": 8, 
           "id": "LMB-I-S",
         "payload": [
-          {"data": "0x80","keep": "ALL","last": 0,"custom": 1}
+          {"data": "0x80","keep": "ALL","last": 0,"callTB": 1}
         ]
       },
       /*----------------------------------------------------------------------*/
       {
-        "type": "flit", "interface": "axis_handler", "width": 32,
+        "type": "axis", "interface": "axis_handler", "width": 32,
           "id": "LMB-O-H",
         "payload": [
           {"data": "{AMHeader,0xAA,0xCC,0xC,0xD,0x5,2}","keep": "ALL","last": 0,
-            "custom": 0},
+            "callTB": 0},
           {"data": "{AMLongStride,0x100,4,3,5}","keep": "ALL","last": 0,
-            "custom": 0},
-          {"data": "0","keep": "ALL","last": 0,"custom": 0}, //address
+            "callTB": 0},
+          {"data": "0","keep": "ALL","last": 0,"callTB": 0}, //address
           //handler args
-          {"data": "0xAABBCCDD","keep": "ALL","last": 0,"custom": 0},
-          {"data": "0xDDCCBBAA","keep": "ALL","last": 0,"custom": 1}
+          {"data": "0xAABBCCDD","keep": "ALL","last": 0,"callTB": 0},
+          {"data": "0xDDCCBBAA","keep": "ALL","last": 0,"callTB": 1}
         ]
-      },{
-        "type": "flit", "interface": "axis_s2mmCommand", "width": 72,
-          "id": "LMB-O-C1-",
-        "payload": [
-          {"data": "{dataMoverCommand,0x20,1,0,1,0,0,0}","keep": 0,"last": 0,
-            "custom": 0}
-        ]
-      },{
-        //read payload
-        "type": "flit", "interface": "axis_s2mm", "width": 32,
-          "id": "LMB-O-P1-",
-        "payload": [
-          {"loop": { "start": 0, "end": 3, "index": "j", "body": [
-            {"data": "0xBEEFDEAD","keep": "ALL","last": 0,"custom": 0}
-          ]}},
-          {"data": "0xDEADBEEF","keep": "ALL","last": 1,"custom": 0}
-        ]
-      },{
-        "type": "flit", "interface": "axis_s2mmCommand", "width": 72,
-          "id": "LMB-O-C2-",
-        "payload": [
-          {"data": "{dataMoverCommand,0x20,1,0,1,0,0x100,0}","keep": 0,
-            "last": 0,"custom": 0}
-        ]
-      },{
-        //read payload
-        "type": "flit", "interface": "axis_s2mm", "width": 32,
-          "id": "LMB-O-P2-",
-        "payload": [
-          {"loop": { "start": 0, "end": 3, "index": "j", "body": [
-            {"data": "0xBEEFDEAD","keep": "ALL","last": 0,"custom": 0}
-          ]}},
-          {"data": "0xDEADBEEF","keep": "ALL","last": 1,"custom": 0}
-        ]
-      },{
-        "type": "flit", "interface": "axis_s2mmCommand", "width": 72,
-          "id": "LMB-O-C3-",
-        "payload": [
-          {"data": "{dataMoverCommand,0x20,1,0,1,0,0x200,0}","keep": 0,
-            "last": 0,"custom": 0}
-        ]
-      },{
-        //read payload
-        "type": "flit", "interface": "axis_s2mm", "width": 32,
-          "id": "LMB-O-P3-",
-        "payload": [
-          {"loop": { "start": 0, "end": 3, "index": "j", "body": [
-            {"data": "0xBEEFDEAD","keep": "ALL","last": 0,"custom": 0}
-          ]}},
-          {"data": "0xDEADBEEF","keep": "ALL","last": 1,"custom": 0}
-        ]
-      },{
+      },[
+        {
+          "type": "axis", "interface": "axis_s2mmCommand", "width": 72,
+            "id": "LMB-O-C1-",
+          "payload": [
+            {"data": "{dataMoverCommand,0x20,1,0,1,0,0,0}","keep": "ALL","last": 0,
+              "callTB": 0}
+          ]
+        },{
+          //read payload
+          "type": "axis", "interface": "axis_s2mm", "width": 32,
+            "id": "LMB-O-P1-",
+          "payload": [
+            {"loop": { "start": 0, "end": 3, "index": "j", "body": [
+              {"data": "0xBEEFDEAD","keep": "ALL","last": 0,"callTB": 0}
+            ]}},
+            {"data": "0xDEADBEEF","keep": "ALL","last": 1,"callTB": 0}
+          ]
+        },{
+          "type": "axis", "interface": "axis_s2mmCommand", "width": 72,
+            "id": "LMB-O-C2-",
+          "payload": [
+            {"data": "{dataMoverCommand,0x20,1,0,1,0,0x100,0}","keep": "ALL",
+              "last": 0,"callTB": 0}
+          ]
+        },{
+          //read payload
+          "type": "axis", "interface": "axis_s2mm", "width": 32,
+            "id": "LMB-O-P2-",
+          "payload": [
+            {"loop": { "start": 0, "end": 3, "index": "j", "body": [
+              {"data": "0xBEEFDEAD","keep": "ALL","last": 0,"callTB": 0}
+            ]}},
+            {"data": "0xDEADBEEF","keep": "ALL","last": 1,"callTB": 0}
+          ]
+        },{
+          "type": "axis", "interface": "axis_s2mmCommand", "width": 72,
+            "id": "LMB-O-C3-",
+          "payload": [
+            {"data": "{dataMoverCommand,0x20,1,0,1,0,0x200,0}","keep": "ALL",
+              "last": 0,"callTB": 0}
+          ]
+        },{
+          //read payload
+          "type": "axis", "interface": "axis_s2mm", "width": 32,
+            "id": "LMB-O-P3-",
+          "payload": [
+            {"loop": { "start": 0, "end": 3, "index": "j", "body": [
+              {"data": "0xBEEFDEAD","keep": "ALL","last": 0,"callTB": 0}
+            ]}},
+            {"data": "0xDEADBEEF","keep": "ALL","last": 1,"callTB": 0}
+          ]
+        }
+      ],{
         "type": "csim", "interface": "END", "width": 0, "id": "LMB-O-E",
         "payload": [
-          {"data": "0x00000005","keep": 0,"last": 1,"custom": 0}
+          {"data": "0x00000005","keep": 0,"last": 1,"callTB": 0}
         ]
-      },
-
+      }
+    ],[
       /*************************************************************************
       ** Long Message A
       *************************************************************************/
       {
         /*Long message from 0xAA to 0xCC with 0x100 words of payload written to 
         address 0xAABBCC08. It calls handler 0xE with zero handler args.*/
-        "type": "flit", "interface": "axis_net", "width": 32, "id": "LMA-I-H",
+        "type": "axis", "interface": "axis_net", "width": 32, "id": "LMA-I-H",
         "payload": [
           {"data": "{AMHeader,0xAA,0xCC,0x100,0xE,0x4,0}","keep": "ALL",
-            "last": 0,"custom": 1},
-          {"data": "{AMToken,0x4}","keep":"ALL","last":0,"custom":1},//token
-          {"data": "0xAABBCCD8","keep": "ALL","last": 0,"custom": 1}, //address
+            "last": 0,"callTB": 1},
+          {"data": "{AMToken,0x4}","keep":"ALL","last":0,"callTB":1},//token
+          {"data": "0xAABBCCD8","keep": "ALL","last": 0,"callTB": 1}, //address
           {"loop": { "start": 0, "end": 255, "index": "i", "body": [
             //Payload 0-254
-            {"data": "0xDEADBEEF","keep": "ALL","last": 0,"custom": 0}
+            {"data": "0xDEADBEEF","keep": "ALL","last": 0,"callTB": 0}
           ]}},
            //Payload 255
-          {"data": "0xDEADBEEF","keep": "ALL","last": 1,"custom": 1}
+          {"data": "0xDEADBEEF","keep": "ALL","last": 1,"callTB": 1}
         ]
       },{
         //send status good
-        "type": "flit", "interface": "axis_s2mmStatus", "width": 8,
+        "type": "axis", "interface": "axis_s2mmStatus", "width": 8,
           "id": "LMA-I-C",
         "payload": [
-          {"data": "0x80","keep": "ALL","last": 0,"custom": 1}
+          {"data": "0x80","keep": "ALL","last": 0,"callTB": 1}
         ]
       },
       /*----------------------------------------------------------------------*/
       {
-        "type": "flit", "interface": "axis_handler", "width": 32,
+        "type": "axis", "interface": "axis_handler", "width": 32,
           "id": "LMA-O-H",
         "payload": [
           {"data": "{AMHeader,0xAA,0xCC,0x100,0xE,0x4,0}","keep": "ALL",
-            "last": 0,"custom": 0},
-          {"data": "{AMToken,0x4}","keep":"ALL","last":0,"custom":0},//token
-          {"data": "0xAABBCCD8","keep": "ALL","last": 0,"custom": 0} //address
+            "last": 0,"callTB": 0},
+          {"data": "{AMToken,0x4}","keep":"ALL","last":0,"callTB":0},//token
+          {"data": "0xAABBCCD8","keep": "ALL","last": 0,"callTB": 0} //address
         ]
-      },{
-        "type": "flit", "interface": "axis_s2mmCommand", "width": 72,
-          "id": "LMA-O-C",
-        "payload": [
-          {"data": "{dataMoverCommand,0x800,1,0,1,0,0xAABBCCD8,0}","keep": 0,
-            "last": 0,"custom": 0}
-        ]
-      },{
-        //read payload
-        "type": "flit", "interface": "axis_s2mm", "width": 32, "id": "LMA-O-P",
-        "payload": [
-          {"loop": { "start": 0, "end": 255, "index": "j", "body": [
-            {"data": "0xDEADBEEF","keep": "ALL","last": 0,"custom": 0}
-          ]}},
-          {"data": "0xDEADBEEF","keep": "ALL","last": 1,"custom": 0}
-        ]
-      },{
+      },[
+        {
+          "type": "axis", "interface": "axis_s2mmCommand", "width": 72,
+            "id": "LMA-O-C",
+          "payload": [
+            {"data": "{dataMoverCommand,0x800,1,0,1,0,0xAABBCCD8,0}","keep": "ALL",
+              "last": 0,"callTB": 0}
+          ]
+        },{
+          //read payload
+          "type": "axis", "interface": "axis_s2mm", "width": 32, "id": "LMA-O-P",
+          "payload": [
+            {"loop": { "start": 0, "end": 255, "index": "j", "body": [
+              {"data": "0xDEADBEEF","keep": "ALL","last": 0,"callTB": 0}
+            ]}},
+            {"data": "0xDEADBEEF","keep": "ALL","last": 1,"callTB": 0}
+          ]
+        }
+      ],{
         "type": "csim", "interface": "END", "width": 0, "id": "LMA-O-E",
         "payload": [
-          {"data": "0x00000004","keep": 0,"last": 1,"custom": 0}
+          {"data": "0x00000004","keep": 0,"last": 1,"callTB": 0}
         ]
-      },
-
+      }
+    ],[
       /*************************************************************************
       ** Medium Message B
       *************************************************************************/
       {
         /*Medium message from 0xAA to 0xCC with 0x100 words of payload. 
         It calls handler 0xE with six handler args.*/
-        "type": "flit", "interface": "axis_net", "width": 32, "id": "MMB-I-H",
+        "type": "axis", "interface": "axis_net", "width": 32, "id": "MMB-I-H",
         "payload": [
           {"data": "{AMHeader,0xAA,0xCC,0x100,0xE,2,6}","keep": "ALL","last": 0,
-            "custom": 1},
-          {"data": "{AMToken,0x3}","keep":"ALL","last":0,"custom":1},//token
+            "callTB": 1},
+          {"data": "{AMToken,0x3}","keep":"ALL","last":0,"callTB":1},//token
           {"loop": { "start": 0, "end": 5, "index": "i", "body": [
             //Handler arg 0-4
-            {"data": "0x98765432","keep": "ALL","last": 0,"custom": 0}
+            {"data": "0x98765432","keep": "ALL","last": 0,"callTB": 0}
           ]}},
            //Handler arg 5
-          {"data": "0x98765432","keep": "ALL","last": 0,"custom": 1},
+          {"data": "0x98765432","keep": "ALL","last": 0,"callTB": 1},
           {"loop": { "start": 0, "end": 255, "index": "i", "body": [
              //Payload 0-254
-            {"data": "0xDEADBEEF","keep": "ALL","last": 0,"custom": 0}
+            {"data": "0xDEADBEEF","keep": "ALL","last": 0,"callTB": 0}
           ]}},
           //Payload 255
-          {"data": "0xDEADBEEF","keep": "ALL","last": 1,"custom": 1},
-          {"data": "0sdbgContinue","keep": 256,"last": 0,"custom": 1}
+          {"data": "0xDEADBEEF","keep": "ALL","last": 1,"callTB": 1},
+          {"data": "0sdbgContinue","keep": 1024,"last": 0,"callTB": 1}
         ]
       },
       /*----------------------------------------------------------------------*/
       {
-        "type": "flit", "interface": "axis_handler", "width": 32, 
+        "type": "axis", "interface": "axis_handler", "width": 32, 
           "id": "MMB-O-H",
         "payload": [
           {"data": "{AMHeader,0xAA,0xCC,0x100,0xE,2,6}","keep": "ALL","last": 0,
-            "custom": 1},
-          {"data": "{AMToken,0x3}","keep":"ALL","last":0,"custom":0},//token
+            "callTB": 1},
+          {"data": "{AMToken,0x3}","keep":"ALL","last":0,"callTB":0},//token
           {"loop": { "start": 0, "end": 6, "index": "i", "body": [
-            {"data": "0x98765432","keep": "ALL","last": 0,"custom": 0}
+            {"data": "0x98765432","keep": "ALL","last": 0,"callTB": 0}
           ]}},
           {"loop": { "start": 0, "end": 255, "index": "i", "body": [
-            {"data": "0xDEADBEEF","keep": "ALL","last": 0,"custom": 0}
+            {"data": "0xDEADBEEF","keep": "ALL","last": 0,"callTB": 0}
           ]}},
-          {"data": "0xDEADBEEF","keep": "ALL","last": 1,"custom": 0}
+          {"data": "0xDEADBEEF","keep": "ALL","last": 1,"callTB": 0}
         ]
       },{
         "type": "csim", "interface": "END", "width": 0, "id": "MMB-O-E",
         "payload": [
-          {"data": "0x00000003","keep": 0,"last": 1,"custom": 0}
+          {"data": "0x00000003","keep": 0,"last": 1,"callTB": 0}
         ]
-      },
-
+      }
+    ],[
       /*************************************************************************
       ** Medium Message A
       *************************************************************************/
       {
         /*Medium message from 0xAA to 0xCC with 0x1 word of payload. 
         It calls handler 0xE with zero handler args.*/
-        "type": "flit", "interface": "axis_net", "width": 32, "id": "MMA-I-H",
+        "type": "axis", "interface": "axis_net", "width": 32, "id": "MMA-I-H",
         "payload": [
           {"data": "{AMHeader,0xAA,0xCC,1,0xE,2,0}","keep": "ALL","last": 0,
-            "custom": 1},
-          {"data": "{AMToken,0x2}","keep":"ALL","last":0,"custom":1},//token
-          {"data": "0xDEADBEEF","keep": "ALL","last": 1,"custom": 1}, //Payload
-          {"data": "0sdbgContinue","keep": 256,"last": 0,"custom": 1}
+            "callTB": 1},
+          {"data": "{AMToken,0x2}","keep":"ALL","last":0,"callTB":1},//token
+          {"data": "0xDEADBEEF","keep": "ALL","last": 1,"callTB": 1}, //Payload
+          {"data": "0sdbgContinue","keep": 1024,"last": 0,"callTB": 1}
         ]
       },
       /*----------------------------------------------------------------------*/
       {
-        "type": "flit", "interface": "axis_handler", "width": 32,
+        "type": "axis", "interface": "axis_handler", "width": 32,
           "id": "MMA-O-H",
         "payload": [
           {"data": "{AMHeader,0xAA,0xCC,1,0xE,2,0}","keep": "ALL","last": 0,
-            "custom": 0},
-          {"data": "{AMToken,0x2}","keep":"ALL","last":0,"custom":0},//token
-          {"data": "0xDEADBEEF","keep": "ALL","last": 1,"custom": 0} //payload
+            "callTB": 0},
+          {"data": "{AMToken,0x2}","keep":"ALL","last":0,"callTB":0},//token
+          {"data": "0xDEADBEEF","keep": "ALL","last": 1,"callTB": 0} //payload
         ]
       },{
         "type": "csim", "interface": "END", "width": 0, "id": "MMB-O-E",
         "payload": [
-          {"data": "0x00000002","keep": 0,"last": 1,"custom": 0}
+          {"data": "0x00000002","keep": 0,"last": 1,"callTB": 0}
         ]
-      },
-
+      }
+    ],[
       /*************************************************************************
       ** Short Message B
       *************************************************************************/
       {
         /*Short message from 0xAA to 0xCC calling handler 0xE with zero handler 
         args.*/
-        "type": "flit", "interface": "axis_net", "width": 32, "id": "SMB-I-H",
+        "type": "axis", "interface": "axis_net", "width": 32, "id": "SMB-I-H",
         "payload": [
           {"data": "{AMHeader,0xAA,0xCC,0,0xE,1,0}","keep": "ALL","last": 0,
-            "custom": 1},
-          {"data": "{AMToken,0x1}","keep":"ALL","last":0,"custom":1}, //token
-          {"data": "0sdbgContinue","keep": 256,"last": 0,"custom": 1}
+            "callTB": 1},
+          {"data": "{AMToken,0x1}","keep":"ALL","last":0,"callTB":1}, //token
+          {"data": "0sdbgContinue","keep": 1024,"last": 0,"callTB": 1}
         ]
       },
       /*----------------------------------------------------------------------*/
       {
-        "type": "flit", "interface": "axis_handler", "width": 32,
+        "type": "axis", "interface": "axis_handler", "width": 32,
           "id": "SMB-O-H",
         "payload": [
           {"data": "{AMHeader,0xAA,0xCC,0,0xE,1,0}","keep": "ALL","last": 0,
-            "custom": 0},
-          {"data": "{AMToken,0x1}","keep":"ALL","last":0,"custom":0}//token
+            "callTB": 0},
+          {"data": "{AMToken,0x1}","keep":"ALL","last":0,"callTB":0}//token
         ]
       },{
         "type": "csim", "interface": "END", "width": 0, "id": "SMB-O-E",
         "payload": [
-          {"data": "0x00000001","keep": 0,"last": 1,"custom": 0}
+          {"data": "0x00000001","keep": 0,"last": 1,"callTB": 0}
         ]
-      },
-
+      }
+    ],[
       /*************************************************************************
       ** Short Message A
       *************************************************************************/
       {
         /*Short message from 0xAA to 0xCC calling handler 0xE with two handler 
         args.*/
-        "type": "flit", "interface": "axis_net", "width": 32, "id": "SMA-I-H",
+        "type": "axis", "interface": "axis_net", "width": 32, "id": "SMA-I-H",
         "payload": [
           {"data": "{AMHeader,0xAA,0xCC,0,0xE,1,2}","keep": "ALL","last": 0,
-            "custom": 1},
-          {"data": "{AMToken,0x0}","keep":"ALL","last":0,"custom":1},//token
+            "callTB": 1},
+          {"data": "{AMToken,0x0}","keep":"ALL","last":0,"callTB":1},//token
           //handler args
-          {"data": "0xDEADBEEF","keep": "ALL","last": 0,"custom": 0},
-          {"data": "0xFEEDDEED","keep": "ALL","last": 1,"custom": 1},
-          {"data": "0sdbgContinue","keep": 256,"last": 0,"custom": 1}
+          {"data": "0xDEADBEEF","keep": "ALL","last": 0,"callTB": 0},
+          {"data": "0xFEEDDEED","keep": "ALL","last": 1,"callTB": 1},
+          {"data": "0sdbgContinue","keep": 1024,"last": 0,"callTB": 1}
         ]
       },
       /*----------------------------------------------------------------------*/
       {
-        "type": "flit", "interface": "axis_handler", "width": 32,
+        "type": "axis", "interface": "axis_handler", "width": 32,
           "id": "SMA-O-H",
         "payload": [
           {"data": "{AMHeader,0xAA,0xCC,0,0xE,1,2}","keep": "ALL","last": 0,
-            "custom": 0},
-          {"data": "{AMToken,0x0}","keep":"ALL","last":0,"custom":0},//token
+            "callTB": 0},
+          {"data": "{AMToken,0x0}","keep":"ALL","last":0,"callTB":0},//token
           //handler args
-          {"data": "0xDEADBEEF","keep": "ALL","last": 0,"custom": 0},
-          {"data": "0xFEEDDEED","keep": "ALL","last": 1,"custom": 0}
+          {"data": "0xDEADBEEF","keep": "ALL","last": 0,"callTB": 0},
+          {"data": "0xFEEDDEED","keep": "ALL","last": 1,"callTB": 0}
         ]
       },{
         "type": "csim", "interface": "END", "width": 0, "id": "SMA-O-E",
         "payload": [
-          {"data": "0x00000000","keep": 0,"last": 1,"custom": 1}
+          {"data": "0x00000000","keep": 0,"last": 1,"callTB": 1}
         ]
       }
-    ]}
+    ]
   ]
 }

@@ -12,7 +12,6 @@
 // #define GC_DATA_BYTES_PER_WORD (GC_M_AXI_DATA_WIDTH/4)
 
 #include "stream.hpp"
-#include "types.hpp"
 
 #define GC_DATA_WIDTH 64UL
 #define GC_ADDR_WIDTH 32

@@ -68,7 +68,7 @@ int main(int argc, char* argv[]){
     std::string key, id;
     uint_64_t hexData;
     uint_1_t hexLast, callEnable;
-    uint_9_t keep;
+    uint_11_t keep;
     bool valid = true;
     while(testData >> key >> hexData >> hexLast >> callEnable >> keep >> id){
         bool read = false;
@@ -122,11 +122,11 @@ int main(int argc, char* argv[]){
         if(read){
             if(hexData != readData || hexLast != readLast){
                 valid = false;
-                std::cout << "Mismatch:\n";
+                std::cout << "Mismatch at id: " << id << "\n";
                 std::cout << std::hex << "   Expected: " << hexData << " " << 
-                    hexLast << "id: " << id << "\n";;
+                    hexLast << "\n";
                 std::cout << std::hex << "   Received: " << readData << " " << 
-                    readLast << "id: " << id << "\n";;
+                    readLast << "\n";
             }
             else if(verbose > 0){
                 std::cout << "Match:\n";

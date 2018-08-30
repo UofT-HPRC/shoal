@@ -30,10 +30,11 @@ mkdir -p $SHARE_PATH/build/bin
 mkdir -p $GASCORE_PATH/repo
 mkdir -p $GASCORE_PATH/testbench/build
 
-echo "--- Begin: added by SHOAL ---" >> ~/.bashrc
+echo "" >> ~/.bashrc
+echo "#--- Begin: added by SHOAL ---#" >> ~/.bashrc
 echo "export SHOAL_PATH=$GIT_PATH" >> ~/.bashrc
 echo "export SHOAL_VIVADO_HLS=$VIVADO_PATH" >> ~/.bashrc
-echo "\n" >> ~/.bashrc
+echo "" >> ~/.bashrc
 
 echo "if [[ -z "$PYTHONPATH" ]]; then" >> ~/.bashrc
 echo "  export PYTHONPATH=$SHOAL_PATH/share" >> ~/.bashrc
@@ -45,6 +46,6 @@ echo "      *) PYTHONPATH="$x:$PYTHONPATH";;" >> ~/.bashrc
 echo "    esac" >> ~/.bashrc
 echo "  done" >> ~/.bashrc
 echo "fi" >> ~/.bashrc
-echo "--- End: added by SHOAL ---" >> ~/.bashrc
+echo "#--- End: added by SHOAL ---#" >> ~/.bashrc
 
 source ~/.bashrc

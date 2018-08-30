@@ -1,7 +1,7 @@
 #!/bin/bash
 
 old_path=$PWD
-file="am_rx"
+file="am_tx"
 
 mkdir -p $SHOAL_PATH/GASCore/vivado_hls/projects
 cd $SHOAL_PATH/GASCore/vivado_hls/projects

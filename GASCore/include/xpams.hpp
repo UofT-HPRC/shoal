@@ -3,6 +3,10 @@
 
 #include "gascore.hpp"
 // #define DEBUG
+#ifdef DEBUG
+#include "testbench.hpp"
+#include <sstream>
+#endif
 
 #define H_EMPTY 0
 #define H_INCR 1

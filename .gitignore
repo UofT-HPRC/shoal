@@ -7,6 +7,7 @@ vivado*.jou
 GASCore/vivado_hls/projects/
 GASCore/build/
 GASCore/repo
+GASCore/vivado/projects/
 share/build/
 GASCore/testbench/build/
 *_out.json

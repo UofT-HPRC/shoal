@@ -23,7 +23,7 @@ add_files $src_dir/xpams.cpp -cflags $include
 add_files $src_dir/gascore.cpp -cflags $include
 
 # Add testbench files for co-simulation
-#add_files -tb  $test_dir/am_rx_tb.cpp -cflags $include
+add_files -tb  $test_dir/xpams_tb.cpp -cflags $include
 
 # Set top module of the design
 set_top xpams
@@ -40,7 +40,7 @@ create_clock -period $Clock
 #################
 # C SIMULATION
 #################
-#csim_design
+csim_design
 
 #############
 # SYNTHESIS #
@@ -55,7 +55,7 @@ csynth_design
 ##################
 # IMPLEMENTATION #
 ##################
-#export_design -format ipxact
+export_design -format ipxact
 
 
 exit

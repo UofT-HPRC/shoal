@@ -5,6 +5,7 @@
 #define DEBUG
 #ifdef DEBUG
 #include "testbench.hpp"
+#include <sstream>
 #endif
 
 /* AM Request Packet Schema

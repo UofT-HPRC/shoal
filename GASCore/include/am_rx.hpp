@@ -2,8 +2,11 @@
 #define AM_RX_H_
 
 #include "gascore.hpp"
-
 // #define DEBUG
+#ifdef DEBUG
+#include "testbench.hpp"
+#include <sstream>
+#endif
 
 /* Handler Request Packet Schema
 
