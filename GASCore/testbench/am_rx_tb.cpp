@@ -1,3 +1,15 @@
+/*
+Lessons:
+    - Using the axis.empty check makes tready dependent on valid in sims (?) 
+        but makes cosim work. 
+    - Pipeline of II = 1 made this whole thing work. It didn't work without it
+    - enum and defines have the same behavior
+    - is specifying the reset required?
+    - don't assign to port variables directly. Declare a local variable (allows 
+        an initial value) and then assign the port to it. This removes X's in 
+        sims.
+*/
+
 #include <fstream>
 #include <iostream>
 #include <cstdlib>
