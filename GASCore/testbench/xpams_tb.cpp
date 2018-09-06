@@ -4,7 +4,7 @@
 #include "xpams.hpp"
 #include "testbench.hpp"
 
-#define DAT_FILE "/GASCore/testbench/build/xpams.dat" //relative to repo root
+#define DAT_FILE "/GASCore/testbench/build/xpams_c.dat" //relative to repo root
 
 #ifdef DEBUG
 #define CALL_TB xpams(dbg_currentState, axis_rx, axis_tx_handler,axis_kernel_out,axis_kernel_in, \
@@ -61,7 +61,7 @@ int main(int argc, char* argv[]){
     int dbg_currentState;
     #endif
 
-    OPEN_FILE(testData)
+    OPEN_FILE("SHOAL_PATH",testData)
 
     std::cout << "\n*** Starting XPAMS_TB ***\n\n";
 
@@ -105,7 +105,7 @@ int main(int argc, char* argv[]){
                 READ_WORD(axis_word, readData, readLast, axis_tx_kernel)
             }
         }
-        else if(key.compare("END") == 0){
+        else if(key.compare("end") == 0){
             if(!valid){
                 std::cout << "Test " << std::hex << hexData << " failed\n";
             }
@@ -113,6 +113,9 @@ int main(int argc, char* argv[]){
                 std::cout << "Test " << std::hex << hexData << " successful\n";
             }
             valid = true;
+        }
+        else if(key.compare("finish") == 0){
+            break;
         }
         else{
             std::cout << "Unknown key: " << key << "\n";
@@ -134,12 +137,8 @@ int main(int argc, char* argv[]){
                     readLast << "\n";
             }
         }
-        else if(key.compare("END") != 0 && callEnable == 1){
+        if(callEnable == 1){
             CALL_TB
-        }
-        //needed because of weird error in CSim
-        if(key.compare("END") == 0 && callEnable == 1){
-            break;
         }
     }
 

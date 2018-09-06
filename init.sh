@@ -19,12 +19,12 @@ repoPath=$1
 vivadoPath=$2
 configFile=~/.shoal
 
-if [[ -f configFile ]]; then
+if [[ -f $configFile ]]; then
   echo "Initialization already run!"
   return 0
 fi
 
-touch configFile
+touch $configFile
 
 GASCORE_PATH=${repoPath}/GASCore
 
@@ -33,13 +33,13 @@ mkdir -p $GASCORE_PATH/build/bin
 mkdir -p $GASCORE_PATH/repo
 mkdir -p $GASCORE_PATH/testbench/build
 
-echo "" >> configFile
-echo "#--- Begin: added by SHOAL ---#" >> configFile
-echo "export SHOAL_PATH=$repoPath" >> configFile
-echo "export SHOAL_VIVADO_HLS=$vivadoPath" >> configFile
-echo "#--- End: added by SHOAL ---#" >> configFile
+echo "" >> $configFile
+echo "#--- Begin: added by SHOAL ---#" >> $configFile
+echo "export SHOAL_PATH=$repoPath" >> $configFile
+echo "export SHOAL_VIVADO_HLS=$vivadoPath" >> $configFile
+echo "#--- End: added by SHOAL ---#" >> $configFile
 
-source ${repoPath}/shoal-share/init.sh 1 repoPath vivadoPath
+source ${repoPath}/shoal-share/init.sh 1 $repoPath/shoal-share $vivadoPath
 
 echo "source $configFile #added by shoal" >> ~/.bashrc
 source ~/.bashrc

@@ -3,7 +3,7 @@
 #include <cstdlib>
 #include "am_tx.hpp"
 
-#define DAT_FILE "/GASCore/testbench/build/am_tx.dat" //relative to repo root
+#define DAT_FILE "/GASCore/testbench/build/am_tx_c.dat" //relative to repo root
 
 #ifdef DEBUG
 #define CALL_TB am_tx(dbg_currentState, axis_kernel, axis_net, axis_mm2sCommand,axis_mm2s, \
@@ -52,7 +52,7 @@ int main(int argc, char* argv[]){
     int dbg_currentState;
     #endif
 
-    OPEN_FILE(testData)
+    OPEN_FILE("SHOAL_PATH",testData)
 
     std::cout << "\n*** Starting AM_TX_TB ***\n\n";
 
@@ -95,7 +95,7 @@ int main(int argc, char* argv[]){
                 WRITE_WORD(axis_word, hexData, hexLast, axis_mm2s)
             }
         }
-        else if(key.compare("END") == 0){
+        else if(key.compare("end") == 0){
             if(!valid){
                 std::cout << "Test " << std::hex << hexData << " failed\n";
             }
@@ -103,6 +103,9 @@ int main(int argc, char* argv[]){
                 std::cout << "Test " << std::hex << hexData << " successful\n";
             }
             valid = true;
+        }
+        else if(key.compare("finish") == 0){
+            break;
         }
         else{
             std::cout << "Unknown key: " << key << "\n";
@@ -124,12 +127,8 @@ int main(int argc, char* argv[]){
                     readLast << "\n";
             }
         }
-        else if(key.compare("END") != 0 && callEnable == 1){
+        if(callEnable == 1){
             CALL_TB
-        }
-        //needed because of weird error in CSim
-        if(key.compare("END") == 0 && callEnable == 1){
-            break;
         }
     }
 

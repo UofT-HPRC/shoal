@@ -18,7 +18,7 @@ Lessons:
 #include "testbench.hpp"
 #endif
 
-#define DAT_FILE "/GASCore/testbench/build/am_rx.dat" //relative to repo root
+#define DAT_FILE "/GASCore/testbench/build/am_rx_c.dat" //relative to repo root
 
 #ifdef DEBUG
 #define CALL_TB am_rx(dbg_currentState, axis_handler, axis_net,axis_s2mmCommand,axis_s2mm, \
@@ -67,7 +67,7 @@ int main(int argc, char* argv[]){
     int dbg_currentState;
     #endif
 
-    OPEN_FILE(testData)
+    OPEN_FILE("SHOAL_PATH",testData)
 
     std::cout << "\n*** Starting AM_RX_TB ***\n\n";
 
@@ -111,7 +111,7 @@ int main(int argc, char* argv[]){
                 READ_WORD(axis_word, readData, readLast, axis_s2mm)
             }
         }
-        else if(key.compare("END") == 0){
+        else if(key.compare("end") == 0){
             if(!valid){
                 std::cout << "Test " << std::hex << hexData << " failed\n";
             }
@@ -119,6 +119,9 @@ int main(int argc, char* argv[]){
                 std::cout << "Test " << std::hex << hexData << " successful\n";
             }
             valid = true;
+        }
+        else if(key.compare("finish") == 0){
+            break;
         }
         else{
             std::cout << "Unknown key: " << key << "\n";
@@ -140,12 +143,8 @@ int main(int argc, char* argv[]){
                     readLast << "id: " << id << "\n";
             }
         }
-        else if(key.compare("END") != 0 && callEnable == 1){
+        if(callEnable == 1){
             CALL_TB
-        }
-        //needed because of weird error in CSim
-        if(key.compare("END") == 0 && callEnable == 1){
-            break;
         }
     }
 

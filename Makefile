@@ -17,19 +17,19 @@ SHELL := bash
 # Variables
 ###############################################################################
 
-ifeq ($(SHOAL_PATH),)
-	$(error SHOAL_PATH not set in env -- must be set to the absolute path of \
-	of the repository root)
+ifndef SHOAL_PATH
+$(error SHOAL_PATH not set in env -- must be set to the absolute path of \
+of the repository root. Did you source init.sh?)
 endif
 
-ifeq ($(SHOAL_SHARE_PATH),)
-	$(error SHOAL_SHARE_PATH not set in env -- must be set to the absolute path of \
-	of the share repository root)
+ifndef SHOAL_SHARE_PATH
+$(error SHOAL_SHARE_PATH not set in env -- must be set to the absolute path of \
+of the share repository root. Did you source init.sh?)
 endif
 
-ifeq ($(SHOAL_VIVADO_HLS),)
-	$(error SHOAL_VIVADO_HLS not set in env -- must be set to the absolute path of \
-	of the Vivado HLS include/ directory)
+ifndef SHOAL_VIVADO_HLS
+$(error SHOAL_VIVADO_HLS not set in env -- must be set to the absolute path of \
+of the Vivado HLS include/ directory. Did you source init.sh?)
 endif
 
 CC = g++
@@ -64,3 +64,7 @@ init:
 
 clean:
 	@$(RM)
+
+purge:
+	@rm -rf ~/.shoal
+	@sed -i '/added by shoal/d' ~/.bashrc
