@@ -5,11 +5,11 @@
 vivado*.log
 vivado*.jou
 GASCore/vivado_hls/projects/
-GASCore/build/
 GASCore/repo
 GASCore/vivado/projects/
-share/build/
-GASCore/testbench/build/
+GASCore/vivado/src/
+build/
+archive/
 *_out.json
 *.pyc
 .initialized

@@ -18,6 +18,8 @@ void am_rx(
     #pragma HLS INTERFACE axis port=axis_s2mmCommand
 	#pragma HLS INTERFACE axis port=axis_s2mm
 	#pragma HLS INTERFACE axis port=axis_s2mmStatus
+    #pragma HLS INTERFACE ap_none port=dbg_currentState
+    #pragma HLS INTERFACE ap_none port=release
 	#pragma HLS INTERFACE ap_ctrl_none port=return
 
     axis_word_t axis_word;

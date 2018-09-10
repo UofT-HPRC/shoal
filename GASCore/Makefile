@@ -39,6 +39,7 @@ src_dir = $(local_dir)/src
 test_dir = $(local_dir)/testbench
 include_dir = $(local_dir)/include
 hls_dir = $(local_dir)/vivado_hls
+vivado_dir = $(local_dir)/vivado
 
 share_dir = $(SHOAL_SHARE_PATH)
 share_obj_dir = $(share_dir)/build
@@ -63,7 +64,7 @@ CFLAGS = -g -Wall -I$(include_dir) -I$(share_include_dir) \
 # Body
 ###############################################################################
 
-.PHONY: test hw clean
+.PHONY: test hw sim clean yaml
 
 #------------------------------------------------------------------------------
 # Main
@@ -71,16 +72,22 @@ CFLAGS = -g -Wall -I$(include_dir) -I$(share_include_dir) \
 
 test: $(bin_dir)/am_rx_tb $(bin_dir)/xpams_tb $(bin_dir)/am_tx_tb
 	python $(share_testbench_dir)/generate.py env SHOAL_PATH /GASCore/testbench/am_rx.json
-	python $(share_testbench_dir)/generate.py env SHOAL_PATH /GASCore/testbench/xpams.json
-	python $(share_testbench_dir)/generate.py env SHOAL_PATH /GASCore/testbench/am_tx.json
+	# python $(share_testbench_dir)/generate.py env SHOAL_PATH /GASCore/testbench/xpams.json
+	# python $(share_testbench_dir)/generate.py env SHOAL_PATH /GASCore/testbench/am_tx.json
 	$(bin_dir)/am_rx_tb
-	$(bin_dir)/xpams_tb
-	$(bin_dir)/am_tx_tb
+	# $(bin_dir)/xpams_tb
+	# $(bin_dir)/am_tx_tb
+
+yaml:
+	python $(share_testbench_dir)/generate_tb.py env SHOAL_PATH /GASCore/testbench/am_rx.yaml
 
 hw:
 	$(hls_dir)/am_rx.sh
-	$(hls_dir)/am_tx.sh
-	$(hls_dir)/xpams.sh
+	# $(hls_dir)/am_tx.sh
+	# $(hls_dir)/xpams.sh
+
+sim:
+	$(vivado_dir)/am_rx.sh
 
 #------------------------------------------------------------------------------
 # Executables
@@ -131,4 +138,5 @@ $(obj_dir)/gascore.o: $(src_dir)/gascore.cpp
 
 clean: 
 	@$(RM) $(obj_dir)/*.o $(obj_dir)/*.d $(bin_dir)/* \
-	$(share_obj_dir)/*.o $(share_obj_dir)/*.d $(share_bin_dir)/*
+	$(share_obj_dir)/*.o $(share_obj_dir)/*.d $(share_bin_dir)/* \
+	$(vivado_dir)/src/*
