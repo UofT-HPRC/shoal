@@ -39,7 +39,5 @@ echo "export SHOAL_PATH=$repoPath" >> $configFile
 echo "export SHOAL_VIVADO_HLS=$vivadoPath" >> $configFile
 echo "#--- End: added by SHOAL ---#" >> $configFile
 
-source ${repoPath}/shoal-share/init.sh 1 $repoPath/shoal-share $vivadoPath
-
 echo "source $configFile #added by shoal" >> ~/.bashrc
 source ~/.bashrc

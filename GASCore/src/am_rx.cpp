@@ -42,6 +42,8 @@ void am_rx(
     static gc_vectorSize_t AMvectorSize[MAX_VECTOR_NUM];
     static gc_destination_t AMvectorDest[MAX_VECTOR_NUM];
 
+    static uint_1_t bufferRelease;
+
     switch(currentState){
         case st_header:{
             if(!axis_net.empty()){
@@ -53,7 +55,7 @@ void am_rx(
                 AMargs = axis_word.data(63,56);
                 
                 axis_handler.write(axis_word);
-                release = !isLongxAM(AMtype);
+                bufferRelease = !isLongxAM(AMtype);
 
                 
                 if(isLongStridedAM(AMtype)){
@@ -137,34 +139,50 @@ void am_rx(
             break;
         }
         case st_AMLongVector:{
-            if(!axis_net.empty()){
+            // if(!axis_net.empty()){
+                while(axis_net.empty()){
+                    //busy loop
+                }
                 axis_net.read(axis_word);
                 AMdstVectorNum = axis_word.data(7,4);
                 AMvectorSize[0] = axis_word.data(31,20);
                 AMToken = axis_word.data(63,40);
                 axis_handler.write(axis_word);
-            }
+            // }
 
-            if(!axis_net.empty()){
+            // if(!axis_net.empty()){
+                while(axis_net.empty()){
+                    //busy loop
+                }
                 axis_net.read(axis_word);
                 AMvectorDest[0] = axis_word.data(63,0);
-            }
-
-            gc_dstVectorNum_t i = 0;
-            for(i = 1; i < AMdstVectorNum; i++){
-                if(!axis_net.empty()){
-                    axis_net.read(axis_word);
-                    AMvectorSize[i] = axis_word.data(11,0);
-                }
-                if(!axis_net.empty()){
-                    axis_net.read(axis_word);
-                    AMvectorDest[i] = axis_word.data(63,0);
-                }
-            }
+            // }
             dataMoverWriteCommand(axis_s2mmCommand, 0, 0, 
                 AMvectorDest[0](GC_ADDR_WIDTH-1,0),
                 AMvectorDest[0](1,0) != 0, 1, 
                 AMvectorDest[0](1,0), 1, AMvectorSize[0]*GC_DATA_BYTES);
+
+            gc_dstVectorNum_t i = 0;
+            for(i = 1; i < AMdstVectorNum; i++){
+                // if(!axis_net.empty()){
+                    while(axis_net.empty()){
+                        //busy loop
+                    }
+                    axis_net.read(axis_word);
+                    AMvectorSize[i] = axis_word.data(11,0);
+                // }
+                // if(!axis_net.empty()){
+                    while(axis_net.empty()){
+                        //busy loop
+                    }
+                    axis_net.read(axis_word);
+                    AMvectorDest[i] = axis_word.data(63,0);
+                // }
+                dataMoverWriteCommand(axis_s2mmCommand, 0, 0, 
+                    AMvectorDest[i](GC_ADDR_WIDTH-1,0),
+                    AMvectorDest[i](1,0) != 0, 1, 
+                    AMvectorDest[i](1,0), 1, AMvectorSize[i]*GC_DATA_BYTES);
+            }
             
             currentState = AMargs == 0 ? st_AMpayload : st_AMHandlerArgs;
             break;
@@ -173,7 +191,7 @@ void am_rx(
             gc_payloadSize_t i = 0;
             gc_payloadSize_t writeCount = 0;
             gc_destination_t strideDest = AMdestination + AMstride;
-            gc_strideBlockNum_t strideCount = 0;
+            gc_strideBlockNum_t strideCount = 1;
             gc_dstVectorNum_t vectorCount = 0;
             while(i < AMpayloadSize){
                 while(axis_net.empty()){
@@ -192,8 +210,16 @@ void am_rx(
                         }
                     }
                     else if(isLongStridedAM(AMtype)){
+                        if (strideCount < AMstrideBlockNum){
+                            dataMoverWriteCommand(axis_s2mmCommand, 0, 0, 
+                                strideDest, strideDest(1,0) != 0, 1, 
+                                strideDest(1,0), 1, AMstrideBlockSize * GC_DATA_BYTES);
+                            strideDest += AMstride;
+                            strideCount++;
+                        }
                         if(writeCount < AMstrideBlockSize){
                             if(!axis_s2mm.full()){
+                                axis_word.last = 0;
                                 axis_s2mm.write(axis_word);
                             }
                         }
@@ -202,21 +228,27 @@ void am_rx(
                                 axis_word.last = 1;
                                 axis_s2mm.write(axis_word);
                             }
+                            // if(i < AMpayloadSize){
+                                
+                            // }
                         }
                         else{
-                            dataMoverWriteCommand(axis_s2mmCommand, 0, 0, 
-                                strideDest, strideDest(1,0) != 0, 1, 
-                                strideDest(1,0), 1, AMstrideBlockSize * GC_DATA_BYTES);
-                            strideDest += AMstride;
+                            // dataMoverWriteCommand(axis_s2mmCommand, 0, 0, 
+                            //     strideDest, strideDest(1,0) != 0, 1, 
+                            //     strideDest(1,0), 1, AMstrideBlockSize * GC_DATA_BYTES);
+                            // strideDest += AMstride;
                             if(!axis_s2mm.full()){
+                                axis_word.last = 0;
                                 axis_s2mm.write(axis_word);
                             }
                             writeCount = 1;
+                            // writeCount = 0;
                         }
                     }
                     else{
                         if(writeCount < AMvectorSize[vectorCount]){
                             if(!axis_s2mm.full()){
+                                axis_word.last = 0;
                                 axis_s2mm.write(axis_word);
                             }
                         }
@@ -228,13 +260,14 @@ void am_rx(
                         }
                         else{
                             vectorCount++;
-                            dataMoverWriteCommand(axis_s2mmCommand, 0, 0, 
-                                AMvectorDest[vectorCount], //address
-                                AMvectorDest[vectorCount](1,0) != 0, //ddr 
-                                1, //eof
-                                AMvectorDest[vectorCount](1,0), 1, //dsa, type
-                                AMvectorSize[vectorCount]*GC_DATA_BYTES);
+                            // dataMoverWriteCommand(axis_s2mmCommand, 0, 0, 
+                            //     AMvectorDest[vectorCount], //address
+                            //     AMvectorDest[vectorCount](1,0) != 0, //ddr 
+                            //     1, //eof
+                            //     AMvectorDest[vectorCount](1,0), 1, //dsa, type
+                            //     AMvectorSize[vectorCount]*GC_DATA_BYTES);
                             if(!axis_s2mm.full()){
+                                axis_word.last = 0;
                                 axis_s2mm.write(axis_word);
                             }
                             writeCount = 1;
@@ -255,7 +288,7 @@ void am_rx(
                 }
                 else{
                     axis_s2mmStatus.read(axis_word_s2mmStatus);
-                    release = 1;
+                    bufferRelease = 1;
                     currentState = st_header;
                 }
             }
@@ -273,6 +306,8 @@ void am_rx(
             break;
         }
     }
+
+    release = bufferRelease == 0 ? 0 : 1;
 
     #ifdef DEBUG
     dbg_currentState = currentState;

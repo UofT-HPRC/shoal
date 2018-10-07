@@ -22,11 +22,6 @@ $(error SHOAL_PATH not set in env -- must be set to the absolute path of \
 of the repository root. Did you source init.sh?)
 endif
 
-ifndef SHOAL_SHARE_PATH
-$(error SHOAL_SHARE_PATH not set in env -- must be set to the absolute path of \
-of the share repository root. Did you source init.sh?)
-endif
-
 ifndef SHOAL_VIVADO_HLS
 $(error SHOAL_VIVADO_HLS not set in env -- must be set to the absolute path of \
 of the Vivado HLS include/ directory. Did you source init.sh?)

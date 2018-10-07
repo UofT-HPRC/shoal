@@ -9,8 +9,8 @@ set DefaultFlag 1
 set src_dir ${::env(SHOAL_PATH)}/GASCore/src
 set test_dir ${::env(SHOAL_PATH)}/GASCore/testbench
 set local_include -I${::env(SHOAL_PATH)}/GASCore/include
-set share_src_dir ${::env(SHOAL_SHARE_PATH)}/src
-set share_include -I${::env(SHOAL_SHARE_PATH)}/include
+set share_src_dir ${::env(SHOAL_PATH)}/share/src
+set share_include -I${::env(SHOAL_PATH)}/share/include
 append include $local_include " " $share_include
 
 #### main part

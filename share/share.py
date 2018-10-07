@@ -12,10 +12,10 @@ import sys
 def evalMacro(header, macro):
     import subprocess
 
-    command = "g++ $SHOAL_SHARE_PATH/src/eval_macro.cpp -w \
-        -I$SHOAL_SHARE_PATH/include -I$SHOAL_VIVADO_HLS \
+    command = "g++ $SHOAL_PATH/share/src/eval_macro.cpp -w \
+        -I$SHOAL_PATH/share/include -I$SHOAL_VIVADO_HLS \
         -include " + header + " -DMACRO_VALUE=" + \
-        macro + " -o $SHOAL_SHARE_PATH/build/bin/eval_macro"
+        macro + " -o $SHOAL_PATH/share/build/bin/eval_macro"
 
     try:
         subprocess.check_output(command, shell=True)
@@ -24,7 +24,7 @@ def evalMacro(header, macro):
         exit(1)
     
     try:
-        subprocess.check_output("$SHOAL_SHARE_PATH/build/bin/eval_macro", shell=True)
+        subprocess.check_output("$SHOAL_PATH/share/build/bin/eval_macro", shell=True)
     except subprocess.CalledProcessError as e:
         return e.returncode
 
