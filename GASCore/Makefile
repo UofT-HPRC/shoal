@@ -48,6 +48,8 @@ share_src_dir = $(share_dir)/src
 share_include_dir = $(share_dir)/include
 share_testbench_dir = $(share_dir)/testbench
 
+modules := am_rx am_tx xpams holdBuffer
+
 obj = $(shell find $(obj_dir) -name '*.o' -printf '%f\n' | \
 sort -k 1nr | cut -f2-)
 share_obj = $(shell find $(share_obj_dir) -name '*.o' -printf '%f\n' | \
@@ -58,7 +60,7 @@ dep += $(share_obj:%.o=$(share_obj_dir)/%.d)
 CC = g++
 CFLAGS = -g -Wall -I$(include_dir) -I$(share_include_dir) \
 	-I$(SHOAL_VIVADO_HLS) \
-	-Wno-unknown-pragmas -Wno-comment -MMD -MP
+	-Wno-unknown-pragmas -Wno-comment -Wno-shift-count-overflow -MMD -MP
 
 ###############################################################################
 # Body
@@ -70,65 +72,64 @@ CFLAGS = -g -Wall -I$(include_dir) -I$(share_include_dir) \
 # Main
 #------------------------------------------------------------------------------
 
-test: yaml $(bin_dir)/am_rx_tb # $(bin_dir)/xpams_tb $(bin_dir)/am_tx_tb
-	@# python $(SONAR_PATH)/sonar.py env SHOAL_PATH /GASCore/testbench/am_rx.yaml
-	@# python $(share_testbench_dir)/generate.py env SHOAL_PATH /GASCore/testbench/xpams.json
-	@# python $(share_testbench_dir)/generate.py env SHOAL_PATH /GASCore/testbench/am_tx.json
-	$(bin_dir)/am_rx_tb --printState
-	@# $(bin_dir)/xpams_tb
-	@# $(bin_dir)/am_tx_tb
+test_modules=$(patsubst %, test_%, $(modules))
+test: $(test_modules)
+define make-test
+test_$1: config_$1 $(bin_dir)/$1_tb
+	@$(bin_dir)/$1_tb
+endef
+$(foreach module, $(modules),$(eval $(call make-test,$(module))))
 
-yaml:
-	python $(SONAR_PATH)/sonar.py env SHOAL_PATH /GASCore/testbench/am_rx.yaml
+config_modules=$(patsubst %, config_%, $(modules))
+config: $(config_modules)
+define make-config
+config_$1:
+	@python $(SONAR_PATH)/sonar.py env SHOAL_PATH /GASCore/testbench/$1.yaml
+endef
+$(foreach module, $(modules),$(eval $(call make-config,$(module))))
 
-hw:
-	@$(hls_dir)/am_rx.sh
-	# $(hls_dir)/am_tx.sh
-	# $(hls_dir)/xpams.sh
+hw_modules=$(patsubst %, hw_%, $(modules))
+hw: $(hw_modules)
+define make-hw
+hw_$1:
+	@$(hls_dir)/generate.sh $1 # create Vivado HLS project and export the design
+	@$(vivado_dir)/generate.sh $1 # Symlink all generated files for Vivado
+endef
+$(foreach module, $(modules),$(eval $(call make-hw,$(module))))
 
 sim:
-	@$(vivado_dir)/am_rx.sh
+	@vivado -source $(vivado_dir)/am_rx.tcl
+	# @$(vivado_dir)/am_tx.sh
 
 #------------------------------------------------------------------------------
 # Executables
 #------------------------------------------------------------------------------
 
-$(bin_dir)/am_rx_tb: $(obj_dir)/am_rx_tb.o $(obj_dir)/am_rx.o $(obj_dir)/gascore.o
-	$(CC) $(CFLAGS) -o $(bin_dir)/am_rx_tb $(obj_dir)/am_rx_tb.o \
-	$(obj_dir)/am_rx.o $(obj_dir)/gascore.o
-
-$(bin_dir)/xpams_tb: $(obj_dir)/xpams_tb.o $(obj_dir)/xpams.o $(obj_dir)/gascore.o
-	$(CC) $(CFLAGS) -o $(bin_dir)/xpams_tb $(obj_dir)/xpams_tb.o \
-	$(obj_dir)/xpams.o $(obj_dir)/gascore.o
-
-$(bin_dir)/am_tx_tb: $(obj_dir)/am_tx_tb.o $(obj_dir)/am_tx.o $(obj_dir)/gascore.o
-	$(CC) $(CFLAGS) -o $(bin_dir)/am_tx_tb $(obj_dir)/am_tx_tb.o \
-	$(obj_dir)/am_tx.o $(obj_dir)/gascore.o
+define make-executable
+$(bin_dir)/$1_tb: $(obj_dir)/$1_tb.o $(obj_dir)/$1.o $(obj_dir)/utilities.o
+	$(CC) $(CFLAGS) -o $(bin_dir)/$1_tb $(obj_dir)/$1_tb.o \
+	$(obj_dir)/$1.o $(obj_dir)/utilities.o
+endef
+$(foreach module, $(modules),$(eval $(call make-executable,$(module))))
 
 #------------------------------------------------------------------------------
 # Object Files
 #------------------------------------------------------------------------------
 
-$(obj_dir)/am_rx_tb.o: $(test_build_dir)/am_rx_tb.cpp
-	$(CC) $(CFLAGS) -o $(obj_dir)/am_rx_tb.o -c $(test_build_dir)/am_rx_tb.cpp
+define make-testbenche
+$(obj_dir)/$1_tb.o: $(test_build_dir)/$1_tb.cpp
+	$(CC) $(CFLAGS) -o $(obj_dir)/$1_tb.o -c $(test_build_dir)/$1_tb.cpp
+endef
+$(foreach module, $(modules),$(eval $(call make-testbenche,$(module))))
 
-$(obj_dir)/xpams_tb.o: $(test_build_dir)/xpams_tb.cpp
-	$(CC) $(CFLAGS) -o $(obj_dir)/xpams_tb.o -c $(test_build_dir)/xpams_tb.cpp
+$(obj_dir)/utilities.o: $(src_dir)/utilities.cpp
+	$(CC) $(CFLAGS) -o $(obj_dir)/utilities.o -c $(src_dir)/utilities.cpp
 
-$(obj_dir)/am_tx_tb.o: $(test_build_dir)/am_tx_tb.cpp
-	$(CC) $(CFLAGS) -o $(obj_dir)/am_tx_tb.o -c $(test_build_dir)/am_tx_tb.cpp
-
-$(obj_dir)/am_rx.o: $(src_dir)/am_rx.cpp
-	$(CC) $(CFLAGS) -o $(obj_dir)/am_rx.o -c $(src_dir)/am_rx.cpp
-
-$(obj_dir)/xpams.o: $(src_dir)/xpams.cpp
-	$(CC) $(CFLAGS) -o $(obj_dir)/xpams.o -c $(src_dir)/xpams.cpp
-
-$(obj_dir)/am_tx.o: $(src_dir)/am_tx.cpp
-	$(CC) $(CFLAGS) -o $(obj_dir)/am_tx.o -c $(src_dir)/am_tx.cpp
-
-$(obj_dir)/gascore.o: $(src_dir)/gascore.cpp
-	$(CC) $(CFLAGS) -o $(obj_dir)/gascore.o -c $(src_dir)/gascore.cpp
+define make-object
+$(obj_dir)/$1.o: $(src_dir)/$1.cpp
+	$(CC) $(CFLAGS) -o $(obj_dir)/$1.o -c $(src_dir)/$1.cpp
+endef
+$(foreach module, $(modules),$(eval $(call make-object,$(module))))
 
 -include $(dep)
 
@@ -138,5 +139,4 @@ $(obj_dir)/gascore.o: $(src_dir)/gascore.cpp
 
 clean: 
 	@$(RM) $(obj_dir)/*.o $(obj_dir)/*.d $(bin_dir)/* \
-	$(share_obj_dir)/*.o $(share_obj_dir)/*.d $(share_bin_dir)/* \
-	$(vivado_dir)/src/*
+	$(share_obj_dir)/*.o $(share_obj_dir)/*.d $(share_bin_dir)/*

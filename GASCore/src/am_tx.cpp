@@ -17,6 +17,10 @@ void am_tx(
 	#pragma HLS INTERFACE axis port=axis_mm2s
 	#pragma HLS INTERFACE axis port=axis_mm2sStatus
 	#pragma HLS INTERFACE ap_ctrl_none port=return
+    #pragma HLS INTERFACE ap_none port=release
+    #ifdef DEBUG
+    #pragma HLS INTERFACE ap_none port=dbg_currentState
+    #endif
 
     static state_t currentState = st_header;
     axis_word_t axis_word;
@@ -62,7 +66,7 @@ void am_tx(
 
                 axis_net.write(axis_word);
                 if((isLongxAM(AMtype) || isMediumAM(AMtype)) && 
-                    !isFIFOnotMemData(AMtype)){
+                    !isDataFromFIFO(AMtype)){
                     release = 0;
                 }
                 else{
@@ -92,10 +96,10 @@ void am_tx(
                     currentState = AMargs == 0 ? st_done : st_AMHandlerArgs;
                 }
                 else if(isLongAM(AMtype)){
-                    currentState = isFIFOnotMemData(AMtype) ? st_AMdestination : st_AMsource;
+                    currentState = isDataFromFIFO(AMtype) ? st_AMdestination : st_AMsource;
                 }
                 else{
-                    if(isFIFOnotMemData(AMtype)){
+                    if(isDataFromFIFO(AMtype)){
                         currentState = AMargs == 0 ? st_AMpayload : st_AMHandlerArgs;
                     }
                     else{
@@ -128,7 +132,7 @@ void am_tx(
         //         else{
         //             AMpayloadSize = axis_word.data(31,0);
         //             if(isLongxAM(AMtype)){
-        //                 if(isFIFOnotMemData(AMtype)){
+        //                 if(isDataFromFIFO(AMtype)){
         //                     currentState = st_AMdestination;
         //                 }
         //                 else{
@@ -136,7 +140,7 @@ void am_tx(
         //                 }
         //             }
         //             else{ //medium message
-        //                 if(isFIFOnotMemData(AMtype)){
+        //                 if(isDataFromFIFO(AMtype)){
         //                     if (AMargs == 0){
         //                         currentState = st_AMpayload;
         //                     }
@@ -294,7 +298,7 @@ void am_tx(
         case st_AMpayload:{
             gc_payloadSize_t i = 0;
             while(i < AMpayloadSize){
-                if(isFIFOnotMemData(AMtype))
+                if(isDataFromFIFO(AMtype))
                     axis_kernel.read(axis_word);
                 else
                     axis_mm2s.read(axis_word);

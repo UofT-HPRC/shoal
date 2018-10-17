@@ -7,7 +7,7 @@ set Clock       4.0
 set DefaultFlag 1
 
 set src_dir ${::env(SHOAL_PATH)}/GASCore/src
-set test_dir ${::env(SHOAL_PATH)}/GASCore/testbench
+set test_dir ${::env(SHOAL_PATH)}/GASCore/testbench/build
 set local_include -I${::env(SHOAL_PATH)}/GASCore/include
 set share_src_dir ${::env(SHOAL_PATH)}/share/src
 set share_include -I${::env(SHOAL_PATH)}/share/include
@@ -20,7 +20,7 @@ open_project $Project -reset
 
 # Add the file for synthesis
 add_files $src_dir/am_rx.cpp -cflags $include
-add_files $src_dir/gascore.cpp -cflags $include
+add_files $src_dir/utilities.cpp -cflags $include
 
 # Add testbench files for co-simulation
 add_files -tb  $test_dir/am_rx_tb.cpp -cflags $include

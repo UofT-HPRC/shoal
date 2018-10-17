@@ -9,9 +9,9 @@ void am_rx(
     dataMoverCommand_t &axis_s2mmCommand, //output
     axis_t &axis_s2mm, //output
     dataMoverStatus_t &axis_s2mmStatus, //input
+    uint_1_t &release, //output
 
-    //axis_handler release
-    uint_1_t &release //output
+    gc_AMdest_t destOffset
 ){
     #pragma HLS INTERFACE axis port=axis_handler
     #pragma HLS INTERFACE axis port=axis_net
@@ -20,16 +20,20 @@ void am_rx(
 	#pragma HLS INTERFACE axis port=axis_s2mmStatus
     #pragma HLS INTERFACE ap_none port=dbg_currentState
     #pragma HLS INTERFACE ap_none port=release
+    #pragma HLS INTERFACE ap_stable port=destOffset
 	#pragma HLS INTERFACE ap_ctrl_none port=return
 
     axis_word_t axis_word;
     axis_word_8a_t axis_word_s2mmStatus;
+    axis_wordDest_t axis_wordDest;
 
     static gc_AMsrc_t AMsrc;
+    static gc_AMdst_t AMdst;
     static gc_AMToken_t AMToken;
     static gc_AMtype_t AMtype;
     static gc_AMargs_t AMargs;
     static gc_AMhandler_t AMhandler;
+    static gc_AMdest_t AMdest;
 
     static gc_payloadSize_t AMpayloadSize;
     static gc_dstVectorNum_t AMdstVectorNum;
@@ -49,14 +53,13 @@ void am_rx(
             if(!axis_net.empty()){
                 axis_net.read(axis_word);
                 AMsrc = axis_word.data(15,0);
+                AMdst = axis_word.data(31,16) - destOffset;
                 AMpayloadSize = axis_word.data(43,32);
                 AMhandler = axis_word.data(47,44);
                 AMtype = axis_word.data(55,48);
                 AMargs = axis_word.data(63,56);
-                
                 axis_handler.write(axis_word);
                 bufferRelease = !isLongxAM(AMtype);
-
                 
                 if(isLongStridedAM(AMtype)){
                     currentState = st_AMLongStride;
@@ -111,7 +114,7 @@ void am_rx(
             if(!axis_net.empty()){
                 axis_net.read(axis_word);
                 AMdestination = axis_word.data(63,0);
-                axis_handler.write(axis_word);
+                // axis_handler.write(axis_word);
 
                 gc_strideBlockSize_t payload = isLongAM(AMtype) ? AMpayloadSize : AMstrideBlockSize;
                 addr_word_t address = AMdestination(GC_ADDR_WIDTH-1,0);
@@ -297,14 +300,6 @@ void am_rx(
             }
             break;
         }
-        case st_error:{
-            currentState = st_error;
-            break;
-        }
-        default:{
-            currentState = st_error;
-            break;
-        }
     }
 
     release = bufferRelease == 0 ? 0 : 1;
@@ -326,7 +321,6 @@ std::string stateParse(int state){
         CHECK_STATE("st_AMpayload", st_AMpayload, 5)
         CHECK_STATE("st_AMLongStride", st_AMLongStride, 6)
         CHECK_STATE("st_done", st_done, 7)
-        CHECK_STATE("st_error", st_error, 8)
         default: return "Unknown State";
     }
 }

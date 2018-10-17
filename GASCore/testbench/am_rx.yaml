@@ -27,35 +27,36 @@ DUT:
   - {direction: input, name: ap_clk, type: clock, period: 20ns}
   - {direction: input, name: ap_rst_n}
   - {direction: output, size: 32, name: dbg_currentState}
-  - {direction: master, name: axis_handler, type: axis, clock: ap_clk, c_struct: axis_word, 
+  - {direction: master, name: axis_handler, type: axis, clock: ap_clk, c_struct: axis_word, c_stream: uaxis_l,
+  channels: [
+      {name: "TDATA", type: "tdata", size: 64},
+      {name: "TVALID", type: "tvalid"},
+      {name: "TREADY", type: "tready"},
+      {name: "TLAST", type: "tlast"},
+      {name: "TDEST", type: "tdest"}
+    ]}
+  - {direction: slave, name: axis_net, type: axis, clock: ap_clk, c_struct: axis_word, c_stream: uaxis_l,
   channels: [
       {name: "TDATA", type: "tdata", size: 64},
       {name: "TVALID", type: "tvalid"},
       {name: "TREADY", type: "tready"},
       {name: "TLAST", type: "tlast"}
     ]}
-  - {direction: slave, name: axis_net, type: axis, clock: ap_clk, c_struct: axis_word, 
+  - {direction: master, name: axis_s2mmCommand, type: axis, clock: ap_clk, c_struct: axis_word_s2mmCommand, c_stream: uaxis_l,
   channels: [
       {name: "TDATA", type: "tdata", size: 64},
       {name: "TVALID", type: "tvalid"},
       {name: "TREADY", type: "tready"},
       {name: "TLAST", type: "tlast"}
     ]}
-  - {direction: master, name: axis_s2mmCommand, type: axis, clock: ap_clk, c_struct: axis_word_s2mmCommand, 
+  - {direction: master, name: axis_s2mm, type: axis, clock: ap_clk, c_struct: axis_word, c_stream: uaxis_l,
   channels: [
       {name: "TDATA", type: "tdata", size: 64},
       {name: "TVALID", type: "tvalid"},
       {name: "TREADY", type: "tready"},
       {name: "TLAST", type: "tlast"}
     ]}
-  - {direction: master, name: axis_s2mm, type: axis, clock: ap_clk, c_struct: axis_word, 
-  channels: [
-      {name: "TDATA", type: "tdata", size: 64},
-      {name: "TVALID", type: "tvalid"},
-      {name: "TREADY", type: "tready"},
-      {name: "TLAST", type: "tlast"}
-    ]}
-  - {direction: slave, name: axis_s2mmStatus, type: axis, clock: ap_clk, c_struct: axis_word_s2mmStatus, 
+  - {direction: slave, name: axis_s2mmStatus, type: axis, clock: ap_clk, c_struct: axis_word_s2mmStatus, c_stream: uaxis_l,
   channels: [
       {name: "TDATA", type: "tdata", size: 8},
       {name: "TVALID", type: "tvalid"},
@@ -82,14 +83,14 @@ Short_Message_A: &Short_Message_A
     - delay: 100ns
     - timestamp: INIT
     - interface: {type: axis, name: axis_net, payload: [
-      {tdata: "{AMHeader,0xAA,0xCC,0,0xE,1,2}", tkeep: "KEEP_ALL", callTB: 1},
+      {tdata: "{AMHeader,0x01,0x02,0,0xE,1,2}", tkeep: "KEEP_ALL", callTB: 1},
       {tdata: "{AMToken,0x0}", callTB: 1},
       {tdata: 0xDEADBEEF},
       {tdata: 0x1234, tlast: 1, callTB: 2}
     ]}
   - Parallel_Section_2:
     - interface: {type: axis, name: axis_handler, payload: [
-      {tdata: "{AMHeader,0xAA,0xCC,0,0xE,1,2}"},
+      {tdata: "{AMHeader,0x01,0x02,0,0xE,1,2}"},
       {tdata: "{AMToken,0x0}"},
       {tdata: 0xDEADBEEF},
       {tdata: 0x1234, tlast: 1}
@@ -103,12 +104,12 @@ Short_Message_B: &Short_Message_B
     - delay: 100ns
     - timestamp: INIT
     - interface: {type: axis, name: axis_net, payload: [
-      {tdata: "{AMHeader,0xAA,0xCC,0,0xE,1,0}", tkeep: "KEEP_ALL", callTB: 1},
+      {tdata: "{AMHeader,0x01,0x02,0,0xE,1,0}", tkeep: "KEEP_ALL", callTB: 1},
       {tdata: "{AMToken,0x1}", callTB: 2}
     ]}
   - Parallel_Section_2:
     - interface: {type: axis, name: axis_handler, payload: [
-      {tdata: "{AMHeader,0xAA,0xCC,0,0xE,1,0}"},
+      {tdata: "{AMHeader,0x01,0x02,0,0xE,1,0}"},
       {tdata: "{AMToken,0x1}"}
     ]}
     - timestamp: Short_Message_B
@@ -120,13 +121,13 @@ Medium_Message_A: &Medium_Message_A
     - delay: 100ns
     - timestamp: INIT
     - interface: {type: axis, name: axis_net, payload: [
-      {tdata: "{AMHeader,0xAA,0xCC,1,0xE,2,0}", tkeep: "KEEP_ALL", callTB: 1},
+      {tdata: "{AMHeader,0x01,0x02,1,0xE,2,0}", tkeep: "KEEP_ALL", callTB: 1},
       {tdata: "{AMToken,0x2}", callTB: 1},
       {tdata: "0xDEADBEEF", tlast: 1, callTB: 2}
     ]}
   - Parallel_Section_2:
     - interface: {type: axis, name: axis_handler, payload: [
-      {tdata: "{AMHeader,0xAA,0xCC,1,0xE,2,0}"},
+      {tdata: "{AMHeader,0x01,0x02,1,0xE,2,0}"},
       {tdata: "{AMToken,0x2}"},
       {tdata: "0xDEADBEEF", tlast: 1}
     ]}
@@ -139,7 +140,7 @@ Medium_Message_B: &Medium_Message_B
     - delay: 100ns
     - timestamp: INIT
     - interface: {type: axis, name: axis_net, payload: [
-      {tdata: "{AMHeader,0xAA,0xCC,0x100,0xE,2,6}", tkeep: "KEEP_ALL", callTB: 1},
+      {tdata: "{AMHeader,0x01,0x02,0x100,0xE,2,6}", tkeep: "KEEP_ALL", callTB: 1},
       {tdata: "{AMToken,0x3}", callTB: 1},
       {loop: { start: 0, end: 5, body: [
         {tdata: "0x98765432"}
@@ -152,7 +153,7 @@ Medium_Message_B: &Medium_Message_B
     ]}
   - Parallel_Section_2:
     - interface: {type: axis, name: axis_handler, payload: [
-      {tdata: "{AMHeader,0xAA,0xCC,0x100,0xE,2,6}", tkeep: "KEEP_ALL"},
+      {tdata: "{AMHeader,0x01,0x02,0x100,0xE,2,6}"},
       {tdata: "{AMToken,0x3}"},
       {loop: { start: 0, end: 5, body: [
         {tdata: "0x98765432"}
@@ -173,7 +174,7 @@ Long_Message_A: &Long_Message_A
     - delay: 100ns
     - timestamp: INIT
     - interface: {type: axis, name: axis_net, payload: [
-      {tdata: "{AMHeader,0xAA,0xCC,0x100,0xE,4,0}", callTB: 1},
+      {tdata: "{AMHeader,0x01,0x02,0x100,0xE,4,0}", callTB: 1},
       {tdata: "{AMToken,0x4}", callTB: 1},
       {tdata: "0xAABBCCD8", callTB: 1},
       {loop: { start: 0, end: 255, body: [
@@ -183,9 +184,8 @@ Long_Message_A: &Long_Message_A
     ]}
   - Parallel_Section_2:
     - interface: {type: axis, name: axis_handler, payload: [
-      {tdata: "{AMHeader,0xAA,0xCC,0x100,0xE,4,0}"},
-      {tdata: "{AMToken,0x4}"},
-      {tdata: "0xAABBCCD8"}
+      {tdata: "{AMHeader,0x01,0x02,0x100,0xE,4,0}"},
+      {tdata: "{AMToken,0x4}"}
     ]}
     - interface: {type: axis, name: axis_s2mm, payload: [
       {loop: { start: 0, end: 255, body: [
@@ -215,7 +215,7 @@ Long_Message_B: &Long_Message_B
     - delay: 100ns
     - timestamp: INIT
     - interface: {type: axis, name: axis_net, payload: [
-      {tdata: "{AMHeader,0xAA,0xCC,0xC,0xD,0x5,2}", callTB: 1},
+      {tdata: "{AMHeader,0x01,0x02,0xC,0xD,0x5,2}", callTB: 1},
       {tdata: "{AMLongStride,0x100,4,3,0x5}", callTB: 1},
       {tdata: 0, callTB: 1}, # initial address
       {tdata: "0xAABBCCDD", callTB: 0}, # handler arg 0
@@ -243,9 +243,8 @@ Long_Message_B: &Long_Message_B
     ]}
   - Parallel_Section_3:
     - interface: {type: axis, name: axis_handler, payload: [
-      {tdata: "{AMHeader,0xAA,0xCC,0xC,0xD,0x5,2}"},
+      {tdata: "{AMHeader,0x01,0x02,0xC,0xD,0x5,2}"},
       {tdata: "{AMLongStride,0x100,4,3,0x5}"},
-      {tdata: 0}, # initial address
       {tdata: "0xAABBCCDD"}, # handler arg 0
       {tdata: "0xDDCCBBAA"} # handler arg 1
     ]}
@@ -257,7 +256,6 @@ Long_Message_B: &Long_Message_B
         {tdata: "0xDEADBEEF", tlast: 1}
       ]}}
     ]}
-    - timestamp: PRINT
     - delay: 50ns
     - interface: {type: axis, name: axis_s2mmStatus, payload: [
       {tdata: "0x80", callTB: 1}
@@ -275,7 +273,7 @@ Long_Message_C: &Long_Message_C
     - delay: 100ns
     - timestamp: INIT
     - interface: {type: axis, name: axis_net, payload: [
-      {tdata: "{AMHeader,type:0x6,src:0xAA,dst:0xCC,payload:0x10C,handler:0xF,args:0}", callTB: 1},
+      {tdata: "{AMHeader,type:0x6,src:0x01,dst:0x02,payload:0x10C,handler:0xF,args:0}", callTB: 1},
       {tdata: "{AMLongVector,dst:2,dstSize:0xC,token:0x6}"},
       {tdata: 0}, # destination 0
       {tdata: 0x100}, # size 1 
@@ -293,7 +291,7 @@ Long_Message_C: &Long_Message_C
     ]}
   - Parallel_Section_2:
     - interface: {type: axis, name: axis_handler, payload: [
-      {tdata: "{AMHeader,0xAA,0xCC,0x10C,0xF,0x6,0}"},
+      {tdata: "{AMHeader,0x01,0x02,0x10C,0xF,0x6,0}"},
       {tdata: "{AMLongVector,2,0xC,0x6}"}
     ]}
     - interface: {type: axis, name: axis_s2mm, payload: [
@@ -338,7 +336,7 @@ Wait_Conditions:
   - {condition: "@(negedge ap_clk);", key: ap_clk}
 
 Test_Vectors:
-  # - Test_Vector_0: *Long_Message_B
+  # - Test_Vector_0: *Short_Message_
   # - Test_Vector_0: *Short_Message_A
   # - Test_Vector_1: *Long_Message_B
   - Test_Vector_0: *Short_Message_A

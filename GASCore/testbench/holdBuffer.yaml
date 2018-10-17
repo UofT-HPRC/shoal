@@ -1,0 +1,102 @@
+################################################################################
+# JSON-Testbench Configuration File
+################################################################################
+
+# Optional Meta Data #
+Company: 
+Engineer: 
+Project_Name: 
+Target_Devices: 
+Tool_Versions: 
+Description: 
+Dependencies: 
+
+# Required Data #
+Module_Name: holdBuffer
+Timescale: 1ns / 1ps #the default timescale of the simulation
+Time_Format: {unit: "1us", precision: 3} #can be one of s, ms, us, ns, ps, fs
+Flag_Count: 1
+
+Interfaces:
+  - axis
+
+################################################################################
+
+# DUT #
+DUT:
+  - {direction: input, name: ap_clk, type: clock, period: 20ns}
+  - {direction: input, name: ap_rst_n}
+  - {direction: slave, name: axis_input, type: axis, clock: ap_clk, c_struct: axis_word, c_stream: uaxis_l,
+  channels: [
+    {name: "TDATA", type: "tdata", size: 64},
+    {name: "TVALID", type: "tvalid"},
+    {name: "TREADY", type: "tready"},
+    {name: "TLAST", type: "tlast"}
+  ]}
+  - {direction: master, name: axis_output, type: axis, clock: ap_clk, c_struct: axis_word, c_stream: uaxis_l,
+  channels: [
+    {name: "TDATA", type: "tdata", size: 64},
+    {name: "TVALID", type: "tvalid"},
+    {name: "TREADY", type: "tready"},
+    {name: "TLAST", type: "tlast"}
+  ]}
+  - {direction: input, name: dataRelease_V}
+
+################################################################################
+
+Initialize: &Initialize
+  - wait: {key: ap_clk}
+  - macro: INIT_SIGNALS
+  - delay: 40ns
+  - signal:
+    - {name: ap_rst_n, value: 1}
+    - {name: "axis_output_TREADY", value: 1}
+
+Release_A: &Release_A
+  - Parallel_Section_0: *Initialize
+  - Parallel_Section_1:
+    - delay: 100ns
+    - timestamp: INIT
+    - signal: [{name: dataRelease_V, value: 1}]
+    - interface: {type: axis, name: axis_input, payload: [
+      {tdata: "0xDEF", callTB: 1},
+      {tdata: 0xFED, callTB: 1}
+    ]}
+  - Parallel_Section_2:
+    - interface: {type: axis, name: axis_output, payload: [
+      {tdata: "0xDEF"},
+      {tdata: 0xFED}
+    ]}
+    - timestamp: Release_A
+    - macro: END
+
+Release_B: &Release_B
+  - Parallel_Section_0: *Initialize
+  - Parallel_Section_1:
+    - delay: 100ns
+    - timestamp: INIT
+    - interface: {type: axis, name: axis_input, payload: [
+      {tdata: "0xDEF", callTB: 1},
+      {tdata: 0xFED, callTB: 1}
+    ]}
+    - signal: [{name: dataRelease_V, value: 1}]
+  - Parallel_Section_2:
+    - interface: {type: axis, name: axis_output, payload: [
+      {tdata: "0xDEF"},
+      {tdata: 0xFED}
+    ]}
+    - timestamp: Release_B
+    - macro: END
+
+################################################################################
+
+Wait_Conditions:
+  - {condition: "@(negedge ap_clk);", key: ap_clk}
+
+Test_Vectors:
+  # - Test_Vector_0: *Release_B
+  # - Test_Vector_1: *Long_Message_A
+  - Test_Vector_0: *Release_A
+  - Test_Vector_1: *Release_B
+  # - Test_Vector_2: *Long_Message_A
+  

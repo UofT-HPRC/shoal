@@ -8,24 +8,19 @@
 template<int D>
 struct uaxis_l{
     ap_uint<D> data;
+    ap_uint<NBITS(D)+1> keep;
     ap_uint<1> last;
 };
 
-//stream - DATA, USER, ID, DEST bits, in that order
-// typedef uaxis_l<64> axis_word_64a_t;
-// typedef uaxis_l<8> axis_word_8a_t;
+template<int D, int E>
+struct uaxis_m{
+    ap_uint<D> data;
+    ap_uint<NBITS(D)+1> keep;
+    ap_uint<1> last;
+    ap_uint<E> dest;
+};
 
-// typedef hls::stream<axis_word_64a_t> axis_64a_t;
-// typedef hls::stream<axis_word_8a_t> axis_8a_t;
-
-// #define WRITE_WORD(Aword, Adata, Alast, Aaxis)\
-//     Aword.data = Adata;\
-//     Aword.last = Alast;\
-//     Aaxis.write(Aword);
-
-// #define READ_WORD(Aword, Adata, Alast, Aaxis)\
-//     Aaxis.read(Aword);\
-//     Adata = Aword.data;\
-//     Alast = Aword.last;
+#define PRINT_AXIS_SIZE(key, stream) \
+    std::cout << std::dec << "  " << key << ": " << stream.size() << "\n";
 
 #endif

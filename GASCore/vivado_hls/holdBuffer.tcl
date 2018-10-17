@@ -1,5 +1,5 @@
 ### default setting
-set Project     am_tx
+set Project     holdBuffer
 set Solution    Virtex_Ultrascale
 set Device      "xcvu095-ffvc1517-2-e"
 set Flow        ""
@@ -19,14 +19,14 @@ append include $local_include " " $share_include
 open_project $Project -reset
 
 # Add the file for synthesis
-add_files $src_dir/am_tx.cpp -cflags $include
+add_files $src_dir/holdBuffer.cpp -cflags $include
 add_files $src_dir/utilities.cpp -cflags $include
 
 # Add testbench files for co-simulation
-add_files -tb  $test_dir/am_tx_tb.cpp -cflags $include
+add_files -tb  $test_dir/holdBuffer_tb.cpp -cflags $include
 
 # Set top module of the design
-set_top am_tx
+set_top holdBuffer
 
 # Solution settings
 open_solution -reset $Solution
