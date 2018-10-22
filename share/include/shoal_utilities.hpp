@@ -1,4 +1,4 @@
-#if !defined(UTILITIES_SHARE_H_)
+#ifndef UTILITIES_SHARE_H_
 #define UTILITIES_SHARE_H_
 
 /*******************************************************************************

@@ -31,7 +31,7 @@ $(error SHOAL_VIVADO_HLS not set in env -- must be set to the absolute path of \
 of the Vivado HLS include/ directory. Did you source init.sh?)
 endif
 
-local_dir = $(SHOAL_PATH)/GASCore
+local_dir = $(SHOAL_PATH)/GAScore
 obj_dir = $(local_dir)/build
 bin_dir = $(local_dir)/build/bin
 src_dir = $(local_dir)/src
@@ -48,7 +48,7 @@ share_src_dir = $(share_dir)/src
 share_include_dir = $(share_dir)/include
 share_testbench_dir = $(share_dir)/testbench
 
-modules := am_rx am_tx xpams holdBuffer
+modules := am_rx am_tx xpams hold_buffer GAScore
 
 obj = $(shell find $(obj_dir) -name '*.o' -printf '%f\n' | \
 sort -k 1nr | cut -f2-)
@@ -69,27 +69,38 @@ CFLAGS = -g -Wall -I$(include_dir) -I$(share_include_dir) \
 .PHONY: test hw sim clean yaml
 
 #------------------------------------------------------------------------------
-# Main
+# C++ Test Executables
 #------------------------------------------------------------------------------
 
 test_modules=$(patsubst %, test_%, $(modules))
 test: $(test_modules)
+
 define make-test
 test_$1: config_$1 $(bin_dir)/$1_tb
 	@$(bin_dir)/$1_tb
 endef
 $(foreach module, $(modules),$(eval $(call make-test,$(module))))
 
+#------------------------------------------------------------------------------
+# Sonar Testbench Generation
+#------------------------------------------------------------------------------
+
 config_modules=$(patsubst %, config_%, $(modules))
 config: $(config_modules)
+
 define make-config
 config_$1:
-	@python $(SONAR_PATH)/sonar.py env SHOAL_PATH /GASCore/testbench/$1.yaml
+	@python $(SONAR_PATH)/sonar.py env SHOAL_PATH /GAScore/testbench/$1.yaml
 endef
 $(foreach module, $(modules),$(eval $(call make-config,$(module))))
 
+#------------------------------------------------------------------------------
+# Vivado HLS
+#------------------------------------------------------------------------------
+
 hw_modules=$(patsubst %, hw_%, $(modules))
 hw: $(hw_modules)
+
 define make-hw
 hw_$1:
 	@$(hls_dir)/generate.sh $1 # create Vivado HLS project and export the design
@@ -97,9 +108,11 @@ hw_$1:
 endef
 $(foreach module, $(modules),$(eval $(call make-hw,$(module))))
 
-sim:
-	@vivado -source $(vivado_dir)/am_rx.tcl
-	# @$(vivado_dir)/am_tx.sh
+define make-sim
+sim_$1:
+	@vivado -source $(vivado_dir)/$1.tcl
+endef
+$(foreach module, $(modules),$(eval $(call make-sim,$(module))))
 
 #------------------------------------------------------------------------------
 # Executables
@@ -116,11 +129,11 @@ $(foreach module, $(modules),$(eval $(call make-executable,$(module))))
 # Object Files
 #------------------------------------------------------------------------------
 
-define make-testbenche
+define make-testbench
 $(obj_dir)/$1_tb.o: $(test_build_dir)/$1_tb.cpp
 	$(CC) $(CFLAGS) -o $(obj_dir)/$1_tb.o -c $(test_build_dir)/$1_tb.cpp
 endef
-$(foreach module, $(modules),$(eval $(call make-testbenche,$(module))))
+$(foreach module, $(modules),$(eval $(call make-testbench,$(module))))
 
 $(obj_dir)/utilities.o: $(src_dir)/utilities.cpp
 	$(CC) $(CFLAGS) -o $(obj_dir)/utilities.o -c $(src_dir)/utilities.cpp

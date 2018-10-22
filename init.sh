@@ -26,7 +26,7 @@ fi
 
 touch $configFile
 
-GASCORE_PATH=${repoPath}/GASCore
+GASCORE_PATH=${repoPath}/GAScore
 
 mkdir -p $GASCORE_PATH/build
 mkdir -p $GASCORE_PATH/build/bin

@@ -1,10 +1,10 @@
 #ifndef AM_RX_H_
 #define AM_RX_H_
 
-#include "utilities.hpp"
+#include "GAScore.hpp"
 #define DEBUG
 #ifdef DEBUG
-#include "testbench.hpp"
+#include "shoal_testbench.hpp"
 #endif
 
 static enum state_t{st_header, st_AMHandlerArgs, st_AMLongVector, 
@@ -49,21 +49,6 @@ static enum state_t{st_header, st_AMHandlerArgs, st_AMLongVector,
     READ_STREAM_INTERFACE("s2mmCommand", uaxis_l, axis_s2mmCommand, axis_word_s2mmCommand)\
     READ_STREAM_INTERFACE("s2mm", uaxis_l, axis_s2mm, axis_word)\
     READ_STREAM_INTERFACE("s2mmStatus", uaxis_l, axis_s2mmStatus, axis_word_s2mmStatus)
-
-void am_rx(
-    #ifdef DEBUG
-    int &dbg_currentState,
-    #endif
-    axis_t &axis_handler, //output
-    axis_t &axis_net, //input
-    dataMoverCommand_t &axis_s2mmCommand, //output
-    axis_t &axis_s2mm, //output
-    dataMoverStatus_t &axis_s2mmStatus, //input
-
-    //axis_handler release
-    uint_1_t &release, //output
-    gc_AMdest_t destOffset //input
-);
 
 #ifdef DEBUG
 std::string stateParse(int state);

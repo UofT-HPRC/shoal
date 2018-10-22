@@ -4,10 +4,10 @@
 .vscode/
 vivado*.log
 vivado*.jou
-GASCore/vivado_hls/projects/
-GASCore/repo
-GASCore/vivado/projects/
-GASCore/vivado/src/
+GAScore/vivado_hls/projects/
+GAScore/repo
+GAScore/vivado/projects/
+GAScore/vivado/src/
 build/
 archive/
 *_out.json

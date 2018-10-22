@@ -1,14 +1,14 @@
 ### default setting
-set Project     holdBuffer
+set Project     hold_buffer
 set Solution    Virtex_Ultrascale
 set Device      "xcvu095-ffvc1517-2-e"
 set Flow        ""
 set Clock       4.0
 set DefaultFlag 1
 
-set src_dir ${::env(SHOAL_PATH)}/GASCore/src
-set test_dir ${::env(SHOAL_PATH)}/GASCore/testbench/build
-set local_include -I${::env(SHOAL_PATH)}/GASCore/include
+set src_dir ${::env(SHOAL_PATH)}/GAScore/src
+set test_dir ${::env(SHOAL_PATH)}/GAScore/testbench/build
+set local_include -I${::env(SHOAL_PATH)}/GAScore/include
 set share_src_dir ${::env(SHOAL_PATH)}/share/src
 set share_include -I${::env(SHOAL_PATH)}/share/include
 append include $local_include " " $share_include
@@ -19,14 +19,14 @@ append include $local_include " " $share_include
 open_project $Project -reset
 
 # Add the file for synthesis
-add_files $src_dir/holdBuffer.cpp -cflags $include
+add_files $src_dir/hold_buffer.cpp -cflags $include
 add_files $src_dir/utilities.cpp -cflags $include
 
 # Add testbench files for co-simulation
-add_files -tb  $test_dir/holdBuffer_tb.cpp -cflags $include
+add_files -tb  $test_dir/hold_buffer_tb.cpp -cflags $include
 
 # Set top module of the design
-set_top holdBuffer
+set_top hold_buffer
 
 # Solution settings
 open_solution -reset $Solution

@@ -1,4 +1,4 @@
-#include "holdBuffer.hpp"
+#include "hold_buffer.hpp"
 
 /**
  * TODO there's a two cycle latency from input to output for some reason. 
@@ -62,7 +62,7 @@ void write(
     #undef MSB_2
 }
 
-void holdBuffer(
+void hold_buffer(
     axis_t &axis_input,
     axis_t &axis_output,
     uint_1_t &dataRelease

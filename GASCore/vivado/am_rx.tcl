@@ -40,7 +40,7 @@
 #*****************************************************************************************
 
 # Set the reference directory for source file relative paths (by default the value is script directory path)
-set origin_dir ${::env(SHOAL_PATH)}/GASCore/vivado
+set origin_dir ${::env(SHOAL_PATH)}/GAScore/vivado
 
 # Use origin directory path location variable, if specified in the tcl shell
 if { [info exists ::origin_dir_loc] } {

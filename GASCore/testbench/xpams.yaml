@@ -117,7 +117,7 @@ Short_Message_A: &Short_Message_A
 
 # This sends a AMheader + token with two handler args to xpams. There's 
 # an empty handler receiving it so it just sends a reply message back. At 
-# the moment, I'm not sure if it should accept more words from the GASCore 
+# the moment, I'm not sure if it should accept more words from the GAScore 
 Long_Message_A: &Long_Message_A
   - Parallel_Section_0: *Initialize
   - Parallel_Section_1:

@@ -1,7 +1,7 @@
 #ifndef STREAM_H_
 #define STREAM_H_
 
-#include "types.hpp"
+#include "shoal_types.hpp"
 #include "ap_axi_sdata.h"
 #include "hls_stream.h"
 

@@ -12,7 +12,7 @@ Description:
 Dependencies: 
 
 # Required Data #
-Module_Name: holdBuffer
+Module_Name: hold_buffer
 Timescale: 1ns / 1ps #the default timescale of the simulation
 Time_Format: {unit: "1us", precision: 3} #can be one of s, ms, us, ns, ps, fs
 Flag_Count: 1

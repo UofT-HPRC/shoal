@@ -1,4 +1,4 @@
-# GASCore
+# GAScore
 
 Type:  
  * Bit 0: set if short or long strided  
