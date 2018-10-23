@@ -6,13 +6,11 @@ void xpams(
     #endif
     axis_t &axis_rx, //input from am_rx
     axis_t &axis_tx, //output to am_tx
-    axis_dest_t &axis_kernel_out, //output to kernel
-    axis_t &axis_kernel_in //input from kernel
+    axis_dest_t &axis_kernel_out //output to kernel
 ){
     #pragma HLS INTERFACE axis port=axis_rx
     #pragma HLS INTERFACE axis port=axis_tx
     #pragma HLS INTERFACE axis port=axis_kernel_out
-    #pragma HLS INTERFACE axis port=axis_kernel_in
 	#pragma HLS INTERFACE ap_ctrl_none port=return
 
     #ifdef DEBUG

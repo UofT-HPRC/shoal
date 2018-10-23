@@ -2,7 +2,6 @@
 #define HOLDBUFFER_H_
 
 #include "GAScore.hpp"
-// #define DEBUG
 #ifdef DEBUG
 #include "shoal_testbench.hpp"
 #endif
@@ -15,14 +14,14 @@ typedef ap_uint<LOG_FIFO_DEPTH> count_t;
 #define DECLARE_VARIABLES\
     axis_t axis_input("input");\
     axis_t axis_output("output");\
-    uint_1_t dataRelease;\
+    uint_1_t dataRelease_V;\
 \
     axis_word_t axis_word;\
 \
     uint_64_t readData;\
     uint_1_t readLast;
 
-#define CALL_TB hold_buffer(axis_input, axis_output, dataRelease);
+#define CALL_TB hold_buffer(axis_input, axis_output, dataRelease_V);
 
 #define PRINT_INTERFACES std::cout << "Stream statuses:\n"; \
     PRINT_AXIS_SIZE("Input", axis_input) \

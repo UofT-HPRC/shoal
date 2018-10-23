@@ -1,5 +1,5 @@
 ################################################################################
-# JSON-Testbench Configuration File
+# Sonar Configuration File
 ################################################################################
 
 # Optional Meta Data #
@@ -17,25 +17,24 @@ Timescale: 1ns / 1ps #the default timescale of the simulation
 Time_Format: {unit: "1us", precision: 3} #can be one of s, ms, us, ns, ps, fs
 Flag_Count: 1
 
-Interfaces:
-  - axis
-
 ################################################################################
 
 # DUT #
 DUT:
   - {direction: input, name: ap_clk, type: clock, period: 20ns}
-  - {direction: input, name: ap_rst_n}
-  - {direction: slave, name: axis_input, type: axis, clock: ap_clk, c_struct: axis_word, c_stream: uaxis_l,
-  channels: [
+  - {direction: input, name: ap_rst_n, type: reset}
+  - {direction: slave, name: axis_input, type: axis, clock: ap_clk, 
+  c_struct: axis_word, c_stream: uaxis_l, channels: [
     {name: "TDATA", type: "tdata", size: 64},
+    {name: "TKEEP", type: "tkeep", size: 8},
     {name: "TVALID", type: "tvalid"},
     {name: "TREADY", type: "tready"},
     {name: "TLAST", type: "tlast"}
   ]}
-  - {direction: master, name: axis_output, type: axis, clock: ap_clk, c_struct: axis_word, c_stream: uaxis_l,
-  channels: [
+  - {direction: master, name: axis_output, type: axis, clock: ap_clk, 
+  c_struct: axis_word, c_stream: uaxis_l, channels: [
     {name: "TDATA", type: "tdata", size: 64},
+    {name: "TKEEP", type: "tkeep", size: 8},
     {name: "TVALID", type: "tvalid"},
     {name: "TREADY", type: "tready"},
     {name: "TLAST", type: "tlast"}
@@ -94,9 +93,6 @@ Wait_Conditions:
   - {condition: "@(negedge ap_clk);", key: ap_clk}
 
 Test_Vectors:
-  # - Test_Vector_0: *Release_B
-  # - Test_Vector_1: *Long_Message_A
   - Test_Vector_0: *Release_A
   - Test_Vector_1: *Release_B
-  # - Test_Vector_2: *Long_Message_A
   

@@ -52,6 +52,8 @@ void am_tx(
     // static gc_vectorDestUpper_t AMvectorDestUpper[MAX_VECTOR_NUM];
     static gc_destination_t AMvectorDest[MAX_VECTOR_NUM];
 
+    static uint_1_t bufferRelease;
+
     switch(currentState){
         case st_header:{
             if(!axis_kernel.empty()){
@@ -67,10 +69,10 @@ void am_tx(
                 axis_net.write(axis_word);
                 if((isLongxAM(AMtype) || isMediumAM(AMtype)) && 
                     !isDataFromFIFO(AMtype)){
-                    release = 0;
+                    bufferRelease = 0;
                 }
                 else{
-                    release = 1;
+                    bufferRelease = 1;
                 }
                 if(isLongStridedAM(AMtype)){
                     currentState = st_AMLongStride;
@@ -309,19 +311,13 @@ void am_tx(
             break;
         }
         case st_done:{
-            release = 1;
+            bufferRelease = 1;
             currentState = st_header;
             break;
         }
-        case st_error:{
-            currentState = st_error;
-            break;
-        }
-        default:{
-            currentState = st_error;
-            break;
-        }
     }
+
+    release = bufferRelease == 0 ? 0 : 1;
 
     #ifdef DEBUG
     dbg_currentState = currentState;
@@ -340,8 +336,7 @@ std::string stateParse(int state){
         CHECK_STATE("st_AMpayload", st_AMpayload, 5)
         CHECK_STATE("st_AMLongStride", st_AMLongStride, 6)
         CHECK_STATE("st_done", st_done, 7)
-        CHECK_STATE("st_error", st_error, 8)
-        CHECK_STATE("st_AMsource", st_AMsource, 9)
+        CHECK_STATE("st_AMsource", st_AMsource, 8)
         default: {
             std::stringstream sstm;
             sstm << "Unknown State " << state;

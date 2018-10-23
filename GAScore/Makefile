@@ -1,10 +1,10 @@
-###############################################################################
+################################################################################
 # Include
-###############################################################################
+################################################################################
 
-###############################################################################
+################################################################################
 # Prologue
-###############################################################################
+################################################################################
 
 MAKEFLAGS += --warn-undefined-variables
 SHELL := bash
@@ -13,9 +13,9 @@ SHELL := bash
 .DELETE_ON_ERROR:
 .SUFFIXES:
 
-###############################################################################
+################################################################################
 # Variables
-###############################################################################
+################################################################################
 
 ifndef SHOAL_PATH
 $(error SHOAL_PATH not set in env -- must be set to the absolute path of \
@@ -48,7 +48,7 @@ share_src_dir = $(share_dir)/src
 share_include_dir = $(share_dir)/include
 share_testbench_dir = $(share_dir)/testbench
 
-modules := am_rx am_tx xpams hold_buffer GAScore
+modules := am_rx am_tx xpams hold_buffer
 
 obj = $(shell find $(obj_dir) -name '*.o' -printf '%f\n' | \
 sort -k 1nr | cut -f2-)
@@ -62,61 +62,72 @@ CFLAGS = -g -Wall -I$(include_dir) -I$(share_include_dir) \
 	-I$(SHOAL_VIVADO_HLS) \
 	-Wno-unknown-pragmas -Wno-comment -Wno-shift-count-overflow -MMD -MP
 
-###############################################################################
+################################################################################
 # Body
-###############################################################################
+################################################################################
 
 .PHONY: test hw sim clean yaml
 
-#------------------------------------------------------------------------------
-# C++ Test Executables
-#------------------------------------------------------------------------------
+#-------------------------------------------------------------------------------
+# C++ Testbench Execution
+#-------------------------------------------------------------------------------
 
 test_modules=$(patsubst %, test_%, $(modules))
 test: $(test_modules)
 
 define make-test
-test_$1: config_$1 $(bin_dir)/$1_tb
+test-$1: config_$1 $(bin_dir)/$1_tb
 	@$(bin_dir)/$1_tb
 endef
 $(foreach module, $(modules),$(eval $(call make-test,$(module))))
 
-#------------------------------------------------------------------------------
+#-------------------------------------------------------------------------------
 # Sonar Testbench Generation
-#------------------------------------------------------------------------------
+#-------------------------------------------------------------------------------
 
 config_modules=$(patsubst %, config_%, $(modules))
 config: $(config_modules)
 
 define make-config
-config_$1:
-	@python $(SONAR_PATH)/sonar.py env SHOAL_PATH /GAScore/testbench/$1.yaml
+config-$1:
+	@python $(SONAR_PATH)/src/sonar.py env SHOAL_PATH /GAScore/testbench/$1.yaml
 endef
 $(foreach module, $(modules),$(eval $(call make-config,$(module))))
 
-#------------------------------------------------------------------------------
-# Vivado HLS
-#------------------------------------------------------------------------------
+#-------------------------------------------------------------------------------
+# Vivado HLS HW Generation
+#-------------------------------------------------------------------------------
 
 hw_modules=$(patsubst %, hw_%, $(modules))
 hw: $(hw_modules)
 
 define make-hw
-hw_$1:
+hw-$1:
 	@$(hls_dir)/generate.sh $1 # create Vivado HLS project and export the design
 	@$(vivado_dir)/generate.sh $1 # Symlink all generated files for Vivado
 endef
 $(foreach module, $(modules),$(eval $(call make-hw,$(module))))
 
+#-------------------------------------------------------------------------------
+# Vivado RTL Simulation
+#-------------------------------------------------------------------------------
+
 define make-sim
-sim_$1:
-	@vivado -source $(vivado_dir)/$1.tcl
+sim-$1:
+	@vivado -source $(vivado_dir)/generate.tcl -notrace -tclargs --project $1
 endef
 $(foreach module, $(modules),$(eval $(call make-sim,$(module))))
 
-#------------------------------------------------------------------------------
-# Executables
-#------------------------------------------------------------------------------
+define make-batchsim
+batchsim-$1:
+	@vivado -mode batch -source $(vivado_dir)/generate.tcl -notrace -tclargs \
+		--project $1 --sim behav
+endef
+$(foreach module, $(modules),$(eval $(call make-batchsim,$(module))))
+
+#-------------------------------------------------------------------------------
+# C++ Executable Generation
+#-------------------------------------------------------------------------------
 
 define make-executable
 $(bin_dir)/$1_tb: $(obj_dir)/$1_tb.o $(obj_dir)/$1.o $(obj_dir)/utilities.o
@@ -125,9 +136,9 @@ $(bin_dir)/$1_tb: $(obj_dir)/$1_tb.o $(obj_dir)/$1.o $(obj_dir)/utilities.o
 endef
 $(foreach module, $(modules),$(eval $(call make-executable,$(module))))
 
-#------------------------------------------------------------------------------
-# Object Files
-#------------------------------------------------------------------------------
+#-------------------------------------------------------------------------------
+# Object Files Generation
+#-------------------------------------------------------------------------------
 
 define make-testbench
 $(obj_dir)/$1_tb.o: $(test_build_dir)/$1_tb.cpp
@@ -146,10 +157,11 @@ $(foreach module, $(modules),$(eval $(call make-object,$(module))))
 
 -include $(dep)
 
-#------------------------------------------------------------------------------
+#-------------------------------------------------------------------------------
 # Cleanup
-#------------------------------------------------------------------------------
+#-------------------------------------------------------------------------------
 
 clean: 
 	@$(RM) $(obj_dir)/*.o $(obj_dir)/*.d $(bin_dir)/* \
-	$(share_obj_dir)/*.o $(share_obj_dir)/*.d $(share_bin_dir)/*
+	$(share_obj_dir)/*.o $(share_obj_dir)/*.d $(share_bin_dir)/* \
+	$(test_build_dir)/*

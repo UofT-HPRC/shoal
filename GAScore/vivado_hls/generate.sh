@@ -11,7 +11,7 @@ file=$1
 projectPath=$SHOAL_PATH/GAScore/vivado_hls/projects
 mkdir -p $projectPath
 cd $projectPath
-vivado_hls -f ../$file.tcl
+vivado_hls -f ../generate.tcl $file
 vivado_return=$?
 if [[ $vivado_return != 0 ]]; then
     exit $vivado_return

@@ -57,8 +57,10 @@ init:
 # Cleanup
 #------------------------------------------------------------------------------
 
-clean:
-	@$(RM)
+clean-vivado:
+	@find . -name "vivado*.log" -type f -delete
+	@find . -name "vivado*.jou" -type f -delete
+	@find . -name ".Xil" -type d -delete
 
 purge:
 	@rm -rf ~/.shoal

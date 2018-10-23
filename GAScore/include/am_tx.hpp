@@ -7,9 +7,11 @@
 #include "shoal_testbench.hpp"
 #endif
 
+#define FSM_EXISTS // allows printing FSM states in debug
+
 enum state_t{st_header, st_AMHandlerArgs,
     st_AMLongVector, st_AMdestination, st_AMToken,
-    st_AMpayload, st_AMLongStride, st_done, st_error, st_AMsource};
+    st_AMpayload, st_AMLongStride, st_done, st_AMsource};
 
 #define DECLARE_VARIABLES\
     axis_t axis_kernel("kernel");\

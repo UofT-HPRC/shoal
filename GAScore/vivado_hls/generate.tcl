@@ -1,5 +1,22 @@
-### default setting
-set Project     am_tx
+################################################################################
+# Parse Arguments
+################################################################################
+
+if { $::argc > 2 } {
+  for {set i 2} {$i < $::argc} {incr i} {
+      if {$i == 2} {
+        set Project [lindex $::argv $i]
+      }
+  }
+} else {
+  puts "Argument error. The project name must be an argument\n"
+  exit
+}
+
+################################################################################
+# Variables
+################################################################################
+
 set Solution    Virtex_Ultrascale
 set Device      "xcvu095-ffvc1517-2-e"
 set Flow        ""
@@ -13,20 +30,22 @@ set share_src_dir ${::env(SHOAL_PATH)}/share/src
 set share_include -I${::env(SHOAL_PATH)}/share/include
 append include $local_include " " $share_include
 
-#### main part
+################################################################################
+# Body
+################################################################################
 
 # Project settings
 open_project $Project -reset
 
 # Add the file for synthesis
-add_files $src_dir/am_tx.cpp -cflags $include
+add_files $src_dir/$Project.cpp -cflags $include
 add_files $src_dir/utilities.cpp -cflags $include
 
 # Add testbench files for co-simulation
-add_files -tb  $test_dir/am_tx_tb.cpp -cflags $include
+add_files -tb  $test_dir/${Project}_tb.cpp -cflags $include
 
 # Set top module of the design
-set_top am_tx
+set_top $Project
 
 # Solution settings
 open_solution -reset $Solution
@@ -56,6 +75,5 @@ csynth_design
 # IMPLEMENTATION #
 ##################
 export_design -format ipxact
-
 
 exit

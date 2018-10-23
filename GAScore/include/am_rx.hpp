@@ -2,10 +2,11 @@
 #define AM_RX_H_
 
 #include "GAScore.hpp"
-#define DEBUG
 #ifdef DEBUG
 #include "shoal_testbench.hpp"
 #endif
+
+#define FSM_EXISTS // allows printing FSM states in debug
 
 static enum state_t{st_header, st_AMHandlerArgs, st_AMLongVector, 
     st_AMdestination, st_AMToken, st_AMpayload, st_AMLongStride, st_done} 
