@@ -42,7 +42,7 @@ add_files $src_dir/$Project.cpp -cflags $include
 add_files $src_dir/utilities.cpp -cflags $include
 
 # Add testbench files for co-simulation
-add_files -tb  $test_dir/${Project}_tb.cpp -cflags $include
+add_files -tb  $test_dir/${Project}/${Project}_tb.cpp -cflags $include
 
 # Set top module of the design
 set_top $Project

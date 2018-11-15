@@ -60,7 +60,9 @@ init:
 clean-vivado:
 	@find . -name "vivado*.log" -type f -delete
 	@find . -name "vivado*.jou" -type f -delete
-	@find . -name ".Xil" -type d -delete
+	@find . -name ".Xil" -type d -exec rm -rf "{}" \;
+	@find . -name "vivado_pid*.str" -type f -delete
+	@find . -name "hs_err_pid*.log" -type f -delete
 
 purge:
 	@rm -rf ~/.shoal

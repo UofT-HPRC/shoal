@@ -14,16 +14,30 @@
 
 #define GC_DATA_WIDTH 64UL // bit width of tdata
 #define GC_ADDR_WIDTH 32 // bit width of addressable memory on a node
-#define GC_DEST_WIDTH 4 // bit width of tdest
-#define GC_MAX_PAYLOAD 12 // Log2 of the maximum payload word count
+#define GC_DEST_WIDTH 16 // bit width of tdest
 #define MAX_VECTOR_NUM 16 // Maximum number of vectors for vectored messages
+
+#define AM_SRC_UPPER 23
+#define AM_SRC_LOWER 8
+#define AM_DST 39,24
+#define AM_PAYLOAD_SIZE_UPPER 51
+#define AM_PAYLOAD_SIZE_LOWER 40
+#define AM_HANDLER 55,52
+#define AM_TYPE 7,0
+#define AM_HANDLER_ARGS 63,56
+#define AM_TOKEN 63,40
 
 /*******************************************************************************
  * Derived defines
 *******************************************************************************/
 
+#define AM_PAYLOAD_SIZE AM_PAYLOAD_SIZE_UPPER,AM_PAYLOAD_SIZE_LOWER
+#define AM_SRC AM_SRC_UPPER,AM_SRC_LOWER
+
+#define GC_MAX_PAYLOAD (AM_PAYLOAD_SIZE_UPPER - AM_PAYLOAD_SIZE_LOWER + 1)
 #define GC_DATA_BYTES (GC_DATA_WIDTH/8)
 #define GC_MAX_PAYLOAD_BYTES (GC_MAX_PAYLOAD+NBITS(GC_DATA_BYTES)-1)
+#define GC_DATA_TKEEP (power<2, GC_DATA_BYTES>()-1)
 
 /*******************************************************************************
  * Typedefs
@@ -33,13 +47,16 @@ typedef uaxis_l<GC_DATA_WIDTH> axis_word_t;
 typedef hls::stream<axis_word_t> axis_t;
 typedef uaxis_m<GC_DATA_WIDTH, GC_DEST_WIDTH> axis_wordDest_t;
 typedef hls::stream<axis_wordDest_t> axis_dest_t;
+typedef uaxis_n<GC_DATA_WIDTH> axis_wordNoKeep_t;
+typedef hls::stream<axis_wordNoKeep_t> axis_noKeep_t;
+
 typedef ap_uint<GC_DATA_WIDTH> word_t;
 typedef ap_uint<GC_ADDR_WIDTH> addr_word_t;
 
 typedef ap_uint<GC_DEST_WIDTH> gc_AMdest_t;
 
 // Header Types
-typedef uint_16_t gc_AMsrc_t;
+typedef ap_uint<16> gc_AMsrc_t;
 typedef uint_16_t gc_AMdst_t;
 
 // AM Types
@@ -47,9 +64,6 @@ typedef uint_8_t gc_AMtype_t;
 typedef uint_8_t gc_AMargs_t;
 typedef uint_4_t gc_AMhandler_t;
 typedef uint_24_t gc_AMToken_t;
-
-// AM Handler args
-typedef uint_64_t gc_AMhandlerArg_t;
 
 // Payload
 typedef ap_uint<GC_MAX_PAYLOAD> gc_payloadSize_t;
@@ -64,6 +78,7 @@ typedef gc_payloadSize_t gc_vectorSize_t;
 typedef uint_4_t gc_srcVectorNum_t;
 
 // Datamover
+//TODO change uaxis_l to uaxis_o for the command
 typedef uaxis_l<GC_ADDR_WIDTH+17+GC_MAX_PAYLOAD_BYTES> dataMoverCommand_word_t;
 typedef hls::stream<dataMoverCommand_word_t> dataMoverCommand_t;
 typedef uaxis_l<8> axis_word_8a_t;
@@ -74,8 +89,21 @@ typedef ap_uint<GC_MAX_PAYLOAD_BYTES> btt_t;
  * Macros
 *******************************************************************************/
 
+#define AM_SHORT 0x1
+#define AM_MEDIUM 0x2
+#define AM_LONG 0x4
+#define AM_VECTOR 0x6
+#define AM_STRIDE 0x5
+#define AM_FIFO 0x10
+#define AM_ASYNC 0x20
+#define AM_REPLY 0x40
+
+#define H_EMPTY 0
+#define H_ADD 1
+
 #define COMPARE_uaxis_l(x) x
 #define COMPARE_uaxis_m(x) x
+#define COMPARE_uaxis_n(x) x
 
 #define WRITE_WORD_L(Aword, Adata, Alast, Akeep, Aaxis)\
     Aword.data = Adata;\
@@ -88,6 +116,11 @@ typedef ap_uint<GC_MAX_PAYLOAD_BYTES> btt_t;
     Aword.last = Alast;\
     Aword.keep = Akeep;\
     Aword.dest = Adest;\
+    Aaxis.write(Aword);
+
+#define WRITE_WORD_N(Aword, Adata, Alast, Aaxis)\
+    Aword.data = Adata;\
+    Aword.last = Alast;\
     Aaxis.write(Aword);
 
 #define READ_WORD_L(Aword, Adata, Alast, Akeep, Aaxis)\
@@ -103,18 +136,27 @@ typedef ap_uint<GC_MAX_PAYLOAD_BYTES> btt_t;
     Akeep = Aword.keep;\
     Adest = Aword.dest;
 
+#define READ_WORD_N(Aword, Adata, Alast, Aaxis)\
+    Aaxis.read(Aword);\
+    Adata = Aword.data;\
+    Alast = Aword.last;
+
 //the arg numbers correspond to the c_args order in axis.py in Sonar
 #define WRITE(key, word_type, interface)\
     WHEN(EQUAL(key, uaxis_l))\
         (WRITE_WORD_L(word_type, args[0], args[1], args[2], interface))\
     WHEN(EQUAL(key, uaxis_m))\
-    	(WRITE_WORD_M(word_type, args[0], args[1], args[2], args[3], interface))
+    	(WRITE_WORD_M(word_type, args[0], args[1], args[2], args[3], interface))\
+    WHEN(EQUAL(key, uaxis_n))\
+        (WRITE_WORD_N(word_type, args[0], args[1], interface))
 
 #define READ(key, word_type, interface)\
     WHEN(EQUAL(key, uaxis_l))\
     	(READ_WORD_L(word_type, readArgs[0], readArgs[1], readArgs[2], interface))\
     WHEN(EQUAL(key, uaxis_m))\
-    	(READ_WORD_M(word_type, readArgs[0], readArgs[1], readArgs[2], readArgs[3], interface))
+    	(READ_WORD_M(word_type, readArgs[0], readArgs[1], readArgs[2], readArgs[3], interface))\
+    WHEN(EQUAL(key, uaxis_n))\
+    	(READ_WORD_N(word_type, readArgs[0], readArgs[1], interface))
 
 #define VERIFY(key)\
     if(!strcmp(key,"uaxis_l")){\
@@ -138,7 +180,17 @@ typedef ap_uint<GC_MAX_PAYLOAD_BYTES> btt_t;
             std::cout << std::hex << "   Received: " << readArgs[0] << " " << \
                 readArgs[1] << " " << readArgs[2] << " " << readArgs[3] << "\n";\
         }\
-    }
+    }\
+    if(!strcmp(key,"uaxis_n")){\
+        if(args[0] != readArgs[0] || args[1] != readArgs[1]){\
+            valid = false;\
+            std::cout << "Mismatch at id: " << id << "\n";\
+            std::cout << std::hex << "   Expected: " << args[0] << " " << \
+                args[1] << "\n";\
+            std::cout << std::hex << "   Received: " << readArgs[0] << " " << \
+                readArgs[1] << "\n";\
+        }\
+    }\
 
 #define READ_STREAM_INTERFACE(name, key, stream, word_type) \
     while(stream.size() > 0){ \
@@ -152,6 +204,11 @@ typedef ap_uint<GC_MAX_PAYLOAD_BYTES> btt_t;
             std::cout << std::hex << name << " - Data: " << word_type.data << \
             " Last: " << word_type.last << " Keep: " << word_type.keep << \
             " Dest: " << word_type.dest << "\n"; \
+        )\
+        WHEN(EQUAL(key, uaxis_n))(\
+            READ(key, word_type, stream) \
+            std::cout << std::hex << name << " - Data: " << word_type.data << \
+            " Last: " << word_type.last << "\n"; \
         )\
     }
 
@@ -192,5 +249,24 @@ void dataMoverWriteCommand(
     uint_1_t type,
     btt_t btt
 );
+
+inline axis_wordNoKeep_t assignWordtoNoKeep(axis_word_t axis_word){
+    axis_wordNoKeep_t axis_wordDest;
+
+    axis_wordDest.data = axis_word.data;
+    axis_wordDest.last = axis_word.last;
+    
+    return axis_wordDest;
+}
+
+inline axis_wordDest_t assignWord(axis_word_t axis_word){
+    axis_wordDest_t axis_wordDest;
+
+    axis_wordDest.data = axis_word.data;
+    axis_wordDest.keep = axis_word.keep;
+    axis_wordDest.last = axis_word.last;
+    
+    return axis_wordDest;
+}
 
 #endif

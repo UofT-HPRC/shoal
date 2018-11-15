@@ -1,5 +1,5 @@
-#ifndef UTILITIES_SHARE_H_
-#define UTILITIES_SHARE_H_
+#ifndef SHOAL_UTILITIES_H_
+#define SHOAL_UTILITIES_H_
 
 /*******************************************************************************
  * This allows you to use defined variables as part of pragmas.
@@ -26,6 +26,7 @@
  * cannot start with COMPARE_
  * 
  * Reference: https://github.com/pfultz2/Cloak/wiki/C-Preprocessor-tricks,-tips,-and-idioms
+ * Credit to Paul Fultz II and Cloak (https://github.com/pfultz2/Cloak)
 *******************************************************************************/
 
 #define CAT(a, ...) PRIMITIVE_CAT(a, __VA_ARGS__)
@@ -74,4 +75,69 @@
 
 #define EQUAL(x, y) COMPL(NOT_EQUAL(x, y))
 
-#endif // UTILITIES_SHARE_H_
+// #define EMPTY()
+// #define DEFER(id) id EMPTY()
+// #define OBSTRUCT(...) __VA_ARGS__ DEFER(EMPTY)()
+
+// #define WHILE(pred, op, ...) \
+//     IF(pred(__VA_ARGS__)) \
+//     ( \
+//         OBSTRUCT(WHILE_INDIRECT) () \
+//         ( \
+//             pred, op, op(__VA_ARGS__) \
+//         ), \
+//         __VA_ARGS__ \
+//     )
+// #define WHILE_INDIRECT() WHILE
+
+// #define DEC(x) PRIMITIVE_CAT(DEC_, x)
+// #define DEC_0 0
+// #define DEC_1 0
+// #define DEC_2 1
+// #define DEC_3 2
+// #define DEC_4 3
+// #define DEC_5 4
+// #define DEC_6 5
+// #define DEC_7 6
+// #define DEC_8 7
+// #define DEC_9 8
+
+// #define EVAL(...)  EVAL1(EVAL1(EVAL1(__VA_ARGS__)))
+// #define EVAL1(...) EVAL2(EVAL2(EVAL2(__VA_ARGS__)))
+// #define EVAL2(...) EVAL3(EVAL3(EVAL3(__VA_ARGS__)))
+// #define EVAL3(...) EVAL4(EVAL4(EVAL4(__VA_ARGS__)))
+// #define EVAL4(...) EVAL5(EVAL5(EVAL5(__VA_ARGS__)))
+// #define EVAL5(...) __VA_ARGS__
+
+// #define REPEAT(count, macro, ...) \
+//     WHEN(count) \
+//     ( \
+//         OBSTRUCT(REPEAT_INDIRECT) () \
+//         ( \
+//             DEC(count), macro, __VA_ARGS__ \
+//         ) \
+//         OBSTRUCT(macro) \
+//         ( \
+//             DEC(count), __VA_ARGS__ \
+//         ) \
+//     )
+// #define REPEAT_INDIRECT() REPEAT
+
+#define NBITS2(n) ((n&2)?1:0)
+#define NBITS4(n) ((n&(0xC))?(2+NBITS2(n>>2)):(NBITS2(n)))
+#define NBITS8(n) ((n&0xF0)?(4+NBITS4(n>>4)):(NBITS4(n)))
+#define NBITS16(n) ((n&0xFF00)?(8+NBITS8(n>>8)):(NBITS8(n)))
+#define NBITS32(n) ((n&0xFFFF0000)?(16+NBITS16(n>>16)):(NBITS16(n)))
+#define NBITS64(n) ((n&0xFFFFFFFF0000)?(32+NBITS32(n>>32)):(NBITS32(n)))
+#define NBITS(n) (n==0?0:NBITS64(n)+1)
+
+template<int base, int exponent>
+int power() {
+    int sum = 1;
+    for(int i = 0; i < exponent; i++)
+        sum *= base;
+    
+    return sum;
+}
+
+#endif // SHOAL_UTILITIES_H_

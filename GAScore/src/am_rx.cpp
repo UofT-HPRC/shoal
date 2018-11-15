@@ -4,23 +4,22 @@ void am_rx(
     #ifdef DEBUG
     int &dbg_currentState,
     #endif
-    axis_t &axis_handler, //output
+    axis_t &axis_xpams_rx, //output
     axis_t &axis_net, //input
     dataMoverCommand_t &axis_s2mmCommand, //output
     axis_t &axis_s2mm, //output
     dataMoverStatus_t &axis_s2mmStatus, //input
-    uint_1_t &release, //output
-
-    gc_AMdest_t destOffset
+    uint_1_t &release //output
 ){
-    #pragma HLS INTERFACE axis port=axis_handler
+    #pragma HLS INTERFACE axis port=axis_xpams_rx
     #pragma HLS INTERFACE axis port=axis_net
     #pragma HLS INTERFACE axis port=axis_s2mmCommand
 	#pragma HLS INTERFACE axis port=axis_s2mm
 	#pragma HLS INTERFACE axis port=axis_s2mmStatus
+    #ifdef DEBUG
     #pragma HLS INTERFACE ap_none port=dbg_currentState
+    #endif
     #pragma HLS INTERFACE ap_none port=release
-    #pragma HLS INTERFACE ap_stable port=destOffset
 	#pragma HLS INTERFACE ap_ctrl_none port=return
 
     axis_word_t axis_word;
@@ -52,13 +51,13 @@ void am_rx(
         case st_header:{
             if(!axis_net.empty()){
                 axis_net.read(axis_word);
-                AMsrc = axis_word.data(15,0);
-                AMdst = axis_word.data(31,16) - destOffset;
-                AMpayloadSize = axis_word.data(43,32);
-                AMhandler = axis_word.data(47,44);
-                AMtype = axis_word.data(55,48);
-                AMargs = axis_word.data(63,56);
-                axis_handler.write(axis_word);
+                AMsrc = axis_word.data(AM_SRC);
+                AMdst = axis_word.data(AM_DST);
+                AMpayloadSize = axis_word.data(AM_PAYLOAD_SIZE);
+                AMhandler = axis_word.data(AM_HANDLER);
+                AMtype = axis_word.data(AM_TYPE);
+                AMargs = axis_word.data(AM_HANDLER_ARGS);
+                axis_xpams_rx.write(axis_word);
                 bufferRelease = !isLongxAM(AMtype);
                 
                 if(isLongStridedAM(AMtype)){
@@ -80,8 +79,8 @@ void am_rx(
         case st_AMToken:{
             if(!axis_net.empty()){
                 axis_net.read(axis_word);
-                axis_handler.write(axis_word);
-                AMToken = axis_word.data(GC_DATA_WIDTH-1,GC_DATA_WIDTH-24);
+                axis_xpams_rx.write(axis_word);
+                AMToken = axis_word.data(AM_TOKEN);
                 if(isShortAM(AMtype)){
                     currentState = AMargs == 0 ? st_done : st_AMHandlerArgs;
                 }
@@ -99,7 +98,7 @@ void am_rx(
             for(argCount = 0; argCount < AMargs; argCount++){
                 if(!axis_net.empty()){
                     axis_net.read(axis_word);
-                    axis_handler.write(axis_word);
+                    axis_xpams_rx.write(axis_word);
                 }
             }
             if(isShortAM(AMtype)){
@@ -114,7 +113,7 @@ void am_rx(
             if(!axis_net.empty()){
                 axis_net.read(axis_word);
                 AMdestination = axis_word.data(63,0);
-                // axis_handler.write(axis_word);
+                // axis_xpams_rx.write(axis_word);
 
                 gc_strideBlockSize_t payload = isLongAM(AMtype) ? AMpayloadSize : AMstrideBlockSize;
                 addr_word_t address = AMdestination(GC_ADDR_WIDTH-1,0);
@@ -132,7 +131,7 @@ void am_rx(
         case st_AMLongStride:{
             if(!axis_net.empty()){
                 axis_net.read(axis_word);
-                axis_handler.write(axis_word);
+                axis_xpams_rx.write(axis_word);
                 AMstride = axis_word.data(15,0);
                 AMstrideBlockSize = axis_word.data(27,16);
                 AMstrideBlockNum = axis_word.data(39,28);
@@ -150,7 +149,7 @@ void am_rx(
                 AMdstVectorNum = axis_word.data(7,4);
                 AMvectorSize[0] = axis_word.data(31,20);
                 AMToken = axis_word.data(63,40);
-                axis_handler.write(axis_word);
+                axis_xpams_rx.write(axis_word);
             // }
 
             // if(!axis_net.empty()){
@@ -204,7 +203,7 @@ void am_rx(
                 writeCount++;
                 i++;
                 if(isMediumAM(AMtype)){
-                    axis_handler.write(axis_word);
+                    axis_xpams_rx.write(axis_word);
                 }
                 else{
                     if(isLongAM(AMtype)){

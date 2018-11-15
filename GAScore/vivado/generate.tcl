@@ -68,7 +68,7 @@ switch $auto_sim {
 # Include
 ################################################################################
 
-# Defines lremove
+# Defines lremove and listcomp
 source ${::env(SHOAL_PATH)}/share/utilities.tcl
 
 ################################################################################
@@ -114,7 +114,10 @@ if {[string equal [get_filesets -quiet sources_1] ""]} {
 
 # Set 'sources_1' fileset object
 set obj [get_filesets sources_1]
-set files [lremove $all_files [glob -directory "$src_dir" *_tb.sv] ]
+set files [listcomp $all_files [glob -directory "$src_dir" *_tb.sv] ]
+if {! [catch {glob -directory "$src_dir" *.tcl} yikes] } {
+  set files [listcomp $files [glob -directory "$src_dir" *.tcl] ]
+}
 add_files -norecurse -fileset $obj $files
 
 set data_files [glob -directory "$src_dir" *.dat]
@@ -153,6 +156,13 @@ foreach dataFile $files {
 set obj [get_filesets sim_1]
 set_property -name "top" -value "${project_name}_tb" -objects $obj
 set_property -name "xsim.simulate.runtime" -value "-1" -objects $obj
+
+if {! [catch {glob -directory "$src_dir" *.tcl} yikes] } {
+  set files [glob -directory "$src_dir" *.tcl]
+  foreach tclFile $files {
+    source $tclFile
+  }
+}
 
 # Create 'synth_1' run (if not found)
 if {[string equal [get_runs -quiet synth_1] ""]} {

@@ -13,6 +13,9 @@ archive/
 *_out.json
 *.pyc
 .initialized
+.Xil/
+hs_err_pid*.log
+vivado_pid*.str
 
 # Prerequisites
 *.d

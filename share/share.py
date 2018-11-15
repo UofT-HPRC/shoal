@@ -1,4 +1,5 @@
 import sys
+import subprocess
 
 ### printMacro ###
 # This function will print the value of a macro defined in a C/C++ 
@@ -10,8 +11,6 @@ import sys
 #
 # Return: None
 def printMacro(header, macro):
-    import subprocess
-
     command = "g++ $SHOAL_PATH/share/src/print_macro.cpp -w \
         -I$SHOAL_PATH/share/include -I$SHOAL_VIVADO_HLS \
         -include " + header + " -D'MACRO_VALUE=" + \
@@ -23,7 +22,7 @@ def printMacro(header, macro):
         print("Error code", e.returncode, e.output)
         exit(1)
     
-    subprocess.check_output("$SHOAL_PATH/share/build/bin/print_macro", shell=True)
+    subprocess.call("$SHOAL_PATH/share/build/bin/print_macro", shell=True)
 
 ### evalMacro ###
 # This function will evaluate the value of a numeric macro defined in a C/C++ 
@@ -35,8 +34,6 @@ def printMacro(header, macro):
 #
 # Return: integer value of the macro
 def evalMacro(header, macro):
-    import subprocess
-
     command = "g++ $SHOAL_PATH/share/src/eval_macro.cpp -w \
         -I$SHOAL_PATH/share/include -I$SHOAL_VIVADO_HLS \
         -include " + header + " -DMACRO_VALUE=" + \
@@ -69,7 +66,7 @@ if __name__ == "__main__":
         if sys.argv[1] == "evalMacro" and len(sys.argv) == 4:
             print(evalMacro(sys.argv[2], sys.argv[3]))
         elif sys.argv[1] == "printMacro" and len(sys.argv) == 4:
-            print(printMacro(sys.argv[2], sys.argv[3]))
+            printMacro(sys.argv[2], sys.argv[3])
         else:
             print("Unknown flags. Use -h or --help")
     else:

@@ -1,15 +1,17 @@
-#include "xpams.hpp"
+#include "xpams_rx.hpp"
 
-void xpams(
+void xpams_rx(
     #ifdef DEBUG
     int &dbg_currentState,
     #endif
     axis_t &axis_rx, //input from am_rx
-    axis_t &axis_tx, //output to am_tx
+    axis_t &axis_tx, //output to am_tx (auto reply)
+    axis_noKeep_t &axis_handler, //output to handler
     axis_dest_t &axis_kernel_out //output to kernel
 ){
     #pragma HLS INTERFACE axis port=axis_rx
     #pragma HLS INTERFACE axis port=axis_tx
+    #pragma HLS INTERFACE axis port=axis_handler
     #pragma HLS INTERFACE axis port=axis_kernel_out
 	#pragma HLS INTERFACE ap_ctrl_none port=return
 
@@ -19,6 +21,7 @@ void xpams(
     
     axis_word_t axis_word;
     axis_wordDest_t axis_wordDest;
+    axis_wordNoKeep_t axis_wordNoKeep;
 
     static gc_AMsrc_t AMsrc;
     static gc_AMdst_t AMdst;
@@ -34,22 +37,34 @@ void xpams(
         case st_AMheader:{
             if(!axis_rx.empty()){
                 axis_rx.read(axis_word);
-                AMsrc = axis_word.data(15,0);
-                AMdst = axis_word.data(31,16);
-                AMpayloadSize = axis_word.data(43,32);
-                AMhandler = axis_word.data(47,44);
-                AMtype = axis_word.data(55,48);
-                AMargs = axis_word.data(63,56);
+                AMsrc = axis_word.data(AM_SRC);
+                AMdst = axis_word.data(AM_DST);
+                AMpayloadSize = axis_word.data(AM_PAYLOAD_SIZE);
+                AMhandler = axis_word.data(AM_HANDLER);
+                AMtype = axis_word.data(AM_TYPE);
+                AMargs = axis_word.data(AM_HANDLER_ARGS);
+                if (AMhandler != H_EMPTY){
+                    axis_wordNoKeep = assignWordtoNoKeep(axis_word);
+                    axis_handler.write(axis_wordNoKeep);
+                }
                 axis_rx.read(axis_word); //read token
-                AMToken = axis_word.data(63,40);
-                if (AMargs != 0){ //! temporary fix to just absorb all arguments
+                AMToken = axis_word.data(AM_TOKEN);
+                if (AMargs != 0){
                     gc_AMargs_t i;
-                    for(i = 0; i < AMargs; i++){
+                    for(i = 0; i < AMargs - 1; i++){
                         axis_rx.read(axis_word);
+                        axis_wordNoKeep = assignWordtoNoKeep(axis_word);
+                        axis_handler.write(axis_wordNoKeep);
                     }
+                    axis_rx.read(axis_word);
+                    axis_wordNoKeep = assignWordtoNoKeep(axis_word);
+                    axis_wordNoKeep.last = 1;
+                    axis_handler.write(axis_wordNoKeep);
                 }
                 if(isReplyAM(AMtype)){
-                    axis_word.data(63,40) = AMToken;
+                    axis_word.data(AM_TOKEN) = AMToken;
+                    axis_word.data(39,8) = 0;
+                    axis_word.data(AM_TYPE) = AM_SHORT + AM_REPLY;
                     axis_wordDest = assignWord(axis_word);
                     axis_wordDest.dest = AMdst;
                     axis_kernel_out.write(axis_wordDest);
@@ -78,42 +93,28 @@ void xpams(
             break;
         }
         case st_sendReplyHeader:{
-            axis_word.data(15,0) = AMdst;
-            axis_word.data(31,16) = AMsrc;
-            axis_word.data(43,32) = 0;
-            axis_word.data(47,44) = H_EMPTY;
-            axis_word.data(55,48) = 0x41;
-            axis_word.data(63,56) = 0;
-            axis_word.keep = 0xFF; //! parameterize
+            axis_word.data(AM_SRC) = AMdst;
+            axis_word.data(AM_DST) = AMsrc;
+            axis_word.data(AM_PAYLOAD_SIZE) = 0;
+            axis_word.data(AM_HANDLER) = H_EMPTY;
+            axis_word.data(AM_TYPE) = AM_SHORT + AM_REPLY;
+            axis_word.data(AM_HANDLER_ARGS) = 0;
+            axis_word.keep = GC_DATA_TKEEP;
             axis_tx.write(axis_word);
             axis_word.data(39,0) = 0;
-            axis_word.data(63,40) = AMToken;
+            axis_word.data(AM_TOKEN) = AMToken;
+            // axis_word.data(39,) = 0;
             axis_word.last = 1; //!needs to be handled better
-            axis_word.keep = 0xFF; //! parameterize
+            axis_word.keep = GC_DATA_TKEEP;
             axis_tx.write(axis_word);
             currentState = st_AMheader;
             break;
         }
     }
 
-    // if(!axis_kernel_in.empty() && currentState != st_sendReplyHeader){
-    //     axis_kernel_in.read(axis_word);
-    //     axis_tx.write(axis_word);
-    // }
-
     #ifdef DEBUG
     dbg_currentState = currentState;
     #endif
-}
-
-inline axis_wordDest_t assignWord(axis_word_t axis_word){
-    axis_wordDest_t axis_wordDest;
-
-    axis_wordDest.data = axis_word.data;
-    axis_wordDest.keep = axis_word.keep;
-    axis_wordDest.last = axis_word.last;
-    
-    return axis_wordDest;
 }
 
 #ifdef DEBUG

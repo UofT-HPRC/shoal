@@ -1,7 +1,7 @@
 #ifndef HOLDBUFFER_H_
 #define HOLDBUFFER_H_
 
-#include "GAScore.hpp"
+#include "utilities.hpp"
 #ifdef DEBUG
 #include "shoal_testbench.hpp"
 #endif
@@ -30,5 +30,11 @@ typedef ap_uint<LOG_FIFO_DEPTH> count_t;
 #define READ_INTERFACES \
     READ_STREAM_INTERFACE("Input", uaxis_l, axis_input, axis_word)\
     READ_STREAM_INTERFACE("Output", uaxis_l, axis_output, axis_word)
+
+void hold_buffer(
+    axis_t &axis_input, //input from GAScore
+    axis_t &axis_output, //output AM reply
+    uint_1_t &dataRelease
+);
 
 #endif // HOLDBUFFER_H_

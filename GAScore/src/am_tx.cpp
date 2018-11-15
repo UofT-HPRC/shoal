@@ -59,12 +59,12 @@ void am_tx(
             if(!axis_kernel.empty()){
                 axis_kernel.read(axis_word);
 
-                AMpayloadSize = axis_word.data(43,32);
-                AMhandler = axis_word.data(47,44);
-                AMtype = axis_word.data(55,48);
-                AMargs = axis_word.data(63,56);                
+                AMpayloadSize = axis_word.data(AM_PAYLOAD_SIZE);
+                AMhandler = axis_word.data(AM_HANDLER);
+                AMtype = axis_word.data(AM_TYPE);
+                AMargs = axis_word.data(AM_HANDLER_ARGS);                
 
-                axis_word.data(55,48) = AMtype & 0xEF; //mask out FIFO bit
+                axis_word.data(AM_TYPE) = AMtype & 0xEF; //mask out FIFO bit
 
                 axis_net.write(axis_word);
                 if((isLongxAM(AMtype) || isMediumAM(AMtype)) && 
@@ -93,7 +93,7 @@ void am_tx(
             if(!axis_kernel.empty()){
                 axis_kernel.read(axis_word);
                 axis_net.write(axis_word);
-                AMToken = axis_word.data(GC_DATA_WIDTH-1,GC_DATA_WIDTH-24);
+                AMToken = axis_word.data(AM_TOKEN);
                 if(isShortAM(AMtype)){
                     currentState = AMargs == 0 ? st_done : st_AMHandlerArgs;
                 }

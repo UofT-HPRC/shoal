@@ -48,7 +48,9 @@ share_src_dir = $(share_dir)/src
 share_include_dir = $(share_dir)/include
 share_testbench_dir = $(share_dir)/testbench
 
-modules := am_rx am_tx xpams hold_buffer
+c_modules := am_rx am_tx xpams_rx hold_buffer xpams_tx handler
+hdl_modules := 
+custom_modules := handler_wrapper GAScore
 
 obj = $(shell find $(obj_dir) -name '*.o' -printf '%f\n' | \
 sort -k 1nr | cut -f2-)
@@ -72,41 +74,44 @@ CFLAGS = -g -Wall -I$(include_dir) -I$(share_include_dir) \
 # C++ Testbench Execution
 #-------------------------------------------------------------------------------
 
-test_modules=$(patsubst %, test_%, $(modules))
+test_modules=$(patsubst %, test-%, $(c_modules))
 test: $(test_modules)
 
 define make-test
-test-$1: config_$1 $(bin_dir)/$1_tb
-	@$(bin_dir)/$1_tb
+test-$1: config-$1 $(bin_dir)/$1_tb
+	@$(bin_dir)/$1_tb --readInterfaces
 endef
-$(foreach module, $(modules),$(eval $(call make-test,$(module))))
+$(foreach module, $(c_modules),$(eval $(call make-test,$(module))))
 
 #-------------------------------------------------------------------------------
 # Sonar Testbench Generation
 #-------------------------------------------------------------------------------
 
-config_modules=$(patsubst %, config_%, $(modules))
+config_modules=$(patsubst %, config-%, $(c_modules))
 config: $(config_modules)
 
 define make-config
 config-$1:
-	@python $(SONAR_PATH)/src/sonar.py env SHOAL_PATH /GAScore/testbench/$1.yaml
+	@cp -u $(include_dir)/sonar_strToInt.py $(SONAR_PATH)/user/user_strToInt.py
+	@python $(SONAR_PATH)/src/sonar.py env SHOAL_PATH /GAScore/testbench/$1.yaml $2
 endef
-$(foreach module, $(modules),$(eval $(call make-config,$(module))))
+$(foreach module, $(c_modules),$(eval $(call make-config,$(module),all)))
+$(foreach module, $(hdl_modules),$(eval $(call make-config,$(module),sv)))
+$(foreach module, $(custom_modules),$(eval $(call make-config,$(module),sv)))
 
 #-------------------------------------------------------------------------------
 # Vivado HLS HW Generation
 #-------------------------------------------------------------------------------
 
-hw_modules=$(patsubst %, hw_%, $(modules))
+hw_modules=$(patsubst %, hw-%, $(c_modules))
 hw: $(hw_modules)
 
 define make-hw
 hw-$1:
 	@$(hls_dir)/generate.sh $1 # create Vivado HLS project and export the design
-	@$(vivado_dir)/generate.sh $1 # Symlink all generated files for Vivado
+	@$(vivado_dir)/generate.sh $1 c # Symlink all generated files for Vivado
 endef
-$(foreach module, $(modules),$(eval $(call make-hw,$(module))))
+$(foreach module, $(c_modules),$(eval $(call make-hw,$(module))))
 
 #-------------------------------------------------------------------------------
 # Vivado RTL Simulation
@@ -114,37 +119,48 @@ $(foreach module, $(modules),$(eval $(call make-hw,$(module))))
 
 define make-sim
 sim-$1:
+	@$(vivado_dir)/generate.sh $1 $2 # Symlink all generated files for Vivado
 	@vivado -source $(vivado_dir)/generate.tcl -notrace -tclargs --project $1
 endef
-$(foreach module, $(modules),$(eval $(call make-sim,$(module))))
+$(foreach module, $(c_modules),$(eval $(call make-sim,$(module),c)))
+$(foreach module, $(hdl_modules),$(eval $(call make-sim,$(module),hdl)))
+
+define make-sim-custom
+sim-$1:
+	@$(vivado_dir)/$1.sh # Symlink all generated files for Vivado
+	@vivado -source $(vivado_dir)/generate.tcl -tclargs --project $1
+endef
+$(foreach module, $(custom_modules),$(eval $(call make-sim-custom,$(module))))
 
 define make-batchsim
 batchsim-$1:
+	@$(vivado_dir)/generate.sh $1 $2 # Symlink all generated files for Vivado
 	@vivado -mode batch -source $(vivado_dir)/generate.tcl -notrace -tclargs \
 		--project $1 --sim behav
 endef
-$(foreach module, $(modules),$(eval $(call make-batchsim,$(module))))
+$(foreach module, $(c_modules),$(eval $(call make-batchsim,$(module),c)))
+$(foreach module, $(hdl_modules),$(eval $(call make-batchsim,$(module),hdl)))
 
 #-------------------------------------------------------------------------------
 # C++ Executable Generation
 #-------------------------------------------------------------------------------
 
 define make-executable
-$(bin_dir)/$1_tb: $(obj_dir)/$1_tb.o $(obj_dir)/$1.o $(obj_dir)/utilities.o
-	$(CC) $(CFLAGS) -o $(bin_dir)/$1_tb $(obj_dir)/$1_tb.o \
-	$(obj_dir)/$1.o $(obj_dir)/utilities.o
+$(bin_dir)/$1_tb: $(obj_dir)/utilities.o $(obj_dir)/$1_tb.o $(obj_dir)/$1.o
+	$(CC) $(CFLAGS) -o $(bin_dir)/$1_tb $(obj_dir)/utilities.o \
+		$(obj_dir)/$1_tb.o $(obj_dir)/$1.o
 endef
-$(foreach module, $(modules),$(eval $(call make-executable,$(module))))
+$(foreach module, $(c_modules),$(eval $(call make-executable,$(module))))
 
 #-------------------------------------------------------------------------------
 # Object Files Generation
 #-------------------------------------------------------------------------------
 
 define make-testbench
-$(obj_dir)/$1_tb.o: $(test_build_dir)/$1_tb.cpp
-	$(CC) $(CFLAGS) -o $(obj_dir)/$1_tb.o -c $(test_build_dir)/$1_tb.cpp
+$(obj_dir)/$1_tb.o: $(test_build_dir)/$1/$1_tb.cpp
+	$(CC) $(CFLAGS) -o $(obj_dir)/$1_tb.o -c $(test_build_dir)/$1/$1_tb.cpp
 endef
-$(foreach module, $(modules),$(eval $(call make-testbench,$(module))))
+$(foreach module, $(c_modules),$(eval $(call make-testbench,$(module))))
 
 $(obj_dir)/utilities.o: $(src_dir)/utilities.cpp
 	$(CC) $(CFLAGS) -o $(obj_dir)/utilities.o -c $(src_dir)/utilities.cpp
@@ -153,7 +169,7 @@ define make-object
 $(obj_dir)/$1.o: $(src_dir)/$1.cpp
 	$(CC) $(CFLAGS) -o $(obj_dir)/$1.o -c $(src_dir)/$1.cpp
 endef
-$(foreach module, $(modules),$(eval $(call make-object,$(module))))
+$(foreach module, $(c_modules),$(eval $(call make-object,$(module))))
 
 -include $(dep)
 

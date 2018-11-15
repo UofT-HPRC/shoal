@@ -1,8 +1,8 @@
 #ifndef AM_TX_H_
 #define AM_TX_H_
 
-#include "GAScore.hpp"
-#define DEBUG
+#include "utilities.hpp"
+// #define DEBUG
 #ifdef DEBUG
 #include "shoal_testbench.hpp"
 #endif
@@ -50,6 +50,18 @@ enum state_t{st_header, st_AMHandlerArgs,
     READ_STREAM_INTERFACE("mm2sCommand", uaxis_l, axis_mm2sCommand, axis_word_mm2sCommand)\
     READ_STREAM_INTERFACE("mm2s", uaxis_l, axis_mm2s, axis_word)\
     READ_STREAM_INTERFACE("mm2sStatus", uaxis_l, axis_mm2sStatus, axis_word_mm2sStatus)
+
+void am_tx(
+    #ifdef DEBUG
+    int &dbg_currentState,
+    #endif
+    axis_t &axis_kernel, //input
+    axis_t &axis_net, //output
+    dataMoverCommand_t &axis_mm2sCommand, //output
+    axis_t &axis_mm2s, //input
+    dataMoverStatus_t &axis_mm2sStatus, //input
+    uint_1_t &release //output
+);
 
 #ifdef DEBUG
 std::string stateParse(int state);

@@ -23,8 +23,8 @@ Flag_Count: 1
 DUT:
   - {direction: input, name: ap_clk, type: clock, period: 20ns}
   - {direction: input, name: ap_rst_n, type: reset}
-  - {direction: output, size: 32, name: dbg_currentState}
-  - {direction: master, name: axis_handler, type: axis, clock: ap_clk, 
+  # - {direction: output, size: 32, name: dbg_currentState}
+  - {direction: master, name: axis_xpams_rx, type: axis, clock: ap_clk, 
   c_struct: axis_word, c_stream: uaxis_l, channels: [
       {name: "TDATA", type: "tdata", size: 64},
       {name: "TKEEP", type: "tkeep", size: 8},
@@ -74,7 +74,7 @@ Initialize: &Initialize
   - delay: 40ns
   - signal:
     - {name: ap_rst_n, value: 1}
-    - {name: "axis_handler_TREADY", value: 1}
+    - {name: "axis_xpams_rx_TREADY", value: 1}
     - {name: "axis_s2mmCommand_TREADY", value: 1}
     - {name: "axis_s2mm_TREADY", value: 1}
 
@@ -90,7 +90,7 @@ Short_Message_A: &Short_Message_A
       {tdata: 0x1234, tlast: 1, callTB: 2}
     ]}
   - Parallel_Section_2:
-    - interface: {type: axis, name: axis_handler, payload: [
+    - interface: {type: axis, name: axis_xpams_rx, payload: [
       {tdata: "{AMHeader,0x01,0x02,0,0xE,1,2}"},
       {tdata: "{AMToken,0x0}"},
       {tdata: 0xDEADBEEF},
@@ -109,7 +109,7 @@ Short_Message_B: &Short_Message_B
       {tdata: "{AMToken,0x1}", callTB: 2}
     ]}
   - Parallel_Section_2:
-    - interface: {type: axis, name: axis_handler, payload: [
+    - interface: {type: axis, name: axis_xpams_rx, payload: [
       {tdata: "{AMHeader,0x01,0x02,0,0xE,1,0}"},
       {tdata: "{AMToken,0x1}"}
     ]}
@@ -127,7 +127,7 @@ Medium_Message_A: &Medium_Message_A
       {tdata: "0xDEADBEEF", tlast: 1, callTB: 2}
     ]}
   - Parallel_Section_2:
-    - interface: {type: axis, name: axis_handler, payload: [
+    - interface: {type: axis, name: axis_xpams_rx, payload: [
       {tdata: "{AMHeader,0x01,0x02,1,0xE,2,0}"},
       {tdata: "{AMToken,0x2}"},
       {tdata: "0xDEADBEEF", tlast: 1}
@@ -153,7 +153,7 @@ Medium_Message_B: &Medium_Message_B
       {tdata: "0xFEEDDEED", callTB: 2, tlast: 1}
     ]}
   - Parallel_Section_2:
-    - interface: {type: axis, name: axis_handler, payload: [
+    - interface: {type: axis, name: axis_xpams_rx, payload: [
       {tdata: "{AMHeader,0x01,0x02,0x100,0xE,2,6}"},
       {tdata: "{AMToken,0x3}"},
       {loop: { start: 0, end: 5, body: [
@@ -184,7 +184,7 @@ Long_Message_A: &Long_Message_A
       {tdata: "0xDEADBEEF", callTB: 1, tlast: 1}
     ]}
   - Parallel_Section_2:
-    - interface: {type: axis, name: axis_handler, payload: [
+    - interface: {type: axis, name: axis_xpams_rx, payload: [
       {tdata: "{AMHeader,0x01,0x02,0x100,0xE,4,0}"},
       {tdata: "{AMToken,0x4}"}
     ]}
@@ -243,7 +243,7 @@ Long_Message_B: &Long_Message_B
       {tdata: "{dataMoverCommand,0x20,1,0,1,0,0x200,0}"}
     ]}
   - Parallel_Section_3:
-    - interface: {type: axis, name: axis_handler, payload: [
+    - interface: {type: axis, name: axis_xpams_rx, payload: [
       {tdata: "{AMHeader,0x01,0x02,0xC,0xD,0x5,2}"},
       {tdata: "{AMLongStride,0x100,4,3,0x5}"},
       {tdata: "0xAABBCCDD"}, # handler arg 0
@@ -291,7 +291,7 @@ Long_Message_C: &Long_Message_C
       {tdata: "0xDDDDDDDD", tlast: 1, callTB: 2}
     ]}
   - Parallel_Section_2:
-    - interface: {type: axis, name: axis_handler, payload: [
+    - interface: {type: axis, name: axis_xpams_rx, payload: [
       {tdata: "{AMHeader,0x01,0x02,0x10C,0xF,0x6,0}"},
       {tdata: "{AMLongVector,2,0xC,0x6}"}
     ]}
@@ -344,4 +344,3 @@ Test_Vectors:
   - Test_Vector_4: *Long_Message_A
   - Test_Vector_5: *Long_Message_B
   - Test_Vector_6: *Long_Message_C
-  
