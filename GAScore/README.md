@@ -34,7 +34,7 @@ Active Message Packet Schema
     |                   Handler args               |
     |                   Payload ...                |
 
-    Long Stride 
+    Long Stride (stride in bytes, block size in words)
     |0                             64|
     | Type (8) | SRC (16) | DST (16) | Payload (words) (12) | Handler (4) | # Args (8) |
     | Stride (16) | Cont. block size (12) | blocks (12) | Packet ID (24) |
@@ -52,4 +52,59 @@ Active Message Packet Schema
     ...
     |                   Handler args               |
     |                   Payload ...                |
+
+
+Short
+    |0                             64|
+    | Type (8) | SRC (16) | DST (16) | Payload (words) (12) | Handler (4) | # Args (8) |
+    | Reserved (40) | Packet ID (24) |
+    |                   Handler args               |
+    
+    Medium (FIFO 0)
+    |0                             64|
+    | Type (8) | SRC (16) | DST (16) | Payload (words) (12) | Handler (4) | # Args (8) |
+    | Reserved (40) | Packet ID (24) |
+    |                   SRC addr                   |
+    |                   Handler args               |
+    Medium (FIFO 1)
+    |0                             64|
+    | Type (8) | SRC (16) | DST (16) | Payload (words) (12) | Handler (4) | # Args (8) |
+    | Reserved (40) | Packet ID (24) |
+    |                   Handler args               |
+    |                   Payload ...                |
+    Long (FIFO 0)
+    |0                             64|
+    | Type (8) | SRC (16) | DST (16) | Payload (words) (12) | Handler (4) | # Args (8) |
+    | Reserved (40) | Packet ID (24) |
+    |                   Source Addr                |
+    |                   Destination                |
+    |                   Handler args               |
+    Long (FIFO 1)
+    |0                             64|
+    | Type (8) | SRC (16) | DST (16) | Payload (words) (12) | Handler (4) | # Args (8) |
+    | Reserved (40) | Packet ID (24) |
+    |                   Destination                |
+    |                   Handler args               |
+    |                   Payload ...                |
+    Long Stride 
+    |0                             64|
+    | Type (8) | SRC (16) | DST (16) | Payload (words) (12) | Handler (4) | # Args (8) |
+    | Stride (16) | Cont. block size (12) | blocks (12) | Reserved (24) |
+    |                   Source addr                |
+    | Stride (16) | Cont. block size (12) | blocks (12) | Packet ID (24) |
+    |                   Dest.  addr                |
+    |                   Handler args               |
+    Long Vector 
+    |0                             64|
+    | Type (8) | SRC (16) | DST (16) | Payload (words) (12) | Handler (4) | # Args (8) |
+    | # src vectors (4) | # dst vectors (4) | src Size 1 (12) | dst Size 1 (12) | Reserved (8) | Packet ID (24) |
+    |                   src   addr.                |
+    |                   dst   addr.                |
+    | src size 2... (12) | Reserved (52) |
+    |                   src   addr.                |
+    ...
+    | dst size 2... (12) | Reserved (52) |
+    |                   dst   addr.                |
+    ...    
+    |                   Handler args               |
 </pre>

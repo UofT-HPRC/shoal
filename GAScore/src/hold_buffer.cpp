@@ -21,7 +21,7 @@ count_t read(
     // count_t holdCount;
     // uint_1_t writing;
     
-    if (!axis_input.empty() && !axis_fifo.full()){
+    if (!axis_input.empty()/* && !axis_fifo.full()*/){
         axis_input.read(axis_word);
         axis_fifo.write(axis_word);
         writeCount++;
@@ -52,7 +52,7 @@ void write(
     #pragma HLS RESET variable=readCount
 
     #define MSB_2 LOG_FIFO_DEPTH-1,LOG_FIFO_DEPTH-3
-    if (!axis_fifo.empty() && !axis_output.full()){
+    if (!axis_fifo.empty() /*&& !axis_output.full()*/){
         if(holdCount > readCount || (holdCount(MSB_2) == 0 && readCount(MSB_2) == 3)){
             axis_fifo.read(axis_word);
             axis_output.write(axis_word);

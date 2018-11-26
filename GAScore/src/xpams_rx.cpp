@@ -35,7 +35,7 @@ void xpams_rx(
 
     switch(currentState){
         case st_AMheader:{
-            if(!axis_rx.empty()){
+            // if(!axis_rx.empty()){
                 axis_rx.read(axis_word);
                 AMsrc = axis_word.data(AM_SRC);
                 AMdst = axis_word.data(AM_DST);
@@ -78,7 +78,7 @@ void xpams_rx(
                         currentState = st_sendReplyHeader;
                     }
                 }
-            }
+            // }
             break;
         }
         case st_AMpayload:{

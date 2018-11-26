@@ -79,11 +79,11 @@ typedef uint_4_t gc_srcVectorNum_t;
 
 // Datamover
 //TODO change uaxis_l to uaxis_o for the command
-typedef uaxis_l<GC_ADDR_WIDTH+17+GC_MAX_PAYLOAD_BYTES> dataMoverCommand_word_t;
+typedef uaxis_o<GC_ADDR_WIDTH+40> dataMoverCommand_word_t;
 typedef hls::stream<dataMoverCommand_word_t> dataMoverCommand_t;
 typedef uaxis_l<8> axis_word_8a_t;
 typedef hls::stream<axis_word_8a_t> dataMoverStatus_t;
-typedef ap_uint<GC_MAX_PAYLOAD_BYTES> btt_t;
+typedef ap_uint<23> btt_t;
 
 /*******************************************************************************
  * Macros

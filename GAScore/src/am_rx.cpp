@@ -49,7 +49,7 @@ void am_rx(
 
     switch(currentState){
         case st_header:{
-            if(!axis_net.empty()){
+            // if(!axis_net.empty()){
                 axis_net.read(axis_word);
                 AMsrc = axis_word.data(AM_SRC);
                 AMdst = axis_word.data(AM_DST);
@@ -70,14 +70,14 @@ void am_rx(
                     currentState = st_AMToken;
                 }
                 
-            }
-            else{
-                currentState = st_header;
-            }
+            // }
+            // else{
+            //     currentState = st_header;
+            // }
             break;
         }
         case st_AMToken:{
-            if(!axis_net.empty()){
+            // if(!axis_net.empty()){
                 axis_net.read(axis_word);
                 axis_xpams_rx.write(axis_word);
                 AMToken = axis_word.data(AM_TOKEN);
@@ -90,16 +90,16 @@ void am_rx(
                 else{
                     currentState = st_AMdestination;
                 }
-            }
+            // }
             break;
         }
         case st_AMHandlerArgs:{
             gc_AMargs_t argCount;
             for(argCount = 0; argCount < AMargs; argCount++){
-                if(!axis_net.empty()){
+                // if(!axis_net.empty()){
                     axis_net.read(axis_word);
                     axis_xpams_rx.write(axis_word);
-                }
+                // }
             }
             if(isShortAM(AMtype)){
                 currentState = st_done;
@@ -110,7 +110,7 @@ void am_rx(
             break;
         }
         case st_AMdestination:{
-            if(!axis_net.empty()){
+            // if(!axis_net.empty()){
                 axis_net.read(axis_word);
                 AMdestination = axis_word.data(63,0);
                 // axis_xpams_rx.write(axis_word);
@@ -126,10 +126,10 @@ void am_rx(
                     currentState = st_AMHandlerArgs;
                 }
                 break;
-            }            
+            // }            
         }
         case st_AMLongStride:{
-            if(!axis_net.empty()){
+            // if(!axis_net.empty()){
                 axis_net.read(axis_word);
                 axis_xpams_rx.write(axis_word);
                 AMstride = axis_word.data(15,0);
@@ -137,14 +137,14 @@ void am_rx(
                 AMstrideBlockNum = axis_word.data(39,28);
                 AMToken = axis_word.data(63,40);
                 currentState = st_AMdestination;
-            }
+            // }
             break;
         }
         case st_AMLongVector:{
             // if(!axis_net.empty()){
-                while(axis_net.empty()){
+                // while(axis_net.empty()){
                     //busy loop
-                }
+                // }
                 axis_net.read(axis_word);
                 AMdstVectorNum = axis_word.data(7,4);
                 AMvectorSize[0] = axis_word.data(31,20);
@@ -153,9 +153,9 @@ void am_rx(
             // }
 
             // if(!axis_net.empty()){
-                while(axis_net.empty()){
+                // while(axis_net.empty()){
                     //busy loop
-                }
+                // }
                 axis_net.read(axis_word);
                 AMvectorDest[0] = axis_word.data(63,0);
             // }
@@ -167,16 +167,16 @@ void am_rx(
             gc_dstVectorNum_t i = 0;
             for(i = 1; i < AMdstVectorNum; i++){
                 // if(!axis_net.empty()){
-                    while(axis_net.empty()){
+                    // while(axis_net.empty()){
                         //busy loop
-                    }
+                    // }
                     axis_net.read(axis_word);
                     AMvectorSize[i] = axis_word.data(11,0);
                 // }
                 // if(!axis_net.empty()){
-                    while(axis_net.empty()){
+                    // while(axis_net.empty()){
                         //busy loop
-                    }
+                    // }
                     axis_net.read(axis_word);
                     AMvectorDest[i] = axis_word.data(63,0);
                 // }
@@ -196,9 +196,9 @@ void am_rx(
             gc_strideBlockNum_t strideCount = 1;
             gc_dstVectorNum_t vectorCount = 0;
             while(i < AMpayloadSize){
-                while(axis_net.empty()){
+                // while(axis_net.empty()){
                     //busy loop
-                }
+                // }
                 axis_net.read(axis_word);
                 writeCount++;
                 i++;
@@ -207,9 +207,9 @@ void am_rx(
                 }
                 else{
                     if(isLongAM(AMtype)){
-                        if(!axis_s2mm.full()){
+                        // if(!axis_s2mm.full()){
                             axis_s2mm.write(axis_word);
-                        }
+                        // }
                     }
                     else if(isLongStridedAM(AMtype)){
                         if (strideCount < AMstrideBlockNum){
@@ -220,16 +220,16 @@ void am_rx(
                             strideCount++;
                         }
                         if(writeCount < AMstrideBlockSize){
-                            if(!axis_s2mm.full()){
+                            // if(!axis_s2mm.full()){
                                 axis_word.last = 0;
                                 axis_s2mm.write(axis_word);
-                            }
+                            // }
                         }
                         else if(writeCount == AMstrideBlockSize){
-                            if(!axis_s2mm.full()){
+                            // if(!axis_s2mm.full()){
                                 axis_word.last = 1;
                                 axis_s2mm.write(axis_word);
-                            }
+                            // }
                             // if(i < AMpayloadSize){
                                 
                             // }
@@ -239,26 +239,26 @@ void am_rx(
                             //     strideDest, strideDest(1,0) != 0, 1, 
                             //     strideDest(1,0), 1, AMstrideBlockSize * GC_DATA_BYTES);
                             // strideDest += AMstride;
-                            if(!axis_s2mm.full()){
+                            // if(!axis_s2mm.full()){
                                 axis_word.last = 0;
                                 axis_s2mm.write(axis_word);
-                            }
+                            // }
                             writeCount = 1;
                             // writeCount = 0;
                         }
                     }
                     else{
                         if(writeCount < AMvectorSize[vectorCount]){
-                            if(!axis_s2mm.full()){
+                            // if(!axis_s2mm.full()){
                                 axis_word.last = 0;
                                 axis_s2mm.write(axis_word);
-                            }
+                            // }
                         }
                         else if(writeCount == AMvectorSize[vectorCount]){
-                            if(!axis_s2mm.full()){
+                            // if(!axis_s2mm.full()){
                                 axis_word.last = 1;
                                 axis_s2mm.write(axis_word);
-                            }
+                            // }
                         }
                         else{
                             vectorCount++;
@@ -268,10 +268,10 @@ void am_rx(
                             //     1, //eof
                             //     AMvectorDest[vectorCount](1,0), 1, //dsa, type
                             //     AMvectorSize[vectorCount]*GC_DATA_BYTES);
-                            if(!axis_s2mm.full()){
+                            // if(!axis_s2mm.full()){
                                 axis_word.last = 0;
                                 axis_s2mm.write(axis_word);
-                            }
+                            // }
                             writeCount = 1;
                         }
                     }

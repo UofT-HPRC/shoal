@@ -160,7 +160,7 @@ set_property -name "xsim.simulate.runtime" -value "-1" -objects $obj
 if {! [catch {glob -directory "$src_dir" *.tcl} yikes] } {
   set files [glob -directory "$src_dir" *.tcl]
   foreach tclFile $files {
-    source $tclFile
+    source $tclFile -notrace
   }
 }
 

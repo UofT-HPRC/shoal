@@ -128,7 +128,7 @@ $(foreach module, $(hdl_modules),$(eval $(call make-sim,$(module),hdl)))
 define make-sim-custom
 sim-$1:
 	@$(vivado_dir)/$1.sh # Symlink all generated files for Vivado
-	@vivado -source $(vivado_dir)/generate.tcl -tclargs --project $1
+	@vivado -source $(vivado_dir)/generate.tcl -notrace -tclargs --project $1
 endef
 $(foreach module, $(custom_modules),$(eval $(call make-sim-custom,$(module))))
 

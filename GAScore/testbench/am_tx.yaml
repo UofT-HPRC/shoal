@@ -23,7 +23,7 @@ Flag_Count: 1
 DUT:
   - {direction: input, name: ap_clk, type: clock, period: 20ns}
   - {direction: input, name: ap_rst_n, type: reset}
-  - {direction: output, size: 32, name: dbg_currentState}
+  # - {direction: output, size: 32, name: dbg_currentState}
   - {direction: slave, name: axis_kernel, type: axis, clock: ap_clk, 
   c_struct: axis_word, c_stream: uaxis_l, channels: [
       {name: "TDATA", type: "tdata", size: 64},

@@ -55,24 +55,21 @@ void dataMoverWriteCommand(
     uint_1_t type,
     btt_t btt
 ){
-    #define tmp GC_MAX_PAYLOAD_BYTES
-    #define temp (tmp + GC_ADDR_WIDTH)
+    #define temp (32+GC_ADDR_WIDTH)
     dataMoverCommand_word_t axis_word_s2mmCommand;
-    axis_word_s2mmCommand.data(temp+16,temp+13) = reserved;
-    axis_word_s2mmCommand.data(temp+12,temp+9) = tag;
-    axis_word_s2mmCommand.data(temp+8,tmp+9) = address;
-    axis_word_s2mmCommand.data[tmp+8] = ddr;
-    axis_word_s2mmCommand.data[tmp+7] = eof;
-    axis_word_s2mmCommand.data(tmp+6, tmp+1) = dsa;
-    axis_word_s2mmCommand.data[tmp] = type;
-    axis_word_s2mmCommand.data(tmp-1,0) = btt;
-    axis_word_s2mmCommand.data(tmp-1,0) = btt;
-    axis_word_s2mmCommand.keep = GC_DATA_TKEEP;
-    if(!axis_command.full()){
+    axis_word_s2mmCommand.data(temp+8-1,temp+4) = reserved;
+    axis_word_s2mmCommand.data(temp+4-1,temp) = tag;
+    axis_word_s2mmCommand.data(temp-1,32) = address;
+    axis_word_s2mmCommand.data[31] = ddr;
+    axis_word_s2mmCommand.data[30] = eof;
+    axis_word_s2mmCommand.data(29,24) = dsa;
+    axis_word_s2mmCommand.data[23] = type;
+    axis_word_s2mmCommand.data(22,0) = btt;
+    // axis_word_s2mmCommand.keep = GC_DATA_TKEEP;
+    // if(!axis_command.full()){
         axis_command.write(axis_word_s2mmCommand);
-    }
+    // }
     #undef temp
-    #undef tmp
 }
 
 // inline axis_wordNoKeep_t assignWordtoNoKeep(axis_word_t axis_word){

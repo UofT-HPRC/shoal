@@ -160,16 +160,16 @@ def strToInt(packet):
                     exit(1)
         
         btt = extractNumber(argBTT)
-        commandType = extractNumber(argCommandType) << 15
-        dsa = extractNumber(argDSA) << 16
-        eof = extractNumber(argEOF) << 22
-        drr = extractNumber(argDRR) << 23
-        addr = extractNumber(argAddr) << 24
-        tag = extractNumber(argTag) << 56
+        commandType = extractNumber(argCommandType) << 23
+        dsa = extractNumber(argDSA) << 24
+        eof = extractNumber(argEOF) << 30
+        drr = extractNumber(argDRR) << 31
+        addr = extractNumber(argAddr) << 32
+        tag = extractNumber(argTag) << 64
         intVal = btt + commandType + dsa + eof + drr + addr + tag
         if len(packetArgs) == 10:
-            xuser = extractNumber(argUser) << 64
-            xcache = extractNumber(argCache) << 68
+            xuser = extractNumber(argUser) << 72
+            xcache = extractNumber(argCache) << 76
             intVal += xuser + xcache
 
     elif packetArgs[0] == "AMToken":

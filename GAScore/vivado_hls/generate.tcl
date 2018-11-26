@@ -50,6 +50,9 @@ set_top $Project
 # Solution settings
 open_solution -reset $Solution
 
+# Set module prefix
+config_rtl -encoding auto -prefix ${Project}_ -reset all -reset_level low
+
 # Add library
 set_part $Device
 

@@ -43,7 +43,7 @@ void xpams_tx(
 
     switch(currentState){
         case st_AMheader:{
-            if(!axis_kernel_in.empty()){
+            // if(!axis_kernel_in.empty()){
                 axis_kernel_in.read(axis_word);
                 AMsrc = axis_word.data(AM_SRC);
                 AMhandler = axis_word.data(AM_HANDLER);
@@ -108,12 +108,31 @@ void xpams_tx(
                             axis_tx.write(axis_word);
                         }
                     }
-                    if (isMediumFIFOAM(AMtype))
+                    if (isMediumFIFOAM(AMtype) || isLongFIFOAM(AMtype))
                         currentState = st_AMsend;
-                    else
-                        currentState = st_AMheader;
+                    else{
+                        // axis_kernel_in.read(axis_word);
+                        // if (AMpayloadSize > 0){
+                        //     while(axis_word.last != 1){
+                        //         axis_tx.write(axis_word);
+                        //         axis_kernel_in.read(axis_word);
+                        //     }
+                        //     axis_tx.write(axis_word);
+                        // }
+                        if (AMpayloadSize != 0){
+                            gc_payloadSize_t i;
+                            for(i = 0; i < AMpayloadSize - 1; i++){
+                                axis_kernel_in.read(axis_word);
+                                axis_tx.write(axis_word);
+                            }
+                            axis_kernel_in.read(axis_word);
+                            axis_word.last = 1;
+                            axis_tx.write(axis_word);
+                            currentState = st_AMheader;
+                        }
+                    }
                 }
-            }
+            // }
             break;
         }
         case st_reply:{
@@ -122,6 +141,7 @@ void xpams_tx(
             axis_word.keep = GC_DATA_TKEEP;
             axis_wordDest = assignWord(axis_word);
             axis_wordDest.dest = AMsrc;
+            axis_wordDest.last = 1;
             axis_kernel_out.write(axis_wordDest);
             currentState = st_AMheader;
             break;
@@ -143,6 +163,7 @@ void xpams_tx(
                 axis_tx.write(axis_word);
                 axis_kernel_in.read(axis_word);
             }
+            axis_tx.write(axis_word);
             currentState = st_AMheader;
             break;
         }
