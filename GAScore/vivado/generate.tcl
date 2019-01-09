@@ -114,10 +114,17 @@ if {[string equal [get_filesets -quiet sources_1] ""]} {
 
 # Set 'sources_1' fileset object
 set obj [get_filesets sources_1]
+# remove the tb file from the file set (it's added separately to the simset)
 set files [listcomp $all_files [glob -directory "$src_dir" *_tb.sv] ]
+# if .tcl files exist, remove them as well
 if {! [catch {glob -directory "$src_dir" *.tcl} yikes] } {
   set files [listcomp $files [glob -directory "$src_dir" *.tcl] ]
 }
+# if waveform config files exist, remove them as well
+if {! [catch {glob -directory "$src_dir" *.wcfg} yikes] } {
+  set files [listcomp $files [glob -directory "$src_dir" *.wcfg] ]
+}
+# add the remaining files to the sources set
 add_files -norecurse -fileset $obj $files
 
 set data_files [glob -directory "$src_dir" *.dat]
@@ -144,6 +151,7 @@ if {[string equal [get_filesets -quiet sim_1] ""]} {
 # Set 'sim_1' fileset object
 set obj [get_filesets sim_1]
 set files [glob -directory "$src_dir" *_tb.sv]
+set files [glob -directory "$src_dir" *.wcfg]
 add_files -norecurse -fileset $obj $files
 
 # Set 'sim_1' fileset file properties for remote files
@@ -156,6 +164,9 @@ foreach dataFile $files {
 set obj [get_filesets sim_1]
 set_property -name "top" -value "${project_name}_tb" -objects $obj
 set_property -name "xsim.simulate.runtime" -value "-1" -objects $obj
+if {! [catch {glob -directory "$src_dir" *.wcfg} yikes] } {
+  set_property xsim.view ${project_name}.wcfg $obj
+}
 
 if {! [catch {glob -directory "$src_dir" *.tcl} yikes] } {
   set files [glob -directory "$src_dir" *.tcl]

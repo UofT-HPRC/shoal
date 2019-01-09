@@ -1,4 +1,4 @@
-from include.utilities import extractNumber
+from sonar.core.include.utilities import extractNumber
 
 def strToInt(packet):
     packetArgs = packet[1:-1].split(",")

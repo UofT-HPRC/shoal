@@ -142,6 +142,7 @@ module GAScore #(
     wire axis_handler_tready;
 
     wire [31:0]axi_mem_araddr;
+//    wire axi_mem_awid;
     wire [1:0]axi_mem_arburst;
     wire [3:0]axi_mem_arcache;
     wire [7:0]axi_mem_arlen;
@@ -149,9 +150,10 @@ module GAScore #(
     wire [2:0]axi_mem_arprot;
     wire [3:0]axi_mem_arqos;
     wire axi_mem_arready;
-    wire [3:0]axi_mem_arregion;
+//    wire [3:0]axi_mem_arregion;
     wire [2:0]axi_mem_arsize;
     wire axi_mem_arvalid;
+//    wire axi_mem_arid;
     wire [31:0]axi_mem_awaddr;
     wire [1:0]axi_mem_awburst;
     wire [3:0]axi_mem_awcache;
@@ -160,13 +162,15 @@ module GAScore #(
     wire [2:0]axi_mem_awprot;
     wire [3:0]axi_mem_awqos;
     wire axi_mem_awready;
-    wire [3:0]axi_mem_awregion;
+//    wire [3:0]axi_mem_awregion;
     wire [2:0]axi_mem_awsize;
     wire axi_mem_awvalid;
+//    wire axi_mem_bid;
     wire axi_mem_bready;
     wire [1:0]axi_mem_bresp;
     wire axi_mem_bvalid;
     wire [63:0]axi_mem_rdata;
+    wire axi_mem_rid;
     wire axi_mem_rlast;
     wire axi_mem_rready;
     wire [1:0]axi_mem_rresp;
@@ -206,13 +210,14 @@ module GAScore #(
         .axis_handler_tdata(axis_handler_tdata),
         .axis_handler_tlast(axis_handler_tlast),
         .axi_mem_awaddr(axi_mem_awaddr),
+//        .axi_mem_awid(axi_mem_awid),
         .axi_mem_awlen(axi_mem_awlen),
         .axi_mem_awsize(axi_mem_awsize),
         .axi_mem_awburst(axi_mem_awburst),
         .axi_mem_awlock(axi_mem_awlock),
         .axi_mem_awcache(axi_mem_awcache),
         .axi_mem_awprot(axi_mem_awprot),
-        .axi_mem_awregion(axi_mem_awregion),
+//        .axi_mem_awregion(axi_mem_awregion),
         .axi_mem_awqos(axi_mem_awqos),
         .axi_mem_awvalid(axi_mem_awvalid),
         .axi_mem_awready(axi_mem_awready),
@@ -223,19 +228,22 @@ module GAScore #(
         .axi_mem_wready(axi_mem_wready),
         .axi_mem_bresp(axi_mem_bresp),
         .axi_mem_bvalid(axi_mem_bvalid),
+//        .axi_mem_bid(axi_mem_bid),
         .axi_mem_bready(axi_mem_bready),
         .axi_mem_araddr(axi_mem_araddr),
+//        .axi_mem_arid(axi_mem_arid),
         .axi_mem_arlen(axi_mem_arlen),
         .axi_mem_arsize(axi_mem_arsize),
         .axi_mem_arburst(axi_mem_arburst),
         .axi_mem_arlock(axi_mem_arlock),
         .axi_mem_arcache(axi_mem_arcache),
         .axi_mem_arprot(axi_mem_arprot),
-        .axi_mem_arregion(axi_mem_arregion),
+//        .axi_mem_arregion(axi_mem_arregion),
         .axi_mem_arqos(axi_mem_arqos),
         .axi_mem_arvalid(axi_mem_arvalid),
         .axi_mem_arready(axi_mem_arready),
         .axi_mem_rdata(axi_mem_rdata),
+//        .axi_mem_rid(axi_mem_rid),
         .axi_mem_rresp(axi_mem_rresp),
         .axi_mem_rlast(axi_mem_rlast),
         .axi_mem_rvalid(axi_mem_rvalid),

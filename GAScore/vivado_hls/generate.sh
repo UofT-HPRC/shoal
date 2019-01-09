@@ -20,6 +20,7 @@ vivado_return=$?
 if [[ $vivado_return != 0 ]]; then
     exit $vivado_return
 fi
+cp $SHOAL_PATH/GAScore/src/$file.cpp $solutionPath
 cat $solutionPath/syn/report/${file}_csynth.rpt
 repoPath=$SHOAL_PATH/GAScore/repo/$file
 mkdir -p $repoPath

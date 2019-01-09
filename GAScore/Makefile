@@ -64,6 +64,8 @@ CFLAGS = -g -Wall -I$(include_dir) -I$(share_include_dir) \
 	-I$(SHOAL_VIVADO_HLS) \
 	-Wno-unknown-pragmas -Wno-comment -Wno-shift-count-overflow -MMD -MP
 
+REGEN = False
+
 ################################################################################
 # Body
 ################################################################################
@@ -90,10 +92,14 @@ $(foreach module, $(c_modules),$(eval $(call make-test,$(module))))
 config_modules=$(patsubst %, config-%, $(c_modules))
 config: $(config_modules)
 
+# Overwrites .dat file in sim folders if the file already exists there
 define make-config
 config-$1:
-	@cp -u $(include_dir)/sonar_strToInt.py $(SONAR_PATH)/user/user_strToInt.py
-	@python $(SONAR_PATH)/src/sonar.py env SHOAL_PATH /GAScore/testbench/$1.yaml $2
+	@python $(test_dir)/$1.py
+	@$(eval $1_sim_path = $(vivado_dir)/projects/$1/$1.sim/sim_1/behav)
+	@test -f $($1_sim_path)/$1_sv.dat && cp $(test_build_dir)/$1/$1_sv.dat $($1_sim_path)
+	@$(eval $1_sim_path = $(vivado_dir)/projects/$1/$1.sim/sim_1/synth/func)
+	@test -f $($1_sim_path)/$1_sv.dat && cp $(test_build_dir)/$1/$1_sv.dat $($1_sim_path)
 endef
 $(foreach module, $(c_modules),$(eval $(call make-config,$(module),all)))
 $(foreach module, $(hdl_modules),$(eval $(call make-config,$(module),sv)))
@@ -134,13 +140,30 @@ $(foreach module, $(custom_modules),$(eval $(call make-sim-custom,$(module))))
 
 define make-batchsim
 batchsim-$1:
+ifeq ($(REGEN),True)
 	@$(vivado_dir)/generate.sh $1 $2 # Symlink all generated files for Vivado
 	@vivado -mode batch -source $(vivado_dir)/generate.tcl -notrace -tclargs \
 		--project $1 --sim behav
+else
+	@vivado -mode batch -source $(vivado_dir)/simulate.tcl -notrace -tclargs \
+		--project $1 --sim behav
+endif
 endef
 $(foreach module, $(c_modules),$(eval $(call make-batchsim,$(module),c)))
 $(foreach module, $(hdl_modules),$(eval $(call make-batchsim,$(module),hdl)))
 
+define make-batchsim-custom
+batchsim-$1:
+ifeq ($(REGEN),True)
+	@$(vivado_dir)/$1.sh # Symlink all generated files for Vivado
+	@vivado -mode batch -source $(vivado_dir)/generate.tcl -notrace -tclargs \
+		--project $1 --sim behav
+else
+	@vivado -mode batch -source $(vivado_dir)/simulate.tcl -notrace -tclargs \
+		--project $1 --sim behav
+endif
+endef
+$(foreach module, $(custom_modules),$(eval $(call make-batchsim-custom,$(module),hdl)))
 #-------------------------------------------------------------------------------
 # C++ Executable Generation
 #-------------------------------------------------------------------------------
@@ -178,6 +201,6 @@ $(foreach module, $(c_modules),$(eval $(call make-object,$(module))))
 #-------------------------------------------------------------------------------
 
 clean: 
-	@$(RM) $(obj_dir)/*.o $(obj_dir)/*.d $(bin_dir)/* \
+	@rm -rf $(obj_dir)/*.o $(obj_dir)/*.d $(bin_dir)/* \
 	$(share_obj_dir)/*.o $(share_obj_dir)/*.d $(share_bin_dir)/* \
 	$(test_build_dir)/*

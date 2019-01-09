@@ -33,6 +33,8 @@ void xpams_rx(
     static gc_AMtype_t AMtype;
     static gc_AMhandler_t AMhandler;
 
+    // std::cout << "state: " << currentState << "\n";
+
     switch(currentState){
         case st_AMheader:{
             // if(!axis_rx.empty()){
@@ -43,39 +45,62 @@ void xpams_rx(
                 AMhandler = axis_word.data(AM_HANDLER);
                 AMtype = axis_word.data(AM_TYPE);
                 AMargs = axis_word.data(AM_HANDLER_ARGS);
-                if (AMhandler != H_EMPTY){
+                if (isReplyAM(AMtype) && !isShortAM(AMtype)){
+                    axis_word.data(AM_TYPE) = (AMtype & (~AM_REPLY)) + AM_ASYNC;
+                    axis_word.data(AM_SRC) = AMdst;
+                    axis_word.data(AM_DST) = AMsrc;
+                    axis_tx.write(axis_word);
+                }
+                else if (AMhandler != H_EMPTY){
                     axis_wordNoKeep = assignWordtoNoKeep(axis_word);
                     axis_handler.write(axis_wordNoKeep);
                 }
+                currentState = st_AMToken;
+                break;
+        }
+        case st_AMToken:{
                 axis_rx.read(axis_word); //read token
                 AMToken = axis_word.data(AM_TOKEN);
-                if (AMargs != 0){
-                    gc_AMargs_t i;
-                    for(i = 0; i < AMargs - 1; i++){
-                        axis_rx.read(axis_word);
-                        axis_wordNoKeep = assignWordtoNoKeep(axis_word);
-                        axis_handler.write(axis_wordNoKeep);
-                    }
-                    axis_rx.read(axis_word);
-                    axis_wordNoKeep = assignWordtoNoKeep(axis_word);
-                    axis_wordNoKeep.last = 1;
-                    axis_handler.write(axis_wordNoKeep);
-                }
-                if(isReplyAM(AMtype)){
+                if(isReplyAM(AMtype) && isShortAM(AMtype)){
                     axis_word.data(AM_TOKEN) = AMToken;
-                    axis_word.data(39,8) = 0;
+                    axis_word.data(39,8) = 0; //TODO parameterize
                     axis_word.data(AM_TYPE) = AM_SHORT + AM_REPLY;
                     axis_wordDest = assignWord(axis_word);
                     axis_wordDest.dest = AMdst;
                     axis_kernel_out.write(axis_wordDest);
                     currentState = st_AMheader;
                 }
+                else if(isReplyAM(AMtype)){
+                    axis_tx.write(axis_word);
+                    axis_rx.read(axis_word);
+                    while(axis_word.last != 1){
+                        axis_tx.write(axis_word);
+                        axis_rx.read(axis_word);
+                    }
+                    axis_tx.write(axis_word);
+                    currentState = st_AMheader;
+                }
                 else{
+                    if (AMargs != 0){
+                        gc_AMargs_t i;
+                        for(i = 0; i < AMargs - 1; i++){
+                            axis_rx.read(axis_word);
+                            axis_wordNoKeep = assignWordtoNoKeep(axis_word);
+                            axis_handler.write(axis_wordNoKeep);
+                        }
+                        axis_rx.read(axis_word);
+                        axis_wordNoKeep = assignWordtoNoKeep(axis_word);
+                        axis_wordNoKeep.last = 1;
+                        axis_handler.write(axis_wordNoKeep);
+                    }
                     if(isMediumAM(AMtype)){
                         currentState = st_AMpayload;
                     }
                     else{
-                        currentState = st_sendReplyHeader;
+                        if (isAsyncAM(AMtype))
+                            currentState = st_AMheader;
+                        else
+                            currentState = st_sendReplyHeader;
                     }
                 }
             // }
@@ -89,7 +114,10 @@ void xpams_rx(
                 axis_wordDest.dest = AMdst;
                 axis_kernel_out.write(axis_wordDest);
             }
-            currentState = st_sendReplyHeader;
+            if (isAsyncAM(AMtype))
+                currentState = st_AMheader;
+            else
+                currentState = st_sendReplyHeader;
             break;
         }
         case st_sendReplyHeader:{

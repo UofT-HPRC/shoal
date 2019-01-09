@@ -52,41 +52,54 @@ void am_tx(
     // static gc_vectorDestUpper_t AMvectorDestUpper[MAX_VECTOR_NUM];
     static gc_destination_t AMvectorDest[MAX_VECTOR_NUM];
 
-    static uint_1_t bufferRelease;
+    static uint_1_t bufferRelease = 1;
 
     switch(currentState){
         case st_header:{
-            if(!axis_kernel.empty()){
+            // if(!axis_kernel.empty()){
                 axis_kernel.read(axis_word);
 
                 AMpayloadSize = axis_word.data(AM_PAYLOAD_SIZE);
                 AMhandler = axis_word.data(AM_HANDLER);
                 AMtype = axis_word.data(AM_TYPE);
-                AMargs = axis_word.data(AM_HANDLER_ARGS);                
+                AMargs = axis_word.data(AM_HANDLER_ARGS);
 
-                axis_word.data(AM_TYPE) = AMtype & 0xEF; //mask out FIFO bit
-
-                axis_net.write(axis_word);
-                if((isLongxAM(AMtype) || isMediumAM(AMtype)) && 
-                    !isDataFromFIFO(AMtype)){
-                    bufferRelease = 0;
+                if (isReplyAM(AMtype) && (!isShortAM(AMtype))){
+                    axis_net.write(axis_word);
+                    axis_kernel.read(axis_word);
+                    while(axis_word.last != 1){
+                        axis_net.write(axis_word);
+                        axis_kernel.read(axis_word);
+                    }
+                    axis_net.write(axis_word);
+                    currentState = st_header;
                 }
                 else{
-                    bufferRelease = 1;
+
+                    axis_word.data(AM_TYPE) = AMtype & 0xEF; //mask out FIFO bit
+
+                    axis_net.write(axis_word);
+                    if((isLongxAM(AMtype) || isMediumAM(AMtype)) && 
+                        !isDataFromFIFO(AMtype)){
+                        bufferRelease = 0;
+                    }
+                    else{
+                        bufferRelease = 1;
+                    }
+                    if(isLongStridedAM(AMtype)){
+                        currentState = st_AMLongStride;
+                    }
+                    else if(isLongVectoredAM(AMtype)){
+                        currentState = st_AMLongVector;
+                    }
+                    else{
+                        currentState = st_AMToken;
+                    }
                 }
-                if(isLongStridedAM(AMtype)){
-                    currentState = st_AMLongStride;
-                }
-                else if(isLongVectoredAM(AMtype)){
-                    currentState = st_AMLongVector;
-                }
-                else{
-                    currentState = st_AMToken;
-                } 
-            }
-            else{
-                currentState = st_header;
-            }
+            // }
+            // else{
+            //     currentState = st_header;
+            // }
             break;
         }
         case st_AMToken:{
@@ -236,6 +249,7 @@ void am_tx(
             // }
             // if(!axis_kernel.empty()){ //get destination address
                 axis_kernel.read(axis_word);
+                axis_word.last = 0;
                 axis_net.write(axis_word);
             // }
             gc_strideBlockNum_t i;
@@ -293,6 +307,7 @@ void am_tx(
                 // }
                 // if(!axis_kernel.empty()){ //read dst address
                     axis_kernel.read(axis_word);
+                    axis_word.last = 0;
                     axis_net.write(axis_word);
                 // }
             }

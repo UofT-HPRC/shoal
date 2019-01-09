@@ -45,7 +45,7 @@ void am_rx(
     static gc_vectorSize_t AMvectorSize[MAX_VECTOR_NUM];
     static gc_destination_t AMvectorDest[MAX_VECTOR_NUM];
 
-    static uint_1_t bufferRelease;
+    static uint_1_t bufferRelease = 1;
 
     switch(currentState){
         case st_header:{
@@ -57,18 +57,29 @@ void am_rx(
                 AMhandler = axis_word.data(AM_HANDLER);
                 AMtype = axis_word.data(AM_TYPE);
                 AMargs = axis_word.data(AM_HANDLER_ARGS);
-                axis_xpams_rx.write(axis_word);
-                bufferRelease = !isLongxAM(AMtype);
-                
-                if(isLongStridedAM(AMtype)){
-                    currentState = st_AMLongStride;
-                }
-                else if(isLongVectoredAM(AMtype)){
-                    currentState = st_AMLongVector;
+                if (isReplyAM(AMtype) && (!isShortAM(AMtype))){
+                    axis_xpams_rx.write(axis_word);
+                    axis_net.read(axis_word);
+                    while(axis_word.last != 1){
+                        axis_xpams_rx.write(axis_word);
+                        axis_net.read(axis_word);
+                    }
+                    axis_xpams_rx.write(axis_word);
+                    currentState = st_header;
                 }
                 else{
-                    currentState = st_AMToken;
-                }
+                    bufferRelease = !isLongxAM(AMtype);
+                    axis_xpams_rx.write(axis_word);
+                    if(isLongStridedAM(AMtype)){
+                        currentState = st_AMLongStride;
+                    }
+                    else if(isLongVectoredAM(AMtype)){
+                        currentState = st_AMLongVector;
+                    }
+                    else{
+                        currentState = st_AMToken;
+                    }
+                }                
                 
             // }
             // else{
@@ -240,11 +251,16 @@ void am_rx(
                             //     strideDest(1,0), 1, AMstrideBlockSize * GC_DATA_BYTES);
                             // strideDest += AMstride;
                             // if(!axis_s2mm.full()){
+                            if (AMstrideBlockSize == 1){
+                                axis_word.last = 1;
+                            }
+                            else{
                                 axis_word.last = 0;
+                            }
                                 axis_s2mm.write(axis_word);
                             // }
-                            writeCount = 1;
-                            // writeCount = 0;
+                            // writeCount = 1;
+                            writeCount = 0;
                         }
                     }
                     else{
@@ -285,14 +301,15 @@ void am_rx(
                 currentState = st_header;
             }
             else if(isLongxAM(AMtype)){
-                if(axis_s2mmStatus.empty()){
-                    currentState = st_done;
-                }
-                else{
-                    axis_s2mmStatus.read(axis_word_s2mmStatus);
+                // if(axis_s2mmStatus.empty()){
+                //     currentState = st_done;
+                // }
+                // else{
+                    //? s2mm doesn't seem to send a status in behav sim
+                    // axis_s2mmStatus.read(axis_word_s2mmStatus);
                     bufferRelease = 1;
                     currentState = st_header;
-                }
+                // }
             }
             else{
                 currentState = st_header;
@@ -302,6 +319,11 @@ void am_rx(
     }
 
     release = bufferRelease == 0 ? 0 : 1;
+
+    // unconditionally read status to keep it empty
+    if(!axis_s2mmStatus.empty()){
+        axis_s2mmStatus.read(axis_word_s2mmStatus);
+    }
 
     #ifdef DEBUG
     dbg_currentState = currentState;

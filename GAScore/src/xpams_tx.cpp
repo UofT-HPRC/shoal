@@ -101,16 +101,16 @@ void xpams_tx(
                     axis_kernel_in.read(axis_word); //read token
                     AMToken = axis_word.data(AM_TOKEN);
                     axis_tx.write(axis_word);
-                    if (AMargs != 0){
-                        gc_AMargs_t i;
-                        for(i = 0; i < AMargs; i++){
-                            axis_kernel_in.read(axis_word);
-                            axis_tx.write(axis_word);
-                        }
-                    }
-                    if (isMediumFIFOAM(AMtype) || isLongFIFOAM(AMtype))
+                    // if (AMargs != 0){
+                    //     gc_AMargs_t i;
+                    //     for(i = 0; i < AMargs; i++){
+                    //         axis_kernel_in.read(axis_word);
+                    //         axis_tx.write(axis_word);
+                    //     }
+                    // }
+                    // if (isMediumFIFOAM(AMtype) || isLongFIFOAM(AMtype))
                         currentState = st_AMsend;
-                    else{
+                    // else{
                         // axis_kernel_in.read(axis_word);
                         // if (AMpayloadSize > 0){
                         //     while(axis_word.last != 1){
@@ -119,18 +119,19 @@ void xpams_tx(
                         //     }
                         //     axis_tx.write(axis_word);
                         // }
-                        if (AMpayloadSize != 0){
-                            gc_payloadSize_t i;
-                            for(i = 0; i < AMpayloadSize - 1; i++){
-                                axis_kernel_in.read(axis_word);
-                                axis_tx.write(axis_word);
-                            }
-                            axis_kernel_in.read(axis_word);
-                            axis_word.last = 1;
-                            axis_tx.write(axis_word);
-                            currentState = st_AMheader;
-                        }
-                    }
+                        // if (AMpayloadSize != 0){
+                        //     gc_payloadSize_t i;
+                        //     for(i = 0; i < AMpayloadSize - 1; i++){
+                        //         axis_kernel_in.read(axis_word);
+                        //         axis_word.last = 0;
+                        //         axis_tx.write(axis_word);
+                        //     }
+                        //     axis_kernel_in.read(axis_word);
+                        //     axis_word.last = 1;
+                        //     axis_tx.write(axis_word);
+                        //     currentState = st_AMheader;
+                        // }
+                    // }
                 }
             // }
             break;
