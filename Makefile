@@ -22,14 +22,14 @@ $(error SHOAL_PATH not set in env -- must be set to the absolute path of \
 of the repository root. Did you source init.sh?)
 endif
 
-ifndef SHOAL_VIVADO_HLS
-$(error SHOAL_VIVADO_HLS not set in env -- must be set to the absolute path of \
+ifndef SHOAL_HLS_PATH
+$(error SHOAL_HLS_PATH not set in env -- must be set to the absolute path of \
 of the Vivado HLS include/ directory. Did you source init.sh?)
 endif
 
 CC = g++
 CFLAGS = -g -Wall -I$(include_dir) -I$(share_include_dir) \
-	-I$(SHOAL_VIVADO_HLS) \
+	-I$(SHOAL_HLS_PATH) \
 	-Wno-unknown-pragmas -Wno-comment -MMD -MP
 
 ###############################################################################
@@ -57,10 +57,15 @@ init:
 # Cleanup
 #------------------------------------------------------------------------------
 
-clean-vivado:
+clean:
+	@echo "Run 'make clean-x' where x is a level"
+	@echo "Make Clean levels:"
+	@echo "    1. Removes junk (e.g. Vivado log files etc.)"
+
+clean-1:
 	@find . -name "vivado*.log" -type f -delete
 	@find . -name "vivado*.jou" -type f -delete
-	@find . -name ".Xil" -type d -exec rm -rf "{}" \;
+	@rm -rf `find -type d -name .Xil`
 	@find . -name "vivado_pid*.str" -type f -delete
 	@find . -name "hs_err_pid*.log" -type f -delete
 

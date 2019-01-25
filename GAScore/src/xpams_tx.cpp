@@ -51,7 +51,7 @@ void xpams_tx(
                 AMdst = axis_word.data(AM_DST);
                 AMtype = axis_word.data(AM_TYPE);
                 AMpayloadSize = axis_word.data(AM_PAYLOAD_SIZE);
-                loopback = AMdst < address_offset_high && AMdst >= address_offset_low;
+                loopback = AMdst <= address_offset_high && AMdst >= address_offset_low;
                 if (loopback){
                     if (AMhandler != H_EMPTY){
                         axis_wordNoKeep = assignWordtoNoKeep(axis_word);

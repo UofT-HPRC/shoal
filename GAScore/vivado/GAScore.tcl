@@ -16,7 +16,7 @@ proc create_GAScore {bd_name} {
     return $nRet
   }
 
-  set_property ip_repo_paths ${::env(SHOAL_PATH)}/GAScore/repo [current_project]
+  set_property ip_repo_paths ${::env(SHOAL_PATH)}/GAScore/repo/${::env(SHOAL_VIVADO_VERSION)}/${::env(SHOAL_PART_FAMILY)} [current_project]
   update_ip_catalog -rebuild -scan_changes
 
   set parentCell [get_bd_cells /]
@@ -119,6 +119,8 @@ proc create_GAScore {bd_name} {
     CONFIG.ARB_ON_TLAST {1} \
     CONFIG.NUM_MI {1} \
     CONFIG.NUM_SI {2} \
+    CONFIG.S00_FIFO_DEPTH {16} \
+    CONFIG.S01_FIFO_DEPTH {16} \
   ] $axis_interconnect_0
 
   # Create instance: axis_interconnect_1, and set properties
@@ -127,6 +129,8 @@ proc create_GAScore {bd_name} {
     CONFIG.ARB_ON_TLAST {1} \
     CONFIG.NUM_MI {1} \
     CONFIG.NUM_SI {2} \
+    CONFIG.S00_FIFO_DEPTH {16} \
+    CONFIG.S01_FIFO_DEPTH {16} \
   ] $axis_interconnect_1
 
   # Create instance: axis_interconnect_2, and set properties
@@ -136,6 +140,8 @@ proc create_GAScore {bd_name} {
     CONFIG.NUM_MI {1} \
     CONFIG.NUM_SI {2} \
     CONFIG.M00_AXIS_HIGHTDEST {0xFFFFFFFF} \
+    CONFIG.S00_FIFO_DEPTH {16} \
+    CONFIG.S01_FIFO_DEPTH {16} \
   ] $axis_interconnect_2
 
   # Create instance: hold_buffer_0, and set properties
@@ -212,7 +218,7 @@ set_property -dict [list \
   CONFIG.Write_Width_A {64} \
   CONFIG.Write_Depth_A {1024} \
   CONFIG.Load_Init_File {true} \
-  CONFIG.Coe_File {/media/sharm294/HDD_1TB/Home/Documents/masters/git_repos/shoal/GAScore/include/GAScore.coe} \
+  CONFIG.Coe_File "${::env(SHOAL_PATH)}/GAScore/include/GAScore.coe" \
   CONFIG.Fill_Remaining_Memory_Locations {true} \
   CONFIG.Use_AXI_ID {true} \
   CONFIG.Memory_Type {Simple_Dual_Port_RAM} \

@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/usr/bin/env bash
 #TODO error out if symlink source file doesn't exist
 
 if [[ "$#" != 2 ]]; then
@@ -18,14 +18,14 @@ if [[ $type != "hdl" && $type != "c" ]]; then
     exit 1
 fi
 
-mkdir -p $vivado_path/projects
+mkdir -p $vivado_path/projects/$SHOAL_VIVADO_VERSION/$SHOAL_PART
 mkdir -p $vivado_path/src
 mkdir -p $vivado_path/src/$file
 
 link_path=$vivado_path/src/$file
 rm -rf $link_path/*
 if [[ $type == "c" ]]; then
-    ln -sf $GAScore_path/repo/$file/hdl/verilog/* $link_path
+    ln -sf $GAScore_path/repo/$SHOAL_VIVADO_VERSION/$SHOAL_PART_FAMILY/$file/hdl/verilog/* $link_path
 else
     for i in $src_path/${file}*.sv; do
         [ -f "$i" ] || break
@@ -46,4 +46,4 @@ for i in $build_path/${file}/*.tcl; do
     [ -f "$i" ] || break
     ln -sf -t $link_path $i
 done
-cd $vivado_path/projects
+cd $vivado_path/projects/$SHOAL_VIVADO_VERSION/$SHOAL_PART

@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/usr/bin/env bash
 
 if [[ "$#" != 1 ]]; then
     echo "Syntax: script moduleName"
@@ -8,21 +8,21 @@ fi
 old_path=$PWD
 file=$1
 
-projectPath=$SHOAL_PATH/GAScore/vivado_hls/projects
-solutionPath=$projectPath/$file/Virtex_Ultrascale
+projectPath=$SHOAL_PATH/GAScore/vivado_hls/projects/$SHOAL_HLS_VERSION
+solutionPath=$projectPath/$file/$SHOAL_PART_FAMILY
 ipPath=$solutionPath/impl/ip
 prefixedName=${file}_${file}
 
 mkdir -p $projectPath
 cd $projectPath
-vivado_hls -f ../generate.tcl $file
+vivado_hls -f $SHOAL_PATH/GAScore/vivado_hls/generate.tcl $file
 vivado_return=$?
 if [[ $vivado_return != 0 ]]; then
     exit $vivado_return
 fi
 cp $SHOAL_PATH/GAScore/src/$file.cpp $solutionPath
 cat $solutionPath/syn/report/${file}_csynth.rpt
-repoPath=$SHOAL_PATH/GAScore/repo/$file
+repoPath=$SHOAL_PATH/GAScore/repo/$SHOAL_VIVADO_VERSION/$SHOAL_PART_FAMILY/$file
 mkdir -p $repoPath
 rm -rf $repoPath/*
 # sed -i "s/set IPName      \"$prefixedName\"/set IPName      \"${file}\"/g" \

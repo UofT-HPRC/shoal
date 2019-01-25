@@ -1,5 +1,5 @@
-#ifndef STREAM_H_
-#define STREAM_H_
+#ifndef SHOAL_STREAM_H_
+#define SHOAL_STREAM_H_
 
 #include "shoal_types.hpp"
 #include "shoal_utilities.hpp"
@@ -35,4 +35,4 @@ struct uaxis_o{
 #define PRINT_AXIS_SIZE(key, stream) \
     std::cout << std::dec << "  " << key << ": " << stream.size() << "\n";
 
-#endif
+#endif // SHOAL_STREAM_H_

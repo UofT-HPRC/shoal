@@ -53,16 +53,16 @@ module handler_wrapper #(
     input clock,
     input reset_n,
 
-    `S_AXILITE_PORTS(0),
-    `S_AXILITE_PORTS(1),
-    `S_AXILITE_PORTS(2),
-    `S_AXILITE_PORTS(3),
-    `S_AXILITE_PORTS(4),
-    `S_AXILITE_PORTS(5),
-    `S_AXILITE_PORTS(6),
-    `S_AXILITE_PORTS(7),
-    `S_AXILITE_PORTS(8),
-    `S_AXILITE_PORTS(9),
+    `S_AXILITE_PORTS(00),
+    `S_AXILITE_PORTS(01),
+    `S_AXILITE_PORTS(02),
+    `S_AXILITE_PORTS(03),
+    `S_AXILITE_PORTS(04),
+    `S_AXILITE_PORTS(05),
+    `S_AXILITE_PORTS(06),
+    `S_AXILITE_PORTS(07),
+    `S_AXILITE_PORTS(08),
+    `S_AXILITE_PORTS(09),
     `S_AXILITE_PORTS(10),
     `S_AXILITE_PORTS(11),
     `S_AXILITE_PORTS(12),
@@ -94,7 +94,7 @@ module handler_wrapper #(
     `INTERRUPT_PORTS(14),
     `INTERRUPT_PORTS(15)
 );
-    localparam KERNEL_WIDTH = $clog2(NUM_KERNELS);
+    localparam KERNEL_WIDTH = NUM_KERNELS == 1 ? 1 : $clog2(NUM_KERNELS);
     logic [KERNEL_WIDTH-1:0] address;
     logic [3:0] AMhandler;
 
@@ -106,15 +106,12 @@ module handler_wrapper #(
                 nextState = axis_handler_tvalid & axis_handler_tready ? st_payload : st_header;
             end
             st_payload: begin
-                if(axis_handler_tlast & axis_handler_tvalid) begin
+                if(axis_handler_tlast & axis_handler_tvalid & axis_handler_tready) begin
                     nextState = st_header;
                 end
                 else begin
                     nextState = st_payload;
                 end
-            end
-            default: begin
-
             end
         endcase
     end
@@ -178,34 +175,34 @@ module handler_wrapper #(
             `ASSIGN_S_AXILITE(10)
         end
         if (NUM_KERNELS > 9) begin
-            `ASSIGN_S_AXILITE(9)
+            `ASSIGN_S_AXILITE(09)
         end
         if (NUM_KERNELS > 8) begin
-            `ASSIGN_S_AXILITE(8)
+            `ASSIGN_S_AXILITE(08)
         end
         if (NUM_KERNELS > 7) begin
-            `ASSIGN_S_AXILITE(7)
+            `ASSIGN_S_AXILITE(07)
         end
         if (NUM_KERNELS > 6) begin
-            `ASSIGN_S_AXILITE(6)
+            `ASSIGN_S_AXILITE(06)
         end
         if (NUM_KERNELS > 5) begin
-            `ASSIGN_S_AXILITE(5)
+            `ASSIGN_S_AXILITE(05)
         end
         if (NUM_KERNELS > 4) begin
-            `ASSIGN_S_AXILITE(4)
+            `ASSIGN_S_AXILITE(04)
         end
         if (NUM_KERNELS > 3) begin
-            `ASSIGN_S_AXILITE(3)
+            `ASSIGN_S_AXILITE(03)
         end
         if (NUM_KERNELS > 2) begin
-            `ASSIGN_S_AXILITE(2)
+            `ASSIGN_S_AXILITE(02)
         end
         if (NUM_KERNELS > 1) begin
-            `ASSIGN_S_AXILITE(1)
+            `ASSIGN_S_AXILITE(01)
         end
         if (NUM_KERNELS > 0) begin
-            `ASSIGN_S_AXILITE(0)
+            `ASSIGN_S_AXILITE(00)
         end
     end
 

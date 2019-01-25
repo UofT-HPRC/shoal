@@ -1,5 +1,5 @@
-#ifndef TYPES_H_
-#define TYPES_H_
+#ifndef SHOAL_TYPES_H_
+#define SHOAL_TYPES_H_
 
 //needed for a stupid HLS bug where it searches the system headers before the 
 //Vivado ones during cosim. This is apparently a known issue in at least 2017.2 
@@ -30,4 +30,4 @@ typedef ap_uint<32> uint_32_t;
 typedef ap_uint<64> uint_64_t;
 typedef ap_uint<72> uint_72_t;
 
-#endif
+#endif // SHOAL_TYPES_H_

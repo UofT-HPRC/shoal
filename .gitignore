@@ -6,6 +6,7 @@ vivado*.log
 vivado*.jou
 GAScore/vivado_hls/projects/
 GAScore/repo
+repo
 GAScore/vivado/projects/
 GAScore/vivado/src/
 build/
@@ -16,6 +17,7 @@ archive/
 .Xil/
 hs_err_pid*.log
 vivado_pid*.str
+*.tmp
 
 # Prerequisites
 *.d

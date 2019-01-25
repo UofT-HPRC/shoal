@@ -5,6 +5,7 @@
  * Includes
 *******************************************************************************/
 
+#include "../../include/config.hpp"
 #include "shoal_stream.hpp"
 #include "shoal_utilities.hpp"
 
@@ -17,22 +18,9 @@
 #define GC_DEST_WIDTH 16 // bit width of tdest
 #define MAX_VECTOR_NUM 16 // Maximum number of vectors for vectored messages
 
-#define AM_SRC_UPPER 23
-#define AM_SRC_LOWER 8
-#define AM_DST 39,24
-#define AM_PAYLOAD_SIZE_UPPER 51
-#define AM_PAYLOAD_SIZE_LOWER 40
-#define AM_HANDLER 55,52
-#define AM_TYPE 7,0
-#define AM_HANDLER_ARGS 63,56
-#define AM_TOKEN 63,40
-
 /*******************************************************************************
  * Derived defines
 *******************************************************************************/
-
-#define AM_PAYLOAD_SIZE AM_PAYLOAD_SIZE_UPPER,AM_PAYLOAD_SIZE_LOWER
-#define AM_SRC AM_SRC_UPPER,AM_SRC_LOWER
 
 #define GC_MAX_PAYLOAD (AM_PAYLOAD_SIZE_UPPER - AM_PAYLOAD_SIZE_LOWER + 1)
 #define GC_DATA_BYTES (GC_DATA_WIDTH/8)
@@ -88,18 +76,6 @@ typedef ap_uint<23> btt_t;
 /*******************************************************************************
  * Macros
 *******************************************************************************/
-
-#define AM_SHORT 0x1
-#define AM_MEDIUM 0x2
-#define AM_LONG 0x4
-#define AM_VECTOR 0x6
-#define AM_STRIDE 0x5
-#define AM_FIFO 0x10
-#define AM_ASYNC 0x20
-#define AM_REPLY 0x40
-
-#define H_EMPTY 0
-#define H_ADD 1
 
 #define COMPARE_uaxis_l(x) x
 #define COMPARE_uaxis_m(x) x

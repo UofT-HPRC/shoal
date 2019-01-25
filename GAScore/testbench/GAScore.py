@@ -77,33 +77,33 @@ smA_t2 = Thread()
 smA_t2.add_delay('100ns')
 smA_t2.init_timer()
 
-ctrl_bus_1.write(smA_t2, 'counter_threshold', 4),
-ctrl_bus_1.write(smA_t2, 'counter_reset', 1),
+ctrl_bus_1.write(smA_t2, 'counter_threshold', 4)
+ctrl_bus_1.write(smA_t2, 'counter_reset', 1)
 
-axis_net_in.write(smA_t2, strToInt("{AMHeader,0x0,0x01,0,0x1,1,1}")),
-axis_net_in.write(smA_t2, strToInt("{AMToken,0x0}")),
+axis_net_in.write(smA_t2, strToInt("{AMHeader,0x10,0x01,0,0x1,1,1}"))
+axis_net_in.write(smA_t2, strToInt("{AMToken,0x0}"))
 axis_net_in.write(smA_t2, 4, tlast=1),
 
-axis_net_in.write(smA_t2, strToInt("{AMHeader,0x0,0x01,0,0x1,1,1}")),
-axis_net_in.write(smA_t2, strToInt("{AMToken,0x0}")),
-axis_net_in.write(smA_t2, 1, tlast=1),
+axis_net_in.write(smA_t2, strToInt("{AMHeader,0x10,0x01,0,0x1,1,1}"))
+axis_net_in.write(smA_t2, strToInt("{AMToken,0x0}"))
+axis_net_in.write(smA_t2, 1, tlast=1)
 
-ctrl_bus_0.write(smA_t2, 'counter_threshold', 4),
-ctrl_bus_0.write(smA_t2, 'counter_reset', 1),
+ctrl_bus_0.write(smA_t2, 'counter_threshold', 4)
+ctrl_bus_0.write(smA_t2, 'counter_reset', 1)
 
-axis_net_in.write(smA_t2, strToInt("{AMHeader,0x0,0x01,0,0,1,0}")),
-axis_net_in.write(smA_t2, strToInt("{AMToken,0x0}")),
+axis_net_in.write(smA_t2, strToInt("{AMHeader,0x10,0x01,0,0,1,0}"))
+axis_net_in.write(smA_t2, strToInt("{AMToken,0x0}"), tlast=1)
 
-axis_net_in.write(smA_t2, strToInt("{AMHeader,0x1,0x00,0,0x1,1,1}")),
-axis_net_in.write(smA_t2, strToInt("{AMToken,0x0}")),
+axis_net_in.write(smA_t2, strToInt("{AMHeader,0x10,0x00,0,0x1,1,1}"))
+axis_net_in.write(smA_t2, strToInt("{AMToken,0x0}"))
 axis_net_in.write(smA_t2, 5, tlast=1)
 
 smA_t2.wait_level('interrupt_0 == $value', 1)
 smA_t2.wait_level('interrupt_1 == $value', 1)
 
-ctrl_bus_1.write(smA_t2, 'counter_reset', 2),
-ctrl_bus_1.write(smA_t2, 'counter_reset', 0),
-ctrl_bus_0.write(smA_t2, 'counter_reset', 2),
+ctrl_bus_1.write(smA_t2, 'counter_reset', 2)
+ctrl_bus_1.write(smA_t2, 'counter_reset', 0)
+ctrl_bus_0.write(smA_t2, 'counter_reset', 2)
 ctrl_bus_0.write(smA_t2, 'counter_reset', 0)
 
 smA_t2.wait_level('interrupt_0 == $value', 0)
@@ -145,9 +145,9 @@ axis_kernel_in.write(smB_t2, strToInt("{AMHeader,0x1,0x00,0,0x1,1,1}")),
 axis_kernel_in.write(smB_t2, strToInt("{AMToken,0x0}")),
 axis_kernel_in.write(smB_t2, 5, tlast=1),
 axis_kernel_in.write(smB_t2, strToInt("{AMHeader,0x0,0x11,0,0,1,0}")),
-axis_kernel_in.write(smB_t2, strToInt("{AMToken,0x0}")),
+axis_kernel_in.write(smB_t2, strToInt("{AMToken,0x0}"), tlast=1),
 axis_kernel_in.write(smB_t2, strToInt("{AMHeader,0x1,0x10,0,0,1,0}")),
-axis_kernel_in.write(smB_t2, strToInt("{AMToken,0x0}"))
+axis_kernel_in.write(smB_t2, strToInt("{AMToken,0x0}"), tlast=1)
 smB_t2.wait_level('interrupt_0 == $value', 1)
 smB_t2.wait_level('interrupt_1 == $value', 1)
 smB_t2.wait_flag(0)
@@ -163,9 +163,9 @@ axis_kernel_out.read(smB_t3, strToInt("{AMToken,0,0x41}"), tdest=0, tlast=1),
 axis_kernel_out.read(smB_t3, strToInt("{AMToken,0,0x41}"), tdest=0, tlast=1),
 axis_kernel_out.read(smB_t3, strToInt("{AMToken,0,0x41}"), tdest=1, tlast=1),
 axis_net_out.read(smB_t3, strToInt("{AMHeader,0x0,0x11,0,0,1,0}")),
-axis_net_out.read(smB_t3, strToInt("{AMToken,0x0}")),
+axis_net_out.read(smB_t3, strToInt("{AMToken,0x0}"), tlast=1),
 axis_net_out.read(smB_t3, strToInt("{AMHeader,0x1,0x10,0,0,1,0}")),
-axis_net_out.read(smB_t3, strToInt("{AMToken,0x0}"))
+axis_net_out.read(smB_t3, strToInt("{AMToken,0x0}"), tlast=1)
 smB_t3.set_flag(0)
 axis_kernel_out.read(smB_t3, strToInt("{AMToken,0,0x41}"), tdest=0, tlast=1),
 axis_kernel_out.read(smB_t3, strToInt("{AMToken,0,0x41}"), tdest=1, tlast=1)
@@ -664,7 +664,7 @@ axis_net_out.reads(message_get_kernel_t2, [
     {"tdata": 0x6},
     {"tdata": 0x80, "tlast": 1}
 ])
-message_get_kernel_t2.print_elapsed_time('message_get')
+message_get_kernel_t2.print_elapsed_time('message_get_kernel')
 message_get_kernel_t2.end_vector()
 
 message_get_kernel_t3 = message_kernel_get.add_thread()
@@ -673,7 +673,7 @@ message_get_kernel_t3.end_vector()
 
 # GAScore.add_test_vector(short_message_A)
 # GAScore.add_test_vector(short_message_B)
-# GAScore.add_test_vector(medium_message_A)
+GAScore.add_test_vector(medium_message_A)
 # GAScore.add_test_vector(medium_message_B)
 # GAScore.add_test_vector(medium_message_C)
 # GAScore.add_test_vector(long_message_A)
@@ -681,6 +681,6 @@ message_get_kernel_t3.end_vector()
 # GAScore.add_test_vector(long_message_C)
 # GAScore.add_test_vector(message_recv)
 # GAScore.add_test_vector(message_get)
-GAScore.add_test_vector(message_kernel_get)
+# GAScore.add_test_vector(message_kernel_get)
 
 GAScore.generateTB(filepath, 'sv')

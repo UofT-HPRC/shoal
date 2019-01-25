@@ -47,7 +47,7 @@ enum state_t{st_header, st_AMHandlerArgs,
 #define READ_INTERFACES \
     READ_STREAM_INTERFACE("Kernel", uaxis_l, axis_kernel, axis_word)\
     READ_STREAM_INTERFACE("Network", uaxis_l, axis_net, axis_word)\
-    READ_STREAM_INTERFACE("mm2sCommand", uaxis_l, axis_mm2sCommand, axis_word_mm2sCommand)\
+    READ_STREAM_INTERFACE("mm2sCommand", uaxis_o, axis_mm2sCommand, axis_word_mm2sCommand)\
     READ_STREAM_INTERFACE("mm2s", uaxis_l, axis_mm2s, axis_word)\
     READ_STREAM_INTERFACE("mm2sStatus", uaxis_l, axis_mm2sStatus, axis_word_mm2sStatus)
 

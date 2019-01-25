@@ -26,9 +26,14 @@ ifndef SONAR_PATH
 $(error SONAR_PATH not set in env -- sonar is required for testing)
 endif
 
-ifndef SHOAL_VIVADO_HLS
-$(error SHOAL_VIVADO_HLS not set in env -- must be set to the absolute path of \
+ifndef SHOAL_HLS_PATH
+$(error SHOAL_HLS_PATH not set in env -- must be set to the absolute path of \
 of the Vivado HLS include/ directory. Did you source init.sh?)
+endif
+
+ifndef SHOAL_PART
+$(error SHOAL_PART not set in env -- must be set to the FPGA part number Did \
+you source init.sh?)
 endif
 
 local_dir = $(SHOAL_PATH)/GAScore
@@ -40,6 +45,7 @@ test_build_dir = $(test_dir)/build
 include_dir = $(local_dir)/include
 hls_dir = $(local_dir)/vivado_hls
 vivado_dir = $(local_dir)/vivado
+repo_path = $(local_dir)/repo
 
 share_dir = $(SHOAL_PATH)/share
 share_obj_dir = $(share_dir)/build
@@ -51,6 +57,7 @@ share_testbench_dir = $(share_dir)/testbench
 c_modules := am_rx am_tx xpams_rx hold_buffer xpams_tx handler
 hdl_modules := 
 custom_modules := handler_wrapper GAScore
+test_projects := MB_GAScore_0
 
 obj = $(shell find $(obj_dir) -name '*.o' -printf '%f\n' | \
 sort -k 1nr | cut -f2-)
@@ -61,16 +68,21 @@ dep += $(share_obj:%.o=$(share_obj_dir)/%.d)
 
 CC = g++
 CFLAGS = -g -Wall -I$(include_dir) -I$(share_include_dir) \
-	-I$(SHOAL_VIVADO_HLS) \
+	-I$(SHOAL_HLS_PATH) \
 	-Wno-unknown-pragmas -Wno-comment -Wno-shift-count-overflow -MMD -MP
-
-REGEN = False
 
 ################################################################################
 # Body
 ################################################################################
 
-.PHONY: test hw sim clean yaml
+.PHONY: test hw sim clean
+
+# checks that variables are set prior to running targets
+guard-%:
+	@ if [ "${${*}}" = "" ]; then \
+		echo "Variable $* not set"; \
+		exit 1; \
+	fi
 
 #-------------------------------------------------------------------------------
 # C++ Testbench Execution
@@ -96,10 +108,10 @@ config: $(config_modules)
 define make-config
 config-$1:
 	@python $(test_dir)/$1.py
-	@$(eval $1_sim_path = $(vivado_dir)/projects/$1/$1.sim/sim_1/behav)
-	@test -f $($1_sim_path)/$1_sv.dat && cp $(test_build_dir)/$1/$1_sv.dat $($1_sim_path)
-	@$(eval $1_sim_path = $(vivado_dir)/projects/$1/$1.sim/sim_1/synth/func)
-	@test -f $($1_sim_path)/$1_sv.dat && cp $(test_build_dir)/$1/$1_sv.dat $($1_sim_path)
+	@$(eval $1_sim_path = $(vivado_dir)/projects/$(SHOAL_VIVADO_VERSION)/$(SHOAL_PART)/$1/$1.sim/sim_1/behav)
+	@if [[ -f $($1_sim_path)/$1_sv.dat ]]; then cp $(test_build_dir)/$1/$1_sv.dat $($1_sim_path); fi
+	@$(eval $1_sim_path = $(vivado_dir)/projects/$(SHOAL_VIVADO_VERSION)/$(SHOAL_PART)/$1/$1.sim/sim_1/synth/func)
+	@if [[ -f $($1_sim_path)/$1_sv.dat ]]; then cp $(test_build_dir)/$1/$1_sv.dat $($1_sim_path); fi
 endef
 $(foreach module, $(c_modules),$(eval $(call make-config,$(module),all)))
 $(foreach module, $(hdl_modules),$(eval $(call make-config,$(module),sv)))
@@ -119,51 +131,49 @@ hw-$1:
 endef
 $(foreach module, $(c_modules),$(eval $(call make-hw,$(module))))
 
+package:
+	@mkdir -p $(SHOAL_PATH)/GAScore/vivado/projects/$(SHOAL_VIVADO_VERSION)/$(SHOAL_PART)/temp
+	@mkdir -p $(SHOAl_PATH)/repo/$(SHOAL_VIVADO_VERSION)/$(SHOAL_PART_FAMILY)/GAScore
+	@rm -rf $(SHOAl_PATH)/repo/$(SHOAL_VIVADO_VERSION)/$(SHOAL_PART_FAMILY)/GAScore/*
+	@vivado -mode batch -source $(local_dir)/GAScore_package.tcl -notrace
+	@unzip -o $(SHOAl_PATH)/repo/$(SHOAL_VIVADO_VERSION)/$(SHOAL_PART_FAMILY)/GAScore/GAScore.zip -d $(SHOAl_PATH)/repo/$(SHOAL_VIVADO_VERSION)/$(SHOAL_PART_FAMILY)/GAScore/
+	@rm $(SHOAl_PATH)/repo/$(SHOAL_VIVADO_VERSION)/$(SHOAL_PART_FAMILY)/GAScore/GAScore.zip
+	@rm -rf $(SHOAL_PATH)/GAScore/vivado/projects/$(SHOAL_VIVADO_VERSION)/$(SHOAL_PART)/temp
+
 #-------------------------------------------------------------------------------
 # Vivado RTL Simulation
 #-------------------------------------------------------------------------------
 
+sim_modules=$(patsubst %, hw-%, $(c_modules))
+sim_modules+=$(patsubst %, hw-%, $(hdl_modules))
+sim_modules+=$(patsubst %, hw-%, $(custom_modules))
+sim: $(sim_modules)
+
 define make-sim
-sim-$1:
-	@$(vivado_dir)/generate.sh $1 $2 # Symlink all generated files for Vivado
-	@vivado -source $(vivado_dir)/generate.tcl -notrace -tclargs --project $1
+sim-$1: guard-VIV_MODE guard-VIV_SIM guard-VIV_CREATE
+	@if [[ $(VIV_CREATE) == 1 ]]; then $(vivado_dir)/generate.sh $1 $2; fi
+	@vivado -mode $(VIV_MODE) -source $(vivado_dir)/generate.tcl -notrace \
+		-tclargs --project $1 --sim $(VIV_SIM) --create $(VIV_CREATE)
 endef
 $(foreach module, $(c_modules),$(eval $(call make-sim,$(module),c)))
 $(foreach module, $(hdl_modules),$(eval $(call make-sim,$(module),hdl)))
 
 define make-sim-custom
-sim-$1:
-	@$(vivado_dir)/$1.sh # Symlink all generated files for Vivado
-	@vivado -source $(vivado_dir)/generate.tcl -notrace -tclargs --project $1
+sim-$1: guard-VIV_MODE guard-VIV_SIM guard-VIV_CREATE
+	@if [[ $(VIV_CREATE) == 1 ]]; then $(vivado_dir)/$1.sh; fi
+	@vivado -mode $(VIV_MODE) -source $(vivado_dir)/generate.tcl -notrace \
+		-tclargs --project $1 --sim $(VIV_SIM) --create $(VIV_CREATE)
 endef
 $(foreach module, $(custom_modules),$(eval $(call make-sim-custom,$(module))))
 
-define make-batchsim
-batchsim-$1:
-ifeq ($(REGEN),True)
-	@$(vivado_dir)/generate.sh $1 $2 # Symlink all generated files for Vivado
-	@vivado -mode batch -source $(vivado_dir)/generate.tcl -notrace -tclargs \
-		--project $1 --sim behav
-else
-	@vivado -mode batch -source $(vivado_dir)/simulate.tcl -notrace -tclargs \
-		--project $1 --sim behav
-endif
+define make-sim-test
+sim-$1: guard-VIV_MODE guard-VIV_SIM guard-VIV_CREATE
+	@if [[ $(VIV_CREATE) == 1 ]]; then $(vivado_dir)/$1.sh; fi
+	@vivado -mode $(VIV_MODE) -source $(vivado_dir)/generate.tcl -notrace \
+		-tclargs --project $1 --sim $(VIV_SIM) --create $(VIV_CREATE)
 endef
-$(foreach module, $(c_modules),$(eval $(call make-batchsim,$(module),c)))
-$(foreach module, $(hdl_modules),$(eval $(call make-batchsim,$(module),hdl)))
+$(foreach module, $(test_projects),$(eval $(call make-sim-test,$(module))))
 
-define make-batchsim-custom
-batchsim-$1:
-ifeq ($(REGEN),True)
-	@$(vivado_dir)/$1.sh # Symlink all generated files for Vivado
-	@vivado -mode batch -source $(vivado_dir)/generate.tcl -notrace -tclargs \
-		--project $1 --sim behav
-else
-	@vivado -mode batch -source $(vivado_dir)/simulate.tcl -notrace -tclargs \
-		--project $1 --sim behav
-endif
-endef
-$(foreach module, $(custom_modules),$(eval $(call make-batchsim-custom,$(module),hdl)))
 #-------------------------------------------------------------------------------
 # C++ Executable Generation
 #-------------------------------------------------------------------------------
@@ -200,7 +210,13 @@ $(foreach module, $(c_modules),$(eval $(call make-object,$(module))))
 # Cleanup
 #-------------------------------------------------------------------------------
 
+shoal_make = $(MAKE) --no-print-directory -f $(SHOAL_PATH)/Makefile $1
+
 clean: 
-	@rm -rf $(obj_dir)/*.o $(obj_dir)/*.d $(bin_dir)/* \
-	$(share_obj_dir)/*.o $(share_obj_dir)/*.d $(share_bin_dir)/* \
-	$(test_build_dir)/*
+	@$(call shoal_make, clean)
+clean-1:
+	@$(call shoal_make, clean-1)
+
+	# @rm -rf $(obj_dir)/*.o $(obj_dir)/*.d $(bin_dir)/* \
+	# $(share_obj_dir)/*.o $(share_obj_dir)/*.d $(share_bin_dir)/* \
+	# $(test_build_dir)/*

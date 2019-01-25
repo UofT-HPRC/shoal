@@ -34,14 +34,17 @@ proc help {} {
 variable project_name
 variable auto_sim
 set auto_sim "0"
+variable create_proj
+set create_proj 0
 
 if { $::argc > 0 } {
   for {set i 0} {$i < $::argc} {incr i} {
     set option [string trim [lindex $::argv $i]]
     switch -regexp -- $option {
       "--project" { incr i; set project_name [lindex $::argv $i] }
-      "--help" { help }
+      "--create" { incr i; set create_proj [lindex $::argv $i] }
       "--sim" { incr i; set auto_sim [lindex $::argv $i] }
+      "--help" { help }
       default {
         puts "ERROR: Unknown option '$option' specified, please type"
         puts "'$script_file -tclargs --help' for usage info.\n"
@@ -68,7 +71,7 @@ switch $auto_sim {
 # Include
 ################################################################################
 
-# Defines lremove and listcomp
+# Defines listcomp
 source ${::env(SHOAL_PATH)}/share/utilities.tcl
 
 ################################################################################
@@ -76,139 +79,176 @@ source ${::env(SHOAL_PATH)}/share/utilities.tcl
 ################################################################################
 
 variable part_name
-set part_name xcvu095-ffvc1517-2-e
+set part_name ${::env(SHOAL_PART)}
 
 # Set the reference directory for source file relative paths
 set origin_dir ${::env(SHOAL_PATH)}/GAScore/vivado
 set src_dir $origin_dir/src/$project_name
+set vivado_ver ${::env(SHOAL_VIVADO_VERSION)}
 
 # Set the directory path for the original project from where this script was exported
-set orig_proj_dir "[file normalize "$origin_dir/projects/$project_name"]"
+set orig_proj_dir "[file normalize "$origin_dir/projects/$vivado_ver/$part_name/$project_name"]"
 
 ################################################################################
 # Body
 ################################################################################
 
-# Create project
-create_project $project_name $orig_proj_dir -part $part_name -force
+if { $create_proj > 0 } {
 
-# Set the directory path for the new project
-set proj_dir [get_property directory [current_project]]
+  puts "Creating project..."
 
-# Set project properties
-set obj [get_projects $project_name]
-set_property -name "default_lib" -value "xil_defaultlib" -objects $obj
-set_property -name "ip_cache_permissions" -value "read write" -objects $obj
-set_property -name "ip_output_repo" -value "$proj_dir/$project_name.cache/ip" -objects $obj
-set_property -name "part" -value "$part_name" -objects $obj
-set_property -name "sim.ip.auto_export_scripts" -value "1" -objects $obj
-set_property -name "simulator_language" -value "Mixed" -objects $obj
+  # Create project
+  create_project $project_name $orig_proj_dir -part $part_name -force
 
-# Read all source files for this module
-set all_files [glob -directory "$src_dir" *]
+  # Set the directory path for the new project
+  set proj_dir [get_property directory [current_project]]
 
-# Create 'sources_1' fileset (if not found)
-if {[string equal [get_filesets -quiet sources_1] ""]} {
-  create_fileset -srcset sources_1
-}
+  # Set project properties
+  set obj [get_projects $project_name]
+  set_property -name "default_lib" -value "xil_defaultlib" -objects $obj
+  set_property -name "ip_cache_permissions" -value "read write" -objects $obj
+  set_property -name "ip_output_repo" -value "$proj_dir/$project_name.cache/ip" -objects $obj
+  set_property -name "part" -value "$part_name" -objects $obj
+  if {[info exists env(SHOAL_BOARD)]} {
+    set_property board_part ${::env(SHOAL_BOARD)} -objects $obj
+  }
+  set_property -name "sim.ip.auto_export_scripts" -value "1" -objects $obj
+  set_property -name "simulator_language" -value "Mixed" -objects $obj
 
-# Set 'sources_1' fileset object
-set obj [get_filesets sources_1]
-# remove the tb file from the file set (it's added separately to the simset)
-set files [listcomp $all_files [glob -directory "$src_dir" *_tb.sv] ]
-# if .tcl files exist, remove them as well
-if {! [catch {glob -directory "$src_dir" *.tcl} yikes] } {
-  set files [listcomp $files [glob -directory "$src_dir" *.tcl] ]
-}
-# if waveform config files exist, remove them as well
-if {! [catch {glob -directory "$src_dir" *.wcfg} yikes] } {
-  set files [listcomp $files [glob -directory "$src_dir" *.wcfg] ]
-}
-# add the remaining files to the sources set
-add_files -norecurse -fileset $obj $files
+  # Read all source files for this module
+  set all_files [glob -directory "$src_dir" *]
 
-set data_files [glob -directory "$src_dir" *.dat]
+  # Create 'sources_1' fileset (if not found)
+  if {[string equal [get_filesets -quiet sources_1] ""]} {
+    create_fileset -srcset sources_1
+  }
 
-foreach dataFile $data_files {
-  set file_obj [get_files -of_objects [get_filesets sources_1] [list "*$dataFile"]]
-  set_property -name "file_type" -value "Data Files" -objects $file_obj
-}
+  # Set 'sources_1' fileset object
+  set obj [get_filesets sources_1]
+  # remove the tb file from the file set (it's added separately to the simset)
+  if {! [catch {glob -directory "$src_dir" *_tb.sv} yikes] } {
+    set files [listcomp $all_files [glob -directory "$src_dir" *_tb.sv] ]
+    set TB_exists 1
+  } else {
+    set files $all_files
+    set TB_exists 0
+  }
+  # if .tcl files exist, remove them as well
+  if {! [catch {glob -directory "$src_dir" *.tcl} yikes] } {
+    set files [listcomp $files [glob -directory "$src_dir" *.tcl] ]
+  }
+  # if waveform config files exist, remove them as well
+  if {! [catch {glob -directory "$src_dir" *.wcfg} yikes] } {
+    set files [listcomp $files [glob -directory "$src_dir" *.wcfg] ]
+  }
+  # add the remaining files to the sources set
+  if {$files ne ""} {
+    add_files -norecurse -fileset $obj $files
+  }
+  if {! [catch {glob -directory "$src_dir" *.dat} yikes] } {
+    set data_files [glob -directory "$src_dir" *.dat]
+    foreach dataFile $data_files {
+      set file_obj [get_files -of_objects [get_filesets sources_1] [list "*$dataFile"]]
+      set_property -name "file_type" -value "Data Files" -objects $file_obj
+    }
+  }
 
-# Set 'sources_1' fileset properties
-set obj [get_filesets sources_1]
-set_property -name "top" -value "$project_name" -objects $obj
+  # Set 'sources_1' fileset properties
+  set obj [get_filesets sources_1]
+  set_property -name "top" -value "$project_name" -objects $obj
 
-# Create 'constrs_1' fileset (if not found)
-if {[string equal [get_filesets -quiet constrs_1] ""]} {
-  create_fileset -constrset constrs_1
-}
+  # Create 'constrs_1' fileset (if not found)
+  if {[string equal [get_filesets -quiet constrs_1] ""]} {
+    create_fileset -constrset constrs_1
+  }
 
-# Create 'sim_1' fileset (if not found)
-if {[string equal [get_filesets -quiet sim_1] ""]} {
-  create_fileset -simset sim_1
-}
+  # Create 'sim_1' fileset (if not found)
+  if {[string equal [get_filesets -quiet sim_1] ""]} {
+    create_fileset -simset sim_1
+  }
 
-# Set 'sim_1' fileset object
-set obj [get_filesets sim_1]
-set files [glob -directory "$src_dir" *_tb.sv]
-set files [glob -directory "$src_dir" *.wcfg]
-add_files -norecurse -fileset $obj $files
+  # Set 'sim_1' fileset object
+  set obj [get_filesets sim_1]
+  if {! [catch {glob -directory "$src_dir" *.wcfg} yikes] } {
+    set files [glob -directory "$src_dir" *.wcfg]
+    add_files -norecurse -fileset $obj $files
+  }
+  if {$TB_exists == 1} {
+    set files [glob -directory "$src_dir" *_tb.sv]
+    add_files -norecurse -fileset $obj $files
 
-# Set 'sim_1' fileset file properties for remote files
-foreach dataFile $files {
-  set file_obj [get_files -of_objects [get_filesets sim_1] [list "*$dataFile"]]
-  set_property -name "file_type" -value "SystemVerilog" -objects $file_obj
-}
+    # Set 'sim_1' fileset file properties for remote files
+    foreach dataFile $files {
+      set file_obj [get_files -of_objects [get_filesets sim_1] [list "*$dataFile"]]
+      set_property -name "file_type" -value "SystemVerilog" -objects $file_obj
+    }
+  }
 
-# Set 'sim_1' fileset properties
-set obj [get_filesets sim_1]
-set_property -name "top" -value "${project_name}_tb" -objects $obj
-set_property -name "xsim.simulate.runtime" -value "-1" -objects $obj
-if {! [catch {glob -directory "$src_dir" *.wcfg} yikes] } {
-  set_property xsim.view ${project_name}.wcfg $obj
-}
+  # Set 'sim_1' fileset properties
+  set obj [get_filesets sim_1]
+  if {$TB_exists == 1} {
+    set_property -name "top" -value "${project_name}_tb" -objects $obj
+  }
+  set_property -name "xsim.simulate.runtime" -value "-1" -objects $obj
+  if {! [catch {glob -directory "$src_dir" *.wcfg} yikes] } {
+    set_property -name "xsim.view" -value "${project_name}.wcfg" -objects $obj
+  }
 
-if {! [catch {glob -directory "$src_dir" *.tcl} yikes] } {
-  set files [glob -directory "$src_dir" *.tcl]
-  foreach tclFile $files {
-    source $tclFile -notrace
+  if {! [catch {glob -directory "$src_dir" *.tcl} yikes] } {
+    set files [glob -directory "$src_dir" *.tcl]
+    foreach tclFile $files {
+      source $tclFile -notrace
+    }
+  }
+
+  # Create 'synth_1' run (if not found)
+  if {[string equal [get_runs -quiet synth_1] ""]} {
+    create_run -name synth_1 -part $part_name -flow {Vivado Synthesis 2017} \
+    -strategy "Vivado Synthesis Defaults" -constrset constrs_1
+  } else {
+    set_property strategy "Vivado Synthesis Defaults" [get_runs synth_1]
+    set_property flow "Vivado Synthesis 2017" [get_runs synth_1]
+  }
+  set obj [get_runs synth_1]
+  set_property -name "needs_refresh" -value "1" -objects $obj
+  set_property -name "part" -value "$part_name" -objects $obj
+
+  # set the current synth run
+  current_run -synthesis [get_runs synth_1]
+
+  # Create 'impl_1' run (if not found)
+  if {[string equal [get_runs -quiet impl_1] ""]} {
+    create_run -name impl_1 -part $part_name -flow {Vivado Implementation 2017} \
+      -strategy "Vivado Implementation Defaults" -constrset constrs_1 \
+      -parent_run synth_1
+  } else {
+    set_property strategy "Vivado Implementation Defaults" [get_runs impl_1]
+    set_property flow "Vivado Implementation 2017" [get_runs impl_1]
+  }
+  set obj [get_runs impl_1]
+  set_property -name "part" -value "$part_name" -objects $obj
+  set_property -name "steps.write_bitstream.args.readback_file" -value "0" \
+    -objects $obj
+  set_property -name "steps.write_bitstream.args.verbose" -value "0" \
+    -objects $obj
+
+  # set the current impl run
+  current_run -implementation [get_runs impl_1]
+} else {
+  puts "Opening project..."
+
+  open_project -part $part_name $orig_proj_dir/$project_name.xpr
+
+  upgrade_ip [get_ips] -quiet
+
+  if {$auto_sim > 0} {
+    reset_target simulation [get_ips] -quiet
+    export_ip_user_files -of_objects  [get_ips] -sync -no_script -force -quiet
   }
 }
 
-# Create 'synth_1' run (if not found)
-if {[string equal [get_runs -quiet synth_1] ""]} {
-  create_run -name synth_1 -part $part_name -flow {Vivado Synthesis 2017} \
-  -strategy "Vivado Synthesis Defaults" -constrset constrs_1
-} else {
-  set_property strategy "Vivado Synthesis Defaults" [get_runs synth_1]
-  set_property flow "Vivado Synthesis 2017" [get_runs synth_1]
-}
-set obj [get_runs synth_1]
-set_property -name "needs_refresh" -value "1" -objects $obj
-set_property -name "part" -value "$part_name" -objects $obj
-
-# set the current synth run
-current_run -synthesis [get_runs synth_1]
-
-# Create 'impl_1' run (if not found)
-if {[string equal [get_runs -quiet impl_1] ""]} {
-  create_run -name impl_1 -part $part_name -flow {Vivado Implementation 2017} \
-    -strategy "Vivado Implementation Defaults" -constrset constrs_1 \
-    -parent_run synth_1
-} else {
-  set_property strategy "Vivado Implementation Defaults" [get_runs impl_1]
-  set_property flow "Vivado Implementation 2017" [get_runs impl_1]
-}
-set obj [get_runs impl_1]
-set_property -name "part" -value "$part_name" -objects $obj
-set_property -name "steps.write_bitstream.args.readback_file" -value "0" \
-  -objects $obj
-set_property -name "steps.write_bitstream.args.verbose" -value "0" \
-  -objects $obj
-
-# set the current impl run
-current_run -implementation [get_runs impl_1]
-
-if {$auto_sim == 1} {
+if {$auto_sim > 0} {
   launch_simulation
 }
+
+close_project

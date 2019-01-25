@@ -17,10 +17,10 @@ if { $::argc > 2 } {
 # Variables
 ################################################################################
 
-set Solution    Virtex_Ultrascale
-set Device      "xcvu095-ffvc1517-2-e"
-set Flow        ""
-set Clock       4.0
+set Solution ${::env(SHOAL_PART_FAMILY)}
+set Device ${::env(SHOAL_PART)}
+set Flow ""
+set Clock 4.0
 set DefaultFlag 1
 
 set src_dir ${::env(SHOAL_PATH)}/GAScore/src
