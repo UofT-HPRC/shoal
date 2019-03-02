@@ -197,6 +197,7 @@ mmC_t2 = medium_message_C.add_thread()
 axis_mm2sCommand.read(mmC_t2, strToInt("{dataMoverCommand,8,1,0,1,0,0x1000,0}"))
 axis_mm2s.write(mmC_t2, 0xFEEDDEED, tlast=1, callTB=2)
 #? should mm2S status be used here
+axis_mm2sStatus.write(mmC_t2, 0x80, callTB=1)
 
 mmC_t3 = medium_message_C.add_thread()
 axis_net.reads(mmC_t3, [
@@ -262,7 +263,8 @@ lmB_t2 = long_message_B.add_thread()
 axis_mm2sCommand.read(lmB_t2, strToInt("{dataMoverCommand,0x800,1,0,1,0,0xAABBCCD8,0}"))
 for i in range(255):
     axis_mm2s.write(lmB_t2, 0xDEADBEEF)
-axis_mm2s.write(lmB_t2, 0xDEADBEEF, tlast=1, callTB=2)
+axis_mm2s.write(lmB_t2, 0xDEADBEEF, tlast=1, callTB=1)
+axis_mm2sStatus.write(lmB_t2, 0x80, callTB=2)
 
 lmB_t3 = long_message_B.add_thread()
 axis_net.read(lmB_t3, strToInt("{AMHeader,0xAA,0xCC,0x100,0xE,4,0}"))
@@ -306,7 +308,8 @@ for i in range(2):
     axis_mm2s.write(lmC_t2, 0xDEADBEEF)
 for j in range(3):
     axis_mm2s.write(lmC_t2, 0xBEEFDEAD)
-axis_mm2s.write(lmC_t2, 0xDEADBEEF, tlast=1, callTB=2)
+axis_mm2s.write(lmC_t2, 0xDEADBEEF, tlast=1, callTB=1)
+axis_mm2sStatus.write(lmC_t2, 0x80, callTB=2)
 
 lmC_t3 = long_message_C.add_thread()
 axis_net.reads(lmC_t3, [
@@ -364,7 +367,9 @@ for j in range(3):
 axis_mm2s.write(lmD_t2, 0xDEADBEEF, tlast=1)
 for i in range(255):
     axis_mm2s.write(lmD_t2, 0xFFAAFFAA)
-axis_mm2s.write(lmD_t2, 0xDDDDDDDD, tlast=1, callTB=1)
+axis_mm2s.write(lmD_t2, 0xDDDDDDDD, tlast=1)
+axis_mm2sStatus.write(lmD_t2, 0x80)
+axis_mm2sStatus.write(lmD_t2, 0x80, callTB=1)
 
 lmD_t3 = long_message_D.add_thread()
 axis_net.reads(lmD_t3, [

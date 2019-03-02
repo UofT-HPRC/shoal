@@ -61,13 +61,13 @@ axis_rx.write(smA_t1, strToInt("{AMToken,0x1}"), callTB=2)
 short_message_A.add_thread(smA_t1)
 
 smA_t2 = Thread()
-axis_kernel_out.read(smA_t2, strToInt("{AMToken,0x1,0x41}"), tdest=2)
+axis_kernel_out.read(smA_t2, strToInt("{KernelHeader,0x41,0xCC,0,1}"), tdest=2)
 smA_t2.print_elapsed_time("Short_Message_A")
 smA_t2.end_vector()
 short_message_A.add_thread(smA_t2)
 
 #-------------------------------------------------------------------------------
-# Short Message A
+# Short Message B
 #
 #-------------------------------------------------------------------------------
 
@@ -99,9 +99,11 @@ axis_tx.read(smB_t3, strToInt("{AMHeader,0x1,0x010,0,0x0,0x41,0}"))
 axis_tx.read(smB_t3, strToInt("{AMToken,0x0}"))
 axis_tx.read(smB_t3, strToInt("{AMHeader,0x1,0x010,0,0x0,0x41,0}"))
 axis_tx.read(smB_t3, strToInt("{AMToken,0x0}"))
-axis_tx.read(smB_t3, strToInt("{AMHeader,0x0,0x00,0,0x0,0x41,0}"))
+axis_tx.read(smB_t3, strToInt("{AMHeader,0x0,0x10,0,0x0,0x41,0}"))
 axis_tx.read(smB_t3, strToInt("{AMToken,0x0}"))
 smB_t3.display("finished_thread_3")
+smB_t3.display('short_message_B')
+smB_t3.end_vector()
 
 smB_t4 = short_message_B.add_thread()
 smB_t4.display('short_message_B1')
@@ -114,8 +116,8 @@ axis_handler.read(smB_t4, 1)
 # smB_t4.display("finished_thread_4b")
 axis_handler.read(smB_t4, strToInt("{AMHeader,0x10,0x00,0,0x1,0x1,1}"))
 axis_handler.read(smB_t4, 5)
-smB_t4.display('short_message_B')
-smB_t4.end_vector()
+# smB_t4.display('short_message_B')
+# smB_t4.end_vector()
 
 
 #-------------------------------------------------------------------------------
@@ -142,6 +144,7 @@ axis_rx.write(mmA_t1, 0x98765432, tlast=1, callTB=3)
 medium_message_A.add_thread(mmA_t1)
 
 mmA_t2 = Thread()
+axis_kernel_out.read(mmA_t2, strToInt("{KernelHeader,0x2,0xAA,0x100,0}"), tdest=2)
 for i in range(255):
     axis_kernel_out.read(mmA_t2, 0x98765432, tdest=2)
 axis_kernel_out.read(mmA_t2, 0x98765432, tdest=2, tlast=1)
@@ -214,10 +217,10 @@ lmA_t3.print_elapsed_time("Long_Message_A")
 lmA_t3.end_vector()
 long_message_A.add_thread(lmA_t3)
 
-# xpams_rx.add_test_vector(short_message_A)
+xpams_rx.add_test_vector(short_message_A)
 xpams_rx.add_test_vector(short_message_B)
-# xpams_rx.add_test_vector(medium_message_A)
-# xpams_rx.add_test_vector(medium_message_C)
-# xpams_rx.add_test_vector(long_message_A)
+xpams_rx.add_test_vector(medium_message_A)
+xpams_rx.add_test_vector(medium_message_C)
+xpams_rx.add_test_vector(long_message_A)
 
 xpams_rx.generateTB(filepath, 'all')

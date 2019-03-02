@@ -18,13 +18,13 @@
       </db_ref>
    </db_ref_list>
    <zoom_setting>
-      <ZoomStartTime time="0fs"></ZoomStartTime>
-      <ZoomEndTime time="1690000000fs"></ZoomEndTime>
-      <Cursor1Time time="1690000000fs"></Cursor1Time>
+      <ZoomStartTime time="43337607929fs"></ZoomStartTime>
+      <ZoomEndTime time="43712478415fs"></ZoomEndTime>
+      <Cursor1Time time="43650000000fs"></Cursor1Time>
    </zoom_setting>
    <column_width_setting>
       <NameColumnWidth column_width="229"></NameColumnWidth>
-      <ValueColumnWidth column_width="228"></ValueColumnWidth>
+      <ValueColumnWidth column_width="224"></ValueColumnWidth>
    </column_width_setting>
    <WVObjectSize size="10" />
    <wvobject type="logic" fp_name="/GAScore_tb/clock">
@@ -91,148 +91,148 @@
          <obj_property name="ObjectShortName">axis_net_in_tkeep[7:0]</obj_property>
       </wvobject>
    </wvobject>
-   <wvobject type="group" fp_name="group62">
+   <wvobject type="group" fp_name="group83">
       <obj_property name="label">Ctrl_Bus_0</obj_property>
       <obj_property name="DisplayName">label</obj_property>
-      <wvobject type="logic" fp_name="/GAScore_tb/s_axi_ctrl_bus_0_awvalid">
-         <obj_property name="ElementShortName">s_axi_ctrl_bus_0_awvalid</obj_property>
-         <obj_property name="ObjectShortName">s_axi_ctrl_bus_0_awvalid</obj_property>
+      <wvobject type="logic" fp_name="/GAScore_tb/s_axi_ctrl_bus_00_awvalid">
+         <obj_property name="ElementShortName">s_axi_ctrl_bus_00_awvalid</obj_property>
+         <obj_property name="ObjectShortName">s_axi_ctrl_bus_00_awvalid</obj_property>
       </wvobject>
-      <wvobject type="logic" fp_name="/GAScore_tb/s_axi_ctrl_bus_0_awready">
-         <obj_property name="ElementShortName">s_axi_ctrl_bus_0_awready</obj_property>
-         <obj_property name="ObjectShortName">s_axi_ctrl_bus_0_awready</obj_property>
+      <wvobject type="logic" fp_name="/GAScore_tb/s_axi_ctrl_bus_00_awready">
+         <obj_property name="ElementShortName">s_axi_ctrl_bus_00_awready</obj_property>
+         <obj_property name="ObjectShortName">s_axi_ctrl_bus_00_awready</obj_property>
       </wvobject>
-      <wvobject type="array" fp_name="/GAScore_tb/s_axi_ctrl_bus_0_awaddr">
-         <obj_property name="ElementShortName">s_axi_ctrl_bus_0_awaddr[11:0]</obj_property>
-         <obj_property name="ObjectShortName">s_axi_ctrl_bus_0_awaddr[11:0]</obj_property>
+      <wvobject type="array" fp_name="/GAScore_tb/s_axi_ctrl_bus_00_awaddr">
+         <obj_property name="ElementShortName">s_axi_ctrl_bus_00_awaddr[11:0]</obj_property>
+         <obj_property name="ObjectShortName">s_axi_ctrl_bus_00_awaddr[11:0]</obj_property>
       </wvobject>
-      <wvobject type="logic" fp_name="/GAScore_tb/s_axi_ctrl_bus_0_wvalid">
-         <obj_property name="ElementShortName">s_axi_ctrl_bus_0_wvalid</obj_property>
-         <obj_property name="ObjectShortName">s_axi_ctrl_bus_0_wvalid</obj_property>
+      <wvobject type="logic" fp_name="/GAScore_tb/s_axi_ctrl_bus_00_wvalid">
+         <obj_property name="ElementShortName">s_axi_ctrl_bus_00_wvalid</obj_property>
+         <obj_property name="ObjectShortName">s_axi_ctrl_bus_00_wvalid</obj_property>
       </wvobject>
-      <wvobject type="logic" fp_name="/GAScore_tb/s_axi_ctrl_bus_0_wready">
-         <obj_property name="ElementShortName">s_axi_ctrl_bus_0_wready</obj_property>
-         <obj_property name="ObjectShortName">s_axi_ctrl_bus_0_wready</obj_property>
+      <wvobject type="logic" fp_name="/GAScore_tb/s_axi_ctrl_bus_00_wready">
+         <obj_property name="ElementShortName">s_axi_ctrl_bus_00_wready</obj_property>
+         <obj_property name="ObjectShortName">s_axi_ctrl_bus_00_wready</obj_property>
       </wvobject>
-      <wvobject type="array" fp_name="/GAScore_tb/s_axi_ctrl_bus_0_wdata">
-         <obj_property name="ElementShortName">s_axi_ctrl_bus_0_wdata[31:0]</obj_property>
-         <obj_property name="ObjectShortName">s_axi_ctrl_bus_0_wdata[31:0]</obj_property>
+      <wvobject type="array" fp_name="/GAScore_tb/s_axi_ctrl_bus_00_wdata">
+         <obj_property name="ElementShortName">s_axi_ctrl_bus_00_wdata[31:0]</obj_property>
+         <obj_property name="ObjectShortName">s_axi_ctrl_bus_00_wdata[31:0]</obj_property>
       </wvobject>
-      <wvobject type="array" fp_name="/GAScore_tb/s_axi_ctrl_bus_0_wstrb">
-         <obj_property name="ElementShortName">s_axi_ctrl_bus_0_wstrb[3:0]</obj_property>
-         <obj_property name="ObjectShortName">s_axi_ctrl_bus_0_wstrb[3:0]</obj_property>
+      <wvobject type="array" fp_name="/GAScore_tb/s_axi_ctrl_bus_00_wstrb">
+         <obj_property name="ElementShortName">s_axi_ctrl_bus_00_wstrb[3:0]</obj_property>
+         <obj_property name="ObjectShortName">s_axi_ctrl_bus_00_wstrb[3:0]</obj_property>
       </wvobject>
-      <wvobject type="logic" fp_name="/GAScore_tb/s_axi_ctrl_bus_0_arvalid">
-         <obj_property name="ElementShortName">s_axi_ctrl_bus_0_arvalid</obj_property>
-         <obj_property name="ObjectShortName">s_axi_ctrl_bus_0_arvalid</obj_property>
+      <wvobject type="logic" fp_name="/GAScore_tb/s_axi_ctrl_bus_00_arvalid">
+         <obj_property name="ElementShortName">s_axi_ctrl_bus_00_arvalid</obj_property>
+         <obj_property name="ObjectShortName">s_axi_ctrl_bus_00_arvalid</obj_property>
       </wvobject>
-      <wvobject type="logic" fp_name="/GAScore_tb/s_axi_ctrl_bus_0_arready">
-         <obj_property name="ElementShortName">s_axi_ctrl_bus_0_arready</obj_property>
-         <obj_property name="ObjectShortName">s_axi_ctrl_bus_0_arready</obj_property>
+      <wvobject type="logic" fp_name="/GAScore_tb/s_axi_ctrl_bus_00_arready">
+         <obj_property name="ElementShortName">s_axi_ctrl_bus_00_arready</obj_property>
+         <obj_property name="ObjectShortName">s_axi_ctrl_bus_00_arready</obj_property>
       </wvobject>
-      <wvobject type="array" fp_name="/GAScore_tb/s_axi_ctrl_bus_0_araddr">
-         <obj_property name="ElementShortName">s_axi_ctrl_bus_0_araddr[11:0]</obj_property>
-         <obj_property name="ObjectShortName">s_axi_ctrl_bus_0_araddr[11:0]</obj_property>
+      <wvobject type="array" fp_name="/GAScore_tb/s_axi_ctrl_bus_00_araddr">
+         <obj_property name="ElementShortName">s_axi_ctrl_bus_00_araddr[11:0]</obj_property>
+         <obj_property name="ObjectShortName">s_axi_ctrl_bus_00_araddr[11:0]</obj_property>
       </wvobject>
-      <wvobject type="logic" fp_name="/GAScore_tb/s_axi_ctrl_bus_0_rvalid">
-         <obj_property name="ElementShortName">s_axi_ctrl_bus_0_rvalid</obj_property>
-         <obj_property name="ObjectShortName">s_axi_ctrl_bus_0_rvalid</obj_property>
+      <wvobject type="logic" fp_name="/GAScore_tb/s_axi_ctrl_bus_00_rvalid">
+         <obj_property name="ElementShortName">s_axi_ctrl_bus_00_rvalid</obj_property>
+         <obj_property name="ObjectShortName">s_axi_ctrl_bus_00_rvalid</obj_property>
       </wvobject>
-      <wvobject type="logic" fp_name="/GAScore_tb/s_axi_ctrl_bus_0_rready">
-         <obj_property name="ElementShortName">s_axi_ctrl_bus_0_rready</obj_property>
-         <obj_property name="ObjectShortName">s_axi_ctrl_bus_0_rready</obj_property>
+      <wvobject type="logic" fp_name="/GAScore_tb/s_axi_ctrl_bus_00_rready">
+         <obj_property name="ElementShortName">s_axi_ctrl_bus_00_rready</obj_property>
+         <obj_property name="ObjectShortName">s_axi_ctrl_bus_00_rready</obj_property>
       </wvobject>
-      <wvobject type="array" fp_name="/GAScore_tb/s_axi_ctrl_bus_0_rdata">
-         <obj_property name="ElementShortName">s_axi_ctrl_bus_0_rdata[31:0]</obj_property>
-         <obj_property name="ObjectShortName">s_axi_ctrl_bus_0_rdata[31:0]</obj_property>
+      <wvobject type="array" fp_name="/GAScore_tb/s_axi_ctrl_bus_00_rdata">
+         <obj_property name="ElementShortName">s_axi_ctrl_bus_00_rdata[31:0]</obj_property>
+         <obj_property name="ObjectShortName">s_axi_ctrl_bus_00_rdata[31:0]</obj_property>
       </wvobject>
-      <wvobject type="array" fp_name="/GAScore_tb/s_axi_ctrl_bus_0_rresp">
-         <obj_property name="ElementShortName">s_axi_ctrl_bus_0_rresp[1:0]</obj_property>
-         <obj_property name="ObjectShortName">s_axi_ctrl_bus_0_rresp[1:0]</obj_property>
+      <wvobject type="array" fp_name="/GAScore_tb/s_axi_ctrl_bus_00_rresp">
+         <obj_property name="ElementShortName">s_axi_ctrl_bus_00_rresp[1:0]</obj_property>
+         <obj_property name="ObjectShortName">s_axi_ctrl_bus_00_rresp[1:0]</obj_property>
       </wvobject>
-      <wvobject type="logic" fp_name="/GAScore_tb/s_axi_ctrl_bus_0_bvalid">
-         <obj_property name="ElementShortName">s_axi_ctrl_bus_0_bvalid</obj_property>
-         <obj_property name="ObjectShortName">s_axi_ctrl_bus_0_bvalid</obj_property>
+      <wvobject type="logic" fp_name="/GAScore_tb/s_axi_ctrl_bus_00_bvalid">
+         <obj_property name="ElementShortName">s_axi_ctrl_bus_00_bvalid</obj_property>
+         <obj_property name="ObjectShortName">s_axi_ctrl_bus_00_bvalid</obj_property>
       </wvobject>
-      <wvobject type="logic" fp_name="/GAScore_tb/s_axi_ctrl_bus_0_bready">
-         <obj_property name="ElementShortName">s_axi_ctrl_bus_0_bready</obj_property>
-         <obj_property name="ObjectShortName">s_axi_ctrl_bus_0_bready</obj_property>
+      <wvobject type="logic" fp_name="/GAScore_tb/s_axi_ctrl_bus_00_bready">
+         <obj_property name="ElementShortName">s_axi_ctrl_bus_00_bready</obj_property>
+         <obj_property name="ObjectShortName">s_axi_ctrl_bus_00_bready</obj_property>
       </wvobject>
-      <wvobject type="array" fp_name="/GAScore_tb/s_axi_ctrl_bus_0_bresp">
-         <obj_property name="ElementShortName">s_axi_ctrl_bus_0_bresp[1:0]</obj_property>
-         <obj_property name="ObjectShortName">s_axi_ctrl_bus_0_bresp[1:0]</obj_property>
+      <wvobject type="array" fp_name="/GAScore_tb/s_axi_ctrl_bus_00_bresp">
+         <obj_property name="ElementShortName">s_axi_ctrl_bus_00_bresp[1:0]</obj_property>
+         <obj_property name="ObjectShortName">s_axi_ctrl_bus_00_bresp[1:0]</obj_property>
       </wvobject>
    </wvobject>
-   <wvobject type="group" fp_name="group63">
+   <wvobject type="group" fp_name="group101">
       <obj_property name="label">Ctrl_Bus_1</obj_property>
       <obj_property name="DisplayName">label</obj_property>
-      <wvobject type="logic" fp_name="/GAScore_tb/s_axi_ctrl_bus_1_awvalid">
-         <obj_property name="ElementShortName">s_axi_ctrl_bus_1_awvalid</obj_property>
-         <obj_property name="ObjectShortName">s_axi_ctrl_bus_1_awvalid</obj_property>
+      <wvobject type="logic" fp_name="/GAScore_tb/s_axi_ctrl_bus_01_awvalid">
+         <obj_property name="ElementShortName">s_axi_ctrl_bus_01_awvalid</obj_property>
+         <obj_property name="ObjectShortName">s_axi_ctrl_bus_01_awvalid</obj_property>
       </wvobject>
-      <wvobject type="logic" fp_name="/GAScore_tb/s_axi_ctrl_bus_1_awready">
-         <obj_property name="ElementShortName">s_axi_ctrl_bus_1_awready</obj_property>
-         <obj_property name="ObjectShortName">s_axi_ctrl_bus_1_awready</obj_property>
+      <wvobject type="logic" fp_name="/GAScore_tb/s_axi_ctrl_bus_01_awready">
+         <obj_property name="ElementShortName">s_axi_ctrl_bus_01_awready</obj_property>
+         <obj_property name="ObjectShortName">s_axi_ctrl_bus_01_awready</obj_property>
       </wvobject>
-      <wvobject type="array" fp_name="/GAScore_tb/s_axi_ctrl_bus_1_awaddr">
-         <obj_property name="ElementShortName">s_axi_ctrl_bus_1_awaddr[11:0]</obj_property>
-         <obj_property name="ObjectShortName">s_axi_ctrl_bus_1_awaddr[11:0]</obj_property>
+      <wvobject type="array" fp_name="/GAScore_tb/s_axi_ctrl_bus_01_awaddr">
+         <obj_property name="ElementShortName">s_axi_ctrl_bus_01_awaddr[11:0]</obj_property>
+         <obj_property name="ObjectShortName">s_axi_ctrl_bus_01_awaddr[11:0]</obj_property>
       </wvobject>
-      <wvobject type="logic" fp_name="/GAScore_tb/s_axi_ctrl_bus_1_wvalid">
-         <obj_property name="ElementShortName">s_axi_ctrl_bus_1_wvalid</obj_property>
-         <obj_property name="ObjectShortName">s_axi_ctrl_bus_1_wvalid</obj_property>
+      <wvobject type="logic" fp_name="/GAScore_tb/s_axi_ctrl_bus_01_wvalid">
+         <obj_property name="ElementShortName">s_axi_ctrl_bus_01_wvalid</obj_property>
+         <obj_property name="ObjectShortName">s_axi_ctrl_bus_01_wvalid</obj_property>
       </wvobject>
-      <wvobject type="logic" fp_name="/GAScore_tb/s_axi_ctrl_bus_1_wready">
-         <obj_property name="ElementShortName">s_axi_ctrl_bus_1_wready</obj_property>
-         <obj_property name="ObjectShortName">s_axi_ctrl_bus_1_wready</obj_property>
+      <wvobject type="logic" fp_name="/GAScore_tb/s_axi_ctrl_bus_01_wready">
+         <obj_property name="ElementShortName">s_axi_ctrl_bus_01_wready</obj_property>
+         <obj_property name="ObjectShortName">s_axi_ctrl_bus_01_wready</obj_property>
       </wvobject>
-      <wvobject type="array" fp_name="/GAScore_tb/s_axi_ctrl_bus_1_wdata">
-         <obj_property name="ElementShortName">s_axi_ctrl_bus_1_wdata[31:0]</obj_property>
-         <obj_property name="ObjectShortName">s_axi_ctrl_bus_1_wdata[31:0]</obj_property>
+      <wvobject type="array" fp_name="/GAScore_tb/s_axi_ctrl_bus_01_wdata">
+         <obj_property name="ElementShortName">s_axi_ctrl_bus_01_wdata[31:0]</obj_property>
+         <obj_property name="ObjectShortName">s_axi_ctrl_bus_01_wdata[31:0]</obj_property>
       </wvobject>
-      <wvobject type="array" fp_name="/GAScore_tb/s_axi_ctrl_bus_1_wstrb">
-         <obj_property name="ElementShortName">s_axi_ctrl_bus_1_wstrb[3:0]</obj_property>
-         <obj_property name="ObjectShortName">s_axi_ctrl_bus_1_wstrb[3:0]</obj_property>
+      <wvobject type="array" fp_name="/GAScore_tb/s_axi_ctrl_bus_01_wstrb">
+         <obj_property name="ElementShortName">s_axi_ctrl_bus_01_wstrb[3:0]</obj_property>
+         <obj_property name="ObjectShortName">s_axi_ctrl_bus_01_wstrb[3:0]</obj_property>
       </wvobject>
-      <wvobject type="logic" fp_name="/GAScore_tb/s_axi_ctrl_bus_1_arvalid">
-         <obj_property name="ElementShortName">s_axi_ctrl_bus_1_arvalid</obj_property>
-         <obj_property name="ObjectShortName">s_axi_ctrl_bus_1_arvalid</obj_property>
+      <wvobject type="logic" fp_name="/GAScore_tb/s_axi_ctrl_bus_01_arvalid">
+         <obj_property name="ElementShortName">s_axi_ctrl_bus_01_arvalid</obj_property>
+         <obj_property name="ObjectShortName">s_axi_ctrl_bus_01_arvalid</obj_property>
       </wvobject>
-      <wvobject type="logic" fp_name="/GAScore_tb/s_axi_ctrl_bus_1_arready">
-         <obj_property name="ElementShortName">s_axi_ctrl_bus_1_arready</obj_property>
-         <obj_property name="ObjectShortName">s_axi_ctrl_bus_1_arready</obj_property>
+      <wvobject type="logic" fp_name="/GAScore_tb/s_axi_ctrl_bus_01_arready">
+         <obj_property name="ElementShortName">s_axi_ctrl_bus_01_arready</obj_property>
+         <obj_property name="ObjectShortName">s_axi_ctrl_bus_01_arready</obj_property>
       </wvobject>
-      <wvobject type="array" fp_name="/GAScore_tb/s_axi_ctrl_bus_1_araddr">
-         <obj_property name="ElementShortName">s_axi_ctrl_bus_1_araddr[11:0]</obj_property>
-         <obj_property name="ObjectShortName">s_axi_ctrl_bus_1_araddr[11:0]</obj_property>
+      <wvobject type="array" fp_name="/GAScore_tb/s_axi_ctrl_bus_01_araddr">
+         <obj_property name="ElementShortName">s_axi_ctrl_bus_01_araddr[11:0]</obj_property>
+         <obj_property name="ObjectShortName">s_axi_ctrl_bus_01_araddr[11:0]</obj_property>
       </wvobject>
-      <wvobject type="logic" fp_name="/GAScore_tb/s_axi_ctrl_bus_1_rvalid">
-         <obj_property name="ElementShortName">s_axi_ctrl_bus_1_rvalid</obj_property>
-         <obj_property name="ObjectShortName">s_axi_ctrl_bus_1_rvalid</obj_property>
+      <wvobject type="logic" fp_name="/GAScore_tb/s_axi_ctrl_bus_01_rvalid">
+         <obj_property name="ElementShortName">s_axi_ctrl_bus_01_rvalid</obj_property>
+         <obj_property name="ObjectShortName">s_axi_ctrl_bus_01_rvalid</obj_property>
       </wvobject>
-      <wvobject type="logic" fp_name="/GAScore_tb/s_axi_ctrl_bus_1_rready">
-         <obj_property name="ElementShortName">s_axi_ctrl_bus_1_rready</obj_property>
-         <obj_property name="ObjectShortName">s_axi_ctrl_bus_1_rready</obj_property>
+      <wvobject type="logic" fp_name="/GAScore_tb/s_axi_ctrl_bus_01_rready">
+         <obj_property name="ElementShortName">s_axi_ctrl_bus_01_rready</obj_property>
+         <obj_property name="ObjectShortName">s_axi_ctrl_bus_01_rready</obj_property>
       </wvobject>
-      <wvobject type="array" fp_name="/GAScore_tb/s_axi_ctrl_bus_1_rdata">
-         <obj_property name="ElementShortName">s_axi_ctrl_bus_1_rdata[31:0]</obj_property>
-         <obj_property name="ObjectShortName">s_axi_ctrl_bus_1_rdata[31:0]</obj_property>
+      <wvobject type="array" fp_name="/GAScore_tb/s_axi_ctrl_bus_01_rdata">
+         <obj_property name="ElementShortName">s_axi_ctrl_bus_01_rdata[31:0]</obj_property>
+         <obj_property name="ObjectShortName">s_axi_ctrl_bus_01_rdata[31:0]</obj_property>
       </wvobject>
-      <wvobject type="array" fp_name="/GAScore_tb/s_axi_ctrl_bus_1_rresp">
-         <obj_property name="ElementShortName">s_axi_ctrl_bus_1_rresp[1:0]</obj_property>
-         <obj_property name="ObjectShortName">s_axi_ctrl_bus_1_rresp[1:0]</obj_property>
+      <wvobject type="array" fp_name="/GAScore_tb/s_axi_ctrl_bus_01_rresp">
+         <obj_property name="ElementShortName">s_axi_ctrl_bus_01_rresp[1:0]</obj_property>
+         <obj_property name="ObjectShortName">s_axi_ctrl_bus_01_rresp[1:0]</obj_property>
       </wvobject>
-      <wvobject type="logic" fp_name="/GAScore_tb/s_axi_ctrl_bus_1_bvalid">
-         <obj_property name="ElementShortName">s_axi_ctrl_bus_1_bvalid</obj_property>
-         <obj_property name="ObjectShortName">s_axi_ctrl_bus_1_bvalid</obj_property>
+      <wvobject type="logic" fp_name="/GAScore_tb/s_axi_ctrl_bus_01_bvalid">
+         <obj_property name="ElementShortName">s_axi_ctrl_bus_01_bvalid</obj_property>
+         <obj_property name="ObjectShortName">s_axi_ctrl_bus_01_bvalid</obj_property>
       </wvobject>
-      <wvobject type="logic" fp_name="/GAScore_tb/s_axi_ctrl_bus_1_bready">
-         <obj_property name="ElementShortName">s_axi_ctrl_bus_1_bready</obj_property>
-         <obj_property name="ObjectShortName">s_axi_ctrl_bus_1_bready</obj_property>
+      <wvobject type="logic" fp_name="/GAScore_tb/s_axi_ctrl_bus_01_bready">
+         <obj_property name="ElementShortName">s_axi_ctrl_bus_01_bready</obj_property>
+         <obj_property name="ObjectShortName">s_axi_ctrl_bus_01_bready</obj_property>
       </wvobject>
-      <wvobject type="array" fp_name="/GAScore_tb/s_axi_ctrl_bus_1_bresp">
-         <obj_property name="ElementShortName">s_axi_ctrl_bus_1_bresp[1:0]</obj_property>
-         <obj_property name="ObjectShortName">s_axi_ctrl_bus_1_bresp[1:0]</obj_property>
+      <wvobject type="array" fp_name="/GAScore_tb/s_axi_ctrl_bus_01_bresp">
+         <obj_property name="ElementShortName">s_axi_ctrl_bus_01_bresp[1:0]</obj_property>
+         <obj_property name="ObjectShortName">s_axi_ctrl_bus_01_bresp[1:0]</obj_property>
       </wvobject>
    </wvobject>
    <wvobject type="group" fp_name="group64">

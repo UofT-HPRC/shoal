@@ -11,6 +11,8 @@
 
 static enum state_rx_t{st_AMHeader, st_handler} currentState;
 
+#define PREV_TOKENS 3
+
 #define DECLARE_VARIABLES\
     axis_noKeep_t axis_handler("handler");\
 \

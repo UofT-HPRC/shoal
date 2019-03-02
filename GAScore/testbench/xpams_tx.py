@@ -66,7 +66,7 @@ axis_kernel_in.writes(smA_t1, [
 short_message_A.add_thread(smA_t1)
 
 smA_t2 = Thread()
-axis_kernel_out.read(smA_t2, strToInt("{AMToken,0x1,0x41}"), tdest=1)
+axis_kernel_out.read(smA_t2, strToInt("{KernelHeader,0x41,0x1,0,1}"), tdest=1)
 smA_t2.print_elapsed_time("Short_Message_A")
 smA_t2.end_vector()
 short_message_A.add_thread(smA_t2)
@@ -94,11 +94,12 @@ axis_kernel_in.write(mmA_t1, 0x98765432, tlast=1, callTB=3)
 medium_message_A.add_thread(mmA_t1)
 
 mmA_t2 = Thread()
-axis_kernel_out.read(mmA_t2, strToInt("{AMToken,0x0}"), tdest=2)
+axis_kernel_out.read(mmA_t2, strToInt("{KernelHeader,0x2,0x01,0x100,0}"), tdest=2)
+# axis_kernel_out.read(mmA_t2, strToInt("{AMToken,0x0}"), tdest=2)
 for i in range(255):
     axis_kernel_out.read(mmA_t2, 0x98765432, tdest=2)
 axis_kernel_out.read(mmA_t2, 0x98765432, tdest=2, tlast=1)
-axis_kernel_out.read(mmA_t2, strToInt("{AMToken,0x0,0x41}"), tdest=1)
+axis_kernel_out.read(mmA_t2, strToInt("{KernelHeader,0x41,0x1,0,0}"), tdest=1)
 mmA_t2.print_elapsed_time("Medium_Message_A")
 mmA_t2.end_vector()
 medium_message_A.add_thread(mmA_t2)

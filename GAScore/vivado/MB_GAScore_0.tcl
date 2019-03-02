@@ -370,7 +370,7 @@ source ${::env(SHOAL_PATH)}/share/utilities.tcl
 set current_vivado_version [version -short]
 
 if { [string first 2017.2 $current_vivado_version] != -1 } {
-  2017_2::create_root_design GAScore_bd
+  2017_2::create_root_design MB_GAScore_0_bd
 } else {
   puts ""
   catch {common::send_msg_id "BD_TCL-109" "ERROR" "Unsupported Vivado version:\

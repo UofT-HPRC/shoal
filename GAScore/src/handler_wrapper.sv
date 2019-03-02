@@ -46,7 +46,7 @@ module handler_wrapper #(
     parameter NUM_KERNELS = 2,
 
     // these should match the values in handler.v from HLS
-    parameter ADDR_WIDTH = 5,
+    parameter ADDR_WIDTH = 6,
     parameter DATA_WIDTH = 32,
     parameter STRB_WIDTH = DATA_WIDTH/8
 )(

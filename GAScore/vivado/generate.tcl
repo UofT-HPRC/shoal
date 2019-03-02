@@ -36,6 +36,11 @@ variable auto_sim
 set auto_sim "0"
 variable create_proj
 set create_proj 0
+set run_synth 0
+set run_impl 0
+set write_bit 0
+set export_hw 0
+set postscript ""
 
 if { $::argc > 0 } {
   for {set i 0} {$i < $::argc} {incr i} {
@@ -43,7 +48,12 @@ if { $::argc > 0 } {
     switch -regexp -- $option {
       "--project" { incr i; set project_name [lindex $::argv $i] }
       "--create" { incr i; set create_proj [lindex $::argv $i] }
+      "--synth" { incr i; set run_synth [lindex $::argv $i] }
+      "--impl" { incr i; set run_impl [lindex $::argv $i] }
+      "--bit" { incr i; set write_bit [lindex $::argv $i] }
+      "--export" { incr i; set export_hw [lindex $::argv $i] }
       "--sim" { incr i; set auto_sim [lindex $::argv $i] }
+      "--postscript" { incr i; set postscript [lindex $::argv $i]}
       "--help" { help }
       default {
         puts "ERROR: Unknown option '$option' specified, please type"
@@ -247,8 +257,29 @@ if { $create_proj > 0 } {
   }
 }
 
+if {$run_synth > 0} {
+  reset_run synth_1
+  launch_runs synth_1 -jobs 2
+}
+
+if {$run_impl > 0} {
+  launch_runs impl_1 -jobs 2
+}
+
+if {$write_bit > 0} {
+  launch_runs impl_1 -to_step write_bitstream -jobs 2
+}
+
+if {$export_hw > 0} {
+  file mkdir $orig_proj_dir/$project_name.sdk
+  file copy -force $orig_proj_dir/$project_name.runs/impl_1/${project_name}_bd_wrapper.sysdef \
+    $orig_proj_dir/$project_name.sdk/${project_name}_bd_wrapper.hdf
+}
+
 if {$auto_sim > 0} {
   launch_simulation
 }
 
-close_project
+if {! [string equal $postscript ""]} {
+  source $postscript
+}

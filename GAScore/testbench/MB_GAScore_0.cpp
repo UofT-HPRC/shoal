@@ -1,9 +1,12 @@
 #include <stdio.h>
+#include "xil_io.h"
 
-#define __MB__
+// #define __MB__
+#define ENABLE_NETWORK
 #define KERNEL_LINK 0
 #define NET_LINK 1
 #include "active_messages.hpp"
+#include "register_map.hpp"
 
 int main(){
 

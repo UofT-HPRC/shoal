@@ -195,6 +195,34 @@ def strToInt(packet):
         token = extractNumber(argToken) << 40
         AMtype = extractNumber(argType)
         intVal = token + AMtype
+    elif packetArgs[0] == "KernelHeader":
+        assert (len(packetArgs) == 5),"Invalid number of arguments for KernelHeader"
+        if ":" not in packetArgs[1]:
+            argType = packetArgs[1]
+            argSrc = packetArgs[2]
+            argPayload = packetArgs[3]
+            argToken = packetArgs[4]
+        else:
+            for arg in packetArgs[1:]:
+                argList = arg.split(":")
+                if argList[0] == "type":
+                    argType = argList[1]
+                elif argList[0] == "src":
+                    argSrc = argList[1]
+                elif argList[0] == "payload":
+                    argPayload = argList[1]
+                elif argList[0] == "token":
+                    argToken = argList[1]
+                else:
+                    printError(1, "Invalid key for KernelHeader")
+                    exit(1)
+        
+        AMtype = extractNumber(argType)
+        src = extractNumber(argSrc) << 8
+        payload = extractNumber(argPayload) << 24
+        token = extractNumber(argToken) << 40
+
+        intVal = src + token + payload + AMtype
     else:
         return None
 

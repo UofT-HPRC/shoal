@@ -55,9 +55,9 @@ share_include_dir = $(share_dir)/include
 share_testbench_dir = $(share_dir)/testbench
 
 c_modules := am_rx am_tx xpams_rx hold_buffer xpams_tx handler
-hdl_modules := 
+hdl_modules := memory
 custom_modules := handler_wrapper GAScore
-test_projects := MB_GAScore_0
+test_projects := MB_GAScore_0 MB_GAScore_1
 
 obj = $(shell find $(obj_dir) -name '*.o' -printf '%f\n' | \
 sort -k 1nr | cut -f2-)
@@ -133,44 +133,48 @@ $(foreach module, $(c_modules),$(eval $(call make-hw,$(module))))
 
 package:
 	@mkdir -p $(SHOAL_PATH)/GAScore/vivado/projects/$(SHOAL_VIVADO_VERSION)/$(SHOAL_PART)/temp
-	@mkdir -p $(SHOAl_PATH)/repo/$(SHOAL_VIVADO_VERSION)/$(SHOAL_PART_FAMILY)/GAScore
-	@rm -rf $(SHOAl_PATH)/repo/$(SHOAL_VIVADO_VERSION)/$(SHOAL_PART_FAMILY)/GAScore/*
+	@mkdir -p $(SHOAL_PATH)/repo/$(SHOAL_VIVADO_VERSION)/$(SHOAL_PART_FAMILY)/GAScore
+	@rm -rf $(SHOAL_PATH)/repo/$(SHOAL_VIVADO_VERSION)/$(SHOAL_PART_FAMILY)/GAScore/*
 	@vivado -mode batch -source $(local_dir)/GAScore_package.tcl -notrace
-	@unzip -o $(SHOAl_PATH)/repo/$(SHOAL_VIVADO_VERSION)/$(SHOAL_PART_FAMILY)/GAScore/GAScore.zip -d $(SHOAl_PATH)/repo/$(SHOAL_VIVADO_VERSION)/$(SHOAL_PART_FAMILY)/GAScore/
-	@rm $(SHOAl_PATH)/repo/$(SHOAL_VIVADO_VERSION)/$(SHOAL_PART_FAMILY)/GAScore/GAScore.zip
+	@unzip -o $(SHOAL_PATH)/repo/$(SHOAL_VIVADO_VERSION)/$(SHOAL_PART_FAMILY)/GAScore/GAScore.zip -d $(SHOAL_PATH)/repo/$(SHOAL_VIVADO_VERSION)/$(SHOAL_PART_FAMILY)/GAScore/
+	@rm $(SHOAL_PATH)/repo/$(SHOAL_VIVADO_VERSION)/$(SHOAL_PART_FAMILY)/GAScore/GAScore.zip
 	@rm -rf $(SHOAL_PATH)/GAScore/vivado/projects/$(SHOAL_VIVADO_VERSION)/$(SHOAL_PART)/temp
 
 #-------------------------------------------------------------------------------
 # Vivado RTL Simulation
 #-------------------------------------------------------------------------------
 
-sim_modules=$(patsubst %, hw-%, $(c_modules))
-sim_modules+=$(patsubst %, hw-%, $(hdl_modules))
-sim_modules+=$(patsubst %, hw-%, $(custom_modules))
+sim_modules=$(patsubst %, sim-%, $(c_modules))
+sim_modules+=$(patsubst %, sim-%, $(hdl_modules))
+sim_modules+=$(patsubst %, sim-%, $(custom_modules))
 sim: $(sim_modules)
 
 define make-sim
-sim-$1: guard-VIV_MODE guard-VIV_SIM guard-VIV_CREATE
+sim-$1: guard-VIV_MODE guard-VIV_SIM guard-VIV_CREATE guard-VIV_SYNTH guard-VIV_IMPL guard-VIV_BIT guard-VIV_EXPORT
 	@if [[ $(VIV_CREATE) == 1 ]]; then $(vivado_dir)/generate.sh $1 $2; fi
 	@vivado -mode $(VIV_MODE) -source $(vivado_dir)/generate.tcl -notrace \
-		-tclargs --project $1 --sim $(VIV_SIM) --create $(VIV_CREATE)
+		-tclargs --project $1 --sim $(VIV_SIM) --create $(VIV_CREATE) \
+		--synth $(VIV_SYNTH) --impl $(VIV_IMPL) --bit $(VIV_BIT) --export $(VIV_EXPORT)
 endef
 $(foreach module, $(c_modules),$(eval $(call make-sim,$(module),c)))
 $(foreach module, $(hdl_modules),$(eval $(call make-sim,$(module),hdl)))
 
 define make-sim-custom
-sim-$1: guard-VIV_MODE guard-VIV_SIM guard-VIV_CREATE
+sim-$1: guard-VIV_MODE guard-VIV_SIM guard-VIV_CREATE guard-VIV_SYNTH guard-VIV_IMPL guard-VIV_BIT guard-VIV_EXPORT
 	@if [[ $(VIV_CREATE) == 1 ]]; then $(vivado_dir)/$1.sh; fi
 	@vivado -mode $(VIV_MODE) -source $(vivado_dir)/generate.tcl -notrace \
-		-tclargs --project $1 --sim $(VIV_SIM) --create $(VIV_CREATE)
+		-tclargs --project $1 --sim $(VIV_SIM) --create $(VIV_CREATE) \
+		--synth $(VIV_SYNTH) --impl $(VIV_IMPL) --bit $(VIV_BIT) --export $(VIV_EXPORT)
 endef
 $(foreach module, $(custom_modules),$(eval $(call make-sim-custom,$(module))))
 
 define make-sim-test
-sim-$1: guard-VIV_MODE guard-VIV_SIM guard-VIV_CREATE
+sim-$1: guard-VIV_MODE guard-VIV_SIM guard-VIV_CREATE guard-VIV_SYNTH guard-VIV_IMPL guard-VIV_BIT guard-VIV_EXPORT
 	@if [[ $(VIV_CREATE) == 1 ]]; then $(vivado_dir)/$1.sh; fi
 	@vivado -mode $(VIV_MODE) -source $(vivado_dir)/generate.tcl -notrace \
-		-tclargs --project $1 --sim $(VIV_SIM) --create $(VIV_CREATE)
+		-tclargs --project $1 --sim $(VIV_SIM) --create $(VIV_CREATE) \
+		--synth $(VIV_SYNTH) --impl $(VIV_IMPL) --bit $(VIV_BIT) --export $(VIV_EXPORT)
+	@xsct $(vivado_dir)/$1_sdk.tcl
 endef
 $(foreach module, $(test_projects),$(eval $(call make-sim-test,$(module))))
 

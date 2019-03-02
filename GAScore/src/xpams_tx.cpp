@@ -60,6 +60,10 @@ void xpams_tx(
                     axis_kernel_in.read(axis_word); //read token
                     AMToken = axis_word.data(AM_TOKEN);
                     if (isMediumAM(AMtype)){
+                        axis_word.data(7,0) = AMtype;
+                        axis_word.data(23,8) = AMsrc;
+                        axis_word.data(35,24) = AMpayloadSize;
+                        axis_word.data(AM_TOKEN) = AMToken;
                         axis_wordDest = assignWord(axis_word);
                         axis_wordDest.dest = AMdst;
                         axis_kernel_out.write(axis_wordDest);
@@ -137,9 +141,13 @@ void xpams_tx(
             break;
         }
         case st_reply:{
-            axis_word.data(AM_TYPE) = AM_SHORT + AM_REPLY;
+            axis_word.data(7,0) = AM_SHORT + AM_REPLY;
+            axis_word.data(23,8) = AMsrc;
+            axis_word.data(35,24) = 0;
             axis_word.data(AM_TOKEN) = AMToken;
-            axis_word.keep = GC_DATA_TKEEP;
+            // axis_word.data(AM_TYPE) = AM_SHORT + AM_REPLY;
+            // axis_word.data(AM_TOKEN) = AMToken;
+            // axis_word.keep = GC_DATA_TKEEP;
             axis_wordDest = assignWord(axis_word);
             axis_wordDest.dest = AMsrc;
             axis_wordDest.last = 1;

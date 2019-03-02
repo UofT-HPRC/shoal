@@ -305,8 +305,17 @@ void am_rx(
                 //     currentState = st_done;
                 // }
                 // else{
+                int j = 1;
+                if (isLongStridedAM(AMtype)){
+                    j = AMstrideBlockNum;
+                }
+                else if (isLongVectoredAM(AMtype)){
+                    j = AMdstVectorNum;
+                }
+                for(int i = 0; i < j; i++){
                     //? s2mm doesn't seem to send a status in behav sim
-                    // axis_s2mmStatus.read(axis_word_s2mmStatus);
+                    axis_s2mmStatus.read(axis_word_s2mmStatus);
+                }
                     bufferRelease = 1;
                     currentState = st_header;
                 // }
@@ -321,9 +330,9 @@ void am_rx(
     release = bufferRelease == 0 ? 0 : 1;
 
     // unconditionally read status to keep it empty
-    if(!axis_s2mmStatus.empty()){
-        axis_s2mmStatus.read(axis_word_s2mmStatus);
-    }
+    // if(!axis_s2mmStatus.empty()){
+    //     axis_s2mmStatus.read(axis_word_s2mmStatus);
+    // }
 
     #ifdef DEBUG
     dbg_currentState = currentState;

@@ -62,9 +62,13 @@ void xpams_rx(
                 axis_rx.read(axis_word); //read token
                 AMToken = axis_word.data(AM_TOKEN);
                 if(isReplyAM(AMtype) && isShortAM(AMtype)){
+                    axis_word.data(7,0) = AMtype;
+                    axis_word.data(23,8) = AMsrc;
+                    axis_word.data(35,24) = 0; // payload size
                     axis_word.data(AM_TOKEN) = AMToken;
-                    axis_word.data(39,8) = 0; //TODO parameterize
-                    axis_word.data(AM_TYPE) = AM_SHORT + AM_REPLY;
+                    // axis_word.data(AM_TOKEN) = AMToken;
+                    // axis_word.data(39,8) = 0; //TODO parameterize
+                    // axis_word.data(AM_TYPE) = AM_SHORT + AM_REPLY;
                     axis_wordDest = assignWord(axis_word);
                     axis_wordDest.dest = AMdst;
                     axis_kernel_out.write(axis_wordDest);
@@ -94,10 +98,17 @@ void xpams_rx(
                         axis_handler.write(axis_wordNoKeep);
                     }
                     if(isMediumAM(AMtype)){
+                        axis_word.data(7,0) = AMtype;
+                        axis_word.data(23,8) = AMsrc;
+                        axis_word.data(35,24) = AMpayloadSize;
+                        axis_word.data(AM_TOKEN) = AMToken;
+                        axis_wordDest = assignWord(axis_word);
+                        axis_wordDest.dest = AMdst;
+                        axis_kernel_out.write(axis_wordDest);
                         currentState = st_AMpayload;
                     }
                     else{
-                        if (isAsyncAM(AMtype))
+                        if (isAsyncAM(AMtype) || isReplyAM(AMtype))
                             currentState = st_AMheader;
                         else
                             currentState = st_sendReplyHeader;

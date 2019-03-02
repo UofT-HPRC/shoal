@@ -24,6 +24,7 @@ void am_tx(
 
     static state_t currentState = st_header;
     axis_word_t axis_word;
+    axis_word_8a_t axis_word_mm2sStatus;
 
     static gc_AMsrc_t AMsrc;
     static gc_AMToken_t AMToken;
@@ -36,6 +37,8 @@ void am_tx(
     static gc_payloadSize_t AMpayloadSize;
     static gc_dstVectorNum_t AMdstVectorNum;
     static gc_srcVectorNum_t AMsrcVectorNum;
+
+    static gc_strideBlockNum_t srcBlockNum;
 
     // static gc_destinationLower_t AMsourceLower;
     // static gc_destinationUpper_t AMsourceUpper;
@@ -232,7 +235,7 @@ void am_tx(
         case st_AMLongStride:{
             gc_stride_t srcStride;
             gc_strideBlockSize_t srcBlockSize;
-            gc_strideBlockNum_t srcBlockNum;
+            
             // if(!axis_kernel.empty()){ //get metadata
                 axis_kernel.read(axis_word);
                 srcStride = axis_word.data(15,0);
@@ -335,6 +338,19 @@ void am_tx(
             break;
         }
         case st_done:{
+            if(isLongStridedAM(AMtype)){
+                for(int i = 0; i < srcBlockNum; i++){
+                    axis_mm2sStatus.read(axis_word_mm2sStatus);    
+                }
+            }
+            else if(isLongVectoredAM(AMtype)){
+                for(int i = 0; i < AMsrcVectorNum; i++){
+                    axis_mm2sStatus.read(axis_word_mm2sStatus);    
+                }
+            }
+            else if((isLongxAM(AMtype) || isMediumAM(AMtype)) && !isDataFromFIFO(AMtype)){
+                axis_mm2sStatus.read(axis_word_mm2sStatus); // read reply from source
+            }
             bufferRelease = 1;
             currentState = st_header;
             break;
