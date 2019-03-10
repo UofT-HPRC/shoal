@@ -2,6 +2,7 @@
 #define THE_GASNET_GLOBALS_H_
 
 #include "platforms.hpp"
+#include "utilities.hpp"
 
 typedef unsigned int gasnet_node_t;
 typedef unsigned int gasnet_handler_t;
@@ -12,19 +13,25 @@ typedef struct gasnet_nodedata_str {
     gasnet_node_t mynode;
     gasnet_node_t nodes;		
     void* node_ngaddr;
-    mutex_t condmutex;
-    condition_t condition;
-    thread_t handler_thread;
-    queue_t* tokenfifo;
+    mutex_t* condmutex;
+    condition_t* condition;
+    thread_t* handler_thread;
+    // queue_t* tokenfifo;
     // short int *tokentable;
-    std::queue<char *> paramfifo;
+    std::queue<char *>* paramfifo;
     unsigned int gasnode_seginfo_cnt;
     unsigned int gasnode_seginfo_rcvd;
-    unsigned int barrier_cnt;
+
+    int barrier_cnt;
     unsigned int mem_ready_barrier_cnt;
-    std::queue<AM_packet> bufferfifo;
-    mutex_t bufferfifo_out_lock;
-    mutex_t paramfifo_in_lock;
+    unsigned int counter; // generic counter for H_ADD handler
+    // TODO Add H_WAIT
+
+    std::queue<char *>* bufferfifo;
+    mutex_t* bufferfifo_out_lock;
+    mutex_t* bufferfifo_in_lock;
+    mutex_t* paramfifo_in_lock;
+    mutex_t* paramfifo_out_lock;
 } gasnet_nodedata_t;
 
 typedef struct gasnet_ip_host_str {
@@ -32,12 +39,12 @@ typedef struct gasnet_ip_host_str {
 
     int server_fd;
     int server_connected;
-    thread_t serverthread;
+    thread_t* serverthread;
 
     struct sockaddr_in client_dest;
     int client_fd;
     int client_connected;
-    mutex_t IPsend_mutex;
+    mutex_t* IPsend_mutex;
 } gasnet_ip_host_t;
 
 typedef enum {none=0,thread,ip,fpga} gasnet_routing_type;
@@ -59,14 +66,14 @@ extern gasnet_ip_host_t* gasnet_ip_hosts;
 extern gasnet_node_routing_table_t *gasnet_node_routing_table;
 
 // globally shared, only written in mutex-blocked threads 0 or [n]
-extern gasnet_nodedata_t* gasnet_nodedata_all = NULL; // contains info about the current node
+extern gasnet_nodedata_t* gasnet_nodedata_all; // contains info about the current node
 extern int gasnet_attach_count; // counts the number of threads that have called gasnet_attach
 extern bool gasnet_all_attached; // marked true when all threads have attached
 extern unsigned int gasnet_init_count; // used to track threads as they initialize
 
 // globally shared
 extern mutex_t mutex_nodeInit; // mutex to initialize the node (per thread)
-extern thread_t ipserver_listen_thread;
+extern thread_t* ipserver_listen_thread;
 
 // written identically on each thread
 extern gasnet_node_t gasnet_local_threads; // threads per node
@@ -77,7 +84,7 @@ extern bool gasnet_pin_memory; // whether to pin memory to RAM
 extern gasnet_seginfo_t* segment_table_lib; // array of shared address pointers
 
 // thread_local; copied between related app and handler threads
-extern __thread gasnet_nodedata_t* nodedata = NULL; // thread-copy of gasnet_nodedata_all
+extern __thread gasnet_nodedata_t* nodedata; // thread-copy of gasnet_nodedata_all
 extern __thread void* gasnet_ngaddr; // node_global_address - pointer to thread's shared variables
 
 // globally shared; allocated once, written multiple times with identical data

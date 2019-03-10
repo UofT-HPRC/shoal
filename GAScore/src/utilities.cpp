@@ -1,3 +1,4 @@
+#include <cstddef> // needed to resolve ::max_align_t errors
 #include "utilities.hpp"
 
 bool isShortAM(gc_AMtype_t arg){

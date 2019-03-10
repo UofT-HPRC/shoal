@@ -3,18 +3,59 @@
 
 #include "config.hpp"
 #include "user_config.hpp"
+#include "utilities.hpp"
 
 #if defined(__x86_64__)
-    
 
-    // extern int fd; // file descriptor for socket
-    // extern char source_mac [ETH_ALEN];
-    // extern std::thread eth_recv_thread;
-    // // extern pthread_mutex_t lock = PTHREAD_MUTEX_INITIALIZER;
-    // extern std::mutex myMutex;
-    // extern bool is_receiving = false;
+/*******************************************************************************
+ * Active Message constructors
+*******************************************************************************/
 
-    // std::list<AM_packet> data_list;
+long long createHeader(
+    int src,
+    int dst,
+    int payloadSize,
+    int handlerID,
+    int type,
+    int handlerArgCount
+);
+long long createToken(int token);
+long long createVectorToken(
+    int srcVectorCount,
+    int dstVectorCount,
+    int srcSize1,
+    int dstSize1,
+    int token
+);
+long long createStridedToken(
+    int stride,
+    int blockSize,
+    int blockNum,
+    int token
+);
+long long createStridedToken(
+    int stride,
+    int blockSize,
+    int blockNum
+);
+long long createStridedSrcBody(int size);
+
+/*******************************************************************************
+ * Active Message type check
+*******************************************************************************/
+
+bool isShortAM(gc_AMtype_t arg);
+bool isMediumAM(gc_AMtype_t arg);
+bool isLongxAM(gc_AMtype_t arg);
+bool isLongAM(gc_AMtype_t arg);
+bool isLongVectoredAM(gc_AMtype_t arg);
+bool isLongStridedAM(gc_AMtype_t arg);
+bool isDataFromFIFO(gc_AMtype_t arg);
+bool isAsyncAM(gc_AMtype_t arg);
+bool isReplyAM(gc_AMtype_t arg);
+bool isMediumFIFOAM(gc_AMtype_t arg);
+bool isLongFIFOAM(gc_AMtype_t arg);
+
 #endif
 
 #endif // SHOAL_ACTIVE_MESSAGES_H_

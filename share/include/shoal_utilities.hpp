@@ -140,4 +140,13 @@ int power() {
     return sum;
 }
 
+template<unsigned long long base, int exponent>
+unsigned long long power_64() {
+    unsigned long long sum = 1ULL;
+    for(int i = 0; i < exponent; i++)
+        sum *= base;
+    
+    return sum;
+}
+
 #endif // SHOAL_UTILITIES_H_

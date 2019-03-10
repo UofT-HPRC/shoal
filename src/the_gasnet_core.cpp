@@ -7,14 +7,16 @@
 //modified by Varun
 /////////////////////////////////////
 
-#define _GNU_SOURCE
-#include <sched.h>
+// #define _GNU_SOURCE
+// #include <sched.h>
 
+#include <cstddef>
 #include "platforms.hpp"
 #include "the_gasnet_globals.hpp"
 #include "the_gasnet_core.hpp"
 #include "active_messages.hpp"
 #include "user_config.hpp"
+
 
 #include <stdio.h>
 
@@ -76,65 +78,164 @@ static void limit_cpu_affinity(unsigned int cpus, unsigned int thread, unsigned 
 
 //? deleted make_packet_buffer() -- unneeded with std::queue
 
+void gasnet_getSegmentInfo (gasnet_seginfo_t *seginfo_table, int numentries)
+{
+	
+	// Long term: Tree based seginfo distribution (like efficient barriers - READ STUFF)
+	unsigned int t;
+	if (gasnet_mynode()==0)
+	{
+		/// DEACTIVATED SEGMENT SHARING
+		/*
+		// wait for incoming ReqS (should count up to nodecounts)
+		while(READ_SHARED(nodedata->gasnode_seginfo_cnt) < (gasnet_nodes()-1));
 
-int gasnet_init(){
-	lock_guard_t guard(mutex_nodeInit);
+		// sent out tabledata to everybody else(ReqM)
+		for (t=1;t<gasnet_nodes();t++)
+			gasnet_AMRequestMedium0(t,hc_DistributeSegmentTable,segment_table_lib,gasnet_nodes()*sizeof(gasnet_seginfo_t));
+		*/
+		///
+	}
+	else
+	{
+		/// DEACTIVATED SEGMENT SHARING
+		/*
+		gasnet_handlerarg_t segaddrL = ptr64_gargL(segment_table_lib[gasnet_mynode()].addr);
+		gasnet_handlerarg_t segaddrH = ptr64_gargH(segment_table_lib[gasnet_mynode()].addr);
+		gasnet_handlerarg_t segsizeL = ptr64_gargL(segment_table_lib[gasnet_mynode()].size);
+		gasnet_handlerarg_t segsizeH = ptr64_gargH(segment_table_lib[gasnet_mynode()].size);
+		// send local data to 0
+		gasnet_AMRequestShort5(0,hc_SendSegmentInfo,gasnet_mynode(),segaddrH,segaddrL,segsizeH,segsizeL);
+		// receive table
+		while (!READ_SHARED(nodedata->gasnode_seginfo_rcvd));
+		*/
+		///
+	}
+	
+	/// WORKAROUND FOR NO SEGMENT SHARING
+	// if (numentries<gasnet_nodes()) // silly GASNet spec idiosyncrasy that numentries could be smaller
+	// {
+	// 	///memcpy(seginfo_table, (void*)&segment_table_lib[0], numentries*sizeof(gasnet_seginfo_t));
+	// 	for (t=0;t<numentries;t++)
+	// 		if (t==gasnet_mynode())
+	// 		{
+	// 			seginfo_table[t] = segment_table_lib[t];	
+	// 		}
+	// 		else
+	// 		{
+	// 			seginfo_table[t].addr = (voidp64)0;
+	// 			seginfo_table[t].size = segment_table_lib[gasnet_mynode()].size; //  ! implying all segments are the same size !
+	// 		}
+	// }
+	// else
+	// {
+		///memcpy(seginfo_table, (void*)&segment_table_lib[0], gasnet_nodes()*sizeof(gasnet_seginfo_t));
+		for (t=0;t<gasnet_nodes();t++)
+			if (t==gasnet_mynode())
+			{
+				seginfo_table[t] = segment_table_lib[t];	
+			}
+			else
+			{
+				seginfo_table[t].addr = (void *)0;
+				seginfo_table[t].size = segment_table_lib[gasnet_mynode()].size; //  ! implying all segments are the same size !
+			}
+	// }
 
-	int u;
+	/// internal_barrier();
+	
+	// return GASNET_OK;
+}
+
+int thegasnet_sharedMemoryReady(unsigned int ctrlnode)
+{
+	int t;
+	
+	if (gasnet_mynode()==ctrlnode)
+	{
+		printf("Enter thegasnet_sharedMemoryReady\n");
+		while(READ_SHARED(nodedata->mem_ready_barrier_cnt)!=(gasnet_nodes())-1) sched_yield();
+	COMPILER_BARRIER
+		nodedata->mem_ready_barrier_cnt=0;
+	COMPILER_BARRIER
+		for(t=0;t<gasnet_nodes();t++)
+			if (t != ctrlnode)
+				gasnet_AMRequestShort0(t, t, H_INCR_MEM);
+	}
+	else
+	{
+		// Send message to ctrl node
+		gasnet_AMRequestShort0(ctrlnode, ctrlnode, H_INCR_MEM);
+		while(READ_SHARED(nodedata->mem_ready_barrier_cnt)==0) sched_yield();
+	COMPILER_BARRIER
+		nodedata->mem_ready_barrier_cnt=0;
+	COMPILER_BARRIER
+	}
+	
+	return GASNET_OK;
+}
+
+
+int gasnet_init(int *argc, char ***argv){
+	lock_t lock(mutex_nodeInit, std::defer_lock);
+	lock.lock();
+
 	int parsed_node = -1;
+
+	// parse/remove arguments
+	for (int t=1;t<(*argc);t++){
+		int remove_arg = 0;
+		
+		// pore over arguments; use the ones relevant here; for those, set remove_arg=1
+		if (strncmp("--GASNET_NUM_NODES=",(*argv)[t],19)==0){
+			remove_arg = 1;
+			gasnet_num_nodes = atoi(&(*argv)[t][19]);
+		}
+		else if (strncmp("--GASNET_LOCAL_THREADS=",(*argv)[t],23)==0){
+			remove_arg = 1;
+			gasnet_local_threads = atoi(&(*argv)[t][23]);
+		}
+		else if (strncmp("--GASNET_NODE=",(*argv)[t],14)==0){
+			remove_arg = 1;
+			parsed_node = atoi(&(*argv)[t][14]);
+		}
+		else if (strcmp("--GASNET_PIN_MEM",(*argv)[t])==0){
+			remove_arg = 1;
+			gasnet_pin_memory= 1;
+		}
+		
+		if (remove_arg){
+			for(int u=t ; u<((*argc)-1) ; u++) // copy remaining arguments one down
+				(*argv)[u] = (*argv)[u+1];
+			t--; // repeat this loop iteration - new argument in this position
+			(*argc)--; // reduce number of arguments
+		}
+	}
 
 	// first thread init
 	if (gasnet_init_count == 0){
-			//// tfifo_init();
-			//// ptfifo_init();
 		gasnet_nodedata_all = (gasnet_nodedata_t*) malloc(gasnet_local_threads * sizeof(gasnet_nodedata_t));
 		for (int t=0; t<gasnet_local_threads; t++){
-			// char namebuf[32];
 			gasnet_nodedata_all[t].id = t;
-			// pthread_mutex_init(&gasnet_nodedata_all[t].condmutex, NULL);
-			// pthread_cond_init(&gasnet_nodedata_all[t].condition, NULL);
 			gasnet_nodedata_all[t].gasnode_seginfo_cnt = 0;
 			gasnet_nodedata_all[t].gasnode_seginfo_rcvd = 0;
-			// sprintf(namebuf,"Thread #%d tokenfifo",t);
-			// gasnet_nodedata_all[t].tokenfifo = tfifo_new(TOKENTABLE_ENTRIES, namebuf);
-			// for (u=0; u<TOKENTABLE_ENTRIES; u++)
-			// 	tfifo_write(gasnet_nodedata_all[t].tokenfifo, u, 0);
-			// gasnet_nodedata_all[t].tokentable = malloc(TOKENTABLE_ENTRIES*sizeof(short int));
-			// sprintf(namebuf,"Thread #%d paramfifo",t);
-			// gasnet_nodedata_all[t].paramfifo = ptfifo_new(PACKET_BUFFERS_PER_THREAD+4, namebuf);
-			// sprintf(namebuf,"Thread #%d bufferfifo",t);
-			// gasnet_nodedata_all[t].bufferfifo = make_packet_buffer(AMMaxLongRequest+MAX_HEADER_BYTES, PACKET_BUFFERS_PER_THREAD, namebuf); // 8kB packets, largest LongV header, 8 buffers
+			gasnet_nodedata_all[t].condmutex = new mutex_t;
+			gasnet_nodedata_all[t].bufferfifo_out_lock = new mutex_t;
+			gasnet_nodedata_all[t].bufferfifo_in_lock = new mutex_t;
+			gasnet_nodedata_all[t].paramfifo_in_lock = new mutex_t;
+			gasnet_nodedata_all[t].paramfifo_out_lock = new mutex_t;
+			gasnet_nodedata_all[t].paramfifo = new std::queue<char*>;
+			gasnet_nodedata_all[t].bufferfifo = new std::queue<char*>;
+			gasnet_nodedata_all[t].condition = new condition_t;
+			char* bufferfifo_alloc = (char*) malloc(MAX_QUEUE_SIZE*sizeof(AM_packet));
+			for(int i = 0; i < MAX_QUEUE_SIZE; i++){
+				(gasnet_nodedata_all[t].bufferfifo)->push(bufferfifo_alloc);
+				bufferfifo_alloc += sizeof(AM_packet);
+			}
 		}
 			
 		// other steps that should only be done once
 		segment_table_lib = (gasnet_seginfo_t*) calloc(gasnet_num_nodes,sizeof(gasnet_seginfo_t));
-			
-		#ifdef __x86_64__
-			// if (gasnet_local_fpga){
-			// 	pcie_read  = open("/dev/xillybus_read_32",  O_RDONLY);
-			// 	if (pcie_read < 0)
-			// 	{
-			// 		fprintf(stderr,"PCIe read device not open.\r\n");
-			// 		fprintf(stderr,"Error:\r\n");
-			// 		perror(NULL);
-			// 		exit(1); // best solution (open ports?)
-			// 	}
-			// 	pcie_write = open("/dev/xillybus_write_32", O_WRONLY);
-			// 	if (pcie_write < 0)
-			// 	{
-			// 		fprintf(stderr,"PCIe write device not open.\r\n");
-			// 		exit(1); // best solution (open ports?)
-			// 	}
-			// 	fpga_bufferfifo = make_packet_buffer(AMMaxLongRequest+MAX_HEADER_BYTES, PACKET_BUFFERS_FOR_FPGA, "FPGA_bufferfifo"); // 8kB packets, largest LongV header, 8 buffers
-			// }
-		#endif // x86-64
-		#ifdef __ARM__
-			if (gasnet_local_fpga)
-			{
-				xlfsl_init(1);
-				fpga_bufferfifo = make_packet_buffer(AMMaxLongRequest+MAX_HEADER_BYTES, PACKET_BUFFERS_FOR_FPGA, "FPGA_bufferfifo"); // 8kB packets, largest LongV header, 8 buffers
-			}
-		#endif // ARM
 	}
 		
 		nodedata = &gasnet_nodedata_all[gasnet_init_count];
@@ -143,13 +244,15 @@ int gasnet_init(){
 		nodedata->barrier_cnt = 0;
 		nodedata->mem_ready_barrier_cnt = 0;
 
-		// pthread_create (&(nodedata->handler_thread), NULL, (void*)&handler_thread, (void*)nodedata);
-		nodedata->handler_thread = std::thread(handler_thread, nodedata);
+		// printf("Creating handler thread %d\n", nodedata->mynode);
+		nodedata->handler_thread = new std::thread(handler_thread, std::ref(*nodedata));
+		(nodedata->handler_thread)->detach();
+		// printf("Detached handler thread %d\n", nodedata->mynode);
 		COMPILER_BARRIER
 		gasnet_init_count++;
 		COMPILER_BARRIER
-		
-		// pthread_mutex_unlock(&nodeinit_mutex);
+
+		lock.unlock();
 
 	return GASNET_OK;
 }
@@ -165,8 +268,27 @@ void allocate_handlerTable(){
 	}
 }
 
-inline gasnet_node_t gasnet_mynode(){
+gasnet_node_t gasnet_mynode(){
 	return nodedata->mynode;
+}
+
+gasnet_node_t gasnet_nodes(){
+	return gasnet_num_nodes;
+}
+
+void InternalBarrierUpdate(){
+	nodedata->barrier_cnt++;
+	return;
+}
+ 
+void MemReadyBarrierUpdate(){
+	nodedata->mem_ready_barrier_cnt++;
+	return;
+}
+
+void counterUpdate(int arg){
+	nodedata->counter+=arg;
+	return;
 }
 
 int gasnet_attach(gasnet_handlerentry_t *table, int numentries, uintptr_t segsize, uintptr_t minheapoffset){
@@ -174,33 +296,23 @@ int gasnet_attach(gasnet_handlerentry_t *table, int numentries, uintptr_t segsiz
 
 	// build handler table
 	while(READ_SHARED(gasnet_init_count)<gasnet_local_threads);
-	// pthread_mutex_lock(&nodeinit_mutex);
-		// if (!handlertable) // first
-		// 	handlertable = (void **)calloc(256,sizeof(void*));
-		// if (!handlertable)
-		// {
-		// 	fprintf(stderr,"Handlertable could not be allocated.\r\n");
-		// 	exit(1);
-		// }
-	// pthread_mutex_unlock(&nodeinit_mutex);
 	allocate_handlerTable();
 	
 	// fill in application handlers
 	for(t=0;t<numentries;t++)
 		handlertable[table[t].index] = (void*) table[t].fnptr;
 
-	// TODO add default handlers at index 2 and 4
 	// fill in private GASNet handlers
-	// handlertable[hc_SendSegmentInfo] = (void*)SendSegmentInfo;
-	// handlertable[hc_DistributeSegmentTable] = (void*)DistributeSegmentTable;
-	// handlertable[hc_InternalBarrierUpdate] = (void*)InternalBarrierUpdate;
-	// handlertable[hc_MemReadyBarrierUpdate] = (void*)MemReadyBarrierUpdate;
+	handlertable[H_INCR_BAR] = (void*)InternalBarrierUpdate;
+	handlertable[H_INCR_MEM] = (void*)MemReadyBarrierUpdate;
+	handlertable[H_ADD] = (void*)counterUpdate;
 	
 	// reserve shared memory - clearing is _not_ part of the GASNet standard
 	void *mem_segment;
 
-	// pthread_mutex_lock(&nodeinit_mutex);
-	lock_guard_t guard(mutex_nodeInit);
+	lock_t lock(mutex_nodeInit, std::defer_lock);
+	lock.lock();
+	
 	mem_segment = malloc((size_t)segsize);
 	if (!mem_segment){
 		fprintf(stderr,"Shared segment could not be allocated.\r\n");
@@ -233,7 +345,8 @@ int gasnet_attach(gasnet_handlerentry_t *table, int numentries, uintptr_t segsiz
 		// ip_bufferfifo = make_packet_buffer(AMMaxLongRequest+MAX_HEADER_BYTES, PACKET_BUFFERS_FOR_IP, "IP_bufferfifo"); // 8kB packets, largest LongV header, 8 buffers
 
 		// pthread_create (&ipserver_listen_thread, NULL,(void *)&ipserver_listen, NULL);
-		ipserver_listen_thread = std::thread(ipserver_listen, NULL);
+		// printf("Creating ipserver listen thread\n");
+		ipserver_listen_thread = new std::thread(ipserver_listen);
 		
 		// loop: connect to servers, sleep shortly when failing
 		int connect_count = 0;
@@ -293,13 +406,15 @@ int gasnet_attach(gasnet_handlerentry_t *table, int numentries, uintptr_t segsiz
 		
 		// join ipserver listen thread after it finished
 		// pthread_join (ipserver_listen_thread, NULL);
-		ipserver_listen_thread.join();
+		ipserver_listen_thread->join();
+		// printf("Joined ipserver listen thread\n");
 	
 		// start TCP heartbeat
 		// pthread_create (&tcp_heartbeat_thread, NULL,(void *)&tcp_heartbeat, NULL);
 	}
 		
 	// pthread_mutex_unlock(&nodeinit_mutex);
+	lock.unlock();
 	
 #ifdef SET_CPU_AFFINITY
 	limit_cpu_affinity(gasnet_number_cpus, nodedata->mynode, 0);
@@ -308,7 +423,42 @@ int gasnet_attach(gasnet_handlerentry_t *table, int numentries, uintptr_t segsiz
 
 	return GASNET_OK;
 }
- 
+
+int SendAM(unsigned int function, unsigned int destnode, unsigned int token, gasnet_handler_t handler, char *source_addr, size_t nbytes, char* dest_addr, unsigned int M, ...)
+{
+	va_list Vargs;
+    va_start(Vargs, M);
+   	int retval = SendAM_vargs(function, destnode, token, handler, source_addr, nbytes, dest_addr, 0, 0, 0, 0, 0, 0, M, Vargs);
+    va_end(Vargs);
+	return retval;
+}
+
+
+// Other internal functions
+void internal_barrier()
+{
+	unsigned int t;
+
+	unsigned int nodes  = gasnet_num_nodes;
+	unsigned int mynode = gasnet_mynode();
+
+	if (mynode==0)
+	{
+		while(READ_SHARED(nodedata->barrier_cnt)!=(nodes)-1) sched_yield();
+		nodedata->barrier_cnt=-1;
+		for(t=1;t<nodes;t++)
+			gasnet_AMRequestShort0(t,-1, H_INCR_BAR);
+	}
+	else
+	{
+		// Send message to 0
+		gasnet_AMRequestShort0(0,-1,H_INCR_BAR);
+		while(READ_SHARED(nodedata->barrier_cnt)==0) sched_yield();
+		nodedata->barrier_cnt=-1;
+	}
+
+	return;
+}
 
 void gasnet_exit(int exitcode) // behaviour not complying with GASNet standard (is collective right now)
 {
@@ -320,6 +470,16 @@ void gasnet_exit(int exitcode) // behaviour not complying with GASNet standard (
 	// * increase exit count
 	// * if last thread:
 	// ** request IP and FPGA thread cancels
+
+	// gasnet_nodedata_t* nodedata_tmp;
+	// nodedata_tmp = &gasnet_nodedata_all[gasnet_mynode()];
+	// (nodedata_tmp->condition)->notify_all();
+
+	// if (gasnet_mynode() == 0){
+	// 	for(int i = 0; i < gasnet_ip_host_cnt; i++){
+	// 		(gasnet_ip_hosts[i]).serverthread->join();
+	// 	}
+	// }
 
 	// TODO: Further cleanup tasks?
 }
@@ -371,7 +531,7 @@ void write_to_ip(int fd, char* buf, unsigned int numbytes)
 	}
 }
 
-void report_peer_connected(const struct sockaddr_in* sa, socklen_t salen) {
+void report_peer_connected(const struct sockaddr_in* sa, socklen_t salen){
 	char hostbuf[NI_MAXHOST];
 	char portbuf[NI_MAXSERV];
 	if (getnameinfo((struct sockaddr*)sa, salen, hostbuf, NI_MAXHOST, portbuf, NI_MAXSERV, 0) == 0) {
@@ -382,8 +542,9 @@ void report_peer_connected(const struct sockaddr_in* sa, socklen_t salen) {
 }
 
 // accepting ip connections
-void ipserver_listen(void *data)
+void ipserver_listen()
 {
+	printf("Running ipserver_listen thread\n");
 	struct timeval timeout;      
 	timeout.tv_sec = 60;
 	timeout.tv_usec = 0;
@@ -475,7 +636,10 @@ void ipserver_listen(void *data)
 				}
 			#endif
 			// pthread_create (&gasnet_ip_hosts[t].serverthread, NULL, (void*)ipserver, (void*)&gasnet_ip_hosts[t]);
-			gasnet_ip_hosts[t].serverthread = std::thread(ipserver, (void *) &gasnet_ip_hosts[t]);
+			// printf("Creating ipserver thread");
+			gasnet_ip_hosts[t].serverthread = new std::thread(ipserver, std::ref(gasnet_ip_hosts[t]));
+			(gasnet_ip_hosts[t]).serverthread->detach();
+			// printf("Detached ipserver thread");
 		}
 		else 
 		{
@@ -485,19 +649,22 @@ void ipserver_listen(void *data)
 	}
 }
 
-char * read_queue(std::queue<AM_packet>* q, mutex_t* lock){
+char * read_queue(std::queue<char *>* q, mutex_t* lock){
 	lock_guard_t guard(*lock);
 	while (q->empty()){}
-	return reinterpret_cast<char *>(&(q->front()));
+
+	char* element = reinterpret_cast<char *>(&(q->front()));
+	q->pop();
+	return element;
 }
 
-void write_queue(std::queue<AM_packet>* q, mutex_t* lock, char* data, int size){
+void write_queue(std::queue<char *>* q, mutex_t* lock, char* data, int size){
 	lock_guard_t guard(*lock);
 	while (q->size() > MAX_QUEUE_SIZE){}
 	AM_packet temp;
 	for(int i = 0; i < size; i++)
 		temp.buffer[i] = *(data++);
-	q->push(temp);	
+	q->push((char *) &temp);	
 }
 
 void write_queue(std::queue<char *>* q, mutex_t* lock, char* data){
@@ -507,7 +674,7 @@ void write_queue(std::queue<char *>* q, mutex_t* lock, char* data){
 }
 
 // ip server thread
-void ipserver(void *data)
+void ipserver(gasnet_ip_host_t& data)
 {
 	
 	unsigned int header0;
@@ -517,7 +684,7 @@ void ipserver(void *data)
 	unsigned int dest_thread;
 	gasnet_nodedata_t *dest_nodedata;
 	
-	gasnet_ip_host_t *connection_data = (gasnet_ip_host_t*)data;
+	gasnet_ip_host_t *connection_data = &data;
 	int read_fd = connection_data->server_fd;
 	
 	
@@ -548,7 +715,9 @@ void ipserver(void *data)
 			dest_nodedata = &gasnet_nodedata_all[dest_thread];
 			
 			// packet_buffer = ptfifo_read(dest_nodedata->bufferfifo,1); // blocking
-			packet_buffer = read_queue(&(dest_nodedata->bufferfifo), &(dest_nodedata->bufferfifo_out_lock));
+			printf("thread %d, fifo %d", gasnet_mynode(), dest_nodedata->bufferfifo->size());
+			packet_buffer = read_queue(dest_nodedata->bufferfifo, (dest_nodedata->bufferfifo_out_lock));
+			printf("thread %d, fifo %d", gasnet_mynode(), dest_nodedata->bufferfifo->size());
 		}
 		// else if (gasnet_node_routing_table[destnode].type == fpga) // IP-to-FPGA (x86-64: PCIe)
 		// {
@@ -569,9 +738,10 @@ void ipserver(void *data)
 
 			// pthread_cond_signal(&dest_nodedata->condition);
 			// pthread_mutex_unlock(&dest_nodedata->condmutex);
-			lock_t lock(dest_nodedata->condmutex);
-			write_queue(&(dest_nodedata->paramfifo),&(dest_nodedata->paramfifo_in_lock), packet_buffer);
-			dest_nodedata->condition.notify_one();
+			lock_t lock(*(dest_nodedata->condmutex), std::defer_lock);
+			lock.lock();
+			write_queue(dest_nodedata->paramfifo,(dest_nodedata->paramfifo_in_lock), packet_buffer);
+			(dest_nodedata->condition)->notify_one();
 			lock.unlock();
 		}
 		// else if (gasnet_node_routing_table[destnode].type == fpga) // IP-to-FPGA (x86-64: PCIe)
@@ -605,18 +775,18 @@ void ipserver(void *data)
 	}
 }
 
-void handler_thread(void *data)
+void handler_thread(gasnet_nodedata_t& data)
 {
 	struct timespec waittime = { .tv_sec = 1, .tv_nsec = /*1*/00000000 };
 	
 	unsigned int t;
 
 	void *packet_buffer;
-	unsigned int *packet_buffer_uint;
+	long long *packet_buffer_uint;
 	unsigned int headersize;
 	unsigned int argoffset;
 	unsigned int wordsize;
-	ptrdiff_t payload_offset;
+	long payload_offset;
 	void *payload;
 	
 	unsigned int srcnode;
@@ -638,7 +808,8 @@ void handler_thread(void *data)
 
 	void *bufaddr = NULL;
 
-	nodedata = (gasnet_nodedata_t*) data;  // making data structure shared with app_thread thread-local
+	// nodedata = (gasnet_nodedata_t*) data;  // making data structure shared with app_thread thread-local
+	nodedata = &data;
 	gasnet_ngaddr = nodedata->node_ngaddr; // copying app thread data pointer to handler thread data pointer
 
 	while(!READ_SHARED(gasnet_all_attached)); // only start receiving when all local threads are attached
@@ -648,85 +819,96 @@ void handler_thread(void *data)
 	print_cpu_affinity("CPU set of handler node", nodedata->mynode);
 #endif // SET_CPU_AFFINITY
 
-	pthread_mutex_lock(&nodedata->condmutex);
-	
-	while(1)
-	{
-		while (ptfifo_empty(nodedata->paramfifo))//do
-		{
-			
-			int waitreturn = pthread_cond_wait(&nodedata->condition, &nodedata->condmutex);//);
+	// pthread_mutex_lock(&nodedata->condmutex);
+	lock_t lock(*(nodedata->condmutex), std::defer_lock);
+	lock.lock();
+
+	while(nodedata->barrier_cnt!=-1){
+		while ((nodedata->paramfifo)->empty() && nodedata->barrier_cnt!=-1){
+
+			// int waitreturn = pthread_cond_wait(&nodedata->condition, &nodedata->condmutex);//);
+			(nodedata->condition)->wait(lock);
 		}
+		if(nodedata->barrier_cnt==-1) break;
 		//while (ptfifo_empty(nodedata->paramfifo));
+
 		
 		// get packet buffer address
-		packet_buffer = ptfifo_read(nodedata->paramfifo,0);
-		packet_buffer_uint = (unsigned int*)packet_buffer;
+		// packet_buffer = ptfifo_read(nodedata->paramfifo,0);
+		packet_buffer = (nodedata->paramfifo)->front();
+		(nodedata->paramfifo)->pop();
+		packet_buffer_uint = (long long*)packet_buffer;
 
 		// extract message parameters
-		srcnode  = hdextract(packet_buffer_uint,nnSrcnode); //destnode = hdextract(packet_buffer_uint,nnDestnode);
+		// srcnode  = hdextract(packet_buffer_uint,nnSrcnode); //destnode = hdextract(packet_buffer_uint,nnDestnode);
+		srcnode = (packet_buffer_uint[0] & 0xFFFF00) >> AM_SRC_LOWER;
+		function = packet_buffer_uint[0] & 0xFF;
+		numargs = (packet_buffer_uint[0] & 0xFF00000000000000) >> AM_HANDLER_ARGS_LOWER;
+		handler = (packet_buffer_uint[0] & 0x00F0000000000000) >> AM_HANDLER_LOWER;
 
-		function = hdextract(packet_buffer_uint,nnFunction);
-		numargs  = hdextract(packet_buffer_uint,nnNumargs);
-		handler  = hdextract(packet_buffer_uint,nnHandler);
+		int token = (packet_buffer_uint[0] & 0xFFFFFF0000000000) >> AM_TOKEN_LOWER;
+		// printf("srcnode: %d, function: %d, numargs: %d, handler: %d\n", srcnode,function,numargs,handler);
+
+		// function = hdextract(packet_buffer_uint,nnFunction);
+		// numargs  = hdextract(packet_buffer_uint,nnNumargs);
+		// handler  = hdextract(packet_buffer_uint,nnHandler);
 
 		// HEADER AND PACKET SIZE DETERMINATION - without first word (NetIf header: src,dest,#words)
-		if (isShortAM(function))  		headersize = 1;
+		if (isShortAM(function))  		headersize = 2;
 		if (isMediumAM(function)) 		headersize = 2;
-		if (isLongAM(function))  		headersize = 4;
-		if (isLongStridedAM(function))	headersize = 7;
+		if (isLongAM(function))  		headersize = 3;
+		if (isLongStridedAM(function))	headersize = 3;
 		//if (isLongVectoredAM(function))   headersize = ?;
 		argoffset = headersize + 1;
 		arg = (gasnet_handlerarg_t*)&(packet_buffer_uint[argoffset]);
-		payload_offset = (ptrdiff_t)((headersize+numargs+1)*4);
+		payload_offset = (long)((headersize+numargs+1)*8);
 		payload = packet_buffer + payload_offset;
 		
-		if (!isShortAM(function))
-		{
-			bsize = hdextract(packet_buffer_uint,nnBsize);
-		}
+		// if (!isShortAM(function)){
+		// 	bsize = hdextract(packet_buffer_uint,nnBsize);
+		// }
 		
-		if (isMediumAM(function))
-		{
+		if (isMediumAM(function)){
 			bufaddr = payload; // temporary buffer is in memblock
 		}
 		
-		if (isLongAM(function))
-		{
-			destaddrL = hdextract(packet_buffer_uint,nnDestaddrL);
-			destaddrH = hdextract(packet_buffer_uint,nnDestaddrH);
-			bufaddr  = (void*)uintHL_ptr(destaddrH,destaddrL)
-						+ (ptrdiff_t)segment_table_lib[gasnet_mynode()].addr;
+		if (isLongAM(function)){
+			// destaddrL = hdextract(packet_buffer_uint,nnDestaddrL);
+			// destaddrH = hdextract(packet_buffer_uint,nnDestaddrH);
+
+			// bufaddr  = (void*)uintHL_ptr(destaddrH,destaddrL)
+			// 			+ (long)segment_table_lib[gasnet_mynode()].addr;
+			bufaddr = (long long *)(packet_buffer_uint[2] + (long long)segment_table_lib[gasnet_mynode()].addr);
 			if (gasnet_node_routing_table[srcnode].type != thread) // already copied if local
 				memcpy(bufaddr, payload, bsize);
 		}
 			
-		if (isLongStridedAM(function))
-		{
-			dest_sizeX   = packet_buffer_uint[3];
-			dest_sizeY   = packet_buffer_uint[4];
-			destaddrL    = packet_buffer_uint[5];
-			destaddrH    = packet_buffer_uint[6];
-			dest_strideY = packet_buffer_uint[7];
+		// if (isLongStridedAM(function))
+		// {
+		// 	dest_sizeX   = packet_buffer_uint[3];
+		// 	dest_sizeY   = packet_buffer_uint[4];
+		// 	destaddrL    = packet_buffer_uint[5];
+		// 	destaddrH    = packet_buffer_uint[6];
+		// 	dest_strideY = packet_buffer_uint[7];
 
-			bufaddr  = (void*)uintHL_ptr(destaddrH,destaddrL)
-						+ (ptrdiff_t)segment_table_lib[gasnet_mynode()].addr;
-			void *dest_addr = bufaddr;
-			unsigned int LS;
+		// 	bufaddr  = (void*)uintHL_ptr(destaddrH,destaddrL)
+		// 				+ (long)segment_table_lib[gasnet_mynode()].addr;
+		// 	void *dest_addr = bufaddr;
+		// 	unsigned int LS;
 			
-			if (!(gasnet_node_routing_table[srcnode].type == thread)) // already copied if local
-			{
-				for(LS=0;LS<dest_sizeY;LS++)
-				{
-					memcpy(dest_addr,payload,dest_sizeX);
-					payload     += (ptrdiff_t)dest_sizeX;
-					dest_addr += (ptrdiff_t)dest_strideY;
-				}
-			}
-		}
+		// 	if (!(gasnet_node_routing_table[srcnode].type == thread)) // already copied if local
+		// 	{
+		// 		for(LS=0;LS<dest_sizeY;LS++)
+		// 		{
+		// 			memcpy(dest_addr,payload,dest_sizeX);
+		// 			payload     += (long)dest_sizeX;
+		// 			dest_addr += (long)dest_strideY;
+		// 		}
+		// 	}
+		// }
 
 		// Token
-		token    = Source_To_Token((short int)srcnode);		
+		// token    = Source_To_Token((short int)srcnode);		
 		
 		// handler calls
 		if (isShortAM(function))
@@ -845,13 +1027,17 @@ void handler_thread(void *data)
 			}
 		
 		//re-circulate block address
-		ptfifo_write(nodedata->bufferfifo,packet_buffer,1);
+		// ptfifo_write(nodedata->bufferfifo,packet_buffer,1);
+		write_queue(nodedata->bufferfifo, (nodedata->bufferfifo_in_lock), (char*)packet_buffer);
 		//re-circulate token
 		// tfifo_write(nodedata->tokenfifo, token,1);
 
 		
 	}
-	pthread_mutex_unlock(&nodedata->condmutex);
+
+	printf("exiting handler thread %d\n", gasnet_mynode());
+	// pthread_mutex_unlock(&nodedata->condmutex);
+	lock.unlock();
 }
 
 
@@ -1115,40 +1301,45 @@ void handler_thread(void *data)
 #endif // ARM
 
 
-int SendAM_vargs(unsigned int function, unsigned int dest_or_token, gasnet_handler_t handler, void *source_addr, size_t nbytes, voidp64 dest_addr,
-					size_t source_strideY, size_t source_sizeX, size_t source_sizeY,
-					size_t dest_strideY, size_t dest_sizeX, size_t dest_sizeY,
+// int SendAM_vargs(unsigned int function, unsigned int dest_or_token, gasnet_handler_t handler, void *source_addr, size_t nbytes, voidp64 dest_addr,
+// 					size_t source_strideY, size_t source_sizeX, size_t source_sizeY,
+// 					size_t dest_strideY, size_t dest_sizeX, size_t dest_sizeY,
+// 					unsigned int M, va_list Vargs)
+// {
+int SendAM_vargs(unsigned int function, unsigned int destnode, int token, gasnet_handler_t handler, char *source_addr, size_t nbytes, char* dest_addr,
+					size_t src_stride, size_t src_blk_size, size_t src_blk_num,
+					size_t dst_stride, size_t dst_blk_size, size_t dst_blk_num,
 					unsigned int M, va_list Vargs)
 {
 	unsigned int t;
 	void *packet_buffer;
-	unsigned int *packet_buffer_uint;
+	long long *packet_buffer_uint;
 	unsigned int headersize;
 	unsigned int argoffset;
 	unsigned int wordsize;
-	ptrdiff_t payload_offset;
-	void *payload;
-	unsigned int destnode;
+	long payload_offset;
+	char *payload;
+	// unsigned int destnode;
 	unsigned int dest_thread;
 	gasnet_nodedata_t *dest_nodedata;
 	
 	// HEADER AND PACKET SIZE DETERMINATION - without first word (NetIf header: src,dest,#words)
-	if (isShortAM(function))  		headersize = 1;
+	if (isShortAM(function))  		headersize = 2;
 	if (isMediumAM(function)) 		headersize = 2;
-	if (isLongAM(function))  		headersize = 4;
-	if (isLongStridedAM(function))	headersize = 7;
+	if (isLongAM(function))  		headersize = 3;
+	if (isLongStridedAM(function))	headersize = 3;
 	//if (isLongVectoredAM(function))   headersize = ?;
 	argoffset = headersize + 1;
 	wordsize = headersize + M; // args
 	
-	payload_offset = (ptrdiff_t)((wordsize+1)*4);
+	payload_offset = (long)((wordsize+1)*4);
 	wordsize += (nbytes+3) / 4; // data   TODO: use word-fillup on IP? relevant for PCIe re-routing
 
 	// Destination retrieval if reply
-	if (isReplyAM(function))
-		destnode = Token_To_Destination(dest_or_token);
-	else						
-		destnode = dest_or_token;
+	// if (isReplyAM(function))
+	// 	destnode = Token_To_Destination(dest_or_token);
+	// else						
+	// 	destnode = dest_or_token;
 	
 	//// BUFFER ALLOCATION FOR PACKET
 	if (gasnet_node_routing_table[destnode].type == ip) // thread-to-IP
@@ -1159,10 +1350,11 @@ int SendAM_vargs(unsigned int function, unsigned int dest_or_token, gasnet_handl
 		while(!READ_SHARED(dest_host->client_connected));
 		int write_fd = dest_host->client_fd;
 
-		packet_buffer = ptfifo_read(ip_bufferfifo,1); // blocking
-		packet_buffer_uint = (unsigned int*)packet_buffer;
+		// packet_buffer = ptfifo_read(ip_bufferfifo,1); // blocking
+		packet_buffer = new AM_packet;
+		packet_buffer_uint = (long long*)packet_buffer;
 	
-		payload = packet_buffer + payload_offset;
+		payload = (char*)packet_buffer + payload_offset;
 	
 	}
 	else if (gasnet_node_routing_table[destnode].type == thread) // thread-to-thread
@@ -1174,50 +1366,60 @@ int SendAM_vargs(unsigned int function, unsigned int dest_or_token, gasnet_handl
 			
 		dest_nodedata = &gasnet_nodedata_all[dest_thread];
 		
-		packet_buffer = ptfifo_read(dest_nodedata->bufferfifo,1); // blocking
-		packet_buffer_uint = (unsigned int*)packet_buffer;
-		payload = packet_buffer + payload_offset;
+		packet_buffer = read_queue(dest_nodedata->bufferfifo,dest_nodedata->bufferfifo_out_lock); // blocking
+		// packet_buffer = new AM_packet;
+		packet_buffer_uint = (long long*)packet_buffer;
+		payload = (char*)packet_buffer + payload_offset;
 	}
-	else if (gasnet_node_routing_table[destnode].type == fpga) // thread-to-FPGA (x86-64: PCIe)
-	{
-		packet_buffer = ptfifo_read(fpga_bufferfifo,1); // blocking
-		packet_buffer_uint = (unsigned int*)packet_buffer;
-		payload = packet_buffer + payload_offset;
-	}
+	// else if (gasnet_node_routing_table[destnode].type == fpga) // thread-to-FPGA (x86-64: PCIe)
+	// {
+	// 	packet_buffer = ptfifo_read(fpga_bufferfifo,1); // blocking
+	// 	packet_buffer_uint = (unsigned int*)packet_buffer;
+	// 	payload = packet_buffer + payload_offset;
+	// }
 
 	//////////////// PACKET CREATION ////////////////////
 	for(t=0;t<=headersize;t++)
 		packet_buffer_uint[t] = 0;
 		
 	// word 0
-	hdencode(packet_buffer_uint,nnSrcnode,gasnet_mynode());
-	hdencode(packet_buffer_uint,nnDestnode,destnode);
-	hdencode(packet_buffer_uint,nnWords,wordsize);
+	// hdencode(packet_buffer_uint,nnSrcnode,gasnet_mynode());
+	// hdencode(packet_buffer_uint,nnDestnode,destnode);
+	// hdencode(packet_buffer_uint,nnWords,wordsize);
+	packet_buffer_uint[0] = createHeader(gasnet_mynode(),destnode,wordsize,handler,function,M);
 	
 	// word 1
-	hdencode(packet_buffer_uint,nnFunction,function);
-	hdencode(packet_buffer_uint,nnNumargs,M);
-	hdencode(packet_buffer_uint,nnHandler,handler);
+	// hdencode(packet_buffer_uint,nnFunction,function);
+	// hdencode(packet_buffer_uint,nnNumargs,function);
+	// hdencode(packet_buffer_uint,nnHandler,handler);
 	
 	// word 2
-	if (!isShortAM(function))
+	// if (!isShortAM(function))
+	// {
+	// 	hdencode(packet_buffer_uint,nnBsize,nbytes);
+	// }
+
+	if (!isLongVectoredAM(function) && !isLongStridedAM(function))
 	{
-		hdencode(packet_buffer_uint,nnBsize,nbytes);
+		packet_buffer_uint[1] = createToken(token);
 	}
 	
-	if (isLongAM(function))
+	if (isLongAM(function) || isLongStridedAM(function))
 	{
-		hdencode(packet_buffer_uint,nnDestaddrL, ptr64_uintL(dest_addr) );
-		hdencode(packet_buffer_uint,nnDestaddrH, ptr64_uintH(dest_addr) );
+		// hdencode(packet_buffer_uint,nnDestaddrL, ptr64_uintL(dest_addr) );
+		// hdencode(packet_buffer_uint,nnDestaddrH, ptr64_uintH(dest_addr) );
+		packet_buffer_uint[2] = (long long) dest_addr;
+
 	}
 	
 	if (isLongStridedAM(function))
 	{
-		packet_buffer_uint[3] = (unsigned int)dest_sizeX;
-		packet_buffer_uint[4] = (unsigned int)dest_sizeY;
-		packet_buffer_uint[5] = ptr64_uintL(dest_addr);
-		packet_buffer_uint[6] = ptr64_uintH(dest_addr);
-		packet_buffer_uint[7] = (unsigned int)dest_strideY;
+		packet_buffer_uint[1] = createStridedToken(dst_stride, dst_blk_size, dst_blk_num, token);
+		// packet_buffer_uint[3] = (unsigned int)dest_sizeX;
+		// packet_buffer_uint[4] = (unsigned int)dest_sizeY;
+		// packet_buffer_uint[5] = ptr64_uintL(dest_addr);
+		// packet_buffer_uint[6] = ptr64_uintH(dest_addr);
+		// packet_buffer_uint[7] = (unsigned int)dest_strideY;
 	}
 	
 	for(t=0; t<M; t++)
@@ -1230,7 +1432,7 @@ int SendAM_vargs(unsigned int function, unsigned int dest_or_token, gasnet_handl
 		memcpy(payload,source_addr,nbytes); // TODO: Direct copy for small amounts?
 	}		
 
-	dest_addr += (ptrdiff_t)segment_table_lib[destnode].addr; // only relevant for direct local copy
+	dest_addr += (long)segment_table_lib[destnode].addr; // only relevant for direct local copy
 
 	if (isLongAM(function))
 	{
@@ -1246,39 +1448,40 @@ int SendAM_vargs(unsigned int function, unsigned int dest_or_token, gasnet_handl
 		
 		if (gasnet_node_routing_table[destnode].type != thread)
 		{
-			for(LS=0;LS<source_sizeY;LS++)
+			for(LS=0;LS<src_blk_num;LS++)
 			{
-				memcpy(payload,source_addr,source_sizeX);
-				payload     += (ptrdiff_t)source_sizeX;
-				source_addr += (ptrdiff_t)source_strideY;
+				memcpy(payload,source_addr,src_blk_size);
+				payload     += (long)src_blk_size;
+				source_addr += (long)src_stride;
 			}
 		}
 		else  // local copy directly
 		{
-			if ((source_sizeX==dest_sizeX) && (source_sizeY==dest_sizeY))
+			if ((src_blk_num==dst_blk_num) && (src_blk_size==dst_blk_size))
 			{
-				for(LS=0;LS<source_sizeY;LS++)
+				for(LS=0;LS<src_blk_num;LS++)
 				{
-					memcpy(dest_addr,source_addr,source_sizeX);
-					source_addr += (ptrdiff_t)source_strideY;
-					dest_addr += (ptrdiff_t)dest_strideY;
+					memcpy(dest_addr,source_addr,dst_blk_size);
+					source_addr += (long)src_blk_size;
+					dest_addr += (long)dst_stride;
 				}
 			}
 			else // replace with more sophisticated direct copy algorithm
 					// -- this one is way more expensive than unpack on destnode!
 			{
-				for(LS=0;LS<source_sizeY;LS++)
-				{
-					memcpy(payload,source_addr,source_sizeX);
-					payload     += (ptrdiff_t)source_sizeX;
-					source_addr += (ptrdiff_t)source_strideY;
-				}
-				for(LS=0;LS<dest_sizeY;LS++)
-				{
-					memcpy(dest_addr,payload,dest_sizeX);
-					payload     += (ptrdiff_t)dest_sizeX;
-					dest_addr += (ptrdiff_t)dest_strideY;
-				}
+				// for(LS=0;LS<source_sizeY;LS++)
+				// {
+				// 	memcpy(payload,source_addr,source_sizeX);
+				// 	payload     += (long)source_sizeX;
+				// 	source_addr += (long)source_strideY;
+				// }
+				// for(LS=0;LS<dest_sizeY;LS++)
+				// {
+				// 	memcpy(dest_addr,payload,dest_sizeX);
+				// 	payload     += (long)dest_sizeX;
+				// 	dest_addr += (long)dest_strideY;
+				// }
+				assert(false);
 			}
 		}
 	}
@@ -1292,51 +1495,59 @@ int SendAM_vargs(unsigned int function, unsigned int dest_or_token, gasnet_handl
 		int write_fd = dest_host->client_fd;
 
 		// SEND PACKET
-		pthread_mutex_lock(&dest_host->IPsend_mutex);
-			write_to_ip(write_fd, packet_buffer, (wordsize+1)*4);
-		pthread_mutex_unlock(&dest_host->IPsend_mutex);
+		// pthread_mutex_lock(&dest_host->IPsend_mutex);
+		lock_t lock(*(dest_host->IPsend_mutex), std::defer_lock);
+		lock.lock();
+			write_to_ip(write_fd, (char*)packet_buffer, (wordsize+1)*4);
+		lock.unlock();
+		// pthread_mutex_unlock(&dest_host->IPsend_mutex);
 
 		//re-circulate block address
-		ptfifo_write(ip_bufferfifo,packet_buffer,1);
+		// ptfifo_write(ip_bufferfifo,packet_buffer,1);
 	}
 	else if (gasnet_node_routing_table[destnode].type == thread) // thread-to-thread
 	{
 		// handler data transfer
-		pthread_mutex_lock(&dest_nodedata->condmutex);
-		ptfifo_write(dest_nodedata->paramfifo,packet_buffer,1);
+		lock_t lock(*(dest_nodedata->condmutex), std::defer_lock);
+		lock.lock();
+		// pthread_mutex_lock(&dest_nodedata->condmutex);
+		// ptfifo_write(dest_nodedata->paramfifo,packet_buffer,1);
+		write_queue(dest_nodedata->paramfifo, dest_nodedata->paramfifo_in_lock, (char*)packet_buffer);
 
-		pthread_cond_signal(&dest_nodedata->condition);
-		pthread_mutex_unlock(&dest_nodedata->condmutex);
+		// pthread_cond_signal(&dest_nodedata->condition);
+		(dest_nodedata->condition)->notify_one();
+		// pthread_mutex_unlock(&dest_nodedata->condmutex);
+		lock.unlock();
 	}
-	else if (gasnet_node_routing_table[destnode].type == fpga) // thread-to-FPGA (x86-64: PCIe)
-	{
-		pthread_mutex_lock(&fpga_write_mutex);
+	// else if (gasnet_node_routing_table[destnode].type == fpga) // thread-to-FPGA (x86-64: PCIe)
+	// {
+	// 	pthread_mutex_lock(&fpga_write_mutex);
 
-		// SENDING HEADERS
-		#ifdef __ARM__
-			cputfsl(packet_buffer_uint[0],1);
-			write_to_fpga((void*)&(packet_buffer_uint[1]), wordsize*4); // same for all
-		#endif // ARM
+	// 	// SENDING HEADERS
+	// 	#ifdef __ARM__
+	// 		cputfsl(packet_buffer_uint[0],1);
+	// 		write_to_fpga((void*)&(packet_buffer_uint[1]), wordsize*4); // same for all
+	// 	#endif // ARM
 		
-		#ifdef __x86_64__
-			write_to_fpga(packet_buffer, (wordsize+1)*4); // same for all
+	// 	#ifdef __x86_64__
+	// 		write_to_fpga(packet_buffer, (wordsize+1)*4); // same for all
 
-			// FLUSH PCIe
-			//write_to_fpga(NULL, 0); // fails 
-			close(pcie_write);
-			pcie_write = open("/dev/xillybus_write_32", O_WRONLY);
-			if (pcie_write < 0)
-			{
-				fprintf(stderr,"PCIe write device not open.\r\n");
-				exit(1); // best solution? (open ports?)
-			}
-		#endif
+	// 		// FLUSH PCIe
+	// 		//write_to_fpga(NULL, 0); // fails 
+	// 		close(pcie_write);
+	// 		pcie_write = open("/dev/xillybus_write_32", O_WRONLY);
+	// 		if (pcie_write < 0)
+	// 		{
+	// 			fprintf(stderr,"PCIe write device not open.\r\n");
+	// 			exit(1); // best solution? (open ports?)
+	// 		}
+	// 	#endif
 
-		pthread_mutex_unlock(&fpga_write_mutex);
+	// 	pthread_mutex_unlock(&fpga_write_mutex);
 		
-		//re-circulate block address
-		ptfifo_write(fpga_bufferfifo,packet_buffer,1);
-	}
+	// 	//re-circulate block address
+	// 	ptfifo_write(fpga_bufferfifo,packet_buffer,1);
+	// }
 
 	return GASNET_OK;
 }

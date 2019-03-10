@@ -18,7 +18,7 @@ Active Message Packet Schema
     | Type (8) | SRC (16) | DST (16) | Payload (words) (12) | Handler (4) | # Args (8) |
     | Reserved (40) | Packet ID (24) |
     |                   Handler args               |
-    
+
     Medium
     |0                             64|
     | Type (8) | SRC (16) | DST (16) | Payload (words) (12) | Handler (4) | # Args (8) |

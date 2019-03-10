@@ -2,7 +2,7 @@
 // Toronto Heterogeneous GASNet
 // Core API implementation
 // (c)2011-2014 Ruediger Willenberg
-
+#include <cstddef>
 #include "the_gasnet_globals.hpp"
 
 // globally shared; built before first thread created
@@ -19,7 +19,7 @@ unsigned int gasnet_init_count = 0; // used to track threads as they initialize
 
 // globally shared
 mutex_t mutex_nodeInit; // mutex to initialize the node (per thread)
-thread_t ipserver_listen_thread;
+thread_t* ipserver_listen_thread;
 
 // written identically on each thread
 gasnet_node_t gasnet_local_threads; // threads per node
@@ -31,5 +31,8 @@ gasnet_seginfo_t* segment_table_lib; // array of shared address pointers
 
 // thread_local; copied between related app and handler threads
 __thread gasnet_nodedata_t* nodedata = NULL; // used to hold a thread-local copy of gasnet_nodedata_all
+
+// globally shared; allocated once, written multiple times with identical data
+void **handlertable = NULL; // provided by user application, handler functions to run
 
 std::queue<AM_packet> ip_bufferfifo;

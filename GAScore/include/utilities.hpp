@@ -13,7 +13,7 @@
  * Defines
 *******************************************************************************/
 
-#define GC_DATA_WIDTH 64UL // bit width of tdata
+#define GC_DATA_WIDTH 64ULL // bit width of tdata
 #define GC_ADDR_WIDTH 32 // bit width of addressable memory on a node
 #define GC_DEST_WIDTH 16 // bit width of tdest
 #define MAX_VECTOR_NUM 16 // Maximum number of vectors for vectored messages
@@ -192,27 +192,27 @@ typedef ap_uint<23> btt_t;
  * Function Prototypes
 *******************************************************************************/
 
-bool isShortAM(gc_AMtype_t arg);
+// bool isShortAM(gc_AMtype_t arg);
 
-bool isMediumAM(gc_AMtype_t arg);
+// bool isMediumAM(gc_AMtype_t arg);
 
-bool isLongxAM(gc_AMtype_t arg);
+// bool isLongxAM(gc_AMtype_t arg);
 
-bool isLongAM(gc_AMtype_t arg);
+// bool isLongAM(gc_AMtype_t arg);
 
-bool isLongVectoredAM(gc_AMtype_t arg);
+// bool isLongVectoredAM(gc_AMtype_t arg);
 
-bool isLongStridedAM(gc_AMtype_t arg);
+// bool isLongStridedAM(gc_AMtype_t arg);
 
-bool isDataFromFIFO(gc_AMtype_t arg);
+// bool isDataFromFIFO(gc_AMtype_t arg);
 
-bool isAsyncAM(gc_AMtype_t arg);
+// bool isAsyncAM(gc_AMtype_t arg);
 
-bool isReplyAM(gc_AMtype_t arg);
+// bool isReplyAM(gc_AMtype_t arg);
 
-bool isMediumFIFOAM(gc_AMtype_t arg);
+// bool isMediumFIFOAM(gc_AMtype_t arg);
 
-bool isLongFIFOAM(gc_AMtype_t arg);
+// bool isLongFIFOAM(gc_AMtype_t arg);
 
 void dataMoverWriteCommand(
     dataMoverCommand_t &axis_command, //output
