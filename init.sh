@@ -97,6 +97,8 @@ mkdir -p $GASCORE_PATH/build/bin
 mkdir -p ${repoPath}/repo/$SHOAL_VIVADO_VERSION/$SHOAL_PART_FAMILY
 mkdir -p $GASCORE_PATH/repo/$SHOAL_VIVADO_VERSION/$SHOAL_PART_FAMILY
 mkdir -p $GASCORE_PATH/testbench/build
+mkdir -p $SHOAL_PATH/tests/build/bin
+mkdir -p $SHOAL_PATH/apps/build/bin
 
 {
   echo "export SHOAL_PATH=$repoPath"

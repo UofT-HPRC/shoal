@@ -1,8 +1,8 @@
-#if !defined(THE_GASNET_GLOBALS_H_)
-#define THE_GASNET_GLOBALS_H_
+#ifndef SHOAL_INCLUDE_THEGASNET_GLOBALS_H_
+#define SHOAL_INCLUDE_THEGASNET_GLOBALS_H_
 
 #include "platforms.hpp"
-#include "utilities.hpp"
+#include "queue.hpp"
 
 typedef unsigned int gasnet_node_t;
 typedef unsigned int gasnet_handler_t;
@@ -16,9 +16,7 @@ typedef struct gasnet_nodedata_str {
     mutex_t* condmutex;
     condition_t* condition;
     thread_t* handler_thread;
-    // queue_t* tokenfifo;
-    // short int *tokentable;
-    std::queue<char *>* paramfifo;
+    queue<char *>* paramfifo;
     unsigned int gasnode_seginfo_cnt;
     unsigned int gasnode_seginfo_rcvd;
 
@@ -27,11 +25,7 @@ typedef struct gasnet_nodedata_str {
     unsigned int counter; // generic counter for H_ADD handler
     // TODO Add H_WAIT
 
-    std::queue<char *>* bufferfifo;
-    mutex_t* bufferfifo_out_lock;
-    mutex_t* bufferfifo_in_lock;
-    mutex_t* paramfifo_in_lock;
-    mutex_t* paramfifo_out_lock;
+    queue<char *>* bufferfifo;
 } gasnet_nodedata_t;
 
 typedef struct gasnet_ip_host_str {
@@ -178,8 +172,8 @@ extern void **handlertable; // provided by user application, handler functions t
         char buffer[MAX_PAYLOAD_SIZE];
     };
 
-    extern std::queue<AM_packet> ip_bufferfifo;
+    extern queue<char*>* ip_bufferfifo;
 
     #define MAX_TCP_FDS 256 // ? why?
 
-#endif // THE_GASNET_GLOBALS_H_
+#endif // SHOAL_INCLUDE_THEGASNET_GLOBALS_H_

@@ -11,10 +11,10 @@ import subprocess
 #
 # Return: None
 def printMacro(header, macro):
-    command = "g++ $SHOAL_PATH/share/src/print_macro.cpp -w \
-        -I$SHOAL_PATH/share/include -I$SHOAL_HLS_PATH \
+    command = "g++ $SHOAL_PATH/helper/src/print_macro.cpp -w \
+        -I$SHOAL_PATH/include -I$SHOAL_HLS_PATH \
         -include " + header + " -D'MACRO_VALUE=" + \
-        macro + "' -o $SHOAL_PATH/share/build/bin/print_macro"
+        macro + "' -o $SHOAL_PATH/helper/build/bin/print_macro"
 
     try:
         subprocess.check_output(command, shell=True)
@@ -22,7 +22,7 @@ def printMacro(header, macro):
         print("Error code", e.returncode, e.output)
         exit(1)
     
-    subprocess.call("$SHOAL_PATH/share/build/bin/print_macro", shell=True)
+    subprocess.call("$SHOAL_PATH/helper/build/bin/print_macro", shell=True)
 
 ### evalMacro ###
 # This function will evaluate the value of a numeric macro defined in a C/C++ 
@@ -34,10 +34,10 @@ def printMacro(header, macro):
 #
 # Return: integer value of the macro
 def evalMacro(header, macro):
-    command = "g++ $SHOAL_PATH/share/src/eval_macro.cpp -w \
-        -I$SHOAL_PATH/share/include -I$SHOAL_HLS_PATH \
+    command = "g++ $SHOAL_PATH/helper/src/eval_macro.cpp -w \
+        -I$SHOAL_PATH/include -I$SHOAL_HLS_PATH \
         -include " + header + " -DMACRO_VALUE=" + \
-        macro + " -o $SHOAL_PATH/share/build/bin/eval_macro"
+        macro + " -o $SHOAL_PATH/helper/build/bin/eval_macro"
 
     try:
         subprocess.check_output(command, shell=True)
@@ -46,7 +46,7 @@ def evalMacro(header, macro):
         exit(1)
     
     try:
-        subprocess.check_output("$SHOAL_PATH/share/build/bin/eval_macro", shell=True)
+        subprocess.check_output("$SHOAL_PATH/helper/build/bin/eval_macro", shell=True)
     except subprocess.CalledProcessError as e:
         return e.returncode
     else:

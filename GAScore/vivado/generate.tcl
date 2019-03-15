@@ -82,7 +82,7 @@ switch $auto_sim {
 ################################################################################
 
 # Defines listcomp
-source ${::env(SHOAL_PATH)}/share/utilities.tcl
+source ${::env(SHOAL_PATH)}/helper/utilities.tcl
 
 ################################################################################
 # Variables

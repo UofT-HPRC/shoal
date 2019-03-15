@@ -20,11 +20,9 @@
 	#include <sys/stat.h>
 	#include <fcntl.h>
 	#include <sys/socket.h>
-	#include "the_gasnet_globals.hpp"
-    #include "the_gasnet_core.hpp"
+	#include "thegasnet_globals.hpp"
+    #include "thegasnet_core.hpp"
     
-	
-	
 	extern gasnet_node_routing_table_t *gasnet_node_routing_table;
 	extern gasnet_ip_host_t *gasnet_ip_hosts;
 	extern unsigned int gasnet_ip_host_cnt;
@@ -352,6 +350,7 @@ extern "C" void __wrap_main (int argc, char** argv)
 						{
 							gasnet_ip_hosts[gasnet_ip_host_cnt].ip4addr = hosts[t].ip_addr;
 							// pthread_mutex_init(&gasnet_ip_hosts[gasnet_ip_host_cnt].IPsend_mutex, NULL);
+							gasnet_ip_hosts[gasnet_ip_host_cnt].IPsend_mutex = new mutex_t;
 							gasnet_ip_host_cnt++;
 						}
 						gasnet_node_routing_table[u].type = ip;
@@ -361,24 +360,24 @@ extern "C" void __wrap_main (int argc, char** argv)
 					//else // by FPGA
 						//gasnet_node_routing_table[u].type = fpga; // route through FPGA network - not done for thread-thread
 				}
-			if (hosts[t].fpga_first_id > -1)
-				for (u=hosts[t].fpga_first_id ; u<=hosts[t].fpga_last_id ; u++)
-				{
-					if (hosts[t].fpga_reach==by_ip)
-					{
-						if ((u==hosts[t].fpga_first_id) && (hosts[t].threads_first_id<0)) // once per host (here: no threads)
-						{
-							gasnet_ip_hosts[gasnet_ip_host_cnt].ip4addr = hosts[t].ip_addr;
-							// pthread_mutex_init(&gasnet_ip_hosts[gasnet_ip_host_cnt].IPsend_mutex, NULL);
-							gasnet_ip_host_cnt++;
-						}
-						gasnet_node_routing_table[u].type = ip;
-						gasnet_node_routing_table[u].index = gasnet_ip_host_cnt - 1;
-					}
-						// TODO = hosts[t].ip_addr; // target host's IP address - route through IP
-					else
-						gasnet_node_routing_table[u].type = fpga; // route through FPGA network
-				}
+			// if (hosts[t].fpga_first_id > -1)
+			// 	for (u=hosts[t].fpga_first_id ; u<=hosts[t].fpga_last_id ; u++)
+			// 	{
+			// 		if (hosts[t].fpga_reach==by_ip)
+			// 		{
+			// 			if ((u==hosts[t].fpga_first_id) && (hosts[t].threads_first_id<0)) // once per host (here: no threads)
+			// 			{
+			// 				gasnet_ip_hosts[gasnet_ip_host_cnt].ip4addr = hosts[t].ip_addr;
+			// 				// pthread_mutex_init(&gasnet_ip_hosts[gasnet_ip_host_cnt].IPsend_mutex, NULL);
+			// 				gasnet_ip_host_cnt++;
+			// 			}
+			// 			gasnet_node_routing_table[u].type = ip;
+			// 			gasnet_node_routing_table[u].index = gasnet_ip_host_cnt - 1;
+			// 		}
+			// 			// TODO = hosts[t].ip_addr; // target host's IP address - route through IP
+			// 		else
+			// 			gasnet_node_routing_table[u].type = fpga; // route through FPGA network
+			// 	}
 		}
 	}
 	

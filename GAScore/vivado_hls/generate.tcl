@@ -26,9 +26,8 @@ set DefaultFlag 1
 set src_dir ${::env(SHOAL_PATH)}/GAScore/src
 set test_dir ${::env(SHOAL_PATH)}/GAScore/testbench/build
 set local_include -I${::env(SHOAL_PATH)}/GAScore/include
-set share_src_dir ${::env(SHOAL_PATH)}/share/src
-set share_include -I${::env(SHOAL_PATH)}/share/include
-append include $local_include " " $share_include
+set global_include -I${::env(SHOAL_PATH)}/include
+append include $local_include " " $global_include
 
 ################################################################################
 # Body

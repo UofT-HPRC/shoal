@@ -1,8 +1,8 @@
 #include <cstddef>
 #include <string.h>
 #include <stdio.h>
-#include "the_gasnet_globals.hpp"
-#include "the_gasnet_core.hpp"
+#include "thegasnet_globals.hpp"
+#include "thegasnet_core.hpp"
 #include "platforms.hpp"
 
 // #define hc_S1_request_send 128

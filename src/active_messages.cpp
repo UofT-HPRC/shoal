@@ -1,6 +1,8 @@
 #include <cstddef>
 #include "active_messages.hpp"
 
+
+
 long long createHeader(
     int src,
     int dst,
@@ -76,250 +78,9 @@ long long createStridedDstBody(
     return ((long long)size << AM_DST_VECTOR_SIZE_BODY_LOWER);
 }
 
-#if defined(__HLS__)
-
-#include "../GAScore/include/utilities.hpp"
-
-void writeWord(
-    word_t data,
-    bool last,
-    bool keep,
-
-){
-
-}
 
 
-inline axis_word_t createHeader(
-    gc_AMsrc_t src,
-    gc_AMdst_t dst,
-    gc_payloadSize_t payloadSize,
-    gc_AMhandler_t handlerID,
-    int type,
-    gc_AMargs_t handlerArgCount
-){
-    axis_word_t axis_word;
-    axis_word.data(AM_SRC) = src;
-    axis_word.data(AM_DST) = dst;
-    axis_word.data(AM_PAYLOAD_SIZE) = payloadSize;
-    axis_word.data(AM_HANDLER) = handlerID;
-    axis_word.data(AM_TYPE) = type;
-    axis_word.data(AM_HANDLER_ARGS) = handlerArgCount;
-    axis_word.last = 0;
-    axis_word.keep = GC_DATA_TKEEP;
-    return axis_word;
-}
-
-inline axis_word_t createToken(
-    gc_AMToken_t token,
-    bool last
-){
-    axis_word_t axis_word;
-    axis_word.data(AM_TOKEN) = token;
-    axis_word.last = last;
-    axis_word.keep = GC_DATA_TKEEP;
-    return axis_word;
-}
-
-inline axis_word_t createStride(
-    gc_stride_t stride,
-    gc_strideBlockSize_t stride_size,
-    gc_strideBlockNum_t stride_num,
-    gc_AMToken_t token
-){
-    axis_word_t axis_word;
-    axis_word.data(AM_STRIDE_SIZE) = stride;
-    axis_word.data(AM_STRIDE_BLK_SIZE) = stride_size;
-    axis_word.data(AM_STRIDE_BLK_NUM) = stride_num;
-    axis_word.data(AM_TOKEN) = token;
-    axis_word.last = 0;
-    axis_word.keep = GC_DATA_TKEEP;
-    return axis_word;
-}
-
-inline axis_word_t createStride(
-    gc_stride_t stride,
-    gc_strideBlockSize_t stride_size,
-    gc_strideBlockNum_t stride_num
-){
-    axis_word_t axis_word;
-    axis_word.data(AM_STRIDE_SIZE) = stride;
-    axis_word.data(AM_STRIDE_BLK_SIZE) = stride_size;
-    axis_word.data(AM_STRIDE_BLK_NUM) = stride_num;
-    axis_word.last = 0;
-    axis_word.keep = GC_DATA_TKEEP;
-    return axis_word;
-}
-
-inline void sendHandlerArgs(
-    axis_t & axis_out,
-    word_t * handler_args,
-    gc_AMargs_t handlerArgCount
-){
-    axis_word_t axis_word;
-    for (int i = 0; i < handlerArgCount; i++){
-        axis_word.data = *(handler_args+i);
-        axis_word.last = i == handlerArgCount - 1;
-        axis_word.keep = GC_DATA_TKEEP;
-        axis_out.write(axis_word);;
-    }
-}
-
-inline void sendPayloadArgs(
-    axis_t & axis_out,
-    word_t * payload_args,
-    gc_payloadSize_t payloadArgCount
-){
-    axis_word_t axis_word;
-    for (int i = 0; i < payloadArgCount; i++){
-        axis_word.data = *(payload_args+i);
-        axis_word.last = i == payloadArgCount - 1;
-        axis_word.keep = GC_DATA_TKEEP;
-        axis_out.write(axis_word);;
-    }
-}
-
-void sendShortAM(
-    gc_AMsrc_t src,
-    gc_AMdst_t dst,
-    gc_AMToken_t token,
-    gc_AMhandler_t handlerID,
-    gc_AMargs_t handlerArgCount,
-    word_t * handler_args,
-    axis_t & axis_out
-){
-    axis_word_t axis_word;
-    axis_word = createHeader(src, dst, 0, handlerID, AM_SHORT, handlerArgCount);
-    axis_out.write(axis_word);
-    axis_word = createToken(token, handlerArgCount == 0);
-    axis_out.write(axis_word);
-    sendHandlerArgs(axis_out, handler_args, handlerArgCount);
-}
-
-void sendMediumAM(
-    gc_AMsrc_t src,
-    gc_AMdst_t dst,
-    gc_AMToken_t token,
-    gc_AMhandler_t handlerID,
-    gc_AMargs_t handlerArgCount,
-    word_t * handler_args,
-    gc_payloadSize_t payloadSize,
-    word_t * payload,
-    axis_t & axis_out
-){
-    axis_word_t axis_word;
-    axis_word = createHeader(src, dst, payloadSize, handlerID, AM_MEDIUM|AM_FIFO, handlerArgCount);
-    axis_out.write(axis_word);
-    axis_word = createToken(token, handlerArgCount == 0);
-    axis_out.write(axis_word);
-    sendHandlerArgs(axis_out, handler_args, handlerArgCount);
-    sendPayloadArgs(axis_out, payload, payloadSize);
-}
-
-void sendMediumAM(
-    gc_AMsrc_t src,
-    gc_AMdst_t dst,
-    gc_AMToken_t token,
-    gc_AMhandler_t handlerID,
-    gc_AMargs_t handlerArgCount,
-    word_t * handler_args,
-    gc_payloadSize_t payloadSize,
-    word_t src_addr,
-    axis_t & axis_out
-){
-    axis_word_t axis_word;
-    axis_word = createHeader(src, dst, payloadSize, handlerID, AM_MEDIUM, handlerArgCount);
-    axis_out.write(axis_word);
-    axis_word = createToken(token, handlerArgCount == 0);
-    axis_out.write(axis_word);
-    axis_word.data = payloadSize;
-    axis_word.last = handlerArgCount == 0;
-    axis_out.write(axis_word);
-    sendHandlerArgs(axis_out, handler_args, handlerArgCount);
-}
-
-void sendlong longAM(
-    gc_AMsrc_t src,
-    gc_AMdst_t dst,
-    gc_AMToken_t token,
-    gc_AMhandler_t handlerID,
-    gc_AMargs_t handlerArgCount,
-    word_t * handler_args,
-    gc_payloadSize_t payloadSize,
-    word_t * payload,
-    word_t dst_addr,
-    axis_t & axis_out
-){
-    axis_word_t axis_word;
-    axis_word = createHeader(src, dst, payloadSize, handlerID, AM_long long|AM_FIFO, handlerArgCount);
-    axis_out.write(axis_word);
-    axis_word = createToken(token, handlerArgCount == 0);
-    axis_out.write(axis_word);
-    axis_word.data = dst_addr;
-    axis_word.last = handlerArgCount == 0;
-    axis_out.write(axis_word);
-    sendHandlerArgs(axis_out, handler_args, handlerArgCount);
-    sendPayloadArgs(axis_out, payload, payloadSize);
-}
-
-void sendlong longAM(
-    gc_AMsrc_t src,
-    gc_AMdst_t dst,
-    gc_AMToken_t token,
-    gc_AMhandler_t handlerID,
-    gc_AMargs_t handlerArgCount,
-    word_t * handler_args,
-    gc_payloadSize_t payloadSize,
-    word_t src_addr,
-    word_t dst_addr,
-    axis_t & axis_out
-){
-    axis_word_t axis_word;
-    axis_word = createHeader(src, dst, payloadSize, handlerID, AM_long long, handlerArgCount);
-    axis_out.write(axis_word);
-    axis_word = createToken(token, handlerArgCount == 0);
-    axis_out.write(axis_word);
-    axis_word.data = dst_addr;
-    axis_word.last = handlerArgCount == 0;
-    axis_out.write(axis_word);
-    sendHandlerArgs(axis_out, handler_args, handlerArgCount);
-}
-
-void sendlong longStridedAM(
-    gc_AMsrc_t src,
-    gc_AMdst_t dst,
-    gc_AMToken_t token,
-    gc_AMhandler_t handlerID,
-    gc_AMargs_t handlerArgCount,
-    word_t * handler_args,
-    gc_payloadSize_t payloadSize,
-    gc_stride_t src_stride,
-    gc_strideBlockSize_t src_blk_size,
-    gc_strideBlockNum_t src_blk_num,
-    word_t src_addr,
-    gc_stride_t dst_stride,
-    gc_strideBlockSize_t dst_blk_size,
-    gc_strideBlockNum_t dst_blk_num,
-    word_t dst_addr,
-    axis_t & axis_out
-){
-    axis_word_t axis_word;
-    axis_word = createHeader(src, dst, payloadSize, handlerID, AM_long long, handlerArgCount);
-    axis_out.write(axis_word);
-    axis_word = createStride(src_stride, src_blk_size, src_blk_num);
-    axis_out.write(axis_word);
-    axis_word.data = src_addr;
-    axis_word.last = 0;
-    axis_out.write(axis_word);
-    axis_word = createStride(dst_stride, dst_blk_size, dst_blk_num, token);
-    axis_out.write(axis_word);
-    axis_word.data = dst_addr;
-    axis_word.last = 0;
-    axis_out.write(axis_word);
-    sendHandlerArgs(axis_out, handler_args, handlerArgCount);
-}
-
-#elif defined(__x86_64__) || defined(__MICROBLAZE__)
+#if defined(__x86_64__) || defined(__MICROBLAZE__)
 
 #if defined(__MICROBLAZE__)
 #include "fsl.h"
@@ -419,7 +180,51 @@ int readReg(int address, int offset){
     return Xil_In32(address + offset);
 }
 
-// #else // __x86_64__
+#else // __x86_64__
+
+bool isShortAM(char arg){
+    return (arg & 0x7) == 1;
+}
+
+bool isMediumAM(char arg){
+    return (arg & 0x7) == 2;
+}
+
+bool isLongxAM(char arg){
+    return (arg & 0x4) == 1;
+}
+
+bool isLongAM(char arg){
+    return (arg & 0x7) == 4;
+}
+
+bool isLongVectoredAM(char arg){
+    return (arg & 0x7) == 6;
+}
+
+bool isLongStridedAM(char arg){
+    return (arg & 0x7) == 5;
+}
+
+bool isDataFromFIFO(char arg){
+    return (arg & 0x10) == 0x10;
+}
+
+bool isAsyncAM(char arg){
+    return (arg & 0x20) == 0x20;
+}
+
+bool isReplyAM(char arg){
+    return (arg & 0x40) == 0x40;
+}
+
+bool isMediumFIFOAM(char arg){
+    return isMediumAM(arg) && isDataFromFIFO(arg);
+}
+
+bool isLongFIFOAM(char arg){
+    return isLongAM(arg) && isDataFromFIFO(arg);
+}
 
 // int AM_init(){
     

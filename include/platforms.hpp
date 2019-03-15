@@ -1,4 +1,7 @@
-/***************************************************************************//**
+#ifndef SHOAL_INCLUDE_PLATFORMS_H_
+#define SHOAL_INCLUDE_PLATFORMS_H_
+
+/*******************************************************************************
  * platforms.hpp
  * 
  * Originally developed as part of Toronto Heterogeneous GASnet by Ruediger
@@ -6,9 +9,6 @@
  *
  * (c)2011-2014 Ruediger Willenberg and 2019 Varun Sharma
  * ****************************************************************************/
-
-#ifndef PLATFORMS_H
-#define PLATFORMS_H
 
 #define PRINTTIME(COND,TEXT){                       \
         Timer_TakeTime();                           \
@@ -195,4 +195,4 @@
 
 #endif //__ARM__
 
-#endif // PLATFORMS_H
+#endif // SHOAL_INCLUDE_PLATFORMS_H_

@@ -15,37 +15,37 @@ Active Message Packet Schema
 
     Short
     |0                             64|
-    | Type (8) | SRC (16) | DST (16) | Payload (words) (12) | Handler (4) | # Args (8) |
-    | Reserved (40) | Packet ID (24) |
+    | Type (8) | SRC (16) | DST (16) | Message Size (bytes) (16) | Handler (4) | # Args (4) |
+    | Reserved (48) | Packet ID (16) |
     |                   Handler args               |
 
     Medium
     |0                             64|
-    | Type (8) | SRC (16) | DST (16) | Payload (words) (12) | Handler (4) | # Args (8) |
-    | Reserved (40) | Packet ID (24) |
+    | Type (8) | SRC (16) | DST (16) | Message Size (bytes) (16) | Handler (4) | # Args (4) |
+    | Reserved (48) | Packet ID (16) |
     |                   Handler args               |
     |                   Payload ...                |
 
     Long
     |0                             64|
-    | Type (8) | SRC (16) | DST (16) | Payload (words) (12) | Handler (4) | # Args (8) |
-    | Reserved (40) | Packet ID (24) |
+    | Type (8) | SRC (16) | DST (16) | Message Size (bytes) (16) | Handler (4) | # Args (4) |
+    | Reserved (48) | Packet ID (16) |
     |                   Destination                |
     |                   Handler args               |
     |                   Payload ...                |
 
     Long Stride (stride in bytes, block size in words)
     |0                             64|
-    | Type (8) | SRC (16) | DST (16) | Payload (words) (12) | Handler (4) | # Args (8) |
-    | Stride (16) | Cont. block size (12) | blocks (12) | Packet ID (24) |
+    | Type (8) | SRC (16) | DST (16) | Message Size (bytes) (16) | Handler (4) | # Args (4) |
+    | Stride (16) | Cont. block size (12) | blocks (12) | Reserved (8) | Packet ID (16) |
     |                   Destination                |
     |                   Handler args               |
     |                   Payload ...                |
 
     Long Vector 
     |0                             64|
-    | Type (8) | SRC (16) | DST (16) | Payload (words) (12) | Handler (4) | # Args (8) |
-    | Reserved (4) | # dst vectors (4) | Reserved (12) | Size 1 (12) | Reserved (8) | Packet ID (24) |
+    | Type (8) | SRC (16) | DST (16) | Message Size (bytes) (16) | Handler (4) | # Args (4) |
+    | Reserved (4) | # dst vectors (4) | Reserved (12) | Size 1 (12) | Reserved (16) | Packet ID (16) |
     |                   Destination                |
     | Size 2... (12) | Reserved (52) |
     |                   Destination                |
@@ -56,48 +56,48 @@ Active Message Packet Schema
 
 Short
     |0                             64|
-    | Type (8) | SRC (16) | DST (16) | Payload (words) (12) | Handler (4) | # Args (8) |
-    | Reserved (40) | Packet ID (24) |
+    | Type (8) | SRC (16) | DST (16) | Message Size (bytes) (16) | Handler (4) | # Args (4) |
+    | Reserved (48) | Packet ID (16) |
     |                   Handler args               |
     
     Medium (FIFO 0)
     |0                             64|
-    | Type (8) | SRC (16) | DST (16) | Payload (words) (12) | Handler (4) | # Args (8) |
-    | Reserved (40) | Packet ID (24) |
+    | Type (8) | SRC (16) | DST (16) | Message Size (bytes) (16) | Handler (4) | # Args (4) |
+    | Reserved (48) | Packet ID (16) |
     |                   SRC addr                   |
     |                   Handler args               |
     Medium (FIFO 1)
     |0                             64|
-    | Type (8) | SRC (16) | DST (16) | Payload (words) (12) | Handler (4) | # Args (8) |
-    | Reserved (40) | Packet ID (24) |
+    | Type (8) | SRC (16) | DST (16) | Message Size (bytes) (16) | Handler (4) | # Args (4) |
+    | Reserved (48) | Packet ID (16) |
     |                   Handler args               |
     |                   Payload ...                |
     Long (FIFO 0)
     |0                             64|
-    | Type (8) | SRC (16) | DST (16) | Payload (words) (12) | Handler (4) | # Args (8) |
-    | Reserved (40) | Packet ID (24) |
+    | Type (8) | SRC (16) | DST (16) | Message Size (bytes) (16) | Handler (4) | # Args (4) |
+    | Reserved (48) | Packet ID (16) |
     |                   Source Addr                |
     |                   Destination                |
     |                   Handler args               |
     Long (FIFO 1)
     |0                             64|
-    | Type (8) | SRC (16) | DST (16) | Payload (words) (12) | Handler (4) | # Args (8) |
-    | Reserved (40) | Packet ID (24) |
+    | Type (8) | SRC (16) | DST (16) | Message Size (bytes) (16) | Handler (4) | # Args (4) |
+    | Reserved (48) | Packet ID (16) |
     |                   Destination                |
     |                   Handler args               |
     |                   Payload ...                |
     Long Stride 
     |0                             64|
-    | Type (8) | SRC (16) | DST (16) | Payload (words) (12) | Handler (4) | # Args (8) |
+    | Type (8) | SRC (16) | DST (16) | Message Size (bytes) (16) | Handler (4) | # Args (4) |
     | Stride (16) | Cont. block size (12) | blocks (12) | Reserved (24) |
     |                   Source addr                |
-    | Stride (16) | Cont. block size (12) | blocks (12) | Packet ID (24) |
+    | Stride (16) | Cont. block size (12) | blocks (12) | Reserved (8) | Packet ID (16) |
     |                   Dest.  addr                |
     |                   Handler args               |
     Long Vector 
     |0                             64|
-    | Type (8) | SRC (16) | DST (16) | Payload (words) (12) | Handler (4) | # Args (8) |
-    | # src vectors (4) | # dst vectors (4) | src Size 1 (12) | dst Size 1 (12) | Reserved (8) | Packet ID (24) |
+    | Type (8) | SRC (16) | DST (16) | Message Size (bytes) (16) | Handler (4) | # Args (4) |
+    | # src vectors (4) | # dst vectors (4) | src Size 1 (12) | dst Size 1 (12) | Reserved (16) | Packet ID (16) |
     |                   src   addr.                |
     |                   dst   addr.                |
     | src size 2... (12) | Reserved (52) |

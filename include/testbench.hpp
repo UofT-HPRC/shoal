@@ -1,5 +1,5 @@
-#ifndef SHOAL_TESTBENCH_H_
-#define SHOAL_TESTBENCH_H_
+#ifndef SHOAL_INCLUDE_TESTBENCH_H_
+#define SHOAL_INCLUDE_TESTBENCH_H_
 
 #ifdef DEBUG
 #include <sstream>
@@ -16,4 +16,4 @@
     }
 #endif
 
-#endif // SHOAL_TESTBENCH_H_
+#endif // SHOAL_INCLUDE_TESTBENCH_H_

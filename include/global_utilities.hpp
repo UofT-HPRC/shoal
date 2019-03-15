@@ -1,5 +1,5 @@
-#ifndef SHOAL_UTILITIES_H_
-#define SHOAL_UTILITIES_H_
+#ifndef SHOAL_INCLUDE_GLOBAL_UTILITIES_H_
+#define SHOAL_INCLUDE_GLOBAL_UTILITIES_H_
 
 /*******************************************************************************
  * This allows you to use defined variables as part of pragmas.
@@ -149,4 +149,4 @@ unsigned long long power_64() {
     return sum;
 }
 
-#endif // SHOAL_UTILITIES_H_
+#endif // SHOAL_INCLUDE_GLOBAL_UTILITIES_H_

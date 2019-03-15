@@ -3,7 +3,7 @@
 
 #include "utilities.hpp"
 #ifdef DEBUG
-#include "shoal_testbench.hpp"
+#include "testbench.hpp"
 #endif
 
 #define FIFO_DEPTH 512

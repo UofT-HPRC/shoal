@@ -365,7 +365,7 @@ connect_bd_intf_net -intf_net [get_bd_intf_nets axis_data_fifo_1_M_AXIS] [get_bd
 # End of 2017.2 namespace
 
 # defines get_design_name
-source ${::env(SHOAL_PATH)}/share/utilities.tcl
+source ${::env(SHOAL_PATH)}/helper/utilities.tcl
 
 set current_vivado_version [version -short]
 

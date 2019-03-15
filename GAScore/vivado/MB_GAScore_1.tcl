@@ -537,7 +537,7 @@ CONFIG.C_NUM_PROBE_OUT {0} \
 ##################################################################
 
 # defines get_design_name
-source ${::env(SHOAL_PATH)}/share/utilities.tcl
+source ${::env(SHOAL_PATH)}/helper/utilities.tcl
 
 set current_vivado_version [version -short]
 

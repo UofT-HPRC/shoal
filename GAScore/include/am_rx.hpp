@@ -2,9 +2,8 @@
 #define AM_RX_H_
 
 #include "utilities.hpp"
-// #define DEBUG
 #ifdef DEBUG
-#include "shoal_testbench.hpp"
+#include "testbench.hpp"
 #endif
 
 #define FSM_EXISTS // allows printing FSM states in debug

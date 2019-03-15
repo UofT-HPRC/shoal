@@ -1,7 +1,9 @@
-#if !defined(THE_GASNET_CORE_H_)
-#define THE_GASNET_CORE_H_
+#ifndef SHOAL_INCLUDE_THEGASNET_CORE_H_
+#define SHOAL_INCLUDE_THEGASNET_CORE_H_
 
 #include "platforms.hpp"
+// #include "thegasnet_globals.hpp"
+#include "config.hpp"
 
 #define PACKET_BUFFERS_PER_THREAD 128
 #define MAX_HANDLER_FUNCTIONS 256
@@ -52,7 +54,7 @@ typedef struct{
 #define gasnet_AMRequestShort0(dest, token, handler) \
 	SendAM(AM_SHORT, dest, token, handler, NULL, 0, NULL, 0)
 #define gasnet_AMRequestLong0(dest, token, handler, source_addr, nbytes, dest_addr) \
-	SendAM(AM_LONG, token, dest, handler, source_addr, nbytes, dest_addr, 0)
+	SendAM(AM_LONG, dest, token, handler, source_addr, nbytes, dest_addr, 0)
 
 void gasnet_getSegmentInfo (gasnet_seginfo_t *seginfo_table, int numentries);
 int thegasnet_sharedMemoryReady(unsigned int ctrlnode);
@@ -80,4 +82,4 @@ int SendAM_vargs(unsigned int function, unsigned int destnode, int token, gasnet
 	size_t dst_stride, size_t dst_blk_size, size_t dst_blk_num,
 	unsigned int M, va_list Vargs);
 
-#endif // THE_GASNET_CORE_H_
+#endif // SHOAL_INCLUDE_THEGASNET_CORE_H_

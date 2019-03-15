@@ -36,23 +36,23 @@ $(error SHOAL_PART not set in env -- must be set to the FPGA part number Did \
 you source init.sh?)
 endif
 
+global_include_dir = $(SHOAL_PATH)/include
+
 local_dir = $(SHOAL_PATH)/GAScore
 obj_dir = $(local_dir)/build
 bin_dir = $(local_dir)/build/bin
 src_dir = $(local_dir)/src
 test_dir = $(local_dir)/testbench
 test_build_dir = $(test_dir)/build
-include_dir = $(local_dir)/include
+local_include_dir = $(local_dir)/include
 hls_dir = $(local_dir)/vivado_hls
 vivado_dir = $(local_dir)/vivado
 repo_path = $(local_dir)/repo
 
-share_dir = $(SHOAL_PATH)/share
-share_obj_dir = $(share_dir)/build
-share_bin_dir = $(share_dir)/build/bin
-share_src_dir = $(share_dir)/src
-share_include_dir = $(share_dir)/include
-share_testbench_dir = $(share_dir)/testbench
+helper_dir = $(SHOAL_PATH)/helper
+helper_obj_dir = $(helper_dir)/build
+helper_bin_dir = $(helper_dir)/build/bin
+helper_include_dir = $(helper_dir)/include
 
 c_modules := am_rx am_tx xpams_rx hold_buffer xpams_tx handler
 hdl_modules := memory
@@ -61,13 +61,13 @@ test_projects := MB_GAScore_0 MB_GAScore_1
 
 obj = $(shell find $(obj_dir) -name '*.o' -printf '%f\n' | \
 sort -k 1nr | cut -f2-)
-share_obj = $(shell find $(share_obj_dir) -name '*.o' -printf '%f\n' | \
+helper_obj = $(shell find $(helper_obj_dir) -name '*.o' -printf '%f\n' | \
 sort -k 1nr | cut -f2-)
 dep = $(obj:%.o=$(obj_dir)/%.d)
-dep += $(share_obj:%.o=$(share_obj_dir)/%.d)
+dep += $(helper_obj:%.o=$(helper_obj_dir)/%.d)
 
 CC = g++
-CFLAGS = -g -Wall -I$(include_dir) -I$(share_include_dir) \
+CFLAGS = -g -Wall -I$(local_include_dir) -I$(helper_include_dir) -I$(global_include_dir)\
 	-I$(SHOAL_HLS_PATH) \
 	-Wno-unknown-pragmas -Wno-comment -Wno-shift-count-overflow -MMD -MP
 
@@ -222,5 +222,5 @@ clean-1:
 	@$(call shoal_make, clean-1)
 
 	# @rm -rf $(obj_dir)/*.o $(obj_dir)/*.d $(bin_dir)/* \
-	# $(share_obj_dir)/*.o $(share_obj_dir)/*.d $(share_bin_dir)/* \
+	# $(helper_obj_dir)/*.o $(helper_obj_dir)/*.d $(helper_bin_dir)/* \
 	# $(test_build_dir)/*

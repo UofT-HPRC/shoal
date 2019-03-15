@@ -1,7 +1,7 @@
-#if !defined(SHOAL_GASCORE_CONFIG_H_)
-#define SHOAL_GASCORE_CONFIG_H_
+#ifndef SHOAL_INCLUDE_CONFIG_H_
+#define SHOAL_INCLUDE_CONFIG_H_
 
-#include "shoal_utilities.hpp"
+#include "global_utilities.hpp"
 
 // Active Message types
 #define AM_SHORT 0x1
@@ -20,8 +20,6 @@
 #define H_INCR_BAR 3
 #define H_WAIT 4
 
-
-
 /*******************************************************************************
  * Active Message parameter bit values
 *******************************************************************************/
@@ -31,16 +29,16 @@
 #define AM_SRC_LOWER 8
 #define AM_DST_UPPER 39
 #define AM_DST_LOWER 24
-#define AM_PAYLOAD_SIZE_UPPER 51
+#define AM_PAYLOAD_SIZE_UPPER 55
 #define AM_PAYLOAD_SIZE_LOWER 40
-#define AM_HANDLER_UPPER 55
-#define AM_HANDLER_LOWER 52
+#define AM_HANDLER_UPPER 59
+#define AM_HANDLER_LOWER 56
 #define AM_TYPE_UPPER 7
 #define AM_TYPE_LOWER 0
 #define AM_HANDLER_ARGS_UPPER 63
-#define AM_HANDLER_ARGS_LOWER 56
+#define AM_HANDLER_ARGS_LOWER 60
 #define AM_TOKEN_UPPER 63
-#define AM_TOKEN_LOWER 40
+#define AM_TOKEN_LOWER 48
 
 // Long Strided
 #define AM_STRIDE_SIZE_LOWER 0
@@ -133,4 +131,4 @@
 #define AM_SRC_VECTOR_SIZE_BODY_BITMASK ((power_64<2,AM_SRC_VECTOR_SIZE_BODY_WIDTH>()-1) << AM_SRC_VECTOR_SIZE_BODY_LOWER)
 #define AM_DST_VECTOR_SIZE_BODY_BITMASK ((power_64<2,AM_DST_VECTOR_SIZE_BODY_WIDTH>()-1) << AM_DST_VECTOR_SIZE_BODY_LOWER)
 
-#endif // SHOAL_GASCORE_CONFIG_H_
+#endif // SHOAL_INCLUDE_CONFIG_H_

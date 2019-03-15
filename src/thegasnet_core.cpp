@@ -12,8 +12,8 @@
 
 #include <cstddef>
 #include "platforms.hpp"
-#include "the_gasnet_globals.hpp"
-#include "the_gasnet_core.hpp"
+#include "thegasnet_globals.hpp"
+#include "thegasnet_core.hpp"
 #include "active_messages.hpp"
 #include "user_config.hpp"
 
@@ -220,16 +220,16 @@ int gasnet_init(int *argc, char ***argv){
 			gasnet_nodedata_all[t].gasnode_seginfo_cnt = 0;
 			gasnet_nodedata_all[t].gasnode_seginfo_rcvd = 0;
 			gasnet_nodedata_all[t].condmutex = new mutex_t;
-			gasnet_nodedata_all[t].bufferfifo_out_lock = new mutex_t;
-			gasnet_nodedata_all[t].bufferfifo_in_lock = new mutex_t;
-			gasnet_nodedata_all[t].paramfifo_in_lock = new mutex_t;
-			gasnet_nodedata_all[t].paramfifo_out_lock = new mutex_t;
-			gasnet_nodedata_all[t].paramfifo = new std::queue<char*>;
-			gasnet_nodedata_all[t].bufferfifo = new std::queue<char*>;
+			// gasnet_nodedata_all[t].bufferfifo_out_lock = new mutex_t;
+			// gasnet_nodedata_all[t].bufferfifo_in_lock = new mutex_t;
+			// gasnet_nodedata_all[t].paramfifo_in_lock = new mutex_t;
+			// gasnet_nodedata_all[t].paramfifo_out_lock = new mutex_t;
+			gasnet_nodedata_all[t].paramfifo = new queue<char*>(MAX_QUEUE_SIZE, true);
+			gasnet_nodedata_all[t].bufferfifo = new queue<char*>(MAX_QUEUE_SIZE, true);
 			gasnet_nodedata_all[t].condition = new condition_t;
 			char* bufferfifo_alloc = (char*) malloc(MAX_QUEUE_SIZE*sizeof(AM_packet));
 			for(int i = 0; i < MAX_QUEUE_SIZE; i++){
-				(gasnet_nodedata_all[t].bufferfifo)->push(bufferfifo_alloc);
+				(gasnet_nodedata_all[t].bufferfifo)->write(bufferfifo_alloc);
 				bufferfifo_alloc += sizeof(AM_packet);
 			}
 		}
@@ -343,10 +343,16 @@ int gasnet_attach(gasnet_handlerentry_t *table, int numentries, uintptr_t segsiz
 			
 		// create server listen thread -> creates server threads when accepting connections
 		// ip_bufferfifo = make_packet_buffer(AMMaxLongRequest+MAX_HEADER_BYTES, PACKET_BUFFERS_FOR_IP, "IP_bufferfifo"); // 8kB packets, largest LongV header, 8 buffers
+		ip_bufferfifo = new queue<char*>(MAX_QUEUE_SIZE, true);
+		char* bufferfifo_alloc = (char*) malloc(MAX_QUEUE_SIZE*sizeof(AM_packet));
+		for(int i = 0; i < MAX_QUEUE_SIZE; i++){
+			ip_bufferfifo->write(bufferfifo_alloc);
+			bufferfifo_alloc += sizeof(AM_packet);
+		}
 
 		// pthread_create (&ipserver_listen_thread, NULL,(void *)&ipserver_listen, NULL);
 		// printf("Creating ipserver listen thread\n");
-		ipserver_listen_thread = new std::thread(ipserver_listen);
+		thread_t ipserver_listen_thread = std::thread(ipserver_listen);
 		
 		// loop: connect to servers, sleep shortly when failing
 		int connect_count = 0;
@@ -406,7 +412,7 @@ int gasnet_attach(gasnet_handlerentry_t *table, int numentries, uintptr_t segsiz
 		
 		// join ipserver listen thread after it finished
 		// pthread_join (ipserver_listen_thread, NULL);
-		ipserver_listen_thread->join();
+		ipserver_listen_thread.join();
 		// printf("Joined ipserver listen thread\n");
 	
 		// start TCP heartbeat
@@ -471,17 +477,21 @@ void gasnet_exit(int exitcode) // behaviour not complying with GASNet standard (
 	// * if last thread:
 	// ** request IP and FPGA thread cancels
 
+	//~ This doesn't work because gasnet_mynode() needs to be offset by the 
+	//~ lowest index on this node to get the correct array index. This information
+	//~ is available only in main_wrapper.
 	// gasnet_nodedata_t* nodedata_tmp;
 	// nodedata_tmp = &gasnet_nodedata_all[gasnet_mynode()];
 	// (nodedata_tmp->condition)->notify_all();
 
+	//~ This doesn't work because server thread is detached
 	// if (gasnet_mynode() == 0){
 	// 	for(int i = 0; i < gasnet_ip_host_cnt; i++){
 	// 		(gasnet_ip_hosts[i]).serverthread->join();
 	// 	}
 	// }
 
-	// TODO: Further cleanup tasks?
+	// TODO: delete objects created with new
 }
 
 
@@ -502,6 +512,12 @@ void read_from_ip(int fd, char* buf, unsigned int numbytes)
 			//perror(NULL);
 			exit(1);
 		}
+
+		// printf("Read: ");
+		// for(int i = 0; i < bread; i++){
+		// 	printf("%x", buf[i]);
+		// }
+		// printf(" (%d bytes)\n", bread);
 		
 		numbytes -= bread;
 		buf += bread;
@@ -525,6 +541,12 @@ void write_to_ip(int fd, char* buf, unsigned int numbytes)
 			fprintf(stderr,"PCIe write failure.\r\n");
 			exit(1); // best solution (open ports?)
 		}
+
+		// printf("Wrote: ");
+		// for(int i = 0; i < written; i++){
+		// 	printf("%x", buf[i]);
+		// }
+		// printf(" (%d bytes)\n", written);
 		
 		numbytes -= written; buf += written;
 		if (numbytes==0) break;
@@ -649,35 +671,36 @@ void ipserver_listen()
 	}
 }
 
-char * read_queue(std::queue<char *>* q, mutex_t* lock){
-	lock_guard_t guard(*lock);
-	while (q->empty()){}
+// char * read_queue(std::queue<char *>* q, mutex_t* lock){
+// 	lock_guard_t guard(*lock);
+// 	while (q->empty()){}
 
-	char* element = reinterpret_cast<char *>(&(q->front()));
-	q->pop();
-	return element;
-}
+// 	char* element = reinterpret_cast<char *>(&(q->front()));
+// 	q->pop();
+// 	return element;
+// }
 
-void write_queue(std::queue<char *>* q, mutex_t* lock, char* data, int size){
-	lock_guard_t guard(*lock);
-	while (q->size() > MAX_QUEUE_SIZE){}
-	AM_packet temp;
-	for(int i = 0; i < size; i++)
-		temp.buffer[i] = *(data++);
-	q->push((char *) &temp);	
-}
+// void write_queue(std::queue<char *>* q, mutex_t* lock, char* data, int size){
+// 	lock_guard_t guard(*lock);
+// 	while (q->size() > MAX_QUEUE_SIZE){}
+// 	AM_packet temp;
+// 	for(int i = 0; i < size; i++)
+// 		temp.buffer[i] = *(data++);
+// 	q->push((char *) &temp);	
+// }
 
-void write_queue(std::queue<char *>* q, mutex_t* lock, char* data){
-	lock_guard_t guard(*lock);
-	while (q->size() > MAX_QUEUE_SIZE){}
-	q->push(data);	
-}
+// void write_queue(std::queue<char *>* q, mutex_t* lock, char* data){
+// 	lock_guard_t guard(*lock);
+// 	while (q->size() > MAX_QUEUE_SIZE){}
+// 	q->push(data);	
+// }
 
 // ip server thread
 void ipserver(gasnet_ip_host_t& data)
 {
 	
-	unsigned int header0;
+	long long header0;
+	unsigned int msgtype;
 	unsigned int destnode;
 	unsigned int wordsize;
 	char* packet_buffer;
@@ -691,15 +714,24 @@ void ipserver(gasnet_ip_host_t& data)
 	while(1)
 	{
 		// read header - should suspend thread on empty channel
-		read_from_ip(read_fd,reinterpret_cast<char*>(&header0),4);
+		read_from_ip(read_fd,reinterpret_cast<char*>(&header0),AM_WORD_SIZE);
 		
 		if (header0==0xFFFFFFFF) // TCP heartbeat -> no processing, suspend again
 			continue;
 
 		
-		destnode = (header0 & 0x00FF0000) >> 16;
-		wordsize =  header0 & 0x0000FFFF;
+		// destnode = (header0 & 0x00FF0000) >> 16;
+		// wordsize =  header0 & 0x0000FFFF;
+		// printf("header read: %lld\n", header0);
+		// printf("header read le: %lld\n", htole64(header0));
+		// printf("header read be: %lld\n", htobe64(header0));
+		destnode = (header0 & AM_DST_BITMASK) >> AM_DST_LOWER;
+		msgtype = (header0 & AM_TYPE_BITMASK) >> AM_TYPE_LOWER;
+		wordsize = (header0 & AM_PAYLOAD_SIZE_BITMASK) >> AM_PAYLOAD_SIZE_LOWER;
 
+		// printf("destnode: %d\n", destnode);
+		// printf("msgtype: %d\n", msgtype);
+		// printf("wordsize: %d\n", wordsize);
 
 		//// BUFFER ALLOCATION FOR PACKET
 		if ( (gasnet_node_routing_table[destnode].type == ip) || // covers arriving data from local loopback
@@ -715,9 +747,10 @@ void ipserver(gasnet_ip_host_t& data)
 			dest_nodedata = &gasnet_nodedata_all[dest_thread];
 			
 			// packet_buffer = ptfifo_read(dest_nodedata->bufferfifo,1); // blocking
-			printf("thread %d, fifo %d", gasnet_mynode(), dest_nodedata->bufferfifo->size());
-			packet_buffer = read_queue(dest_nodedata->bufferfifo, (dest_nodedata->bufferfifo_out_lock));
-			printf("thread %d, fifo %d", gasnet_mynode(), dest_nodedata->bufferfifo->size());
+			// printf("thread %d, fifo %d", gasnet_mynode(), dest_nodedata->bufferfifo->size());
+			// packet_buffer = read_queue(dest_nodedata->bufferfifo, (dest_nodedata->bufferfifo_out_lock));
+			packet_buffer = (dest_nodedata->bufferfifo)->read();
+			// printf("thread %d, fifo %d", gasnet_mynode(), dest_nodedata->bufferfifo->size());
 		}
 		// else if (gasnet_node_routing_table[destnode].type == fpga) // IP-to-FPGA (x86-64: PCIe)
 		// {
@@ -725,8 +758,8 @@ void ipserver(gasnet_ip_host_t& data)
 		// }
 
 		// reading IP packet data to buffer
-		*(unsigned int*)packet_buffer = header0;
-		read_from_ip(read_fd,packet_buffer+4, wordsize*4);
+		*(long long*)packet_buffer = header0;
+		read_from_ip(read_fd,packet_buffer+AM_WORD_SIZE, wordsize-AM_WORD_SIZE);
 
 		// DISTRIBUTION TO DIFFERENT SOURCES
 		if ( (gasnet_node_routing_table[destnode].type == ip) || // covers arriving data from local loopback
@@ -740,7 +773,8 @@ void ipserver(gasnet_ip_host_t& data)
 			// pthread_mutex_unlock(&dest_nodedata->condmutex);
 			lock_t lock(*(dest_nodedata->condmutex), std::defer_lock);
 			lock.lock();
-			write_queue(dest_nodedata->paramfifo,(dest_nodedata->paramfifo_in_lock), packet_buffer);
+			// write_queue(dest_nodedata->paramfifo,(dest_nodedata->paramfifo_in_lock), packet_buffer);
+			dest_nodedata->paramfifo->write(packet_buffer);
 			(dest_nodedata->condition)->notify_one();
 			lock.unlock();
 		}
@@ -832,21 +866,26 @@ void handler_thread(gasnet_nodedata_t& data)
 		if(nodedata->barrier_cnt==-1) break;
 		//while (ptfifo_empty(nodedata->paramfifo));
 
-		
+		printf("handling recv data\n");
 		// get packet buffer address
 		// packet_buffer = ptfifo_read(nodedata->paramfifo,0);
-		packet_buffer = (nodedata->paramfifo)->front();
-		(nodedata->paramfifo)->pop();
+		// packet_buffer = (nodedata->paramfifo)->front();
+		// (nodedata->paramfifo)->pop();
+		packet_buffer = (nodedata->paramfifo)->read();
 		packet_buffer_uint = (long long*)packet_buffer;
 
 		// extract message parameters
 		// srcnode  = hdextract(packet_buffer_uint,nnSrcnode); //destnode = hdextract(packet_buffer_uint,nnDestnode);
-		srcnode = (packet_buffer_uint[0] & 0xFFFF00) >> AM_SRC_LOWER;
-		function = packet_buffer_uint[0] & 0xFF;
-		numargs = (packet_buffer_uint[0] & 0xFF00000000000000) >> AM_HANDLER_ARGS_LOWER;
-		handler = (packet_buffer_uint[0] & 0x00F0000000000000) >> AM_HANDLER_LOWER;
+		srcnode = (packet_buffer_uint[0] & AM_SRC_BITMASK) >> AM_SRC_LOWER;
+		function = (packet_buffer_uint[0] & AM_TYPE_BITMASK) >> AM_TYPE_LOWER;
+		numargs = (packet_buffer_uint[0] & AM_HANDLER_ARGS_BITMASK) >> AM_HANDLER_ARGS_LOWER;
+		handler = (packet_buffer_uint[0] & AM_HANDLER_BITMASK) >> AM_HANDLER_LOWER;
 
-		int token = (packet_buffer_uint[0] & 0xFFFFFF0000000000) >> AM_TOKEN_LOWER;
+		// printf("header read in handler: %lld\n", packet_buffer_uint[0]);
+		// printf("header read in handler le: %lld\n", htole64(packet_buffer_uint[0]));
+		// printf("header read in handler be: %lld\n", htobe64(packet_buffer_uint[0]));
+
+		int token = (packet_buffer_uint[1] & AM_TOKEN_BITMASK) >> AM_TOKEN_LOWER;
 		// printf("srcnode: %d, function: %d, numargs: %d, handler: %d\n", srcnode,function,numargs,handler);
 
 		// function = hdextract(packet_buffer_uint,nnFunction);
@@ -858,15 +897,23 @@ void handler_thread(gasnet_nodedata_t& data)
 		if (isMediumAM(function)) 		headersize = 2;
 		if (isLongAM(function))  		headersize = 3;
 		if (isLongStridedAM(function))	headersize = 3;
+
 		//if (isLongVectoredAM(function))   headersize = ?;
 		argoffset = headersize + 1;
 		arg = (gasnet_handlerarg_t*)&(packet_buffer_uint[argoffset]);
-		payload_offset = (long)((headersize+numargs+1)*8);
+		payload_offset = (long)((headersize+numargs)*AM_WORD_SIZE);
 		payload = packet_buffer + payload_offset;
+
+		// printf("srcnode: %d\n", srcnode);
+		// printf("function: %d\n", function);
+		// printf("numargs: %d\n", numargs);
+		// printf("handler: %d\n", handler);
 		
-		// if (!isShortAM(function)){
-		// 	bsize = hdextract(packet_buffer_uint,nnBsize);
-		// }
+		if (!isShortAM(function)){
+			// bsize = hdextract(packet_buffer_uint,nnBsize);
+			bsize = ((packet_buffer_uint[0] & AM_PAYLOAD_SIZE_BITMASK) >> AM_PAYLOAD_SIZE_LOWER) - \
+				numargs - headersize;
+		}
 		
 		if (isMediumAM(function)){
 			bufaddr = payload; // temporary buffer is in memblock
@@ -1028,7 +1075,8 @@ void handler_thread(gasnet_nodedata_t& data)
 		
 		//re-circulate block address
 		// ptfifo_write(nodedata->bufferfifo,packet_buffer,1);
-		write_queue(nodedata->bufferfifo, (nodedata->bufferfifo_in_lock), (char*)packet_buffer);
+		// write_queue(nodedata->bufferfifo, (nodedata->bufferfifo_in_lock), (char*)packet_buffer);
+		nodedata->bufferfifo->write((char*) packet_buffer);
 		//re-circulate token
 		// tfifo_write(nodedata->tokenfifo, token,1);
 
@@ -1317,7 +1365,7 @@ int SendAM_vargs(unsigned int function, unsigned int destnode, int token, gasnet
 	unsigned int headersize;
 	unsigned int argoffset;
 	unsigned int wordsize;
-	long payload_offset;
+	long long payload_offset;
 	char *payload;
 	// unsigned int destnode;
 	unsigned int dest_thread;
@@ -1325,15 +1373,18 @@ int SendAM_vargs(unsigned int function, unsigned int destnode, int token, gasnet
 	
 	// HEADER AND PACKET SIZE DETERMINATION - without first word (NetIf header: src,dest,#words)
 	if (isShortAM(function))  		headersize = 2;
-	if (isMediumAM(function)) 		headersize = 2;
-	if (isLongAM(function))  		headersize = 3;
-	if (isLongStridedAM(function))	headersize = 3;
+	else if (isMediumAM(function)) 		headersize = 2;
+	else if (isLongAM(function))  		headersize = 3;
+	else if (isLongStridedAM(function))	headersize = 3;
+	else
+		assert(0);
 	//if (isLongVectoredAM(function))   headersize = ?;
 	argoffset = headersize + 1;
 	wordsize = headersize + M; // args
 	
-	payload_offset = (long)((wordsize+1)*4);
-	wordsize += (nbytes+3) / 4; // data   TODO: use word-fillup on IP? relevant for PCIe re-routing
+	payload_offset = (long long)((wordsize)*AM_WORD_SIZE);
+	// wordsize += (nbytes+3) / 4; // data   TODO: use word-fillup on IP? relevant for PCIe re-routing
+	wordsize = (wordsize*AM_WORD_SIZE) + nbytes;
 
 	// Destination retrieval if reply
 	// if (isReplyAM(function))
@@ -1350,8 +1401,8 @@ int SendAM_vargs(unsigned int function, unsigned int destnode, int token, gasnet
 		while(!READ_SHARED(dest_host->client_connected));
 		int write_fd = dest_host->client_fd;
 
-		// packet_buffer = ptfifo_read(ip_bufferfifo,1); // blocking
-		packet_buffer = new AM_packet;
+		packet_buffer = ip_bufferfifo->read(); // blocking
+		// packet_buffer = new AM_packet();
 		packet_buffer_uint = (long long*)packet_buffer;
 	
 		payload = (char*)packet_buffer + payload_offset;
@@ -1366,7 +1417,8 @@ int SendAM_vargs(unsigned int function, unsigned int destnode, int token, gasnet
 			
 		dest_nodedata = &gasnet_nodedata_all[dest_thread];
 		
-		packet_buffer = read_queue(dest_nodedata->bufferfifo,dest_nodedata->bufferfifo_out_lock); // blocking
+		// packet_buffer = read_queue(dest_nodedata->bufferfifo,dest_nodedata->bufferfifo_out_lock); // blocking
+		packet_buffer = dest_nodedata->bufferfifo->read();
 		// packet_buffer = new AM_packet;
 		packet_buffer_uint = (long long*)packet_buffer;
 		payload = (char*)packet_buffer + payload_offset;
@@ -1387,6 +1439,9 @@ int SendAM_vargs(unsigned int function, unsigned int destnode, int token, gasnet
 	// hdencode(packet_buffer_uint,nnDestnode,destnode);
 	// hdencode(packet_buffer_uint,nnWords,wordsize);
 	packet_buffer_uint[0] = createHeader(gasnet_mynode(),destnode,wordsize,handler,function,M);
+	// printf("header write: %lld\n", packet_buffer_uint[0]);
+	// printf("header write le: %lld\n", htole64(packet_buffer_uint[0]));
+	// printf("header write be: %lld\n", htobe64(packet_buffer_uint[0]));
 	
 	// word 1
 	// hdencode(packet_buffer_uint,nnFunction,function);
@@ -1424,7 +1479,7 @@ int SendAM_vargs(unsigned int function, unsigned int destnode, int token, gasnet
 	
 	for(t=0; t<M; t++)
 	{
-		packet_buffer_uint[argoffset+t] = va_arg (Vargs, int);
+		packet_buffer_uint[argoffset+t] = va_arg (Vargs, long long);
 	}
 
 	if (isMediumAM(function))
@@ -1498,7 +1553,9 @@ int SendAM_vargs(unsigned int function, unsigned int destnode, int token, gasnet
 		// pthread_mutex_lock(&dest_host->IPsend_mutex);
 		lock_t lock(*(dest_host->IPsend_mutex), std::defer_lock);
 		lock.lock();
-			write_to_ip(write_fd, (char*)packet_buffer, (wordsize+1)*4);
+			// printf("Writing %d bytes\n", wordsize);
+			// printf("Function: %d\n", function);
+			write_to_ip(write_fd, (char*)packet_buffer, wordsize);
 		lock.unlock();
 		// pthread_mutex_unlock(&dest_host->IPsend_mutex);
 
@@ -1512,7 +1569,8 @@ int SendAM_vargs(unsigned int function, unsigned int destnode, int token, gasnet
 		lock.lock();
 		// pthread_mutex_lock(&dest_nodedata->condmutex);
 		// ptfifo_write(dest_nodedata->paramfifo,packet_buffer,1);
-		write_queue(dest_nodedata->paramfifo, dest_nodedata->paramfifo_in_lock, (char*)packet_buffer);
+		// write_queue(dest_nodedata->paramfifo, dest_nodedata->paramfifo_in_lock, (char*)packet_buffer);
+		dest_nodedata->paramfifo->write((char*) packet_buffer);
 
 		// pthread_cond_signal(&dest_nodedata->condition);
 		(dest_nodedata->condition)->notify_one();
@@ -1548,6 +1606,7 @@ int SendAM_vargs(unsigned int function, unsigned int destnode, int token, gasnet
 	// 	//re-circulate block address
 	// 	ptfifo_write(fpga_bufferfifo,packet_buffer,1);
 	// }
+
 
 	return GASNET_OK;
 }

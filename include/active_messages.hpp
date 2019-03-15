@@ -1,9 +1,7 @@
-#if !defined(SHOAL_ACTIVE_MESSAGES_H_)
-#define SHOAL_ACTIVE_MESSAGES_H_
+#ifndef SHOAL_INCLUDE_ACTIVE_MESSAGES_H_
+#define SHOAL_INCLUDE_ACTIVE_MESSAGES_H_
 
 #include "config.hpp"
-#include "user_config.hpp"
-#include "utilities.hpp"
 
 #if defined(__x86_64__)
 
@@ -44,18 +42,18 @@ long long createStridedSrcBody(int size);
  * Active Message type check
 *******************************************************************************/
 
-bool isShortAM(gc_AMtype_t arg);
-bool isMediumAM(gc_AMtype_t arg);
-bool isLongxAM(gc_AMtype_t arg);
-bool isLongAM(gc_AMtype_t arg);
-bool isLongVectoredAM(gc_AMtype_t arg);
-bool isLongStridedAM(gc_AMtype_t arg);
-bool isDataFromFIFO(gc_AMtype_t arg);
-bool isAsyncAM(gc_AMtype_t arg);
-bool isReplyAM(gc_AMtype_t arg);
-bool isMediumFIFOAM(gc_AMtype_t arg);
-bool isLongFIFOAM(gc_AMtype_t arg);
+bool isShortAM(char arg);
+bool isMediumAM(char arg);
+bool isLongxAM(char arg);
+bool isLongAM(char arg);
+bool isLongVectoredAM(char arg);
+bool isLongStridedAM(char arg);
+bool isDataFromFIFO(char arg);
+bool isAsyncAM(char arg);
+bool isReplyAM(char arg);
+bool isMediumFIFOAM(char arg);
+bool isLongFIFOAM(char arg);
 
 #endif
 
-#endif // SHOAL_ACTIVE_MESSAGES_H_
+#endif // SHOAL_INCLUDE_ACTIVE_MESSAGES_H_

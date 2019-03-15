@@ -5,65 +5,10 @@
  * Includes
 *******************************************************************************/
 
-#include "../../include/config.hpp"
-#include "shoal_stream.hpp"
-#include "shoal_utilities.hpp"
-
-/*******************************************************************************
- * Defines
-*******************************************************************************/
-
-#define GC_DATA_WIDTH 64ULL // bit width of tdata
-#define GC_ADDR_WIDTH 32 // bit width of addressable memory on a node
-#define GC_DEST_WIDTH 16 // bit width of tdest
-#define MAX_VECTOR_NUM 16 // Maximum number of vectors for vectored messages
-
-/*******************************************************************************
- * Derived defines
-*******************************************************************************/
-
-#define GC_MAX_PAYLOAD (AM_PAYLOAD_SIZE_UPPER - AM_PAYLOAD_SIZE_LOWER + 1)
-#define GC_DATA_BYTES (GC_DATA_WIDTH/8)
-#define GC_MAX_PAYLOAD_BYTES (GC_MAX_PAYLOAD+NBITS(GC_DATA_BYTES)-1)
-#define GC_DATA_TKEEP (power<2, GC_DATA_BYTES>()-1)
-
-/*******************************************************************************
- * Typedefs
-*******************************************************************************/
-
-typedef uaxis_l<GC_DATA_WIDTH> axis_word_t;
-typedef hls::stream<axis_word_t> axis_t;
-typedef uaxis_m<GC_DATA_WIDTH, GC_DEST_WIDTH> axis_wordDest_t;
-typedef hls::stream<axis_wordDest_t> axis_dest_t;
-typedef uaxis_n<GC_DATA_WIDTH> axis_wordNoKeep_t;
-typedef hls::stream<axis_wordNoKeep_t> axis_noKeep_t;
-
-typedef ap_uint<GC_DATA_WIDTH> word_t;
-typedef ap_uint<GC_ADDR_WIDTH> addr_word_t;
-
-typedef ap_uint<GC_DEST_WIDTH> gc_AMdest_t;
-
-// Header Types
-typedef ap_uint<16> gc_AMsrc_t;
-typedef uint_16_t gc_AMdst_t;
-
-// AM Types
-typedef uint_8_t gc_AMtype_t;
-typedef uint_8_t gc_AMargs_t;
-typedef uint_4_t gc_AMhandler_t;
-typedef uint_24_t gc_AMToken_t;
-
-// Payload
-typedef ap_uint<GC_MAX_PAYLOAD> gc_payloadSize_t;
-typedef uint_4_t gc_dstVectorNum_t;
-
-// Long
-typedef uint_64_t gc_destination_t;
-typedef gc_payloadSize_t gc_strideBlockSize_t;
-typedef uint_12_t gc_strideBlockNum_t;
-typedef uint_16_t gc_stride_t;
-typedef gc_payloadSize_t gc_vectorSize_t;
-typedef uint_4_t gc_srcVectorNum_t;
+#define __HLS__
+#include "active_messages_hls.hpp"
+#include "stream.hpp"
+#include "global_utilities.hpp"
 
 // Datamover
 //TODO change uaxis_l to uaxis_o for the command
@@ -191,28 +136,6 @@ typedef ap_uint<23> btt_t;
 /*******************************************************************************
  * Function Prototypes
 *******************************************************************************/
-
-// bool isShortAM(gc_AMtype_t arg);
-
-// bool isMediumAM(gc_AMtype_t arg);
-
-// bool isLongxAM(gc_AMtype_t arg);
-
-// bool isLongAM(gc_AMtype_t arg);
-
-// bool isLongVectoredAM(gc_AMtype_t arg);
-
-// bool isLongStridedAM(gc_AMtype_t arg);
-
-// bool isDataFromFIFO(gc_AMtype_t arg);
-
-// bool isAsyncAM(gc_AMtype_t arg);
-
-// bool isReplyAM(gc_AMtype_t arg);
-
-// bool isMediumFIFOAM(gc_AMtype_t arg);
-
-// bool isLongFIFOAM(gc_AMtype_t arg);
 
 void dataMoverWriteCommand(
     dataMoverCommand_t &axis_command, //output
