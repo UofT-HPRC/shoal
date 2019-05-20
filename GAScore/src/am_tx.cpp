@@ -5,7 +5,7 @@ void am_tx(
     int &dbg_currentState,
     #endif
     axis_t &axis_kernel, //input
-    axis_t &axis_net, //output
+    axis_dest_t &axis_net, //output
     dataMoverCommand_t &axis_mm2sCommand, //output
     axis_t &axis_mm2s, //input
     dataMoverStatus_t &axis_mm2sStatus, //input
@@ -27,6 +27,7 @@ void am_tx(
     axis_word_8a_t axis_word_mm2sStatus;
 
     static gc_AMsrc_t AMsrc;
+    static gc_AMdst_t AMdst;
     static gc_AMToken_t AMToken;
     // static gc_AMwords_t AMwords;
 
@@ -66,22 +67,27 @@ void am_tx(
                 AMhandler = axis_word.data(AM_HANDLER);
                 AMtype = axis_word.data(AM_TYPE);
                 AMargs = axis_word.data(AM_HANDLER_ARGS);
+                AMdst = axis_word.data(AM_DST);
 
                 if (isReplyAM(AMtype) && (!isShortAM(AMtype))){
-                    axis_net.write(axis_word);
+                    write(axis_net, axis_word, AMdst);
+                    // axis_net.write(axis_word);
                     axis_kernel.read(axis_word);
                     while(axis_word.last != 1){
-                        axis_net.write(axis_word);
+                        // axis_net.write(axis_word);
+                        write(axis_net, axis_word, AMdst);
                         axis_kernel.read(axis_word);
                     }
-                    axis_net.write(axis_word);
+                    // axis_net.write(axis_word);
+                    write(axis_net, axis_word, AMdst);
                     currentState = st_header;
                 }
                 else{
 
                     axis_word.data(AM_TYPE) = AMtype & 0xEF; //mask out FIFO bit
 
-                    axis_net.write(axis_word);
+                    // axis_net.write(axis_word);
+                    write(axis_net, axis_word, AMdst);
                     if((isLongxAM(AMtype) || isMediumAM(AMtype)) && 
                         !isDataFromFIFO(AMtype)){
                         bufferRelease = 0;
@@ -108,7 +114,8 @@ void am_tx(
         case st_AMToken:{
             // if(!axis_kernel.empty()){
                 axis_kernel.read(axis_word);
-                axis_net.write(axis_word);
+                // axis_net.write(axis_word);
+                write(axis_net, axis_word, AMdst);
                 AMToken = axis_word.data(AM_TOKEN);
                 if(isShortAM(AMtype)){
                     currentState = AMargs == 0 ? st_done : st_AMHandlerArgs;
@@ -134,7 +141,8 @@ void am_tx(
                 // if(!axis_kernel.empty()){
                     axis_kernel.read(axis_word);
                     axis_word.last = enableLast;
-                    axis_net.write(axis_word);
+                    // axis_net.write(axis_word);
+                    write(axis_net, axis_word, AMdst);
                 // }
             }
             currentState = isShortAM(AMtype) ? st_done : st_AMpayload;
@@ -227,7 +235,8 @@ void am_tx(
         case st_AMdestination:{
             // if(!axis_kernel.empty()){ //read address
                 axis_kernel.read(axis_word);
-                axis_net.write(axis_word);
+                // axis_net.write(axis_word);
+                write(axis_net, axis_word, AMdst);
             // }
             currentState = AMargs == 0 ? st_AMpayload : st_AMHandlerArgs;
             break;
@@ -248,12 +257,14 @@ void am_tx(
             // }
             // if(!axis_kernel.empty()){ //get destination metadata
                 axis_kernel.read(axis_word);
-                axis_net.write(axis_word);
+                // axis_net.write(axis_word);
+                write(axis_net, axis_word, AMdst);
             // }
             // if(!axis_kernel.empty()){ //get destination address
                 axis_kernel.read(axis_word);
                 axis_word.last = 0;
-                axis_net.write(axis_word);
+                // axis_net.write(axis_word);
+                write(axis_net, axis_word, AMdst);
             // }
             gc_strideBlockNum_t i;
             word_t address = AMsrcAddr(GC_ADDR_WIDTH-1,0);
@@ -275,7 +286,8 @@ void am_tx(
                 AMvectorSize[0] = axis_word.data(19,8);
                 axis_word.data(3,0) = 0;
                 axis_word.data(19,8) = 0;
-                axis_net.write(axis_word);
+                // axis_net.write(axis_word);
+                write(axis_net, axis_word, AMdst);
             // }
             // if(!axis_kernel.empty()){ //read src address
                 axis_kernel.read(axis_word);
@@ -287,7 +299,8 @@ void am_tx(
                 address(1,0), 1, AMvectorSize[0] * GC_DATA_BYTES);
             // if(!axis_kernel.empty()){ //read dst address
                 axis_kernel.read(axis_word);
-                axis_net.write(axis_word);
+                // axis_net.write(axis_word);
+                write(axis_net, axis_word, AMdst);
             // }
             for(i = 1; i < AMsrcVectorNum; i++){
                 // if(!axis_kernel.empty()){ //read src size
@@ -306,12 +319,14 @@ void am_tx(
             for(i = 1; i < AMdstVectorNum; i++){
                 // if(!axis_kernel.empty()){ //read dst size
                     axis_kernel.read(axis_word);
-                    axis_net.write(axis_word);
+                    // axis_net.write(axis_word);
+                    write(axis_net, axis_word, AMdst);
                 // }
                 // if(!axis_kernel.empty()){ //read dst address
                     axis_kernel.read(axis_word);
                     axis_word.last = 0;
-                    axis_net.write(axis_word);
+                    // axis_net.write(axis_word);
+                    write(axis_net, axis_word, AMdst);
                 // }
             }
             currentState = AMargs == 0 ? st_AMpayload : st_AMHandlerArgs;
@@ -326,14 +341,16 @@ void am_tx(
                 else
                     axis_mm2s.read(axis_word);
                 // i++;
-                axis_net.write(axis_word);
+                // axis_net.write(axis_word);
+                write(axis_net, axis_word, AMdst);
             }
             if(isDataFromFIFO(AMtype))
                 axis_kernel.read(axis_word);
             else
                 axis_mm2s.read(axis_word);
             axis_word.last = 1;
-            axis_net.write(axis_word);
+            // axis_net.write(axis_word);
+            write(axis_net, axis_word, AMdst);
             currentState = st_done;
             break;
         }

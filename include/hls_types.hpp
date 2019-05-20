@@ -10,6 +10,7 @@
 
 #include "ap_int.h"
 #include "stream.hpp"
+#include "global_utilities.hpp" // for power
 
 //unsigned int
 typedef ap_uint<1> uint_1_t;
@@ -60,13 +61,15 @@ typedef hls::stream<axis_wordDest_t> axis_dest_t;
 typedef uaxis_n<GC_DATA_WIDTH> axis_wordNoKeep_t;
 typedef hls::stream<axis_wordNoKeep_t> axis_noKeep_t;
 
+#ifdef USE_APUINT
+
 typedef ap_uint<GC_DATA_WIDTH> word_t;
 typedef ap_uint<GC_ADDR_WIDTH> addr_word_t;
 
 typedef ap_uint<GC_DEST_WIDTH> gc_AMdest_t;
 
 // Header Types
-typedef ap_uint<16> gc_AMsrc_t;
+typedef uint_16_t gc_AMsrc_t;
 typedef uint_16_t gc_AMdst_t;
 
 // AM Types
@@ -86,5 +89,36 @@ typedef uint_12_t gc_strideBlockNum_t;
 typedef uint_16_t gc_stride_t;
 typedef gc_payloadSize_t gc_vectorSize_t;
 typedef uint_4_t gc_srcVectorNum_t;
+
+#else
+
+typedef long long word_t;
+typedef int addr_word_t;
+
+typedef short gc_AMdest_t;
+
+// Header Types
+typedef short gc_AMsrc_t;
+typedef short gc_AMdst_t;
+
+// AM Types
+typedef short gc_AMtype_t;
+typedef short gc_AMargs_t;
+typedef short gc_AMhandler_t;
+typedef int gc_AMToken_t;
+
+// Payload
+typedef short gc_payloadSize_t;
+typedef short gc_dstVectorNum_t;
+
+// Long
+typedef long long gc_destination_t;
+typedef gc_payloadSize_t gc_strideBlockSize_t;
+typedef short gc_strideBlockNum_t;
+typedef short gc_stride_t;
+typedef gc_payloadSize_t gc_vectorSize_t;
+typedef short gc_srcVectorNum_t;
+
+#endif
 
 #endif // SHOAL_INCLUDE_HLS_TYPES_H_

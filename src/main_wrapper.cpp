@@ -324,6 +324,7 @@ extern "C" void __wrap_main (int argc, char** argv)
 						{
 							gasnet_ip_hosts[gasnet_ip_host_cnt].ip4addr = 0x0100007F; // 127.0.0.1
 							// pthread_mutex_init(&gasnet_ip_hosts[gasnet_ip_host_cnt].IPsend_mutex, NULL);
+							gasnet_ip_hosts[gasnet_ip_host_cnt].IPsend_mutex = new mutex_t;
 							gasnet_ip_host_cnt++;
 						}
 						gasnet_node_routing_table[u].type = ip; // local threads via IP loopback

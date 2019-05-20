@@ -1,9 +1,9 @@
 #ifndef SHOAL_INCLUDE_STREAM_H_
 #define SHOAL_INCLUDE_STREAM_H_
 
-#include "hls_types.hpp"
-#include "global_utilities.hpp"
-#include "ap_axi_sdata.h"
+// #include "hls_types.hpp"
+// #include "global_utilities.hpp"
+// #include "ap_axi_sdata.h"
 #include "hls_stream.h"
 
 template<int D>

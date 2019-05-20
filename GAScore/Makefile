@@ -56,7 +56,7 @@ helper_include_dir = $(helper_dir)/include
 
 c_modules := am_rx am_tx xpams_rx hold_buffer xpams_tx handler
 hdl_modules := memory
-custom_modules := handler_wrapper GAScore
+custom_modules := handler_wrapper GAScore GAScore_benchmark
 test_projects := MB_GAScore_0 MB_GAScore_1
 
 obj = $(shell find $(obj_dir) -name '*.o' -printf '%f\n' | \

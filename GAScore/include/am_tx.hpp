@@ -56,12 +56,21 @@ void am_tx(
     int &dbg_currentState,
     #endif
     axis_t &axis_kernel, //input
-    axis_t &axis_net, //output
+    axis_dest_t &axis_net, //output
     dataMoverCommand_t &axis_mm2sCommand, //output
     axis_t &axis_mm2s, //input
     dataMoverStatus_t &axis_mm2sStatus, //input
     uint_1_t &release //output
 );
+
+inline void write(axis_dest_t &axis_net, axis_word_t axis_word, gc_AMdst_t dest){
+    axis_wordDest_t axis_word_dest;
+    axis_word_dest.data = axis_word.data;
+    axis_word_dest.last = axis_word.last;
+    axis_word_dest.keep = axis_word.keep;
+    axis_word_dest.dest = dest;
+    axis_net.write(axis_word_dest);
+}
 
 #ifdef DEBUG
 std::string stateParse(int state);

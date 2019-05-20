@@ -1,7 +1,6 @@
 #include <stdio.h>
-#include "xil_io.h"
 
-// #define __MB__
+#define __MICROBLAZE__
 #define ENABLE_NETWORK
 #define KERNEL_LINK 0
 #define NET_LINK 1
@@ -10,25 +9,25 @@
 
 int main(){
 
-    int src = 0;
-    int dst = 1;
-    int payloadSize = 2;
-    int handler = 0;
-    int type = AM_MEDIUM|AM_FIFO;
-    int handlerArgCount = 0;
+    gc_AMsrc_t src = 0;
+    gc_AMdst_t dst = 1;
+    gc_payloadSize_t payloadSize = 2;
+    gc_AMhandler_t handler = 0;
+    gc_AMtype_t type = AM_MEDIUM|AM_FIFO;
+    gc_AMargs_t handlerArgCount = 0;
 
-    int token = 0;
+    gc_AMToken_t token = 0;
 
-    int handler_args [1];
+    word_t handler_args [1];
 
-    long long payload [10] = {0,1,2,3,4,5,6,7,8,9};
+    word_t payload [10] = {0,1,2,3,4,5,6,7,8,9};
 
-    sendMediumAM(src, dst, token, handler, handlerArgCount, &handler_args, payloadSize, &payload);
+    sendMediumAM(src, dst, token, handler, handlerArgCount, &handler_args[0], payloadSize, &payload[0]);
 
     dst = 16;
-    sendMediumAM(src, dst, token, handler, handlerArgCount, &handler_args, payloadSize, &payload);
+    sendMediumAM(src, dst, token, handler, handlerArgCount, &handler_args[0], payloadSize, &payload[0]);
 
-    long long word = readKernel();
+    word_t word = readKernel();
     xil_printf("1: %d\n", word == 0); // token
     word = readKernel();
     xil_printf("2: %d\n", word == 0); // payload 0

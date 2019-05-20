@@ -37,7 +37,7 @@ test_dir=$(SHOAL_PATH)/tests
 test_build_dir=$(test_dir)/build
 test_bin_dir=$(test_dir)/build/bin
 
-app_dir=$(SHOAL_PATH)/tests
+app_dir=$(SHOAL_PATH)/apps
 app_build_dir=$(app_dir)/build
 app_bin_dir=$(app_dir)/build/bin
 

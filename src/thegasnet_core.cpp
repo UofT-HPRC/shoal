@@ -280,7 +280,7 @@ void InternalBarrierUpdate(){
 	nodedata->barrier_cnt++;
 	return;
 }
- 
+
 void MemReadyBarrierUpdate(){
 	nodedata->mem_ready_barrier_cnt++;
 	return;

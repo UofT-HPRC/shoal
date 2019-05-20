@@ -35,9 +35,9 @@ def strToInt(packet):
         src = extractNumber(argSrc) << 8
         dst = extractNumber(argDst) << 24
         payload = extractNumber(argPayload) << 40
-        handler = extractNumber(argHandler) << 52
+        handler = extractNumber(argHandler) << 56
         packetType = extractNumber(argPacketType)
-        arguments = extractNumber(argArguments) << 56
+        arguments = extractNumber(argArguments) << 60
 
         intVal = src + dst + payload + handler + packetType + arguments
 

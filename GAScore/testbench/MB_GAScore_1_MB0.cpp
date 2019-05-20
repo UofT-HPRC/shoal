@@ -1,4 +1,5 @@
 #define KERNEL_LINK 0
+#define __MICROBLAZE__
 
 #include "xparameters.h"
 #include "xgpio.h"
@@ -17,8 +18,8 @@ XTmrCtr TimerCounter;
 int main(){
 	int Status;
 	int init_time, message_time, final_time;
-	long long payload [10] = {0, 1, 2, 3, 4, 5, 6, 7, 8, 9};
-	long long handlerArg = 2;
+	word_t payload [10] = {0, 1, 2, 3, 4, 5, 6, 7, 8, 9};
+	word_t handlerArg = 2;
 
 	/* Initialize the GPIO driver */
 	Status = XGpio_Initialize(&Gpio, XPAR_GPIO_0_DEVICE_ID);
@@ -43,7 +44,7 @@ int main(){
 
 	XTmrCtr_Start(&TimerCounter, TmrCtrNumber);
 
-	sendLongAM(0, 16, 9, 0, 0, &handlerArg, 10, &payload, 0);
+	sendLongAM(0, 16, 9, 0, 0, &handlerArg, 10, &payload[0], 0);
 
 	message_time = XTmrCtr_GetValue(&TimerCounter, TmrCtrNumber);
 

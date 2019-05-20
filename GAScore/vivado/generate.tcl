@@ -257,6 +257,11 @@ if { $create_proj > 0 } {
   }
 }
 
+if {[file exists $src_dir/${project_name}_prologue.tcl]} {
+  set tclFile $src_dir/${project_name}_prologue.tcl
+  source $tclFile -notrace
+}
+
 if {$run_synth > 0} {
   reset_run synth_1
   launch_runs synth_1 -jobs 2

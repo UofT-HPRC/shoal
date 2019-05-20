@@ -6,12 +6,12 @@
 *******************************************************************************/
 
 #define __HLS__
-#include "active_messages_hls.hpp"
+#define USE_APUINT
+#include "active_messages.hpp"
 #include "stream.hpp"
 #include "global_utilities.hpp"
 
 // Datamover
-//TODO change uaxis_l to uaxis_o for the command
 typedef uaxis_o<GC_ADDR_WIDTH+40> dataMoverCommand_word_t;
 typedef hls::stream<dataMoverCommand_word_t> dataMoverCommand_t;
 typedef uaxis_l<8> axis_word_8a_t;

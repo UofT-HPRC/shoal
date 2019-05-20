@@ -1,4 +1,5 @@
 #define KERNEL_LINK 0
+#define __MICROBLAZE__
 
 #include "xparameters.h"
 #include "xgpio.h"
@@ -18,12 +19,12 @@ int main(){
 	int Status;
 	int interrupt;
 	int init_time, message_time, final_time;
-	long long payload [10] = {0, 1, 2, 3, 4, 5, 6, 7, 8, 9};
-	long long handlerArg = 1;
+	word_t payload [10] = {0, 1, 2, 3, 4, 5, 6, 7, 8, 9};
+	word_t handlerArg = 1;
 
     // initialize interrupt threshold
-	writeReg(0x44a00000, COUNTER_THRESHOLD_ADDR, 1);
-	writeReg(0x44a00000, COUNTER_ENABLE_ADDR, COUNTER_ENABLE);
+	writeReg(GASCORE_MEMORY_ADDR, COUNTER_THRESHOLD_ADDR, 1);
+	writeReg(GASCORE_MEMORY_ADDR, COUNTER_ENABLE_ADDR, COUNTER_ENABLE);
 
 	/* Initialize the GPIO driver */
 	Status = XGpio_Initialize(&Gpio, XPAR_GPIO_0_DEVICE_ID);
@@ -51,9 +52,9 @@ int main(){
 	}
 
     // send one word back to indicate interrupt worked
-	sendMediumAM(16, 0, 11, 0, 0, &handlerArg, 1, (long long)0x10);
+	sendMediumAM(16, 0, 11, 0, 0, &handlerArg, 1, (word_t)0x10);
 
-	long long reply = readKernel();
+	word_t reply = readKernel();
 	xil_printf("MB1: Lower: %ld, Upper: %ld\n", (int)(reply & 0xFFFFFFFF), (int)((reply>>32) & 0xFFFFFFFF));
 
 	xil_printf("MB1 Finished, empty: %ld\n", checkKernelEmpty());
