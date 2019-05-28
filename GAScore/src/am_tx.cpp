@@ -63,7 +63,11 @@ void am_tx(
             // if(!axis_kernel.empty()){
                 axis_kernel.read(axis_word);
 
+                #ifdef USE_ABS_PAYLOAD
+                AMpayloadSize = axis_word.data(AM_PAYLOAD_SIZE) - GC_DATA_BYTES;
+                #else
                 AMpayloadSize = axis_word.data(AM_PAYLOAD_SIZE);
+                #endif
                 AMhandler = axis_word.data(AM_HANDLER);
                 AMtype = axis_word.data(AM_TYPE);
                 AMargs = axis_word.data(AM_HANDLER_ARGS);
@@ -117,6 +121,9 @@ void am_tx(
                 // axis_net.write(axis_word);
                 write(axis_net, axis_word, AMdst);
                 AMToken = axis_word.data(AM_TOKEN);
+                #ifdef USE_ABS_PAYLOAD
+                AMpayloadSize -= GC_DATA_BYTES;
+                #endif
                 if(isShortAM(AMtype)){
                     currentState = AMargs == 0 ? st_done : st_AMHandlerArgs;
                 }
@@ -136,13 +143,14 @@ void am_tx(
         }
         case st_AMHandlerArgs:{
             gc_AMargs_t argCount;
-            uint_1_t enableLast = AMpayloadSize == 0;
+            // uint_1_t enableLast = AMpayloadSize == 0;
             for(argCount = 0; argCount < AMargs; argCount++){
                 // if(!axis_kernel.empty()){
                     axis_kernel.read(axis_word);
-                    axis_word.last = enableLast;
+                    // axis_word.last = enableLast;
                     // axis_net.write(axis_word);
                     write(axis_net, axis_word, AMdst);
+                    AMpayloadSize -= GC_DATA_BYTES;
                 // }
             }
             currentState = isShortAM(AMtype) ? st_done : st_AMpayload;
@@ -192,10 +200,17 @@ void am_tx(
                 axis_kernel.read(axis_word);
                 AMsrcAddr = axis_word.data;
             // }
+            // AMpayloadSize -= GC_DATA_BYTES; // ? this word isn't part of the final
             word_t address = AMsrcAddr(GC_ADDR_WIDTH-1,0);
+            #ifdef USE_ABS_PAYLOAD
+            gc_payloadSize_t payload_size = AMpayloadSize - (AMargs*GC_DATA_BYTES);
+            payload_size = payload_size - (isLongAM(AMtype) ? GC_DATA_BYTES : 0);
+            #else
+            gc_payloadSize_t payload_size = AMpayloadSize;
+            #endif
             dataMoverWriteCommand(axis_mm2sCommand, 0, 0, address,
                 address(1,0) != 0, 1, 
-                address(1,0), 1, AMpayloadSize * GC_DATA_BYTES);
+                address(1,0), 1, payload_size);
             if(isMediumAM(AMtype)){
                 currentState = AMargs == 0 ? st_AMpayload : st_AMHandlerArgs;
             }
@@ -233,10 +248,16 @@ void am_tx(
         //     break;
         // }
         case st_AMdestination:{
+            // if (isDataFromFIFO(AMtype)){
+            //     AMpayloadSize -= GC_DATA_BYTES;
+            // }
             // if(!axis_kernel.empty()){ //read address
                 axis_kernel.read(axis_word);
                 // axis_net.write(axis_word);
                 write(axis_net, axis_word, AMdst);
+                #ifdef USE_ABS_PAYLOAD
+                AMpayloadSize -= GC_DATA_BYTES;
+                #endif
             // }
             currentState = AMargs == 0 ? st_AMpayload : st_AMHandlerArgs;
             break;
@@ -247,9 +268,9 @@ void am_tx(
             
             // if(!axis_kernel.empty()){ //get metadata
                 axis_kernel.read(axis_word);
-                srcStride = axis_word.data(15,0);
-                srcBlockSize = axis_word.data(27,16);
-                srcBlockNum = axis_word.data(39,28);
+                srcStride = axis_word.data(AM_STRIDE_SIZE);
+                srcBlockSize = axis_word.data(AM_STRIDE_BLK_SIZE);
+                srcBlockNum = axis_word.data(AM_STRIDE_BLK_NUM);
             // }
             // if(!axis_kernel.empty()){ //get source address
                 axis_kernel.read(axis_word);
@@ -259,19 +280,25 @@ void am_tx(
                 axis_kernel.read(axis_word);
                 // axis_net.write(axis_word);
                 write(axis_net, axis_word, AMdst);
+                #ifdef USE_ABS_PAYLOAD
+                AMpayloadSize -= GC_DATA_BYTES;
+                #endif
             // }
             // if(!axis_kernel.empty()){ //get destination address
                 axis_kernel.read(axis_word);
                 axis_word.last = 0;
                 // axis_net.write(axis_word);
                 write(axis_net, axis_word, AMdst);
+                #ifdef USE_ABS_PAYLOAD
+                AMpayloadSize -= GC_DATA_BYTES;
+                #endif
             // }
             gc_strideBlockNum_t i;
             word_t address = AMsrcAddr(GC_ADDR_WIDTH-1,0);
             for(i = 0; i < srcBlockNum; i++){
                 dataMoverWriteCommand(axis_mm2sCommand, 0, 0, address,
                     address(1,0) != 0, i == srcBlockNum - 1, 
-                    address(1,0), 1, srcBlockSize * GC_DATA_BYTES);
+                    address(1,0), 1, srcBlockSize);
                 address += srcStride;
             }
             currentState = AMargs == 0 ? st_AMpayload : st_AMHandlerArgs;
@@ -281,13 +308,16 @@ void am_tx(
             gc_dstVectorNum_t i = 0;
             // if(!axis_kernel.empty()){
                 axis_kernel.read(axis_word);
-                AMsrcVectorNum = axis_word.data(3,0);
-                AMdstVectorNum = axis_word.data(7,4);
-                AMvectorSize[0] = axis_word.data(19,8);
-                axis_word.data(3,0) = 0;
-                axis_word.data(19,8) = 0;
+                AMsrcVectorNum = axis_word.data(AM_SRC_VECTOR_NUM);
+                AMdstVectorNum = axis_word.data(AM_DST_VECTOR_NUM);
+                AMvectorSize[0] = axis_word.data(AM_SRC_VECTOR_SIZE_HEAD);
+                axis_word.data(AM_SRC_VECTOR_NUM) = 0;
+                axis_word.data(AM_SRC_VECTOR_SIZE_HEAD) = 0;
                 // axis_net.write(axis_word);
                 write(axis_net, axis_word, AMdst);
+                #ifdef USE_ABS_PAYLOAD
+                AMpayloadSize -= GC_DATA_BYTES;
+                #endif
             // }
             // if(!axis_kernel.empty()){ //read src address
                 axis_kernel.read(axis_word);
@@ -296,11 +326,14 @@ void am_tx(
             word_t address = AMvectorDest[0](GC_ADDR_WIDTH-1,0);
             dataMoverWriteCommand(axis_mm2sCommand, 0, 0, address,
                 address(1,0) != 0, AMsrcVectorNum == 1, 
-                address(1,0), 1, AMvectorSize[0] * GC_DATA_BYTES);
+                address(1,0), 1, AMvectorSize[0]);
             // if(!axis_kernel.empty()){ //read dst address
                 axis_kernel.read(axis_word);
                 // axis_net.write(axis_word);
                 write(axis_net, axis_word, AMdst);
+                #ifdef USE_ABS_PAYLOAD
+                AMpayloadSize -= GC_DATA_BYTES;
+                #endif
             // }
             for(i = 1; i < AMsrcVectorNum; i++){
                 // if(!axis_kernel.empty()){ //read src size
@@ -314,19 +347,25 @@ void am_tx(
                 word_t address = AMvectorDest[i](GC_ADDR_WIDTH-1,0);
                 dataMoverWriteCommand(axis_mm2sCommand, 0, 0, address,
                     address(1,0) != 0, i == AMsrcVectorNum - 1, 
-                    address(1,0), 1, AMvectorSize[i] * GC_DATA_BYTES);
+                    address(1,0), 1, AMvectorSize[i]);
             }
             for(i = 1; i < AMdstVectorNum; i++){
                 // if(!axis_kernel.empty()){ //read dst size
                     axis_kernel.read(axis_word);
                     // axis_net.write(axis_word);
                     write(axis_net, axis_word, AMdst);
+                    #ifdef USE_ABS_PAYLOAD
+                    AMpayloadSize -= GC_DATA_BYTES;
+                    #endif
                 // }
                 // if(!axis_kernel.empty()){ //read dst address
                     axis_kernel.read(axis_word);
                     axis_word.last = 0;
                     // axis_net.write(axis_word);
                     write(axis_net, axis_word, AMdst);
+                    #ifdef USE_ABS_PAYLOAD
+                    AMpayloadSize -= GC_DATA_BYTES;
+                    #endif
                 // }
             }
             currentState = AMargs == 0 ? st_AMpayload : st_AMHandlerArgs;
@@ -334,13 +373,14 @@ void am_tx(
         }
         case st_AMpayload:{
             gc_payloadSize_t i = 0;
-            for(i = 0; i < AMpayloadSize-1; i++){
+            for(i = 0; i < AMpayloadSize-GC_DATA_BYTES; i+=GC_DATA_BYTES){
             // while(i < AMpayloadSize){
                 if(isDataFromFIFO(AMtype))
                     axis_kernel.read(axis_word);
                 else
                     axis_mm2s.read(axis_word);
-                // i++;
+                axis_word.last = 0;
+                // i+=GC_DATA_BYTES;
                 // axis_net.write(axis_word);
                 write(axis_net, axis_word, AMdst);
             }

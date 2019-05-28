@@ -66,7 +66,7 @@ smA_t1 = short_message_A.add_thread()
 smA_t1.add_delay('100ns')
 smA_t1.init_timer()
 axis_kernel.writes(smA_t1, [
-    {"tdata": strToInt("{AMHeader,0xAA,0xCC,0,0xE,1,2}"), "callTB": 1},
+    {"tdata": strToInt("{AMHeader,0xAA,0xCC,32,0xE,1,2}"), "callTB": 1},
     {"tdata": strToInt("{AMToken,0x0}"), "callTB": 1},
     {"tdata": 0xDEADBEEF},
     {"tdata": 0x1234, "tlast": 1, "callTB": 2}
@@ -74,7 +74,7 @@ axis_kernel.writes(smA_t1, [
 
 smA_t2 = short_message_A.add_thread()
 axis_net.reads(smA_t2, [
-    {"tdata": strToInt("{AMHeader,0xAA,0xCC,0,0xE,1,2}")},
+    {"tdata": strToInt("{AMHeader,0xAA,0xCC,32,0xE,1,2}")},
     {"tdata": strToInt("{AMToken,0x0}")},
     {"tdata": 0xDEADBEEF},
     {"tdata": 0x1234, "tlast": 1}
@@ -95,13 +95,13 @@ smB_t1 = short_message_B.add_thread()
 smB_t1.add_delay('100ns')
 smB_t1.init_timer()
 axis_kernel.writes(smB_t1, [
-    {"tdata": strToInt("{AMHeader,0xAA,0xCC,0,0xE,1,0}"), "callTB": 1},
+    {"tdata": strToInt("{AMHeader,0xAA,0xCC,16,0xE,1,0}"), "callTB": 1},
     {"tdata": strToInt("{AMToken,0x1}"), "callTB": 2}
 ])
 
 smB_t2 = short_message_B.add_thread()
 axis_net.reads(smB_t2, [
-    {"tdata": strToInt("{AMHeader,0xAA,0xCC,0,0xE,1,0}")},
+    {"tdata": strToInt("{AMHeader,0xAA,0xCC,16,0xE,1,0}")},
     {"tdata": strToInt("{AMToken,0x1}")}
 ])
 smB_t2.print_elapsed_time("short_message_B")
@@ -121,7 +121,7 @@ mmA_t1 = medium_message_A.add_thread()
 mmA_t1.add_delay('100ns')
 mmA_t1.init_timer()
 axis_kernel.writes(mmA_t1, [
-    {"tdata": strToInt("{AMHeader,0xAA,0xCC,1,0xE,0x12,0}"), "callTB": 1},
+    {"tdata": strToInt("{AMHeader,0xAA,0xCC,24,0xE,0x12,0}"), "callTB": 1},
     {"tdata": strToInt("{AMToken,0x2}"), "callTB": 1},
     {"tdata": 0xDEADBEEF, "tlast": 1, "callTB": 2}
 ])
@@ -129,7 +129,7 @@ medium_message_A.add_thread(mmA_t1)
 
 mmA_t2 = medium_message_A.add_thread()
 axis_net.reads(mmA_t2, [
-    {"tdata": strToInt("{AMHeader,0xAA,0xCC,1,0xE,0x2,0}")},
+    {"tdata": strToInt("{AMHeader,0xAA,0xCC,24,0xE,0x2,0}")},
     {"tdata": strToInt("{AMToken,0x2}")},
     {"tdata": 0xDEADBEEF, "tlast": 1}
 ])
@@ -151,7 +151,7 @@ mmB_t1 = medium_message_B.add_thread()
 mmB_t1.add_delay('100ns')
 mmB_t1.init_timer()
 axis_kernel.writes(mmB_t1, [
-    {"tdata": strToInt("{AMHeader,0xAA,0xCC,0x100,0xE,0x12,6}"), "callTB": 1},
+    {"tdata": strToInt("{AMHeader,0xAA,0xCC,0x810,0xE,0x12,6}"), "callTB": 1},
     {"tdata": strToInt("{AMToken,0x3}"), "callTB": 1}
 ])
 for i in range(5):
@@ -163,7 +163,7 @@ axis_kernel.write(mmB_t1, 0xFEEDDEED, tlast=1, callTB=2)
 
 mmB_t2 = medium_message_B.add_thread()
 axis_net.reads(mmB_t2, [
-    {"tdata": strToInt("{AMHeader,0xAA,0xCC,0x100,0xE,0x2,6}")},
+    {"tdata": strToInt("{AMHeader,0xAA,0xCC,0x810,0xE,0x2,6}")},
     {"tdata": strToInt("{AMToken,0x3}")}
 ])
 for i in range(6):
@@ -188,7 +188,7 @@ mmC_t1 = medium_message_C.add_thread()
 mmC_t1.add_delay('100ns')
 mmC_t1.init_timer()
 axis_kernel.writes(mmC_t1, [
-    {"tdata": strToInt("{AMHeader,0xAA,0xCC,0x1,0xE,0x2,0}"), "callTB": 1},
+    {"tdata": strToInt("{AMHeader,0xAA,0xCC,24,0xE,0x2,0}"), "callTB": 1},
     {"tdata": strToInt("{AMToken,0x4}"), "callTB": 1},
     {"tdata": 0x1000, "tlast": 1, "callTB": 1} # address to read
 ])
@@ -201,7 +201,7 @@ axis_mm2sStatus.write(mmC_t2, 0x80, callTB=1)
 
 mmC_t3 = medium_message_C.add_thread()
 axis_net.reads(mmC_t3, [
-    {"tdata": strToInt("{AMHeader,0xAA,0xCC,0x1,0xE,2,0}")},
+    {"tdata": strToInt("{AMHeader,0xAA,0xCC,24,0xE,2,0}")},
     {"tdata": strToInt("{AMToken,0x4}")},
     {"tdata": 0xFEEDDEED, "tlast": 1} # address to read
 ])
@@ -222,20 +222,20 @@ lmA_t1 = long_message_A.add_thread()
 lmA_t1.add_delay('100ns')
 lmA_t1.init_timer()
 axis_kernel.writes(lmA_t1, [
-    {"tdata": strToInt("{AMHeader,0xAA,0xCC,0x100,0xE,0x14,0}"), "callTB": 1},
+    {"tdata": strToInt("{AMHeader,0xAA,0xCC,0x818,0xE,0x14,0}"), "callTB": 1},
     {"tdata": strToInt("{AMToken,0x5}"), "callTB": 1},
     {"tdata": "0xAABBCCD8", "callTB": 1} # address
 ])
 for i in range(255):
-    axis_kernel.write(lmA_t1, 0xDEADBEEF)
+    axis_kernel.write(lmA_t1, i)
 axis_kernel.write(lmA_t1, 0xDEADBEEF, tlast=1, callTB=2)
 
 lmA_t2 = long_message_A.add_thread()
-axis_net.read(lmA_t2, strToInt("{AMHeader,0xAA,0xCC,0x100,0xE,4,0}"))
+axis_net.read(lmA_t2, strToInt("{AMHeader,0xAA,0xCC,0x818,0xE,4,0}"))
 axis_net.read(lmA_t2, strToInt("{AMToken,0x5}"))
 axis_net.read(lmA_t2, 0xAABBCCD8)
 for i in range(255):
-    axis_net.read(lmA_t2, 0xDEADBEEF)
+    axis_net.read(lmA_t2, i)
 axis_net.read(lmA_t2, 0xDEADBEEF, tlast=1)
 lmA_t2.print_elapsed_time("Long_Message_A")
 lmA_t2.end_vector()
@@ -253,7 +253,7 @@ lmB_t1 = long_message_B.add_thread()
 lmB_t1.add_delay('100ns')
 lmB_t1.init_timer()
 axis_kernel.writes(lmB_t1, [
-    {"tdata": strToInt("{AMHeader,0xAA,0xCC,0x100,0xE,0x4,0}"), "callTB": 1},
+    {"tdata": strToInt("{AMHeader,0xAA,0xCC,0x818,0xE,0x4,0}"), "callTB": 1},
     {"tdata": strToInt("{AMToken,0x5}"), "callTB": 1},
     {"tdata": 0xAABBCCD8, "callTB": 1}, # source address
     {"tdata": 8, "callTB": 1} # dst address
@@ -267,7 +267,7 @@ axis_mm2s.write(lmB_t2, 0xDEADBEEF, tlast=1, callTB=1)
 axis_mm2sStatus.write(lmB_t2, 0x80, callTB=2)
 
 lmB_t3 = long_message_B.add_thread()
-axis_net.read(lmB_t3, strToInt("{AMHeader,0xAA,0xCC,0x100,0xE,4,0}"))
+axis_net.read(lmB_t3, strToInt("{AMHeader,0xAA,0xCC,0x818,0xE,4,0}"))
 axis_net.read(lmB_t3, strToInt("{AMToken,0x5}"))
 axis_net.read(lmB_t3, 8)
 for i in range(255):
@@ -291,17 +291,17 @@ lmC_t1 = long_message_C.add_thread()
 lmC_t1.add_delay('100ns')
 lmC_t1.init_timer()
 axis_kernel.writes(lmC_t1, [
-    {"tdata": strToInt("{AMHeader,0xAA,0xCC,0xC,0xD,0x5,2}"), "callTB": 1},
-    {"tdata": strToInt("{AMLongStride,0,0xC,1}")}, # src stride info
+    {"tdata": strToInt("{AMHeader,0xAA,0xCC,0x88,0xD,0x5,2}"), "callTB": 1},
+    {"tdata": strToInt("{AMLongStride,0,0x60,1}")}, # src stride info
     {"tdata": 0x200}, # src address
-    {"tdata": strToInt("{AMLongStride,0x100,4,3,0x5}")}, # dst stride info
+    {"tdata": strToInt("{AMLongStride,0x100,32,3,0x5}")}, # dst stride info
     {"tdata": 0, "callTB": 1}, # dst address
     {"tdata": 0xAABBCCDD, "callTB": 0}, # handler arg 0
     {"tdata": 0xDDCCBBAA, "callTB": 1}, # handler arg 1
 ])
 
 lmC_t2 = long_message_C.add_thread()
-axis_mm2sCommand.read(lmC_t2, strToInt("{dataMoverCommand,96,1,0,1,0,0x200,0}"))
+axis_mm2sCommand.read(lmC_t2, strToInt("{dataMoverCommand,0x60,1,0,1,0,0x200,0}"))
 for i in range(2):
     for j in range(3):
         axis_mm2s.write(lmC_t2, 0xBEEFDEAD)
@@ -313,8 +313,8 @@ axis_mm2sStatus.write(lmC_t2, 0x80, callTB=2)
 
 lmC_t3 = long_message_C.add_thread()
 axis_net.reads(lmC_t3, [
-    {"tdata": strToInt("{AMHeader,0xAA,0xCC,0xC,0xD,0x5,2}")},
-    {"tdata": strToInt("{AMLongStride,0x100,4,3,0x5}")},
+    {"tdata": strToInt("{AMHeader,0xAA,0xCC,0x88,0xD,0x5,2}")},
+    {"tdata": strToInt("{AMLongStride,0x100,0x20,3,0x5}")},
     {"tdata": 0}, # initial address
     {"tdata": 0xAABBCCDD}, # handler arg 0
     {"tdata": 0xDDCCBBAA} # handler arg 1
@@ -345,13 +345,13 @@ lmD_t1 = long_message_D.add_thread()
 lmD_t1.add_delay('100ns')
 lmD_t1.init_timer()
 axis_kernel.writes(lmD_t1, [
-    {"tdata": strToInt("{AMHeader,type:0x6,src:0xAA,dst:0xCC,payload:0x10C,handler:0xF,args:0}"), "callTB": 1},
-    {"tdata": strToInt("{AMLongVector,2,2,0xC,0xC,0x8}")},
+    {"tdata": strToInt("{AMHeader,type:0x6,src:0xAA,dst:0xCC,payload:0x888,handler:0xF,args:0}"), "callTB": 1},
+    {"tdata": strToInt("{AMLongVector,2,2,0x60,0x60,0x8}")},
     {"tdata": 0x1000}, # src address 1
     {"tdata": 0}, # destination address 1
-    {"tdata": 0x100}, # src size 1 
+    {"tdata": 0x800}, # src size 1 
     {"tdata": 0xFF00}, # src address 1
-    {"tdata": 0x100}, # dst size 1 
+    {"tdata": 0x800}, # dst size 1 
     {"tdata": 0xDD00, "callTB": 1} # dst address 1
 ])
 
@@ -373,22 +373,22 @@ axis_mm2sStatus.write(lmD_t2, 0x80, callTB=1)
 
 lmD_t3 = long_message_D.add_thread()
 axis_net.reads(lmD_t3, [
-    {"tdata": strToInt("{AMHeader,0xAA,0xCC,0x10C,0xF,0x6,0}")},
-    {"tdata": strToInt("{AMLongVector,2,0xC,0x8}")},
+    {"tdata": strToInt("{AMHeader,0xAA,0xCC,0x888,0xF,0x6,0}")},
+    {"tdata": strToInt("{AMLongVector,2,0x60,0x8}")},
     {"tdata": 0}, # dst address 1
-    {"tdata": 0x100}, # dst size 2
+    {"tdata": 0x800}, # dst size 2
     {"tdata": 0xDD00}, # dst addr 2
 ])
 for i in range(2):
     for j in range(3):
-        axis_mm2s.write(lmD_t2, 0xBEEFDEAD)
-    axis_mm2s.write(lmD_t2, 0xDEADBEEF)
+        axis_net.read(lmD_t3, 0xBEEFDEAD)
+    axis_net.read(lmD_t3, 0xDEADBEEF)
 for j in range(3):
-    axis_mm2s.write(lmD_t2, 0xBEEFDEAD)
-axis_mm2s.write(lmD_t2, 0xDEADBEEF, tlast=1)
+    axis_net.read(lmD_t3, 0xBEEFDEAD)
+axis_net.read(lmD_t3, 0xDEADBEEF, tlast=1)
 for i in range(255):
-    axis_mm2s.write(lmD_t2, 0xFFAAFFAA)
-axis_mm2s.write(lmD_t2, 0xDDDDDDDD, tlast=1)
+    axis_net.read(lmD_t3, 0xFFAAFFAA)
+axis_net.read(lmD_t3, 0xDDDDDDDD, tlast=1)
 lmD_t3.print_elapsed_time("long_message_D")
 lmD_t3.end_vector()
 

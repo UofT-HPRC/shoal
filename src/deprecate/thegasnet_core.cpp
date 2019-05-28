@@ -1469,7 +1469,7 @@ int SendAM_vargs(unsigned int function, unsigned int destnode, int token, gasnet
 	
 	if (isLongStridedAM(function))
 	{
-		packet_buffer_uint[1] = createStridedToken(dst_stride, dst_blk_size, dst_blk_num, token);
+		packet_buffer_uint[1] = createStrided(dst_stride, dst_blk_size, dst_blk_num, token);
 		// packet_buffer_uint[3] = (unsigned int)dest_sizeX;
 		// packet_buffer_uint[4] = (unsigned int)dest_sizeY;
 		// packet_buffer_uint[5] = ptr64_uintL(dest_addr);

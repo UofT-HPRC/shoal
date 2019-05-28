@@ -76,14 +76,14 @@ def strToInt(packet):
         if len(packetArgs) == 4:
             dst = extractNumber(argDst) << 4
             dstSize = extractNumber(argDstSize) << 20
-            token = extractNumber(argToken) << 40
+            token = extractNumber(argToken) << 48
             intVal = dst + dstSize + token
         else:
             src = extractNumber(argSrc)
             dst = extractNumber(argDst) << 4
             srcSize = extractNumber(argSrcSize) << 8
             dstSize = extractNumber(argDstSize) << 20
-            token = extractNumber(argToken) << 40
+            token = extractNumber(argToken) << 48
             intVal = src + dst + srcSize + dstSize + token
 
     elif packetArgs[0] == "AMLongStride":
@@ -112,10 +112,10 @@ def strToInt(packet):
                     exit(1)
         
         stride = extractNumber(argStride)
-        blockSize = extractNumber(argBlockSize) << 16
+        blockSize = extractNumber(argBlockSize) << 12
         blockNum = extractNumber(argBlockNum) << 28
         if(len(packetArgs) == 5):
-            token = extractNumber(argToken) << 40
+            token = extractNumber(argToken) << 48
             intVal += token
         intVal += stride + blockNum + blockSize
 
@@ -192,7 +192,7 @@ def strToInt(packet):
                     printError(1, "Invalid key for AMToken")
                     exit(1)
 
-        token = extractNumber(argToken) << 40
+        token = extractNumber(argToken) << 48
         AMtype = extractNumber(argType)
         intVal = token + AMtype
     elif packetArgs[0] == "KernelHeader":
@@ -220,7 +220,7 @@ def strToInt(packet):
         AMtype = extractNumber(argType)
         src = extractNumber(argSrc) << 8
         payload = extractNumber(argPayload) << 24
-        token = extractNumber(argToken) << 40
+        token = extractNumber(argToken) << 48
 
         intVal = src + token + payload + AMtype
     else:

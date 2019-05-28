@@ -41,8 +41,10 @@ app_dir=$(SHOAL_PATH)/apps
 app_build_dir=$(app_dir)/build
 app_bin_dir=$(app_dir)/build/bin
 
-lib_files := active_messages main_wrapper platforms thegasnet_core \
-	thegasnet_globals
+# ? There's an issue with including the net headers in GAScore and those from asio together
+# lib_files := active_messages main_wrapper platforms thegasnet_core \
+# 	thegasnet_globals
+lib_files := active_messages
 
 app_files := commtest_gascorev2
 commtest_gascorev2_args := --tgn_myip=192.168.1.103 \
@@ -50,18 +52,23 @@ commtest_gascorev2_args := --tgn_myip=192.168.1.103 \
 
 test_files := queue_test
 
+galapagos_files := one_node one_node_kern
+
 obj = $(shell find $(test_build_dir) -name '*.o' -printf '%f\n' | \
 sort -k 1nr | cut -f2-)
 dep = $(obj:%.o=$(test_build_dir)/%.d)
 
-SW_build_dirs := $(shell find $(SHOAL_PATH) -type d -name 'build' -not -path "$(SHOAL_PATH)/GAScore/*")
+GAScore_build_dirs := $(shell find $(SHOAL_PATH) -type d -name 'build' -not -path "$(SHOAL_PATH)/GAScore/*")
 
-CC = g++
+CC = /usr/bin/g++-7
 CFLAGS = -g -Wall -O0 -I$(include_dir) -I$(GAScore_dir) -I$(SHOAL_HLS_PATH)\
+	-I$(GALAPAGOS_PATH)/middleware/CPP_lib/Galapagos_lib -I$(GALAPAGOS_PATH)/middleware/include\
 	-Wno-unused-value -Wno-unused-variable -Wno-comment \
-	-Wno-unused-but-set-variable -Wno-unused-function -MMD -MP -pthread -std=c++11
-LIBS = -Wl,--wrap=main -lpthread -lrt
+	-Wno-unused-but-set-variable -Wno-unused-function -MMD -MP -pthread -std=c++17
+LIBS = -lpthread -lrt
 APP_LIBS = -L$(SHOAL_PATH)/build -lTHeGASnet
+
+GALAPAGOS_LIBS = -lpthread -L$(SHOAL_PATH)/build -lTHeGASnet
 
 ################################################################################
 # Body
@@ -111,6 +118,20 @@ test-$1:  $(test_build_dir)/$1.o
 endef
 $(foreach file, $(test_files),$(eval $(call make-test-executable,$(file))))
 
+galapagos-lib: lib
+	# rm $(SHOAL_PATH)/build/libTHeGASnet.a
+	# ar -cr $(SHOAL_PATH)/build/libGalapagos.a $(SHOAL_PATH)/include/galapagos_*.o
+	ar -cr $(SHOAL_PATH)/build/libGalapagos.a $(GALAPAGOS_PATH)/middleware/CPP_lib/Galapagos_lib/galapagos_*.o
+
+galapagos_modules=$(patsubst %, galapagos-%, $(galapagos_files))
+galapagos: $(galapagos_modules)
+
+define make-galapagos-executable
+galapagos-$1:  $(test_build_dir)/$1.o $(test_build_dir)/$1_kern.o
+	$(CC) $(CFLAGS) -o $(test_bin_dir)/$1 $(test_build_dir)/$1.o $(test_build_dir)/$1_kern.o -Wl,--wrap=kern0 -Wl,--wrap=kern1 -lboost_thread -lboost_system $(GALAPAGOS_LIBS)
+endef
+$(foreach file, $(galapagos_files),$(eval $(call make-galapagos-executable,$(file))))
+
 #-------------------------------------------------------------------------------
 # Object Files
 #-------------------------------------------------------------------------------
@@ -133,6 +154,12 @@ $(test_build_dir)/$1.o: $(test_dir)/$1.cpp
 endef
 $(foreach file, $(test_files),$(eval $(call make-test-object,$(file))))
 
+define make-galapagos-object
+$(test_build_dir)/$1.o: $(test_dir)/$1.cpp
+	$(CC) $(CFLAGS) -o $(test_build_dir)/$1.o -c $(test_dir)/$1.cpp $(LIBS)
+endef
+$(foreach file, $(galapagos_files),$(eval $(call make-galapagos-object,$(file))))
+
 -include $(dep)
 
 #-------------------------------------------------------------------------------
@@ -151,8 +178,11 @@ clean-1:
 	@find . -name "vivado_pid*.str" -type f -delete
 	@find . -name "hs_err_pid*.log" -type f -delete
 
-clean-2: clean-1
-	@$(foreach path,$(SW_build_dirs),find $(path) -type f -delete)
+clean-2a: clean-1
+	@$(foreach path,$(GAScore_build_dirs),find $(path) -type f -delete)
+
+clean-2b: clean-1
+	@find $(SHOAL_PATH)/tests/build -type f -exec rm -f {} \;
 
 purge:
 	@rm -rf ~/.shoal

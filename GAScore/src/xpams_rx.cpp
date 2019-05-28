@@ -62,9 +62,14 @@ void xpams_rx(
                 axis_rx.read(axis_word); //read token
                 AMToken = axis_word.data(AM_TOKEN);
                 if(isReplyAM(AMtype) && isShortAM(AMtype)){
-                    axis_word.data(7,0) = AMtype;
-                    axis_word.data(23,8) = AMsrc;
-                    axis_word.data(35,24) = 0; // payload size
+                    axis_word.data = 0;
+                    axis_word.data(AM_TYPE) = AMtype;
+                    axis_word.data(AM_SRC) = AMsrc;
+                    #ifdef USE_ABS_PAYLOAD
+                    axis_word.data(AM_DST) = GC_DATA_BYTES; // ! assuming payload size == dst size
+                    #else
+                    axis_word.data(AM_DST) = 0; // ! assuming payload size == dst size
+                    #endif
                     axis_word.data(AM_TOKEN) = AMToken;
                     // axis_word.data(AM_TOKEN) = AMToken;
                     // axis_word.data(39,8) = 0; //TODO parameterize
@@ -98,9 +103,14 @@ void xpams_rx(
                         axis_handler.write(axis_wordNoKeep);
                     }
                     if(isMediumAM(AMtype)){
-                        axis_word.data(7,0) = AMtype;
-                        axis_word.data(23,8) = AMsrc;
-                        axis_word.data(35,24) = AMpayloadSize;
+                        axis_word.data = 0;
+                        axis_word.data(AM_TYPE) = AMtype;
+                        axis_word.data(AM_SRC) = AMsrc;
+                        #ifdef USE_ABS_PAYLOAD
+                        axis_word.data(AM_DST) = AMpayloadSize - AMargs - GC_DATA_BYTES;
+                        #else
+                        axis_word.data(AM_DST) = AMpayloadSize;
+                        #endif
                         axis_word.data(AM_TOKEN) = AMToken;
                         axis_wordDest = assignWord(axis_word);
                         axis_wordDest.dest = AMdst;
@@ -119,12 +129,13 @@ void xpams_rx(
         }
         case st_AMpayload:{
             gc_payloadSize_t i;
-            for(i = 0; i < AMpayloadSize; i++){
+            // for(i = 0; i < AMpayloadSize; i++){
+            do{
                 axis_rx.read(axis_word);
                 axis_wordDest = assignWord(axis_word);
                 axis_wordDest.dest = AMdst;
                 axis_kernel_out.write(axis_wordDest);
-            }
+            } while(!axis_word.last);
             if (isAsyncAM(AMtype))
                 currentState = st_AMheader;
             else
@@ -134,13 +145,17 @@ void xpams_rx(
         case st_sendReplyHeader:{
             axis_word.data(AM_SRC) = AMdst;
             axis_word.data(AM_DST) = AMsrc;
+            #ifdef USE_ABS_PAYLOAD
+            axis_word.data(AM_PAYLOAD_SIZE) = GC_DATA_BYTES;
+            #else
             axis_word.data(AM_PAYLOAD_SIZE) = 0;
+            #endif
             axis_word.data(AM_HANDLER) = H_EMPTY;
             axis_word.data(AM_TYPE) = AM_SHORT + AM_REPLY;
             axis_word.data(AM_HANDLER_ARGS) = 0;
             axis_word.keep = GC_DATA_TKEEP;
             axis_tx.write(axis_word);
-            axis_word.data(39,0) = 0;
+            axis_word.data(AM_TOKEN_LOWER-1,0) = 0;
             axis_word.data(AM_TOKEN) = AMToken;
             // axis_word.data(39,) = 0;
             axis_word.last = 1; //!needs to be handled better

@@ -34,10 +34,10 @@ Active Message Packet Schema
     |                   Handler args               |
     |                   Payload ...                |
 
-    Long Stride (stride in bytes, block size in words)
+    Long Stride (stride in bytes, block size in bytes)
     |0                             64|
     | Type (8) | SRC (16) | DST (16) | Message Size (bytes) (16) | Handler (4) | # Args (4) |
-    | Stride (16) | Cont. block size (12) | blocks (12) | Reserved (8) | Packet ID (16) |
+    | Stride (12) | Cont. block size (16) | blocks (12) | Reserved (8) | Packet ID (16) |
     |                   Destination                |
     |                   Handler args               |
     |                   Payload ...                |
@@ -89,9 +89,9 @@ Short
     Long Stride 
     |0                             64|
     | Type (8) | SRC (16) | DST (16) | Message Size (bytes) (16) | Handler (4) | # Args (4) |
-    | Stride (16) | Cont. block size (12) | blocks (12) | Reserved (24) |
+    | Stride (12) | Cont. block size (16) | blocks (12) | Reserved (24) |
     |                   Source addr                |
-    | Stride (16) | Cont. block size (12) | blocks (12) | Reserved (8) | Packet ID (16) |
+    | Stride (12) | Cont. block size (16) | blocks (12) | Reserved (8) | Packet ID (16) |
     |                   Dest.  addr                |
     |                   Handler args               |
     Long Vector 
@@ -107,4 +107,8 @@ Short
     |                   dst   addr.                |
     ...    
     |                   Handler args               |
+
+    Reply
+    |0                             64|
+    | Type (8) | SRC (16) | Message Size (bytes) (16) | Reserved (8) | Packet ID (16) |
 </pre>

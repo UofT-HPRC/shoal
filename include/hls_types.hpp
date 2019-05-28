@@ -47,7 +47,6 @@ typedef ap_uint<72> uint_72_t;
 
 #define GC_MAX_PAYLOAD (AM_PAYLOAD_SIZE_UPPER - AM_PAYLOAD_SIZE_LOWER + 1)
 #define GC_DATA_BYTES (GC_DATA_WIDTH/8)
-#define GC_MAX_PAYLOAD_BYTES (GC_MAX_PAYLOAD+NBITS(GC_DATA_BYTES)-1)
 #define GC_DATA_TKEEP (power<2, GC_DATA_BYTES>()-1)
 
 /*******************************************************************************
@@ -86,7 +85,7 @@ typedef uint_4_t gc_dstVectorNum_t;
 typedef uint_64_t gc_destination_t;
 typedef gc_payloadSize_t gc_strideBlockSize_t;
 typedef uint_12_t gc_strideBlockNum_t;
-typedef uint_16_t gc_stride_t;
+typedef uint_12_t gc_stride_t;
 typedef gc_payloadSize_t gc_vectorSize_t;
 typedef uint_4_t gc_srcVectorNum_t;
 

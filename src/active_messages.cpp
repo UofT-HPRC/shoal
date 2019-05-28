@@ -162,7 +162,7 @@ void writeNetwork (word_t word, bool assertLast){
     }
 }
 
-#endif
+#endif // ENABLE_NETWORK
 
 word_t readKernel(){
     long word_0, word_1;
@@ -416,6 +416,12 @@ void sendStridedAM(
     }
 }
 
+#else // x86_64
+
+#include "active_messages_x86.cpp"
+
+#endif // x86_64 or Microblaze
+
 #elif defined(__HLS__)
 
 axis_word_t createHeaderBeat(
@@ -508,7 +514,7 @@ void sendPayloadArgs(
     axis_word.data = *(payload_args+i);
     axis_word.last = assertLast;
     axis_word.keep = GC_DATA_TKEEP;
-    axis_out.write(axis_word);;
+    axis_out.write(axis_word);
 }
 
 void sendShortAM(
@@ -663,8 +669,4 @@ void longStridedAM(
     }
 }
 
-#elif defined(__x86_64__)
-
-#endif // architecture
-
-#endif
+#endif // architecture (MB / x86_64 / HLS)
