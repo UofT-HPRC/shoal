@@ -44,7 +44,7 @@ app_bin_dir=$(app_dir)/build/bin
 # ? There's an issue with including the net headers in GAScore and those from asio together
 # lib_files := active_messages main_wrapper platforms thegasnet_core \
 # 	thegasnet_globals
-lib_files := active_messages
+lib_files := active_messages am_gasnet am_globals
 
 app_files := commtest_gascorev2
 commtest_gascorev2_args := --tgn_myip=192.168.1.103 \

@@ -161,7 +161,9 @@ void am_rx(
                 AMstrideBlockSize = axis_word.data(AM_STRIDE_BLK_SIZE);
                 AMstrideBlockNum = axis_word.data(AM_STRIDE_BLK_NUM);
                 AMToken = axis_word.data(AM_TOKEN);
+                #ifdef USE_ABS_PAYLOAD
                 AMpayloadSize-=GC_DATA_BYTES;
+                #endif
                 currentState = st_AMdestination;
             // }
             break;

@@ -4,6 +4,7 @@
 #include <mutex>
 #include <thread>
 #include <atomic>
+#include <cstddef>
 
 typedef std::mutex mutex_t;
 typedef std::lock_guard<mutex_t> lock_guard_t;
@@ -22,9 +23,13 @@ extern void **handlertable; // provided by user application, handler functions t
 
 // globally shared
 extern mutex_t mutex_nodeInit; // mutex to initialize the node (per thread)
+extern mutex_t mutex_print; // mutex to safely print
+extern std::byte* gasnet_shared_mem_global;
+extern gasnet_nodedata_t* gasnet_nodedata_all;
 
 extern thread_local gasnet_nodedata_t* nodedata; // thread-copy of gasnet_nodedata_all
-extern thread_local void** gasnet_shared_mem;
+extern thread_local std::byte* gasnet_shared_mem;
+extern thread_local lock_t lock_print;
 
 extern std::atomic_bool** kernel_done;
 

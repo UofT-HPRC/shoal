@@ -66,6 +66,7 @@ typedef ap_uint<GC_DATA_WIDTH> word_t;
 typedef ap_uint<GC_ADDR_WIDTH> addr_word_t;
 
 typedef ap_uint<GC_DEST_WIDTH> gc_AMdest_t;
+typedef ap_uint<GC_DATA_TKEEP> gc_keep_t;
 
 // Header Types
 typedef uint_16_t gc_AMsrc_t;
@@ -95,6 +96,7 @@ typedef long long word_t;
 typedef int addr_word_t;
 
 typedef short gc_AMdest_t;
+typedef short gc_keep_t;
 
 // Header Types
 typedef short gc_AMsrc_t;

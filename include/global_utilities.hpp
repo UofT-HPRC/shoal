@@ -149,4 +149,36 @@ unsigned long long power_64() {
     return sum;
 }
 
+// taken from https://stackoverflow.com/a/17469726
+namespace Color {
+    enum Code {
+        BOLD_ON     = 1,
+        BOLD_OFF    = 21,
+        FG_RED      = 31,
+        FG_GREEN    = 32,
+        FG_BLUE     = 34,
+        FG_DEFAULT  = 39,
+        BG_RED      = 41,
+        BG_GREEN    = 42,
+        BG_BLUE     = 44,
+        BG_DEFAULT  = 49
+    };
+    class Modifier {
+        Code code;
+    public:
+        Modifier(Code pCode) : code(pCode) {}
+        friend std::ostream&
+        operator<<(std::ostream& os, const Modifier& mod) {
+            return os << std::dec << "\033[" << mod.code << "m";
+        }
+    };
+}
+
+#define _COLOR(color, mode) std::dec << "\033[" << color << "m" << std::mode
+
+#define COLOR(color, mode, data) _COLOR(color, mode) << data << _COLOR(0, mode)
+
+#define hdextract(arg, bits) (((arg) & bits##_BITMASK) >> bits##_LOWER)
+#define hdencode(arg, bits,data) (((arg) & (~bits##_BITMASK)) | (((long long)(data) << bits##_LOWER) & bits##_BITMASK))
+
 #endif // SHOAL_INCLUDE_GLOBAL_UTILITIES_H_
