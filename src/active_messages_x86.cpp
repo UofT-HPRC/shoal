@@ -136,6 +136,7 @@ void sendPayloadArgs(
 }
 
 void sendShortAM(
+    gc_AMtype_t type,
     gc_AMsrc_t src,
     gc_AMdst_t dst,
     gc_AMToken_t token,
@@ -146,7 +147,7 @@ void sendShortAM(
 ){
     std::cout << "AM Short message from " << src << " to " << dst << "\n";
     galapagos::stream_packet <word_t> axis_word;
-    axis_word = createHeaderBeat(src, dst, 0, handlerID, AM_SHORT, handlerArgCount);
+    axis_word = createHeaderBeat(src, dst, 0, handlerID, type, handlerArgCount);
     axis_word.dest = dst;
     printWord("   Sending - ", axis_word);
     out.write(axis_word);

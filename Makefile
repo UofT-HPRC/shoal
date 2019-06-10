@@ -44,7 +44,7 @@ app_bin_dir=$(app_dir)/build/bin
 # ? There's an issue with including the net headers in GAScore and those from asio together
 # lib_files := active_messages main_wrapper platforms thegasnet_core \
 # 	thegasnet_globals
-lib_files := active_messages am_gasnet am_globals
+lib_files := active_messages am_gasnet am_globals shoal_node shoal_kernel
 
 app_files := commtest_gascorev2
 commtest_gascorev2_args := --tgn_myip=192.168.1.103 \
@@ -61,7 +61,7 @@ dep = $(obj:%.o=$(test_build_dir)/%.d)
 GAScore_build_dirs := $(shell find $(SHOAL_PATH) -type d -name 'build' -not -path "$(SHOAL_PATH)/GAScore/*")
 
 CC = /usr/bin/g++-7
-CFLAGS = -g -Wall -O0 -I$(include_dir) -I$(GAScore_dir) -I$(SHOAL_HLS_PATH)\
+CFLAGS = -g -Wall -O0 -I$(include_dir) -I$(GAScore_dir) -isystem $(SHOAL_HLS_PATH)\
 	-I$(GALAPAGOS_PATH)/middleware/CPP_lib/Galapagos_lib -I$(GALAPAGOS_PATH)/middleware/include\
 	-Wno-unused-value -Wno-unused-variable -Wno-comment \
 	-Wno-unused-but-set-variable -Wno-unused-function -MMD -MP -pthread -std=c++17
@@ -183,6 +183,9 @@ clean-2a: clean-1
 
 clean-2b: clean-1
 	@find $(SHOAL_PATH)/tests/build -type f -exec rm -f {} \;
+
+clean-2c: clean-1
+	@find $(SHOAL_PATH)/build -type f -exec rm -f {} \;
 
 purge:
 	@rm -rf ~/.shoal

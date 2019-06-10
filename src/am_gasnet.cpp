@@ -6,71 +6,6 @@
 #define CPU
 #include "active_messages.hpp"
 
-void allocate_handlerTable(){
-	lock_guard_t guard(mutex_nodeInit);
-	if (!handlertable){
-		handlertable = (void **)calloc((size_t)(power<2, AM_HANDLER_ARGS_WIDTH>()),sizeof(void*));
-		if (!handlertable){
-			fprintf(stderr,"Handlertable could not be allocated.\r\n");
-			exit(1);
-		}
-	}
-}
-
-void InternalBarrierUpdate(){
-	nodedata->barrier_cnt++;
-    SAFE_COUT("Updated barrier_cnt at " << nodedata << " to " << nodedata->barrier_cnt << "\n");
-	return;
-}
-
-void MemReadyBarrierUpdate(){
-	nodedata->mem_ready_barrier_cnt++;
-    SAFE_COUT("Updated mem_ready_barrier_cnt at " << nodedata << " to " << nodedata->mem_ready_barrier_cnt << "\n");
-	return;
-}
-
-void counterUpdate(word_t arg){
-	nodedata->counter+=arg;
-    SAFE_COUT("Updated counter at " << nodedata << " to " << nodedata->counter << "\n");
-	return;
-}
-
-void emptyHandler(){
-	SAFE_COUT("Empty handler\n");
-	return;
-}
-
-int gasnet_attach(gasnet_handlerentry_t *table, int numentries){
-	// build handler table
-	allocate_handlerTable();
-	
-	// fill in application handlers
-	for(int t = 0; t < numentries; t++)
-		handlertable[table[t].index] = (void*) table[t].fnptr;
-
-	// fill in private GASNet handlers
-    handlertable[0] = (void*)emptyHandler;
-	handlertable[H_INCR_BAR] = (void*)InternalBarrierUpdate;
-	handlertable[H_INCR_MEM] = (void*)MemReadyBarrierUpdate;
-	handlertable[H_ADD] = (void*)counterUpdate;
-
-    return 0;
-}
-
-std::byte* gasnet_init(int id){
-    lock_guard_t lock(mutex_nodeInit);
-
-    SAFE_COUT("*** Initializing\n");
-	
-	gasnet_shared_mem = &(gasnet_shared_mem_global[id*SHARED_VARIABLE_NUM]);
-	if (!gasnet_shared_mem){
-		fprintf(stderr,"Shared segment could not be allocated.\r\n");
-		abort();
-    }
-
-    return gasnet_shared_mem;
-}
-
 void am_tx(galapagos::stream <word_t> * in, galapagos::stream <word_t> * out){
     gc_AMsrc_t AMsrc;
     gc_AMdst_t AMdst;
@@ -322,9 +257,10 @@ void am_tx(galapagos::stream <word_t> * in, galapagos::stream <word_t> * out){
         // check for payload
         if (!isShortAM(AMtype)){
             gc_payloadSize_t i = 0;
+            gc_payloadSize_t payload_1 = AMpayloadSize-GC_DATA_BYTES;
             int j = 0;
             int k = 0;
-            for(i = 0; i < AMpayloadSize-GC_DATA_BYTES; i+=GC_DATA_BYTES){
+            for(i = 0; i < payload_1; i+=GC_DATA_BYTES){
             // while(i < AMpayloadSize){
                 if(isDataFromFIFO(AMtype))
                     axis_word = in->read();
@@ -426,21 +362,22 @@ void xpams_rx(galapagos::stream <word_t> * in,
     AMToken = hdextract(axis_word.data, AM_TOKEN);
     if(isReplyAM(AMtype) && isShortAM(AMtype)){
         axis_word.data = 0;
-        axis_word.data = hdencode(axis_word.data, AM_TYPE, AMtype);
-        axis_word.data = hdencode(axis_word.data, AM_SRC, AMsrc);
+        axis_word.data = hdencode(axis_word.data, AM_REPLY_TYPE, AMtype);
+        axis_word.data = hdencode(axis_word.data, AM_REPLY_SRC, AMsrc);
         #ifdef USE_ABS_PAYLOAD
-        hdextract(axis_word.data, AM_DST) = GC_DATA_BYTES; // ! assuming payload size == dst size
+        axis_word.data = hdencode(axis_word.data, AM_REPLY_PAYLOAD_SIZE, GC_DATA_BYTES);
         #else
-        axis_word.data = hdencode(axis_word.data, AM_DST, 0); // ! assuming payload size == dst size
+        axis_word.data = hdencode(axis_word.data, AM_REPLY_PAYLOAD_SIZE, 0);
         #endif
-        axis_word.data = hdencode(axis_word.data, AM_TOKEN, AMToken);
+        axis_word.data = hdencode(axis_word.data, AM_REPLY_TOKEN, AMToken);
         // hdextract(axis_word.data, AM_TOKEN) = AMToken;
         // hdextract(axis_word.data, 39,8) = 0; //TODO parameterize
         // hdextract(axis_word.data, AM_TYPE) = AM_SHORT + AM_REPLY;
         // axis_wordDest = assignWord(axis_word);
         // axis_wordDest.dest = AMdst;
-        ATOMIC_ACTION(printWord("   Writing to kernel - ", axis_word));
-        to_kernel->write(axis_word);
+        // ? Trying out not sending a word reply. Instead, just use a counter
+        // ATOMIC_ACTION(printWord("   Writing to kernel - ", axis_word));
+        // to_kernel->write(axis_word);
         // currentState = st_AMheader;
     }
     else if(isReplyAM(AMtype)){
@@ -511,7 +448,7 @@ void xpams_rx(galapagos::stream <word_t> * in,
             #else
             axis_word.data = hdencode(axis_word.data, AM_PAYLOAD_SIZE, 0);
             #endif
-            axis_word.data = hdencode(axis_word.data, AM_HANDLER, H_EMPTY);
+            axis_word.data = hdencode(axis_word.data, AM_HANDLER, H_INCR_MEM);
             axis_word.data = hdencode(axis_word.data, AM_TYPE, AM_SHORT + AM_REPLY);
             axis_word.data = hdencode(axis_word.data, AM_HANDLER_ARGS, 0);
             axis_word.keep = GC_DATA_TKEEP;
@@ -549,7 +486,7 @@ void am_rx(galapagos::stream <word_t> * in,
     gc_dstVectorNum_t AMdstVectorNum;
 
     gc_destination_t AMdestination;
-    gc_strideBlockSize_t AMstrideBlockSize;
+    gc_strideBlockSize_t AMstrideBlockSize = 0;
     gc_strideBlockNum_t AMstrideBlockNum;
     gc_stride_t AMstride;
 
@@ -787,6 +724,8 @@ void handler_thread(void (*fcnPtr)(galapagos::stream <word_t>* ,
     std::atomic_bool* done = kernel_done[id];
 
     nodedata = &(gasnet_nodedata_all[id]);
+    mutex_nodedata_global[id] = new mutex_t;
+    mutex_nodedata = mutex_nodedata_global[id];
 
     thread_t kernel_thread = std::thread(fcnPtr, kernel_in.get(), kernel_out.get());
 
@@ -1002,4 +941,5 @@ void handler_thread(void (*fcnPtr)(galapagos::stream <word_t>* ,
 
     delete gasnet_shared_mem;
     delete done;
+    delete mutex_nodedata;
 }
