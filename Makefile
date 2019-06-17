@@ -2,6 +2,8 @@
 # Include
 ################################################################################
 
+include include.mk
+
 ################################################################################
 # Prologue
 ################################################################################
@@ -41,18 +43,13 @@ app_dir=$(SHOAL_PATH)/apps
 app_build_dir=$(app_dir)/build
 app_bin_dir=$(app_dir)/build/bin
 
-# ? There's an issue with including the net headers in GAScore and those from asio together
-# lib_files := active_messages main_wrapper platforms thegasnet_core \
-# 	thegasnet_globals
 lib_files := active_messages am_gasnet am_globals shoal_node shoal_kernel
 
 app_files := commtest_gascorev2
-commtest_gascorev2_args := --tgn_myip=192.168.1.103 \
-	--tgn_config=$(SHOAL_PATH)/src/gasnet_config --tgn_nopin
 
 test_files := queue_test
 
-galapagos_files := one_node one_node_kern
+galapagos_files := one_node
 
 obj = $(shell find $(test_build_dir) -name '*.o' -printf '%f\n' | \
 sort -k 1nr | cut -f2-)
@@ -68,7 +65,9 @@ CFLAGS = -g -Wall -O0 -I$(include_dir) -I$(GAScore_dir) -isystem $(SHOAL_HLS_PAT
 LIBS = -lpthread -lrt
 APP_LIBS = -L$(SHOAL_PATH)/build -lTHeGASnet
 
-GALAPAGOS_LIBS = -lpthread -L$(SHOAL_PATH)/build -lTHeGASnet
+GALAPAGOS_LIBS = -lboost_thread -lboost_system -lpthread -L$(SHOAL_PATH)/build -lTHeGASnet
+
+MYFLAGS += $(foreach N,$(NUM_RANGE),-DMYVAR$N=$(MYVAR$N) )
 
 ################################################################################
 # Body
@@ -85,7 +84,7 @@ init:
 
 lib_modules=$(patsubst %, lib-%, $(lib_files))
 lib: $(lib_modules)
-	# rm $(SHOAL_PATH)/build/libTHeGASnet.a
+	rm $(SHOAL_PATH)/build/libTHeGASnet.a
 	ar -cr $(SHOAL_PATH)/build/libTHeGASnet.a $(SHOAL_PATH)/build/*.o
 
 define make-libs
@@ -118,17 +117,15 @@ test-$1:  $(test_build_dir)/$1.o
 endef
 $(foreach file, $(test_files),$(eval $(call make-test-executable,$(file))))
 
-galapagos-lib: lib
-	# rm $(SHOAL_PATH)/build/libTHeGASnet.a
-	# ar -cr $(SHOAL_PATH)/build/libGalapagos.a $(SHOAL_PATH)/include/galapagos_*.o
-	ar -cr $(SHOAL_PATH)/build/libGalapagos.a $(GALAPAGOS_PATH)/middleware/CPP_lib/Galapagos_lib/galapagos_*.o
-
 galapagos_modules=$(patsubst %, galapagos-%, $(galapagos_files))
 galapagos: $(galapagos_modules)
 
 define make-galapagos-executable
-galapagos-$1:  $(test_build_dir)/$1.o $(test_build_dir)/$1_kern.o
-	$(CC) $(CFLAGS) -o $(test_bin_dir)/$1 $(test_build_dir)/$1.o $(test_build_dir)/$1_kern.o -Wl,--wrap=kern0 -Wl,--wrap=kern1 -lboost_thread -lboost_system $(GALAPAGOS_LIBS)
+galapagos-$1:  $(test_build_dir)/$1.o $(test_build_dir)/$1_kern.o guard-KERNELS
+	$(eval NUM_RANGE := $(shell seq 0 $(KERNELS)))
+	$(eval WRAP += $(foreach N,$(NUM_RANGE),-Wl,--wrap=kern$N ))
+	$(CC) $(CFLAGS) -o $(test_bin_dir)/$1 $(test_build_dir)/$1.o \
+		$(test_build_dir)/$1_kern.o $(WRAP) $(GALAPAGOS_LIBS)
 endef
 $(foreach file, $(galapagos_files),$(eval $(call make-galapagos-executable,$(file))))
 
@@ -157,6 +154,9 @@ $(foreach file, $(test_files),$(eval $(call make-test-object,$(file))))
 define make-galapagos-object
 $(test_build_dir)/$1.o: $(test_dir)/$1.cpp
 	$(CC) $(CFLAGS) -o $(test_build_dir)/$1.o -c $(test_dir)/$1.cpp $(LIBS)
+
+$(test_build_dir)/$1_kern.o: $(test_dir)/$1_kern.cpp
+	$(CC) $(CFLAGS) -o $(test_build_dir)/$1_kern.o -c $(test_dir)/$1_kern.cpp $(LIBS)
 endef
 $(foreach file, $(galapagos_files),$(eval $(call make-galapagos-object,$(file))))
 

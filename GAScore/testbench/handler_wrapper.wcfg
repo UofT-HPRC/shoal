@@ -1,0 +1,311 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<wave_config>
+   <wave_state>
+   </wave_state>
+   <db_ref_list>
+      <db_ref path="handler_wrapper_tb_behav.wdb" id="1">
+         <top_modules>
+            <top_module name="\$unit_1 " />
+            <top_module name="axi_vip_v1_0_2_pkg" />
+            <top_module name="glbl" />
+            <top_module name="handler_wrapper_tb" />
+            <top_module name="std" />
+            <top_module name="vip_bd_0_axi_vip_0_0_pkg" />
+            <top_module name="vip_bd_1_axi_vip_0_0_pkg" />
+            <top_module name="xil_common_vip_v1_0_0_pkg" />
+         </top_modules>
+      </db_ref>
+   </db_ref_list>
+   <zoom_setting>
+      <ZoomStartTime time="0fs"></ZoomStartTime>
+      <ZoomEndTime time="2002000000fs"></ZoomEndTime>
+      <Cursor1Time time="1150000000fs"></Cursor1Time>
+   </zoom_setting>
+   <column_width_setting>
+      <NameColumnWidth column_width="229"></NameColumnWidth>
+      <ValueColumnWidth column_width="167"></ValueColumnWidth>
+   </column_width_setting>
+   <WVObjectSize size="12" />
+   <wvobject type="logic" fp_name="/handler_wrapper_tb/clock">
+      <obj_property name="ElementShortName">clock</obj_property>
+      <obj_property name="ObjectShortName">clock</obj_property>
+   </wvobject>
+   <wvobject type="logic" fp_name="/handler_wrapper_tb/reset_n">
+      <obj_property name="ElementShortName">reset_n</obj_property>
+      <obj_property name="ObjectShortName">reset_n</obj_property>
+   </wvobject>
+   <wvobject type="array" fp_name="/handler_wrapper_tb/address_offset">
+      <obj_property name="ElementShortName">address_offset[15:0]</obj_property>
+      <obj_property name="ObjectShortName">address_offset[15:0]</obj_property>
+   </wvobject>
+   <wvobject type="logic" fp_name="/handler_wrapper_tb/interrupt_0">
+      <obj_property name="ElementShortName">interrupt_0</obj_property>
+      <obj_property name="ObjectShortName">interrupt_0</obj_property>
+   </wvobject>
+   <wvobject type="logic" fp_name="/handler_wrapper_tb/interrupt_1">
+      <obj_property name="ElementShortName">interrupt_1</obj_property>
+      <obj_property name="ObjectShortName">interrupt_1</obj_property>
+   </wvobject>
+   <wvobject type="group" fp_name="group44">
+      <obj_property name="label">axis</obj_property>
+      <obj_property name="DisplayName">label</obj_property>
+      <obj_property name="isExpanded"></obj_property>
+      <wvobject type="array" fp_name="/handler_wrapper_tb/axis_handler_tdata">
+         <obj_property name="ElementShortName">axis_handler_tdata[63:0]</obj_property>
+         <obj_property name="ObjectShortName">axis_handler_tdata[63:0]</obj_property>
+      </wvobject>
+      <wvobject type="logic" fp_name="/handler_wrapper_tb/axis_handler_tvalid">
+         <obj_property name="ElementShortName">axis_handler_tvalid</obj_property>
+         <obj_property name="ObjectShortName">axis_handler_tvalid</obj_property>
+      </wvobject>
+      <wvobject type="logic" fp_name="/handler_wrapper_tb/axis_handler_tready">
+         <obj_property name="ElementShortName">axis_handler_tready</obj_property>
+         <obj_property name="ObjectShortName">axis_handler_tready</obj_property>
+      </wvobject>
+      <wvobject type="logic" fp_name="/handler_wrapper_tb/axis_handler_tlast">
+         <obj_property name="ElementShortName">axis_handler_tlast</obj_property>
+         <obj_property name="ObjectShortName">axis_handler_tlast</obj_property>
+      </wvobject>
+   </wvobject>
+   <wvobject type="group" fp_name="group45">
+      <obj_property name="label">s_axi_0</obj_property>
+      <obj_property name="DisplayName">label</obj_property>
+      <wvobject type="logic" fp_name="/handler_wrapper_tb/s_axi_ctrl_bus_00_awvalid">
+         <obj_property name="ElementShortName">s_axi_ctrl_bus_00_awvalid</obj_property>
+         <obj_property name="ObjectShortName">s_axi_ctrl_bus_00_awvalid</obj_property>
+      </wvobject>
+      <wvobject type="logic" fp_name="/handler_wrapper_tb/s_axi_ctrl_bus_00_awready">
+         <obj_property name="ElementShortName">s_axi_ctrl_bus_00_awready</obj_property>
+         <obj_property name="ObjectShortName">s_axi_ctrl_bus_00_awready</obj_property>
+      </wvobject>
+      <wvobject type="array" fp_name="/handler_wrapper_tb/s_axi_ctrl_bus_00_awaddr">
+         <obj_property name="ElementShortName">s_axi_ctrl_bus_00_awaddr[11:0]</obj_property>
+         <obj_property name="ObjectShortName">s_axi_ctrl_bus_00_awaddr[11:0]</obj_property>
+      </wvobject>
+      <wvobject type="logic" fp_name="/handler_wrapper_tb/s_axi_ctrl_bus_00_wvalid">
+         <obj_property name="ElementShortName">s_axi_ctrl_bus_00_wvalid</obj_property>
+         <obj_property name="ObjectShortName">s_axi_ctrl_bus_00_wvalid</obj_property>
+      </wvobject>
+      <wvobject type="logic" fp_name="/handler_wrapper_tb/s_axi_ctrl_bus_00_wready">
+         <obj_property name="ElementShortName">s_axi_ctrl_bus_00_wready</obj_property>
+         <obj_property name="ObjectShortName">s_axi_ctrl_bus_00_wready</obj_property>
+      </wvobject>
+      <wvobject type="array" fp_name="/handler_wrapper_tb/s_axi_ctrl_bus_00_wdata">
+         <obj_property name="ElementShortName">s_axi_ctrl_bus_00_wdata[31:0]</obj_property>
+         <obj_property name="ObjectShortName">s_axi_ctrl_bus_00_wdata[31:0]</obj_property>
+      </wvobject>
+      <wvobject type="array" fp_name="/handler_wrapper_tb/s_axi_ctrl_bus_00_wstrb">
+         <obj_property name="ElementShortName">s_axi_ctrl_bus_00_wstrb[3:0]</obj_property>
+         <obj_property name="ObjectShortName">s_axi_ctrl_bus_00_wstrb[3:0]</obj_property>
+      </wvobject>
+      <wvobject type="logic" fp_name="/handler_wrapper_tb/s_axi_ctrl_bus_00_arvalid">
+         <obj_property name="ElementShortName">s_axi_ctrl_bus_00_arvalid</obj_property>
+         <obj_property name="ObjectShortName">s_axi_ctrl_bus_00_arvalid</obj_property>
+      </wvobject>
+      <wvobject type="logic" fp_name="/handler_wrapper_tb/s_axi_ctrl_bus_00_arready">
+         <obj_property name="ElementShortName">s_axi_ctrl_bus_00_arready</obj_property>
+         <obj_property name="ObjectShortName">s_axi_ctrl_bus_00_arready</obj_property>
+      </wvobject>
+      <wvobject type="array" fp_name="/handler_wrapper_tb/s_axi_ctrl_bus_00_araddr">
+         <obj_property name="ElementShortName">s_axi_ctrl_bus_00_araddr[11:0]</obj_property>
+         <obj_property name="ObjectShortName">s_axi_ctrl_bus_00_araddr[11:0]</obj_property>
+      </wvobject>
+      <wvobject type="logic" fp_name="/handler_wrapper_tb/s_axi_ctrl_bus_00_rvalid">
+         <obj_property name="ElementShortName">s_axi_ctrl_bus_00_rvalid</obj_property>
+         <obj_property name="ObjectShortName">s_axi_ctrl_bus_00_rvalid</obj_property>
+      </wvobject>
+      <wvobject type="logic" fp_name="/handler_wrapper_tb/s_axi_ctrl_bus_00_rready">
+         <obj_property name="ElementShortName">s_axi_ctrl_bus_00_rready</obj_property>
+         <obj_property name="ObjectShortName">s_axi_ctrl_bus_00_rready</obj_property>
+      </wvobject>
+      <wvobject type="array" fp_name="/handler_wrapper_tb/s_axi_ctrl_bus_00_rdata">
+         <obj_property name="ElementShortName">s_axi_ctrl_bus_00_rdata[31:0]</obj_property>
+         <obj_property name="ObjectShortName">s_axi_ctrl_bus_00_rdata[31:0]</obj_property>
+      </wvobject>
+      <wvobject type="array" fp_name="/handler_wrapper_tb/s_axi_ctrl_bus_00_rresp">
+         <obj_property name="ElementShortName">s_axi_ctrl_bus_00_rresp[1:0]</obj_property>
+         <obj_property name="ObjectShortName">s_axi_ctrl_bus_00_rresp[1:0]</obj_property>
+      </wvobject>
+      <wvobject type="logic" fp_name="/handler_wrapper_tb/s_axi_ctrl_bus_00_bvalid">
+         <obj_property name="ElementShortName">s_axi_ctrl_bus_00_bvalid</obj_property>
+         <obj_property name="ObjectShortName">s_axi_ctrl_bus_00_bvalid</obj_property>
+      </wvobject>
+      <wvobject type="logic" fp_name="/handler_wrapper_tb/s_axi_ctrl_bus_00_bready">
+         <obj_property name="ElementShortName">s_axi_ctrl_bus_00_bready</obj_property>
+         <obj_property name="ObjectShortName">s_axi_ctrl_bus_00_bready</obj_property>
+      </wvobject>
+      <wvobject type="array" fp_name="/handler_wrapper_tb/s_axi_ctrl_bus_00_bresp">
+         <obj_property name="ElementShortName">s_axi_ctrl_bus_00_bresp[1:0]</obj_property>
+         <obj_property name="ObjectShortName">s_axi_ctrl_bus_00_bresp[1:0]</obj_property>
+      </wvobject>
+   </wvobject>
+   <wvobject type="group" fp_name="group46">
+      <obj_property name="label">s_axi_1</obj_property>
+      <obj_property name="DisplayName">label</obj_property>
+      <wvobject type="logic" fp_name="/handler_wrapper_tb/s_axi_ctrl_bus_01_awvalid">
+         <obj_property name="ElementShortName">s_axi_ctrl_bus_01_awvalid</obj_property>
+         <obj_property name="ObjectShortName">s_axi_ctrl_bus_01_awvalid</obj_property>
+      </wvobject>
+      <wvobject type="logic" fp_name="/handler_wrapper_tb/s_axi_ctrl_bus_01_awready">
+         <obj_property name="ElementShortName">s_axi_ctrl_bus_01_awready</obj_property>
+         <obj_property name="ObjectShortName">s_axi_ctrl_bus_01_awready</obj_property>
+      </wvobject>
+      <wvobject type="array" fp_name="/handler_wrapper_tb/s_axi_ctrl_bus_01_awaddr">
+         <obj_property name="ElementShortName">s_axi_ctrl_bus_01_awaddr[11:0]</obj_property>
+         <obj_property name="ObjectShortName">s_axi_ctrl_bus_01_awaddr[11:0]</obj_property>
+      </wvobject>
+      <wvobject type="logic" fp_name="/handler_wrapper_tb/s_axi_ctrl_bus_01_wvalid">
+         <obj_property name="ElementShortName">s_axi_ctrl_bus_01_wvalid</obj_property>
+         <obj_property name="ObjectShortName">s_axi_ctrl_bus_01_wvalid</obj_property>
+      </wvobject>
+      <wvobject type="logic" fp_name="/handler_wrapper_tb/s_axi_ctrl_bus_01_wready">
+         <obj_property name="ElementShortName">s_axi_ctrl_bus_01_wready</obj_property>
+         <obj_property name="ObjectShortName">s_axi_ctrl_bus_01_wready</obj_property>
+      </wvobject>
+      <wvobject type="array" fp_name="/handler_wrapper_tb/s_axi_ctrl_bus_01_wdata">
+         <obj_property name="ElementShortName">s_axi_ctrl_bus_01_wdata[31:0]</obj_property>
+         <obj_property name="ObjectShortName">s_axi_ctrl_bus_01_wdata[31:0]</obj_property>
+      </wvobject>
+      <wvobject type="array" fp_name="/handler_wrapper_tb/s_axi_ctrl_bus_01_wstrb">
+         <obj_property name="ElementShortName">s_axi_ctrl_bus_01_wstrb[3:0]</obj_property>
+         <obj_property name="ObjectShortName">s_axi_ctrl_bus_01_wstrb[3:0]</obj_property>
+      </wvobject>
+      <wvobject type="logic" fp_name="/handler_wrapper_tb/s_axi_ctrl_bus_01_arvalid">
+         <obj_property name="ElementShortName">s_axi_ctrl_bus_01_arvalid</obj_property>
+         <obj_property name="ObjectShortName">s_axi_ctrl_bus_01_arvalid</obj_property>
+      </wvobject>
+      <wvobject type="logic" fp_name="/handler_wrapper_tb/s_axi_ctrl_bus_01_arready">
+         <obj_property name="ElementShortName">s_axi_ctrl_bus_01_arready</obj_property>
+         <obj_property name="ObjectShortName">s_axi_ctrl_bus_01_arready</obj_property>
+      </wvobject>
+      <wvobject type="array" fp_name="/handler_wrapper_tb/s_axi_ctrl_bus_01_araddr">
+         <obj_property name="ElementShortName">s_axi_ctrl_bus_01_araddr[11:0]</obj_property>
+         <obj_property name="ObjectShortName">s_axi_ctrl_bus_01_araddr[11:0]</obj_property>
+      </wvobject>
+      <wvobject type="logic" fp_name="/handler_wrapper_tb/s_axi_ctrl_bus_01_rvalid">
+         <obj_property name="ElementShortName">s_axi_ctrl_bus_01_rvalid</obj_property>
+         <obj_property name="ObjectShortName">s_axi_ctrl_bus_01_rvalid</obj_property>
+      </wvobject>
+      <wvobject type="logic" fp_name="/handler_wrapper_tb/s_axi_ctrl_bus_01_rready">
+         <obj_property name="ElementShortName">s_axi_ctrl_bus_01_rready</obj_property>
+         <obj_property name="ObjectShortName">s_axi_ctrl_bus_01_rready</obj_property>
+      </wvobject>
+      <wvobject type="array" fp_name="/handler_wrapper_tb/s_axi_ctrl_bus_01_rdata">
+         <obj_property name="ElementShortName">s_axi_ctrl_bus_01_rdata[31:0]</obj_property>
+         <obj_property name="ObjectShortName">s_axi_ctrl_bus_01_rdata[31:0]</obj_property>
+      </wvobject>
+      <wvobject type="array" fp_name="/handler_wrapper_tb/s_axi_ctrl_bus_01_rresp">
+         <obj_property name="ElementShortName">s_axi_ctrl_bus_01_rresp[1:0]</obj_property>
+         <obj_property name="ObjectShortName">s_axi_ctrl_bus_01_rresp[1:0]</obj_property>
+      </wvobject>
+      <wvobject type="logic" fp_name="/handler_wrapper_tb/s_axi_ctrl_bus_01_bvalid">
+         <obj_property name="ElementShortName">s_axi_ctrl_bus_01_bvalid</obj_property>
+         <obj_property name="ObjectShortName">s_axi_ctrl_bus_01_bvalid</obj_property>
+      </wvobject>
+      <wvobject type="logic" fp_name="/handler_wrapper_tb/s_axi_ctrl_bus_01_bready">
+         <obj_property name="ElementShortName">s_axi_ctrl_bus_01_bready</obj_property>
+         <obj_property name="ObjectShortName">s_axi_ctrl_bus_01_bready</obj_property>
+      </wvobject>
+      <wvobject type="array" fp_name="/handler_wrapper_tb/s_axi_ctrl_bus_01_bresp">
+         <obj_property name="ElementShortName">s_axi_ctrl_bus_01_bresp[1:0]</obj_property>
+         <obj_property name="ObjectShortName">s_axi_ctrl_bus_01_bresp[1:0]</obj_property>
+      </wvobject>
+   </wvobject>
+   <wvobject type="array" fp_name="/handler_wrapper_tb/handler_wrapper_i/currentState">
+      <obj_property name="ElementShortName">currentState[1:0]</obj_property>
+      <obj_property name="ObjectShortName">currentState[1:0]</obj_property>
+   </wvobject>
+   <wvobject type="array" fp_name="/handler_wrapper_tb/handler_wrapper_i/address">
+      <obj_property name="ElementShortName">address[0:0]</obj_property>
+      <obj_property name="ObjectShortName">address[0:0]</obj_property>
+   </wvobject>
+   <wvobject type="group" fp_name="group58">
+      <obj_property name="label">Handler_0</obj_property>
+      <obj_property name="DisplayName">label</obj_property>
+      <wvobject type="array" fp_name="/handler_wrapper_tb/handler_wrapper_i/\genblk1[0].handler_inst /axis_handler_TDATA">
+         <obj_property name="ElementShortName">axis_handler_TDATA[63:0]</obj_property>
+         <obj_property name="ObjectShortName">axis_handler_TDATA[63:0]</obj_property>
+      </wvobject>
+      <wvobject type="logic" fp_name="/handler_wrapper_tb/handler_wrapper_i/\genblk1[0].handler_inst /axis_handler_TVALID">
+         <obj_property name="ElementShortName">axis_handler_TVALID</obj_property>
+         <obj_property name="ObjectShortName">axis_handler_TVALID</obj_property>
+      </wvobject>
+      <wvobject type="array" fp_name="/handler_wrapper_tb/handler_wrapper_i/\genblk1[0].handler_inst /axis_handler_TLAST">
+         <obj_property name="ElementShortName">axis_handler_TLAST[0:0]</obj_property>
+         <obj_property name="ObjectShortName">axis_handler_TLAST[0:0]</obj_property>
+      </wvobject>
+      <wvobject type="logic" fp_name="/handler_wrapper_tb/handler_wrapper_i/\genblk1[0].handler_inst /axis_handler_TREADY">
+         <obj_property name="ElementShortName">axis_handler_TREADY</obj_property>
+         <obj_property name="ObjectShortName">axis_handler_TREADY</obj_property>
+      </wvobject>
+      <wvobject type="array" fp_name="/handler_wrapper_tb/handler_wrapper_i/\genblk1[0].handler_inst /counter_threshold_V">
+         <obj_property name="ElementShortName">counter_threshold_V[31:0]</obj_property>
+         <obj_property name="ObjectShortName">counter_threshold_V[31:0]</obj_property>
+      </wvobject>
+      <wvobject type="array" fp_name="/handler_wrapper_tb/handler_wrapper_i/\genblk1[0].handler_inst /counter_V">
+         <obj_property name="ElementShortName">counter_V[31:0]</obj_property>
+         <obj_property name="ObjectShortName">counter_V[31:0]</obj_property>
+      </wvobject>
+      <wvobject type="array" fp_name="/handler_wrapper_tb/handler_wrapper_i/\genblk1[0].handler_inst /barrier_cnt_V">
+         <obj_property name="ElementShortName">barrier_cnt_V[31:0]</obj_property>
+         <obj_property name="ObjectShortName">barrier_cnt_V[31:0]</obj_property>
+      </wvobject>
+      <wvobject type="array" fp_name="/handler_wrapper_tb/handler_wrapper_i/\genblk1[0].handler_inst /mem_ready_barrier_cn">
+         <obj_property name="ElementShortName">mem_ready_barrier_cn[31:0]</obj_property>
+         <obj_property name="ObjectShortName">mem_ready_barrier_cn[31:0]</obj_property>
+      </wvobject>
+      <wvobject type="array" fp_name="/handler_wrapper_tb/handler_wrapper_i/\genblk1[0].handler_inst /config_V">
+         <obj_property name="ElementShortName">config_V[2:0]</obj_property>
+         <obj_property name="ObjectShortName">config_V[2:0]</obj_property>
+      </wvobject>
+      <wvobject type="array" fp_name="/handler_wrapper_tb/handler_wrapper_i/\genblk1[0].handler_inst /interrupt_V">
+         <obj_property name="ElementShortName">interrupt_V[0:0]</obj_property>
+         <obj_property name="ObjectShortName">interrupt_V[0:0]</obj_property>
+      </wvobject>
+      <wvobject type="array" fp_name="/handler_wrapper_tb/handler_wrapper_i/\genblk1[0].handler_inst /interrupt_wire_V">
+         <obj_property name="ElementShortName">interrupt_wire_V[0:0]</obj_property>
+         <obj_property name="ObjectShortName">interrupt_wire_V[0:0]</obj_property>
+      </wvobject>
+      <wvobject type="array" fp_name="/handler_wrapper_tb/handler_wrapper_i/\genblk1[0].handler_inst /AMhandler_V">
+         <obj_property name="ElementShortName">AMhandler_V[3:0]</obj_property>
+         <obj_property name="ObjectShortName">AMhandler_V[3:0]</obj_property>
+      </wvobject>
+   </wvobject>
+   <wvobject type="group" fp_name="group67">
+      <obj_property name="label">Handler_1</obj_property>
+      <obj_property name="DisplayName">label</obj_property>
+      <obj_property name="isExpanded"></obj_property>
+      <wvobject type="array" fp_name="/handler_wrapper_tb/handler_wrapper_i/\genblk1[1].handler_inst /counter_threshold_V">
+         <obj_property name="ElementShortName">counter_threshold_V[31:0]</obj_property>
+         <obj_property name="ObjectShortName">counter_threshold_V[31:0]</obj_property>
+      </wvobject>
+      <wvobject type="array" fp_name="/handler_wrapper_tb/handler_wrapper_i/\genblk1[1].handler_inst /counter_V">
+         <obj_property name="ElementShortName">counter_V[31:0]</obj_property>
+         <obj_property name="ObjectShortName">counter_V[31:0]</obj_property>
+      </wvobject>
+      <wvobject type="array" fp_name="/handler_wrapper_tb/handler_wrapper_i/\genblk1[1].handler_inst /barrier_cnt_V">
+         <obj_property name="ElementShortName">barrier_cnt_V[31:0]</obj_property>
+         <obj_property name="ObjectShortName">barrier_cnt_V[31:0]</obj_property>
+      </wvobject>
+      <wvobject type="array" fp_name="/handler_wrapper_tb/handler_wrapper_i/\genblk1[1].handler_inst /mem_ready_barrier_cn">
+         <obj_property name="ElementShortName">mem_ready_barrier_cn[31:0]</obj_property>
+         <obj_property name="ObjectShortName">mem_ready_barrier_cn[31:0]</obj_property>
+      </wvobject>
+      <wvobject type="array" fp_name="/handler_wrapper_tb/handler_wrapper_i/\genblk1[1].handler_inst /config_V">
+         <obj_property name="ElementShortName">config_V[2:0]</obj_property>
+         <obj_property name="ObjectShortName">config_V[2:0]</obj_property>
+      </wvobject>
+      <wvobject type="array" fp_name="/handler_wrapper_tb/handler_wrapper_i/\genblk1[1].handler_inst /interrupt_V">
+         <obj_property name="ElementShortName">interrupt_V[0:0]</obj_property>
+         <obj_property name="ObjectShortName">interrupt_V[0:0]</obj_property>
+      </wvobject>
+      <wvobject type="array" fp_name="/handler_wrapper_tb/handler_wrapper_i/\genblk1[1].handler_inst /interrupt_wire_V">
+         <obj_property name="ElementShortName">interrupt_wire_V[0:0]</obj_property>
+         <obj_property name="ObjectShortName">interrupt_wire_V[0:0]</obj_property>
+      </wvobject>
+      <wvobject type="array" fp_name="/handler_wrapper_tb/handler_wrapper_i/\genblk1[1].handler_inst /AMhandler_V">
+         <obj_property name="ElementShortName">AMhandler_V[3:0]</obj_property>
+         <obj_property name="ObjectShortName">AMhandler_V[3:0]</obj_property>
+      </wvobject>
+   </wvobject>
+</wave_config>

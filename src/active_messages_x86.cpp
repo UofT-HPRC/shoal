@@ -53,11 +53,13 @@ galapagos::stream_packet <word_t> createStridedBeat(
 }
 
 void printWord(const std::string& prefix, galapagos::stream_packet <word_t> axis_word){
-    std::cout << prefix <<
+    std::stringstream ss;
+    ss << prefix <<
     "Data: " << COLOR(Color::FG_GREEN, hex, axis_word.data) <<
     " Keep: " << COLOR(Color::FG_GREEN, hex, axis_word.keep) <<
     " Last: " << COLOR(Color::FG_GREEN, dec, axis_word.last) <<
     " Dest: " << COLOR(Color::FG_GREEN, dec, axis_word.dest) << "\n";
+    std::cout << ss.str();
 }
 
 inline void writeWord(
@@ -161,6 +163,7 @@ void sendShortAM(
 }
 
 void sendMediumAM(
+    gc_AMtype_t type,
     gc_AMsrc_t src,
     gc_AMdst_t dst,
     gc_AMToken_t token,
@@ -173,7 +176,7 @@ void sendMediumAM(
 ){
     std::cout << "AM Medium message\n";
     galapagos::stream_packet <word_t> axis_word;
-    axis_word = createHeaderBeat(src, dst, payloadSize, handlerID, AM_MEDIUM|AM_FIFO, handlerArgCount);
+    axis_word = createHeaderBeat(src, dst, payloadSize, handlerID, type, handlerArgCount);
     axis_word.dest = dst;
     printWord("   Sending - ", axis_word);
     out.write(axis_word);
@@ -188,6 +191,7 @@ void sendMediumAM(
 }
 
 void sendMediumAM(
+    gc_AMtype_t type,
     gc_AMsrc_t src,
     gc_AMdst_t dst,
     gc_AMToken_t token,
@@ -199,7 +203,7 @@ void sendMediumAM(
     galapagos::stream <word_t> & out
 ){
     galapagos::stream_packet <word_t> axis_word;
-    axis_word = createHeaderBeat(src, dst, payloadSize, handlerID, AM_MEDIUM, handlerArgCount);
+    axis_word = createHeaderBeat(src, dst, payloadSize, handlerID, type, handlerArgCount);
     axis_word.dest = dst;
     out.write(axis_word);
     axis_word = createTokenBeat(token, false);
@@ -214,7 +218,8 @@ void sendMediumAM(
     }
 }
 
-void sendlongAM(
+void sendLongAM(
+    gc_AMtype_t type,
     gc_AMsrc_t src,
     gc_AMdst_t dst,
     gc_AMToken_t token,
@@ -227,7 +232,7 @@ void sendlongAM(
     galapagos::stream <word_t> & out
 ){
     galapagos::stream_packet <word_t> axis_word;
-    axis_word = createHeaderBeat(src, dst, payloadSize, handlerID, AM_LONG|AM_FIFO, handlerArgCount);
+    axis_word = createHeaderBeat(src, dst, payloadSize, handlerID, type, handlerArgCount);
     axis_word.dest = dst;
     out.write(axis_word);
     axis_word = createTokenBeat(token, false);
@@ -243,7 +248,8 @@ void sendlongAM(
     sendPayloadArgs(out, dst, (char*) payload, payloadSize, true);
 }
 
-void sendlongAM(
+void sendLongAM(
+    gc_AMtype_t type,
     gc_AMsrc_t src,
     gc_AMdst_t dst,
     gc_AMToken_t token,

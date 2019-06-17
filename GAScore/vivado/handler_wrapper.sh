@@ -21,6 +21,7 @@ rm -rf $link_path/*
 
 ln -sf -t $link_path $GAScore_path/repo/$SHOAL_VIVADO_VERSION/$SHOAL_PART_FAMILY/handler/hdl/verilog/*
 ln -sf -t $link_path $src_path/handler_wrapper.sv
+ln -sf -t $link_path $GAScore_path/testbench/handler_wrapper.wcfg
 
 ln -sf -t $link_path $build_path/${file}/${file}_tb.sv
 ln -sf -t $link_path $build_path/${file}/${file}_sv.dat

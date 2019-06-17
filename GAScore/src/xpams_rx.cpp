@@ -63,20 +63,21 @@ void xpams_rx(
                 AMToken = axis_word.data(AM_TOKEN);
                 if(isReplyAM(AMtype) && isShortAM(AMtype)){
                     axis_word.data = 0;
-                    axis_word.data(AM_TYPE) = AMtype;
-                    axis_word.data(AM_SRC) = AMsrc;
+                    axis_word.data(AM_REPLY_TYPE) = AMtype;
+                    axis_word.data(AM_REPLY_SRC) = AMsrc;
                     #ifdef USE_ABS_PAYLOAD
-                    axis_word.data(AM_DST) = GC_DATA_BYTES; // ! assuming payload size == dst size
+                    axis_word.data(AM_REPLY_PAYLOAD_SIZE) = GC_DATA_BYTES;
                     #else
-                    axis_word.data(AM_DST) = 0; // ! assuming payload size == dst size
+                    axis_word.data(AM_REPLY_PAYLOAD_SIZE) = 0;
                     #endif
-                    axis_word.data(AM_TOKEN) = AMToken;
+                    axis_word.data(AM_REPLY_TOKEN) = AMToken;
                     // axis_word.data(AM_TOKEN) = AMToken;
                     // axis_word.data(39,8) = 0; //TODO parameterize
                     // axis_word.data(AM_TYPE) = AM_SHORT + AM_REPLY;
-                    axis_wordDest = assignWord(axis_word);
-                    axis_wordDest.dest = AMdst;
-                    axis_kernel_out.write(axis_wordDest);
+                    // ? Trying out not sending a word reply. Instead, just use a counter
+                    // axis_wordDest = assignWord(axis_word);
+                    // axis_wordDest.dest = AMdst;
+                    // axis_kernel_out.write(axis_wordDest);
                     currentState = st_AMheader;
                 }
                 else if(isReplyAM(AMtype)){
@@ -150,7 +151,7 @@ void xpams_rx(
             #else
             axis_word.data(AM_PAYLOAD_SIZE) = 0;
             #endif
-            axis_word.data(AM_HANDLER) = H_EMPTY;
+            axis_word.data(AM_HANDLER) = H_INCR_MEM;
             axis_word.data(AM_TYPE) = AM_SHORT + AM_REPLY;
             axis_word.data(AM_HANDLER_ARGS) = 0;
             axis_word.keep = GC_DATA_TKEEP;

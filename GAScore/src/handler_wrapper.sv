@@ -97,24 +97,25 @@ module handler_wrapper #(
     localparam KERNEL_WIDTH = NUM_KERNELS == 1 ? 1 : $clog2(NUM_KERNELS);
     logic [KERNEL_WIDTH-1:0] address;
     logic [3:0] AMhandler;
+    logic [63:0] axis_handler_tdata_latched;
 
-    enum bit {st_header, st_payload} currentState, nextState;
+    enum logic [1:0] {st_header, st_payload, st_empty} currentState;
 
-    always @(*) begin
-        case(currentState)
-            st_header: begin
-                nextState = axis_handler_tvalid & axis_handler_tready ? st_payload : st_header;
-            end
-            st_payload: begin
-                if(axis_handler_tlast & axis_handler_tvalid & axis_handler_tready) begin
-                    nextState = st_header;
-                end
-                else begin
-                    nextState = st_payload;
-                end
-            end
-        endcase
-    end
+    // always @(*) begin
+    //     case(currentState)
+    //         st_header: begin
+    //             nextState = axis_handler_tvalid & axis_handler_tready ? st_payload : st_header;
+    //         end
+    //         st_payload: begin
+    //             if(axis_handler_tlast & axis_handler_tvalid & axis_handler_tready) begin
+    //                 nextState = st_header;
+    //             end
+    //             else begin
+    //                 nextState = st_payload;
+    //             end
+    //         end
+    //     endcase
+    // end
 
     wire [15:0] address_wire = axis_handler_tdata[39:24] - address_offset;
 
@@ -125,12 +126,31 @@ module handler_wrapper #(
             currentState <= st_header;
         end
         else begin
-            currentState <= nextState;
-            if (currentState == st_header) begin
-                // TODO use define for bit indices
-                address <= address_wire[KERNEL_WIDTH-1:0];
-                AMhandler <= axis_handler_tdata[55:52];
-            end
+            case(currentState)
+                st_header: begin
+                    // TODO use define for bit indices
+                    address <= address_wire[KERNEL_WIDTH-1:0];
+                    AMhandler <= axis_handler_tdata[59:56];
+                    axis_handler_tdata_latched <= axis_handler_tdata;
+                    if (axis_handler_tvalid & axis_handler_tready) begin
+                        if (~axis_handler_tlast) begin
+                            currentState <= st_payload;
+                        end else begin
+                            currentState <= st_empty;
+                        end
+                    end
+                end
+                st_payload: begin
+                    if(axis_handler_tlast & axis_handler_tvalid & axis_handler_tready) begin
+                        currentState <= st_header;
+                    end
+                end
+                st_empty: begin
+                    if(axis_handler_tready) begin
+                        currentState <= st_header;
+                    end
+                end
+            endcase
         end
     end
 
@@ -209,6 +229,9 @@ module handler_wrapper #(
     genvar i;
     generate
         for (i = 0; i < NUM_KERNELS; i++) begin
+            wire valid_signal = address == i & 
+                (axis_handler_tvalid & currentState == st_payload) | 
+                (currentState == st_empty);
             handler handler_inst(
                 .s_axi_ctrl_bus_AWVALID(s_axi_ctrl_bus_AWVALID[i]),
                 .s_axi_ctrl_bus_AWREADY(s_axi_ctrl_bus_AWREADY[i]),
@@ -233,7 +256,7 @@ module handler_wrapper #(
                 .axis_handler_TDATA(axis_handler_tdata),
                 .axis_handler_TLAST(axis_handler_tlast),
                 .interrupt_V(interrupt_V[i]),
-                .axis_handler_TVALID(axis_handler_tvalid & address == i & currentState == st_payload),
+                .axis_handler_TVALID(valid_signal),
                 .axis_handler_TREADY(tready[i])
             );
         end

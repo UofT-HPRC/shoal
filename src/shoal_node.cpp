@@ -16,6 +16,7 @@ void shoal::node::end(){
     galapagos::node<word_t>::end();
     free(gasnet_shared_mem_global);
     free(kernel_done);
+    free(mutex_nodedata_global);
     free(gasnet_nodedata_all);
     std::cout << "Node finished\n";
 

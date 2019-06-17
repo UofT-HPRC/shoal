@@ -14,61 +14,48 @@ void handler(
     #pragma HLS INTERFACE ap_none port=AMhandler
     #pragma HLS INTERFACE s_axilite port=config bundle=ctrl_bus
     #pragma HLS INTERFACE s_axilite port=counter_threshold bundle=ctrl_bus
-    #pragma HLS INTERFACE s_axilite port=token bundle=ctrl_bus
 
     axis_wordNoKeep_t axis_word;
     static uint_32_t counter = 0;
+    static uint_32_t barrier_cnt = 0;
+    static uint_32_t mem_ready_barrier_cnt = 0;
 
     uint_1_t reset = config[0];
     uint_1_t enable_add = config[1];
-    uint_1_t enable_token = config[2];
-
-    static uint_32_t prev_tokens [PREV_TOKENS] = {0,0,0};
-    // #pragma HLS ARRAY_PARTITION variable=prev_tokens complete dim=0
+    static uint_1_t interrupt_wire = 0;
     
-    if(axis_handler.read_nb(axis_word)){
-        switch(AMhandler){
-            case H_ADD:{
-                counter += + axis_word.data(31,0);
-                break;
-            }
-            case H_WAIT:{
-                for(int i = 0; i < PREV_TOKENS - 1; i++){
-                    // #pragma HLS unroll
-                    prev_tokens[i] = prev_tokens[i+1];
+    if(reset != 1){
+        if(axis_handler.read_nb(axis_word)){
+            switch(AMhandler){
+                case H_INCR_MEM:{
+                    mem_ready_barrier_cnt++;
                 }
-                prev_tokens[PREV_TOKENS-1] = axis_word.data(31,0);
-                break;
-            }
-            default:{
-                break;
-            }
-        }
-    }
-    else{
-        if(reset == 1){
-            counter = 0;
-            for(int i = 0; i < PREV_TOKENS; i++){
-                // #pragma HLS unroll
-                prev_tokens[i] = 0;
+                case H_ADD:{
+                    counter += axis_word.data(31,0);
+                    break;
+                }
+                case H_INCR_BAR:{
+                    barrier_cnt++;
+                    break;
+                }
+                default:{
+                    break;
+                }
             }
         }
     }
-    
-    switch (config){
-        case H_ADD:{
-            interrupt = counter > counter_threshold;
-            break;
-        }
-        case H_WAIT:{
-            interrupt = prev_tokens[0] == token || prev_tokens[1] == token || 
-                prev_tokens[2] == token;
-            break;
-        }
-        default:
-            interrupt = 0;
-            break;
+
+    if (config & 1){
+        interrupt_wire = 0;
+    } else if(config == H_INCR_MEM<<1){
+        interrupt_wire = interrupt_wire | (mem_ready_barrier_cnt >= counter_threshold);
+    } else if(config == H_ADD<<1){
+        interrupt_wire = interrupt_wire | (counter >= counter_threshold);
+    } else if(config == H_INCR_BAR<<1){
+        interrupt_wire = interrupt_wire | (barrier_cnt >= counter_threshold);
     }
+
+    interrupt = interrupt_wire;
 }
 
 #ifdef DEBUG

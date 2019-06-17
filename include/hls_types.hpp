@@ -47,7 +47,7 @@ typedef ap_uint<72> uint_72_t;
 
 #define GC_MAX_PAYLOAD (AM_PAYLOAD_SIZE_UPPER - AM_PAYLOAD_SIZE_LOWER + 1)
 #define GC_DATA_BYTES (GC_DATA_WIDTH/8)
-#define GC_DATA_TKEEP (power<2, GC_DATA_BYTES>()-1)
+#define GC_DATA_TKEEP (POWER_2(GC_DATA_BYTES)-1)
 
 /*******************************************************************************
  * Typedefs

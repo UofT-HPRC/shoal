@@ -66,7 +66,8 @@ smA_t1 = short_message_A.add_thread()
 smA_t1.add_delay('100ns')
 smA_t1.init_timer()
 axis_net.writes(smA_t1, [
-    {"tdata": strToInt("{AMHeader,0x01,0x02,48,0xE,1,2}"), "callTB": 1},
+    # USE_ABS_PAYLOAD {"tdata": strToInt("{AMHeader,0x01,0x02,48,0xE,1,2}"), "callTB": 1},
+    {"tdata": strToInt("{AMHeader,0x01,0x02,0,0xE,1,2}"), "callTB": 1},
     {"tdata": strToInt("{AMToken,0x0}"), "callTB": 1},
     {"tdata": 0xDEADBEEF},
     {"tdata": 0x1234, "tlast": 1, "callTB": 2}
@@ -74,7 +75,8 @@ axis_net.writes(smA_t1, [
 
 smA_t2 = short_message_A.add_thread()
 axis_xpams_rx.reads(smA_t2, [
-    {"tdata": strToInt("{AMHeader,0x01,0x02,48,0xE,1,2}")},
+    # USE_ABS_PAYLOAD {"tdata": strToInt("{AMHeader,0x01,0x02,48,0xE,1,2}")},
+    {"tdata": strToInt("{AMHeader,0x01,0x02,0,0xE,1,2}")},
     {"tdata": strToInt("{AMToken,0x0}")},
     {"tdata": 0xDEADBEEF},
     {"tdata": 0x1234, "tlast": 1}
@@ -94,13 +96,15 @@ smB_t1 = short_message_B.add_thread()
 smB_t1.add_delay('100ns')
 smB_t1.init_timer()
 axis_net.writes(smB_t1, [
-    {"tdata": strToInt("{AMHeader,0x01,0x02,24,0xE,1,0}"), "callTB": 1},
+    # USE_ABS_PAYLOAD {"tdata": strToInt("{AMHeader,0x01,0x02,24,0xE,1,0}"), "callTB": 1},
+    {"tdata": strToInt("{AMHeader,0x01,0x02,0,0xE,1,0}"), "callTB": 1},
     {"tdata": strToInt("{AMToken,0x1}"), "callTB": 2}
 ])
 
 smB_t2 = short_message_B.add_thread()
 axis_xpams_rx.reads(smB_t2, [
-    {"tdata": strToInt("{AMHeader,0x01,0x02,24,0xE,1,0}")},
+    # USE_ABS_PAYLOAD {"tdata": strToInt("{AMHeader,0x01,0x02,24,0xE,1,0}")},
+    {"tdata": strToInt("{AMHeader,0x01,0x02,0,0xE,1,0}")},
     {"tdata": strToInt("{AMToken,0x1}")}
 ])
 smB_t2.print_elapsed_time("short_message_B")
@@ -118,7 +122,8 @@ mmA_t1 = medium_message_A.add_thread()
 mmA_t1.add_delay('100ns')
 mmA_t1.init_timer()
 axis_net.writes(mmA_t1, [
-    {"tdata": strToInt("{AMHeader,0x01,0x02,36,0xE,2,0}"), "callTB": 1},
+    # USE_ABS_PAYLOAD {"tdata": strToInt("{AMHeader,0x01,0x02,36,0xE,2,0}"), "callTB": 1},
+    {"tdata": strToInt("{AMHeader,0x01,0x02,8,0xE,2,0}"), "callTB": 1},
     {"tdata": strToInt("{AMToken,0x2}"), "callTB": 1},
     {"tdata": 0xDEADBEEF, "tlast": 1, "callTB": 2}
 ])
@@ -126,7 +131,8 @@ medium_message_A.add_thread(mmA_t1)
 
 mmA_t2 = medium_message_A.add_thread()
 axis_xpams_rx.reads(mmA_t2, [
-    {"tdata": strToInt("{AMHeader,0x01,0x02,36,0xE,2,0}")},
+    # USE_ABS_PAYLOAD {"tdata": strToInt("{AMHeader,0x01,0x02,36,0xE,2,0}")},
+    {"tdata": strToInt("{AMHeader,0x01,0x02,8,0xE,2,0}")},
     {"tdata": strToInt("{AMToken,0x2}")},
     {"tdata": 0xDEADBEEF, "tlast": 1}
 ])
@@ -146,7 +152,8 @@ mmB_t1 = medium_message_B.add_thread()
 mmB_t1.add_delay('100ns')
 mmB_t1.init_timer()
 axis_net.writes(mmB_t1, [
-    {"tdata": strToInt("{AMHeader,0x01,0x02,0x818,0xE,2,6}"), "callTB": 1},
+    # USE_ABS_PAYLOAD {"tdata": strToInt("{AMHeader,0x01,0x02,0x818,0xE,2,6}"), "callTB": 1},
+    {"tdata": strToInt("{AMHeader,0x01,0x02,0x800,0xE,2,6}"), "callTB": 1},
     {"tdata": strToInt("{AMToken,0x3}"), "callTB": 1}
 ])
 for i in range(5):
@@ -158,7 +165,8 @@ axis_net.write(mmB_t1, 0xFEEDDEED, tlast=1, callTB=2)
 
 mmB_t2 = medium_message_B.add_thread()
 axis_xpams_rx.reads(mmB_t2, [
-    {"tdata": strToInt("{AMHeader,0x01,0x02,0x818,0xE,2,6}")},
+    # USE_ABS_PAYLOAD {"tdata": strToInt("{AMHeader,0x01,0x02,0x818,0xE,2,6}")},
+    {"tdata": strToInt("{AMHeader,0x01,0x02,0x800,0xE,2,6}")},
     {"tdata": strToInt("{AMToken,0x3}")}
 ])
 for i in range(6):
@@ -181,7 +189,8 @@ lmA_t1 = long_message_A.add_thread()
 lmA_t1.add_delay('100ns')
 lmA_t1.init_timer()
 axis_net.writes(lmA_t1, [
-    {"tdata": strToInt("{AMHeader,0x01,0x02,0x818,0xE,4,0}"), "callTB": 1},
+    # USE_ABS_PAYLOAD {"tdata": strToInt("{AMHeader,0x01,0x02,0x818,0xE,4,0}"), "callTB": 1},
+    {"tdata": strToInt("{AMHeader,0x01,0x02,0x800,0xE,4,0}"), "callTB": 1},
     {"tdata": strToInt("{AMToken,0x4}"), "callTB": 1},
     {"tdata": "0xAABBCCD8", "callTB": 1} # address
 ])
@@ -190,7 +199,8 @@ for i in range(255):
 axis_net.write(lmA_t1, 0xDEADBEEF, tlast=1, callTB=2)
 
 lmA_t2 = long_message_A.add_thread()
-axis_xpams_rx.read(lmA_t2, strToInt("{AMHeader,0x01,0x02,0x818,0xE,4,0}"))
+# USE_ABS_PAYLOAD axis_xpams_rx.read(lmA_t2, strToInt("{AMHeader,0x01,0x02,0x818,0xE,4,0}"))
+axis_xpams_rx.read(lmA_t2, strToInt("{AMHeader,0x01,0x02,0x800,0xE,4,0}"))
 axis_xpams_rx.read(lmA_t2, strToInt("{AMToken,0x4}"))
 for i in range(255):
     axis_s2mm.read(lmA_t2, 0xDEADBEEF)
@@ -221,7 +231,8 @@ lmB_t1 = long_message_B.add_thread()
 lmB_t1.add_delay('100ns')
 lmB_t1.init_timer()
 axis_net.writes(lmB_t1, [
-    {"tdata": strToInt("{AMHeader,0x01,0x02,0x88,0xD,0x5,2}"), "callTB": 1},
+    # USE_ABS_PAYLOAD {"tdata": strToInt("{AMHeader,0x01,0x02,0x88,0xD,0x5,2}"), "callTB": 1},
+    {"tdata": strToInt("{AMHeader,0x01,0x02,0x60,0xD,0x5,2}"), "callTB": 1},
     {"tdata": strToInt("{AMLongStride,0x100,32,3,0x5}"), "callTB": 1},
     {"tdata": 0, "callTB": 1}, # initial address
     {"tdata": 0xAABBCCDD}, # handler arg 0
@@ -241,7 +252,8 @@ axis_s2mmCommand.read(lmB_t2, strToInt("{dataMoverCommand,0x20,1,0,1,0,0x100,0}"
 axis_s2mmCommand.read(lmB_t2, strToInt("{dataMoverCommand,0x20,1,0,1,0,0x200,0}"))
 
 lmB_t3 = long_message_B.add_thread()
-axis_xpams_rx.read(lmB_t3, strToInt("{AMHeader,0x01,0x02,0x88,0xD,0x5,2}"))
+# USE_ABS_PAYLOAD axis_xpams_rx.read(lmB_t3, strToInt("{AMHeader,0x01,0x02,0x88,0xD,0x5,2}"))
+axis_xpams_rx.read(lmB_t3, strToInt("{AMHeader,0x01,0x02,0x60,0xD,0x5,2}"))
 axis_xpams_rx.read(lmB_t3, strToInt("{AMLongStride,0x100,32,3,0x5}"))
 axis_xpams_rx.read(lmB_t3, 0xAABBCCDD) # handler arg 0
 axis_xpams_rx.read(lmB_t3, 0xDDCCBBAA) # handler arg 1
@@ -272,7 +284,8 @@ lmC_t1 = long_message_C.add_thread()
 lmC_t1.add_delay('100ns')
 lmC_t1.init_timer()
 axis_net.writes(lmC_t1, [
-    {"tdata": strToInt("{AMHeader,type:0x6,src:0x01,dst:0x02,payload:0x888,handler:0xF,args:0}"), "callTB": 1},
+    # USE_ABS_PAYLOAD {"tdata": strToInt("{AMHeader,type:0x6,src:0x01,dst:0x02,payload:0x888,handler:0xF,args:0}"), "callTB": 1},
+    {"tdata": strToInt("{AMHeader,type:0x6,src:0x01,dst:0x02,payload:0x860,handler:0xF,args:0}"), "callTB": 1},
     {"tdata": strToInt("{AMLongVector,dst:2,dstSize:0x60,token:0x6}")},
     {"tdata": 0}, # destination 0
     {"tdata": 0x800}, # size 1 
@@ -292,7 +305,8 @@ axis_s2mmCommand.read(lmC_t2, strToInt("{dataMoverCommand,0x800,1,0,1,0,0xFF00,0
 
 lmC_t3 = long_message_C.add_thread()
 axis_xpams_rx.reads(lmC_t3, [
-    {"tdata": strToInt("{AMHeader,0x01,0x02,0x888,0xF,0x6,0}")},
+    # USE_ABS_PAYLOAD {"tdata": strToInt("{AMHeader,0x01,0x02,0x888,0xF,0x6,0}")},
+    {"tdata": strToInt("{AMHeader,0x01,0x02,0x860,0xF,0x6,0}")},
     {"tdata": strToInt("{AMLongVector,2,0x60,0x6}")}
 ])
 for i in range(2):
@@ -316,11 +330,11 @@ lmC_t4.print_elapsed_time("long_message_C")
 lmC_t4.end_vector()
 
 am_rx.add_test_vector(short_message_A)
-am_rx.add_test_vector(short_message_B)
-am_rx.add_test_vector(medium_message_A)
-am_rx.add_test_vector(medium_message_B)
-am_rx.add_test_vector(long_message_A)
-am_rx.add_test_vector(long_message_B)
-am_rx.add_test_vector(long_message_C)
+# am_rx.add_test_vector(short_message_B)
+# am_rx.add_test_vector(medium_message_A)
+# am_rx.add_test_vector(medium_message_B)
+# am_rx.add_test_vector(long_message_A)
+# am_rx.add_test_vector(long_message_B)
+# am_rx.add_test_vector(long_message_C)
 
 am_rx.generateTB(filepath, 'all')

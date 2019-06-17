@@ -149,6 +149,8 @@ unsigned long long power_64() {
     return sum;
 }
 
+#define POWER_2(x) (1ULL << (x))
+
 // taken from https://stackoverflow.com/a/17469726
 namespace Color {
     enum Code {

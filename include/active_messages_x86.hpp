@@ -78,6 +78,7 @@ void sendShortAM(
 );
 
 void sendMediumAM(
+    gc_AMtype_t type,
     gc_AMsrc_t src,
     gc_AMdst_t dst,
     gc_AMToken_t token,
@@ -90,6 +91,7 @@ void sendMediumAM(
 );
 
 void sendMediumAM(
+    gc_AMtype_t type,
     gc_AMsrc_t src,
     gc_AMdst_t dst,
     gc_AMToken_t token,
@@ -101,7 +103,8 @@ void sendMediumAM(
     galapagos::stream <word_t> & out
 );
 
-void sendlongAM(
+void sendLongAM(
+    gc_AMtype_t type,
     gc_AMsrc_t src,
     gc_AMdst_t dst,
     gc_AMToken_t token,
@@ -114,7 +117,8 @@ void sendlongAM(
     galapagos::stream <word_t> & out
 );
 
-void sendlongAM(
+void sendLongAM(
+    gc_AMtype_t type,
     gc_AMsrc_t src,
     gc_AMdst_t dst,
     gc_AMToken_t token,

@@ -235,9 +235,7 @@ void am_rx(
             gc_destination_t strideDest = AMdestination + AMstride;
             gc_strideBlockNum_t strideCount = 1;
             gc_dstVectorNum_t vectorCount = 0;
-            #ifdef USE_ABS_PAYLOAD
             AMpayloadSize = AMpayloadSize % GC_DATA_BYTES == 0 ? AMpayloadSize / GC_DATA_BYTES : (gc_payloadSize_t)((AMpayloadSize / GC_DATA_BYTES) + 1);
-            #endif
             while(i < AMpayloadSize){
                 // while(axis_net.empty()){
                     //busy loop

@@ -20,6 +20,8 @@ namespace shoal{
             galapagos::stream <word_t> * out;
 
             void allocate_handlerTable();
+            void sendMemUpdate(gc_AMdst_t dst);
+            void sendBarrierUpdate(gc_AMdst_t dst);
         public:
             kernel(int id, int kernel_num, galapagos::stream <word_t> * in, 
                 galapagos::stream <word_t> * out);
@@ -42,8 +44,20 @@ namespace shoal{
             void sendShortAM_async(gc_AMdst_t dst, gc_AMToken_t token,
                 gc_AMhandler_t handlerID, gc_AMargs_t handlerArgCount, 
                 word_t * handler_args);
-            void sendMemUpdate(gc_AMdst_t dst);
-            void sendBarrierUpdate(gc_AMdst_t dst);
+            void sendMediumAM_normal(gc_AMdst_t dst, gc_AMToken_t token,
+                gc_AMhandler_t handlerID, gc_AMargs_t handlerArgCount, 
+                word_t * handler_args, gc_payloadSize_t payloadSize, word_t* payload);
+            void sendMediumAM_normal(gc_AMdst_t dst, gc_AMToken_t token,
+                gc_AMhandler_t handlerID, gc_AMargs_t handlerArgCount, 
+                word_t * handler_args, gc_payloadSize_t payloadSize, word_t src_addr);
+            void sendLongAM_normal(gc_AMdst_t dst, gc_AMToken_t token,
+                gc_AMhandler_t handlerID, gc_AMargs_t handlerArgCount, 
+                word_t * handler_args, gc_payloadSize_t payloadSize, 
+                word_t* payload, word_t dst_addr);
+            void sendLongAM_normal(gc_AMdst_t dst, gc_AMToken_t token,
+                gc_AMhandler_t handlerID, gc_AMargs_t handlerArgCount, 
+                word_t * handler_args, gc_payloadSize_t payloadSize, 
+                word_t src_addr, word_t dst_addr);
     };
 } // namespace shoal
 

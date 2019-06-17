@@ -64,18 +64,18 @@ void am_tx(galapagos::stream <word_t> * in, galapagos::stream <word_t> * out){
     AMdst = hdextract(axis_word.data, AM_DST);
 
     if (isReplyAM(AMtype) && (!isShortAM(AMtype))){
-        ATOMIC_ACTION(printWord("   Writing ", axis_word));
+        ATOMIC_ACTION(printWord("   Writing to network ", axis_word));
         out->write(axis_word);
         // axis_net.write(axis_word);
         axis_word = in->read();
         while(axis_word.last != 1){
             // axis_net.write(axis_word);
-            ATOMIC_ACTION(printWord("   Writing ", axis_word));
+            ATOMIC_ACTION(printWord("   Writing to network ", axis_word));
             out->write(axis_word);
             axis_word = in->read();
         }
         // axis_net.write(axis_word);
-        ATOMIC_ACTION(printWord("   Writing ", axis_word));
+        ATOMIC_ACTION(printWord("   Writing to network ", axis_word));
         out->write(axis_word);
     }
     else{
@@ -83,7 +83,7 @@ void am_tx(galapagos::stream <word_t> * in, galapagos::stream <word_t> * out){
         axis_word.data = hdencode(axis_word.data, AM_TYPE, AMtype & 0xEF); //mask out FIFO bit
 
         // axis_net.write(axis_word);
-        ATOMIC_ACTION(printWord("   Writing ", axis_word));
+        ATOMIC_ACTION(printWord("   Writing to network ", axis_word));
         out->write(axis_word);
         // if((isLongxAM(AMtype) || isMediumAM(AMtype)) && 
         //     !isDataFromFIFO(AMtype)){
@@ -106,7 +106,7 @@ void am_tx(galapagos::stream <word_t> * in, galapagos::stream <word_t> * out){
             // if(!in->empty()){ //get destination metadata
                 axis_word = in->read();
                 // axis_net.write(axis_word);
-                ATOMIC_ACTION(printWord("   Writing ", axis_word));
+                ATOMIC_ACTION(printWord("   Writing to network ", axis_word));
                 out->write(axis_word);
                 #ifdef USE_ABS_PAYLOAD
                 AMpayloadSize -= GC_DATA_BYTES;
@@ -116,7 +116,7 @@ void am_tx(galapagos::stream <word_t> * in, galapagos::stream <word_t> * out){
                 axis_word = in->read();
                 axis_word.last = 0;
                 // axis_net.write(axis_word);
-                ATOMIC_ACTION(printWord("   Writing ", axis_word));
+                ATOMIC_ACTION(printWord("   Writing to network ", axis_word));
                 out->write(axis_word);
                 #ifdef USE_ABS_PAYLOAD
                 AMpayloadSize -= GC_DATA_BYTES;
@@ -141,7 +141,7 @@ void am_tx(galapagos::stream <word_t> * in, galapagos::stream <word_t> * out){
                 axis_word.data = hdencode(axis_word.data, AM_SRC_VECTOR_NUM, 0);
                 axis_word.data = hdencode(axis_word.data, AM_SRC_VECTOR_SIZE_HEAD, 0);
                 // axis_net.write(axis_word);
-                ATOMIC_ACTION(printWord("   Writing ", axis_word));
+                ATOMIC_ACTION(printWord("   Writing to network ", axis_word));
                 out->write(axis_word);
                 #ifdef USE_ABS_PAYLOAD
                 AMpayloadSize -= GC_DATA_BYTES;
@@ -158,7 +158,7 @@ void am_tx(galapagos::stream <word_t> * in, galapagos::stream <word_t> * out){
             // if(!in->empty()){ //read dst address
                 axis_word = in->read();
                 // axis_net.write(axis_word);
-                ATOMIC_ACTION(printWord("   Writing ", axis_word));
+                ATOMIC_ACTION(printWord("   Writing to network ", axis_word));
                 out->write(axis_word);
                 #ifdef USE_ABS_PAYLOAD
                 AMpayloadSize -= GC_DATA_BYTES;
@@ -182,7 +182,7 @@ void am_tx(galapagos::stream <word_t> * in, galapagos::stream <word_t> * out){
                 // if(!in->empty()){ //read dst size
                     axis_word = in->read();
                     // axis_net.write(axis_word);
-                    ATOMIC_ACTION(printWord("   Writing ", axis_word));
+                    ATOMIC_ACTION(printWord("   Writing to network ", axis_word));
                     out->write(axis_word);
                     #ifdef USE_ABS_PAYLOAD
                     AMpayloadSize -= GC_DATA_BYTES;
@@ -192,7 +192,7 @@ void am_tx(galapagos::stream <word_t> * in, galapagos::stream <word_t> * out){
                     axis_word = in->read();
                     axis_word.last = 0;
                     // axis_net.write(axis_word);
-                    ATOMIC_ACTION(printWord("   Writing ", axis_word));
+                    ATOMIC_ACTION(printWord("   Writing to network ", axis_word));
                     out->write(axis_word);
                     #ifdef USE_ABS_PAYLOAD
                     AMpayloadSize -= GC_DATA_BYTES;
@@ -203,7 +203,7 @@ void am_tx(galapagos::stream <word_t> * in, galapagos::stream <word_t> * out){
         else{
             axis_word = in->read();
             // axis_net.write(axis_word);
-            ATOMIC_ACTION(printWord("   Writing ", axis_word));
+            ATOMIC_ACTION(printWord("   Writing to network ", axis_word));
             out->write(axis_word);
             AMToken = hdextract(axis_word.data, AM_TOKEN);
             #ifdef USE_ABS_PAYLOAD
@@ -228,14 +228,14 @@ void am_tx(galapagos::stream <word_t> * in, galapagos::stream <word_t> * out){
                 if(!isMediumAM(AMtype)){
                     // read destination
                     axis_word = in->read();
-                    ATOMIC_ACTION(printWord("   Writing ", axis_word));
+                    ATOMIC_ACTION(printWord("   Writing to network ", axis_word));
                     out->write(axis_word);
                 }
             }
             else if(isLongAM(AMtype)){
                 // read destination
                 axis_word = in->read();
-                ATOMIC_ACTION(printWord("   Writing ", axis_word));
+                ATOMIC_ACTION(printWord("   Writing to network ", axis_word));
                 out->write(axis_word);
             }
         }
@@ -248,7 +248,7 @@ void am_tx(galapagos::stream <word_t> * in, galapagos::stream <word_t> * out){
                 axis_word = in->read();
                 // axis_word.last = enableLast;
                 // axis_net.write(axis_word);
-                ATOMIC_ACTION(printWord("   Writing ", axis_word));
+                ATOMIC_ACTION(printWord("   Writing to network ", axis_word));
                 out->write(axis_word);
                 AMpayloadSize -= GC_DATA_BYTES;
             // }
@@ -292,7 +292,7 @@ void am_tx(galapagos::stream <word_t> * in, galapagos::stream <word_t> * out){
                 axis_word.last = 0;
                 // i+=GC_DATA_BYTES;
                 // axis_net.write(axis_word);
-                ATOMIC_ACTION(printWord("   Writing ", axis_word));
+                ATOMIC_ACTION(printWord("   Writing to network ", axis_word));
                 out->write(axis_word);
             }
             if(isDataFromFIFO(AMtype))
@@ -323,7 +323,7 @@ void am_tx(galapagos::stream <word_t> * in, galapagos::stream <word_t> * out){
             }
             axis_word.last = 1;
             // axis_net.write(axis_word);
-            ATOMIC_ACTION(printWord("   Writing ", axis_word));
+            ATOMIC_ACTION(printWord("   Writing to network ", axis_word));
             out->write(axis_word);
         }                    
     }
@@ -344,6 +344,7 @@ void xpams_rx(galapagos::stream <word_t> * in,
     galapagos::stream_packet <word_t> axis_word;
 
     axis_word = in->read();
+    ATOMIC_ACTION(printWord("   Reading in xpams 1 - ", axis_word));
     AMsrc = hdextract(axis_word.data, AM_SRC);
     AMdst = hdextract(axis_word.data, AM_DST);
     AMpayloadSize = hdextract(axis_word.data, AM_PAYLOAD_SIZE);
@@ -354,11 +355,12 @@ void xpams_rx(galapagos::stream <word_t> * in,
         axis_word.data = hdencode(axis_word.data, AM_TYPE, (AMtype & (~AM_REPLY)) + AM_ASYNC);
         axis_word.data = hdencode(axis_word.data, AM_SRC, AMdst);
         axis_word.data = hdencode(axis_word.data, AM_DST, AMsrc);
-        ATOMIC_ACTION(printWord("   Writing to loopback - ", axis_word));
+        ATOMIC_ACTION(printWord("   Writing to loopback 1 - ", axis_word));
         out->write(axis_word);
     }
 
     axis_word = in->read(); //read token
+    ATOMIC_ACTION(printWord("   Reading in xpams 2 - ", axis_word));
     AMToken = hdextract(axis_word.data, AM_TOKEN);
     if(isReplyAM(AMtype) && isShortAM(AMtype)){
         axis_word.data = 0;
@@ -381,15 +383,15 @@ void xpams_rx(galapagos::stream <word_t> * in,
         // currentState = st_AMheader;
     }
     else if(isReplyAM(AMtype)){
-        ATOMIC_ACTION(printWord("   Writing to loopback - ", axis_word));
+        ATOMIC_ACTION(printWord("   Writing to loopback 2 - ", axis_word));
         out->write(axis_word);
         // axis_word = in->read();
         do{
             axis_word = in->read();
-            ATOMIC_ACTION(printWord("   Writing to loopback - ", axis_word));
+            ATOMIC_ACTION(printWord("   Writing to loopback 3 - ", axis_word));
             out->write(axis_word);
         } while(axis_word.last != 1);
-        ATOMIC_ACTION(printWord("   Writing to loopback - ", axis_word));
+        ATOMIC_ACTION(printWord("   Writing to loopback 4 - ", axis_word));
         out->write(axis_word);
         // currentState = st_AMheader;
     }
@@ -454,14 +456,14 @@ void xpams_rx(galapagos::stream <word_t> * in,
             axis_word.keep = GC_DATA_TKEEP;
             axis_word.dest = AMsrc;
             axis_word.last = 0;
-            ATOMIC_ACTION(printWord("   Writing to loopback - ", axis_word));
+            ATOMIC_ACTION(printWord("   Writing to loopback 5 - ", axis_word));
             out->write(axis_word);
             axis_word.data = 0;
             axis_word.data = hdencode(axis_word.data, AM_TOKEN, AMToken);
             // hdextract(axis_word.data, 39,) = 0;
             axis_word.last = 1; //!needs to be handled better
             axis_word.keep = GC_DATA_TKEEP;
-            ATOMIC_ACTION(printWord("   Writing to loopback - ", axis_word));
+            ATOMIC_ACTION(printWord("   Writing to loopback 6 - ", axis_word));
             out->write(axis_word);
         }
     }
@@ -591,7 +593,7 @@ void am_rx(galapagos::stream <word_t> * in,
                 axis_word = in->read();
                 AMdestination = axis_word.data;
                 // ATOMIC_ACTION(printWord("   Writing ", axis_word));
-                out->write(axis_word);
+                // out->write(axis_word);
                 #ifdef USE_ABS_PAYLOAD
                 AMpayloadSize-=GC_DATA_BYTES;
                 gc_strideBlockSize_t payload = isLongAM(AMtype) ? (gc_strideBlockSize_t)(AMpayloadSize - AMargs*GC_DATA_BYTES) : (gc_strideBlockSize_t)(AMstrideBlockSize);
@@ -621,7 +623,7 @@ void am_rx(galapagos::stream <word_t> * in,
             i++;
             if(isMediumAM(AMtype)){
                 ATOMIC_ACTION(printWord("   Writing ", axis_word));
-            out->write(axis_word);
+                out->write(axis_word);
             }
             else{
                 if(isLongAM(AMtype)){
@@ -736,13 +738,16 @@ void handler_thread(void (*fcnPtr)(galapagos::stream <word_t>* ,
         while((in->empty() && kernel_out->empty() && am_xpams_out->empty()) && !(*done)){
             sched_yield();
         };
-        if (*(done)){
+        if (*(done) && (in->empty() && kernel_out->empty() && am_xpams_out->empty())){
             SAFE_COUT("Joining thread in kernel " << id << "\n");
             kernel_thread.join();
             break;
         }
 
         galapagos::stream_packet <word_t> axis_word;
+        if (gasnet_shared_mem == nullptr){
+            gasnet_shared_mem = gasnet_shared_mem_global[id];
+        }
 
         if (!in->empty()){
             SAFE_COUT("Data arrived in handler " << id << " from network\n");
@@ -939,7 +944,6 @@ void handler_thread(void (*fcnPtr)(galapagos::stream <word_t>* ,
         }
     };
 
-    delete gasnet_shared_mem;
     delete done;
     delete mutex_nodedata;
 }

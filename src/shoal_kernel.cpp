@@ -25,11 +25,9 @@ int shoal::kernel::init(){
 }
 
 void InternalBarrierUpdate(){
-    // lock_nodedata.lock();
     lock_guard_t lck(*mutex_nodedata);
 	SAFE_COUT(COLOR(Color::FG_BLUE, dec, "Updating barrier_cnt at " << nodedata << " to " << nodedata->barrier_cnt+1 << "\n"));
     nodedata->barrier_cnt++;
-    // lock_nodedata.unlock();
 	return;
 }
 
@@ -61,7 +59,7 @@ int shoal::kernel::attach(gasnet_handlerentry_t *table, int numentries, int size
 		handlertable[table[t].index] = (void*) table[t].fnptr;
 
 	// fill in private GASNet handlers
-    handlertable[0] = (void*)emptyHandler;
+    handlertable[H_EMPTY] = (void*)emptyHandler;
 	handlertable[H_INCR_BAR] = (void*)InternalBarrierUpdate;
 	handlertable[H_INCR_MEM] = (void*)MemReadyBarrierUpdate;
 	handlertable[H_ADD] = (void*)counterUpdate;
@@ -123,6 +121,38 @@ void shoal::kernel::sendShortAM_async(gc_AMdst_t dst, gc_AMToken_t token,
         handlerArgCount, handler_args, *(this->out));
 }
 
+void shoal::kernel::sendMediumAM_normal(gc_AMdst_t dst, gc_AMToken_t token,
+    gc_AMhandler_t handlerID, gc_AMargs_t handlerArgCount, word_t * handler_args,
+    gc_payloadSize_t payloadSize, word_t* payload)
+{
+    sendMediumAM(AM_MEDIUM|AM_FIFO, this->id, dst, token, handlerID, handlerArgCount, 
+        handler_args, payloadSize, payload, *(this->out));
+}
+
+void shoal::kernel::sendMediumAM_normal(gc_AMdst_t dst, gc_AMToken_t token,
+    gc_AMhandler_t handlerID, gc_AMargs_t handlerArgCount, word_t * handler_args,
+    gc_payloadSize_t payloadSize, word_t src_addr)
+{
+    sendMediumAM(AM_MEDIUM, this->id, dst, token, handlerID, handlerArgCount, 
+        handler_args, payloadSize, src_addr, *(this->out));
+}
+
+void shoal::kernel::sendLongAM_normal(gc_AMdst_t dst, gc_AMToken_t token,
+    gc_AMhandler_t handlerID, gc_AMargs_t handlerArgCount, word_t * handler_args,
+    gc_payloadSize_t payloadSize, word_t* payload, word_t dst_addr)
+{
+    sendLongAM(AM_LONG|AM_FIFO, this->id, dst, token, handlerID, handlerArgCount, 
+        handler_args, payloadSize, payload, dst_addr, *(this->out));
+}
+
+void shoal::kernel::sendLongAM_normal(gc_AMdst_t dst, gc_AMToken_t token,
+    gc_AMhandler_t handlerID, gc_AMargs_t handlerArgCount, word_t * handler_args,
+    gc_payloadSize_t payloadSize, word_t src_addr, word_t dst_addr)
+{
+    sendLongAM(AM_LONG, this->id, dst, token, handlerID, handlerArgCount, 
+        handler_args, payloadSize, src_addr, dst_addr, *(this->out));
+}
+
 void shoal::kernel::sendMemUpdate(gc_AMdst_t dst){
     sendShortAM_normal(dst, 0, H_INCR_MEM, 0, nullptr);
 }
@@ -148,15 +178,13 @@ void shoal::kernel::barrier_send(int id){
 }
 
 void shoal::kernel::wait_reply(unsigned int value){
-    // while(this->in->empty()){};
-    // ATOMIC_ACTION(replyWait(this->id, this->in));
     this->wait_mem(value);
-    // nodedata->mem_ready_barrier_cnt = 0;
 }
 
 void shoal::kernel::end(){
     SAFE_COUT("Leaving kernel " << this->id << "\n");
 
-    free(gasnet_shared_mem_global[this->id]);
+    free(gasnet_shared_mem);
     *kernel_done[this->id] = true;
+    // should free handlertable but it may segfault in the handler
 }

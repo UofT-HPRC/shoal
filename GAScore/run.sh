@@ -23,8 +23,7 @@ export
     make_GASCore: generate GAScore from scratch (0 | 1)
 
 benchmark
-  create
-    create: 0 | 1
+  [no args]
 "
 
 if [[ "$#" == 0 || $1 == '--h' || $1 == '-help' ]]; then
@@ -42,9 +41,9 @@ elif [[ $1 == 'export' && "$#" == 3 ]]; then
   fi
   make sim-GAScore VIV_MODE=batch VIV_SIM=0 VIV_CREATE=$3 VIV_SYNTH=0 VIV_IMPL=0 VIV_BIT=0 VIV_EXPORT=0
   make package
-elif [[ $1 == 'benchmark' && "$#" == 2 ]]; then
-  make config-GAScore_benchmark
-  make sim-GAScore_benchmark VIV_MODE=batch VIV_SIM=behav VIV_CREATE=$2 VIV_SYNTH=0 VIV_IMPL=0 VIV_BIT=0 VIV_EXPORT=0 > $SHOAL_PATH/data/GAScore_latency.txt
+elif [[ $1 == 'benchmark' && "$#" == 1 ]]; then
+  make config-GAScore
+  make sim-GAScore VIV_MODE=batch VIV_SIM=behav VIV_CREATE=1 VIV_SYNTH=0 VIV_IMPL=0 VIV_BIT=0 VIV_EXPORT=0 > $SHOAL_PATH/data/GAScore_latency.txt
   python $SHOAL_PATH/data/GAScore_latency.py
 else
   echo -e "$help_message"

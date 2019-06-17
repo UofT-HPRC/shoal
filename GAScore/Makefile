@@ -2,6 +2,8 @@
 # Include
 ################################################################################
 
+include $(SHOAL_PATH)/include.mk
+
 ################################################################################
 # Prologue
 ################################################################################
@@ -76,13 +78,6 @@ CFLAGS = -g -Wall -I$(local_include_dir) -I$(helper_include_dir) -I$(global_incl
 ################################################################################
 
 .PHONY: test hw sim clean
-
-# checks that variables are set prior to running targets
-guard-%:
-	@ if [ "${${*}}" = "" ]; then \
-		echo "Variable $* not set"; \
-		exit 1; \
-	fi
 
 #-------------------------------------------------------------------------------
 # C++ Testbench Execution

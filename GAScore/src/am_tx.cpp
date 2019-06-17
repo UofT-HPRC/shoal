@@ -150,7 +150,9 @@ void am_tx(
                     // axis_word.last = enableLast;
                     // axis_net.write(axis_word);
                     write(axis_net, axis_word, AMdst);
+                    #ifdef USE_ABS_PAYLOAD
                     AMpayloadSize -= GC_DATA_BYTES;
+                    #endif
                 // }
             }
             currentState = isShortAM(AMtype) ? st_done : st_AMpayload;
