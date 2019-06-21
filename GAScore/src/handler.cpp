@@ -3,9 +3,9 @@
 void handler(
     axis_noKeep_t &axis_handler, //input to handler
     gc_AMhandler_t AMhandler,
-    uint_3_t config,
+    uint_2_t config,
+    uint_16_t config_handler,
     uint_32_t counter_threshold,
-    uint_32_t token,
     uint_1_t &interrupt
 ){
     #pragma HLS INTERFACE axis port=axis_handler
@@ -13,6 +13,7 @@ void handler(
     #pragma HLS INTERFACE ap_none port=interrupt
     #pragma HLS INTERFACE ap_none port=AMhandler
     #pragma HLS INTERFACE s_axilite port=config bundle=ctrl_bus
+    #pragma HLS INTERFACE s_axilite port=config_handler bundle=ctrl_bus
     #pragma HLS INTERFACE s_axilite port=counter_threshold bundle=ctrl_bus
 
     axis_wordNoKeep_t axis_word;
@@ -20,15 +21,17 @@ void handler(
     static uint_32_t barrier_cnt = 0;
     static uint_32_t mem_ready_barrier_cnt = 0;
 
-    uint_1_t reset = config[0];
-    uint_1_t enable_add = config[1];
+    uint_1_t lock = config[0];
+    uint_1_t reset = config[1];
     static uint_1_t interrupt_wire = 0;
+    static uint_1_t acknowledged = 0;
     
-    if(reset != 1){
+    if(lock != 1){
         if(axis_handler.read_nb(axis_word)){
             switch(AMhandler){
                 case H_INCR_MEM:{
                     mem_ready_barrier_cnt++;
+                    break;
                 }
                 case H_ADD:{
                     counter += axis_word.data(31,0);
@@ -43,16 +46,48 @@ void handler(
                 }
             }
         }
+    } else {
+        if (!acknowledged){
+            switch(config_handler){
+                case H_INCR_MEM:{
+                    mem_ready_barrier_cnt -= counter_threshold;
+                    break;
+                }
+                case H_ADD:{
+                    counter -= counter_threshold;
+                    break;
+                }
+                case H_INCR_BAR:{
+                    barrier_cnt -= counter_threshold;
+                    break;
+                }
+                default:
+                    break;
+            }
+            acknowledged = 1;
+        }
     }
 
-    if (config & 1){
+    if (reset){
         interrupt_wire = 0;
-    } else if(config == H_INCR_MEM<<1){
-        interrupt_wire = interrupt_wire | (mem_ready_barrier_cnt >= counter_threshold);
-    } else if(config == H_ADD<<1){
-        interrupt_wire = interrupt_wire | (counter >= counter_threshold);
-    } else if(config == H_INCR_BAR<<1){
-        interrupt_wire = interrupt_wire | (barrier_cnt >= counter_threshold);
+        acknowledged = 0;
+    } else {
+        switch(config_handler){
+            case H_INCR_MEM:{
+                interrupt_wire = interrupt_wire | (mem_ready_barrier_cnt >= counter_threshold);
+                break;
+            }
+            case H_ADD:{
+                interrupt_wire = interrupt_wire | (counter >= counter_threshold);
+                break;
+            }
+            case H_INCR_BAR:{
+                interrupt_wire = interrupt_wire | (barrier_cnt >= counter_threshold);
+                break;
+            }
+            default:
+                break;
+        }
     }
 
     interrupt = interrupt_wire;

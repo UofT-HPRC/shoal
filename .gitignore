@@ -18,6 +18,9 @@ archive/
 hs_err_pid*.log
 vivado_pid*.str
 *.tmp
+GAScore/include/handler_register_map.hpp
+tests/projects/
+include/user_config.hpp
 
 # Prerequisites
 *.d

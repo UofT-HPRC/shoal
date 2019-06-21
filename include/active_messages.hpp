@@ -62,13 +62,13 @@ bool isMediumFIFOAM(gc_AMtype_t arg);
 
 bool isLongFIFOAM(gc_AMtype_t arg);
 
-#if defined(__MICROBLAZE__)
-
-#include "active_messages_mb.hpp"
-
-#elif defined(__HLS__)
+#if defined(__HLS__)
 
 #include "active_messages_hls.hpp"
+
+#elif defined(__MICROBLAZE__)
+
+#include "active_messages_mb.hpp"
 
 #elif defined(__x86_64__)
 

@@ -1,33 +1,52 @@
 #if !defined(SHOAL_INCLUDE_KERNEL_H_)
 #define SHOAL_INCLUDE_KERNEL_H_
 
-//#define USE_APUINT
+// USE_APUINT and CPU may need to be defined prior to these inclusions
 #include "hls_types.hpp"
-#define CPU
 #include "galapagos_stream.hpp"
+
+#ifdef __HLS__
+
+#define SAFE_COUT(args)
+#define ATOMIC_ACTION(args) args
+
+#else // x86 or MB
 
 typedef struct{
 	gc_AMhandler_t index; // == 0 for don’t care
 	void (*fnptr)();
 } gasnet_handlerentry_t;
 
+#endif
+
 namespace shoal{
     class kernel{
         private:
             int id;
             int kernel_num;
-            galapagos::stream <word_t> * in;
-            galapagos::stream <word_t> * out;
+            galapagos::stream<word_t> * in;
+            galapagos::stream<word_t> * out;
 
+            #ifdef __HLS__
+            volatile uint_1_t* interrupt;
+            int* handler_ctrl;
+            #else
             void allocate_handlerTable();
+            #endif
             void sendMemUpdate(gc_AMdst_t dst);
             void sendBarrierUpdate(gc_AMdst_t dst);
         public:
-            kernel(int id, int kernel_num, galapagos::stream <word_t> * in, 
-                galapagos::stream <word_t> * out);
             int get_id();
             int init();
+            #ifdef __HLS__
+            kernel(int id, int kernel_num, galapagos::stream<word_t> * in,
+                galapagos::stream<word_t> * out, volatile uint_1_t* interrupt, 
+                int * handler_ctrl);
+            #else
+            kernel(int id, int kernel_num, galapagos::stream<word_t> * in, 
+                galapagos::stream<word_t> * out);
             int attach(gasnet_handlerentry_t *table, int numentries, int size);
+            #endif
             void end();
 
             void wait_mem(unsigned int value);

@@ -183,4 +183,7 @@ namespace Color {
 #define hdextract(arg, bits) (((arg) & bits##_BITMASK) >> bits##_LOWER)
 #define hdencode(arg, bits,data) (((arg) & (~bits##_BITMASK)) | (((long long)(data) << bits##_LOWER) & bits##_BITMASK))
 
+#define STRINGIFY2(X) #X
+#define STRINGIFY(X) STRINGIFY2(X)
+
 #endif // SHOAL_INCLUDE_GLOBAL_UTILITIES_H_

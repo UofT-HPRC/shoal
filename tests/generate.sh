@@ -1,30 +1,30 @@
 #!/usr/bin/env bash
 
-if [[ "$#" != 1 ]]; then
-    echo "Syntax: script moduleName"
+if [[ "$#" != 2 ]]; then
+    echo "Syntax: script filename top"
     exit 1
 fi
 
 old_path=$PWD
 file=$1
+top=$2
 
-basePath=$SHOAL_PATH/GAScore/vivado_hls
+basePath=$SHOAL_PATH/tests
 projectPath=$basePath/projects/$SHOAL_HLS_VERSION
 solutionPath=$projectPath/$file/$SHOAL_PART_FAMILY
 ipPath=$solutionPath/impl/ip
-repoPath=$SHOAL_PATH/GAScore/repo/$SHOAL_VIVADO_VERSION/$SHOAL_PART_FAMILY/$file
+repoPath=$SHOAL_PATH/repo/$SHOAL_VIVADO_VERSION/$SHOAL_PART_FAMILY/$file
 
-prefixedName=${file}_${file}
-finalName=$file
+prefixedName=${file}_${top}
+finalName=$top
 
 mkdir -p $projectPath
 cd $projectPath
-vivado_hls -f $basePath/generate.tcl $file
+vivado_hls -f $basePath/generate.tcl $file $top
 vivado_return=$?
 if [[ $vivado_return != 0 ]]; then
     exit $vivado_return
 fi
-# cp $SHOAL_PATH/GAScore/src/$file.cpp $solutionPath
 cat $solutionPath/syn/report/${finalName}_csynth.rpt
 mkdir -p $repoPath
 rm -rf $repoPath/*

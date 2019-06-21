@@ -7,7 +7,8 @@
 
 #define __HLS__
 #define USE_APUINT
-#include "active_messages.hpp"
+// #include "active_messages.hpp"
+#include "hls_types.hpp"
 #include "stream.hpp"
 #include "global_utilities.hpp"
 

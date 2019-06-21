@@ -10,6 +10,7 @@
 
 #include "ap_int.h"
 #include "stream.hpp"
+#include "config.hpp"
 #include "global_utilities.hpp" // for power
 
 //unsigned int

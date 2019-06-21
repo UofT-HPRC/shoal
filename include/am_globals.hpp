@@ -19,9 +19,6 @@ typedef struct gasnet_nodedata_str {
     // TODO Add H_WAIT
 } gasnet_nodedata_t;
 
-#define INIT_SAFE_COUT \
-	lock_t lock_print(mutex_print, std::defer_lock);
-
 #define SAFE_COUT(args) \
 lock_print.lock(); \
 std::cout << args; \

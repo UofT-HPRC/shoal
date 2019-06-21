@@ -14,6 +14,7 @@ SHELL := bash
 .DEFAULT_GOAL := 
 .DELETE_ON_ERROR:
 .SUFFIXES:
+.SECONDEXPANSION:
 
 ################################################################################
 # Variables
@@ -49,7 +50,7 @@ app_files := commtest_gascorev2
 
 test_files := queue_test
 
-galapagos_files := one_node
+galapagos_files := node_1_kern_2 node_2_kern_2
 
 obj = $(shell find $(test_build_dir) -name '*.o' -printf '%f\n' | \
 sort -k 1nr | cut -f2-)
@@ -60,14 +61,17 @@ GAScore_build_dirs := $(shell find $(SHOAL_PATH) -type d -name 'build' -not -pat
 CC = /usr/bin/g++-7
 CFLAGS = -g -Wall -O0 -I$(include_dir) -I$(GAScore_dir) -isystem $(SHOAL_HLS_PATH)\
 	-I$(GALAPAGOS_PATH)/middleware/CPP_lib/Galapagos_lib -I$(GALAPAGOS_PATH)/middleware/include\
-	-Wno-unused-value -Wno-unused-variable -Wno-comment \
+	-Wno-unused-value -Wno-unused-variable -Wno-comment -Wno-unknown-pragmas\
 	-Wno-unused-but-set-variable -Wno-unused-function -MMD -MP -pthread -std=c++17
 LIBS = -lpthread -lrt
 APP_LIBS = -L$(SHOAL_PATH)/build -lTHeGASnet
 
-GALAPAGOS_LIBS = -lboost_thread -lboost_system -lpthread -L$(SHOAL_PATH)/build -lTHeGASnet
+GALAPAGOS_LIBS = -L/usr/local/lib -lboost_thread -lboost_system -lpthread -L$(SHOAL_PATH)/build -lTHeGASnet
 
 MYFLAGS += $(foreach N,$(NUM_RANGE),-DMYVAR$N=$(MYVAR$N) )
+
+K_START ?= 0
+K_END ?= 0
 
 ################################################################################
 # Body
@@ -120,13 +124,26 @@ $(foreach file, $(test_files),$(eval $(call make-test-executable,$(file))))
 galapagos_modules=$(patsubst %, galapagos-%, $(galapagos_files))
 galapagos: $(galapagos_modules)
 
+ifeq ($(MODE),x86)
+# .SECONDEXPANSION is needed here to evaluate NUM_RANGE and WRAP in succession.
+# The expansion works without this special target if the body isn't inside a 
+# define.
 define make-galapagos-executable
-galapagos-$1:  $(test_build_dir)/$1.o $(test_build_dir)/$1_kern.o guard-KERNELS
-	$(eval NUM_RANGE := $(shell seq 0 $(KERNELS)))
-	$(eval WRAP += $(foreach N,$(NUM_RANGE),-Wl,--wrap=kern$N ))
-	$(CC) $(CFLAGS) -o $(test_bin_dir)/$1 $(test_build_dir)/$1.o \
-		$(test_build_dir)/$1_kern.o $(WRAP) $(GALAPAGOS_LIBS)
+galapagos-$1: NUM_RANGE = $(shell seq $(K_START) $(K_END))
+galapagos-$1: WRAP += $$(foreach N,$$(NUM_RANGE),-Wl,--wrap=kern$$N )
+galapagos-$1: $(test_build_dir)/$1$(BUILD_SUFFIX).o $(test_build_dir)/$1_main$(BUILD_SUFFIX).o
+	@echo $$(WRAP)
+	$(CC) $(CFLAGS) -o $(test_bin_dir)/$1$(BUILD_SUFFIX) $(test_build_dir)/$1$(BUILD_SUFFIX).o \
+		$(test_build_dir)/$1_main$(BUILD_SUFFIX).o $$(WRAP) $(GALAPAGOS_LIBS)
+	
 endef
+else ifeq ($(MODE),HLS)
+# Kernels fail to synthesize in 2017.2 but work in 2018.1. Haven't tested others
+define make-galapagos-executable
+galapagos-$1: guard-KERNEL
+	$(SHOAL_PATH)/tests/generate.sh $1$(BUILD_SUFFIX) $(KERNEL)
+endef
+endif
 $(foreach file, $(galapagos_files),$(eval $(call make-galapagos-executable,$(file))))
 
 #-------------------------------------------------------------------------------
@@ -152,11 +169,11 @@ endef
 $(foreach file, $(test_files),$(eval $(call make-test-object,$(file))))
 
 define make-galapagos-object
-$(test_build_dir)/$1.o: $(test_dir)/$1.cpp
-	$(CC) $(CFLAGS) -o $(test_build_dir)/$1.o -c $(test_dir)/$1.cpp $(LIBS)
+$(test_build_dir)/$1$(BUILD_SUFFIX).o: $(test_dir)/$1$(BUILD_SUFFIX).cpp
+	$(CC) $(CFLAGS) -o $(test_build_dir)/$1$(BUILD_SUFFIX).o -c $(test_dir)/$1$(BUILD_SUFFIX).cpp $(LIBS)
 
-$(test_build_dir)/$1_kern.o: $(test_dir)/$1_kern.cpp
-	$(CC) $(CFLAGS) -o $(test_build_dir)/$1_kern.o -c $(test_dir)/$1_kern.cpp $(LIBS)
+$(test_build_dir)/$1_main$(BUILD_SUFFIX).o: $(test_dir)/$1_main$(BUILD_SUFFIX).cpp
+	$(CC) $(CFLAGS) -o $(test_build_dir)/$1_main$(BUILD_SUFFIX).o -c $(test_dir)/$1_main$(BUILD_SUFFIX).cpp $(LIBS)
 endef
 $(foreach file, $(galapagos_files),$(eval $(call make-galapagos-object,$(file))))
 
