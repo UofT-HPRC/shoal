@@ -24,10 +24,6 @@ $(error SHOAL_PATH not set in env -- must be set to the absolute path of \
 of the repository root. Did you source init.sh?)
 endif
 
-ifndef SONAR_PATH
-$(error SONAR_PATH not set in env -- sonar is required for testing)
-endif
-
 ifndef SHOAL_HLS_PATH
 $(error SHOAL_HLS_PATH not set in env -- must be set to the absolute path of \
 of the Vivado HLS include/ directory. Did you source init.sh?)
@@ -101,7 +97,7 @@ config: $(config_modules)
 
 # Overwrites .dat file in sim folders if the file already exists there
 define make-config
-config-$1:
+config-$1: guard-SONAR_PATH
 	@python $(test_dir)/$1.py
 	@$(eval $1_sim_path = $(vivado_dir)/projects/$(SHOAL_VIVADO_VERSION)/$(SHOAL_PART)/$1/$1.sim/sim_1/behav)
 	@if [[ -f $($1_sim_path)/$1_sv.dat ]]; then cp $(test_build_dir)/$1/$1_sv.dat $($1_sim_path); fi

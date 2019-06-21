@@ -152,6 +152,7 @@ print_stat_abs("SM to reply delay - fourth", fltr_stats_2[7]['time'], fltr_stats
 
 fltr_stats_2 = list(filter(lambda x : x['vector'] == 'smb' and x['thread'] == 2, stats))
 fltr_stats_3 = list(filter(lambda x : x['vector'] == 'smb' and x['thread'] == 3, stats))
+fltr_stats_4 = list(filter(lambda x : x['vector'] == 'smb' and x['thread'] == 4, stats))
 
 print_header("Short Message B", "=")
 
@@ -174,24 +175,24 @@ print_delay(fltr_stats_2, 13, 14, 2.0)
 print_stat_offset("Incoming SM from kernel for network - 6", fltr_stats_2[15]['time'], fltr_stats_2[16]['time'], 2.0, fltr_stats_2[14]['time'])
 print_delay(fltr_stats_2, 15, 16, 2.0)
 
-print_stat_offset("Incoming SM reply from network", fltr_stats_2[20]['time'], fltr_stats_2[21]['time'], 2.0)
-print_delay(fltr_stats_2, 20, 21, 2.0)
+print_stat_offset("Incoming SM reply from network", fltr_stats_2[18]['time'], fltr_stats_2[19]['time'], 2.0)
+print_delay(fltr_stats_2, 18, 19, 2.0)
 
 print_header("Thread 2", "-")
 # ? This needs to be updated after reply messages were no longer forwarded to the kernel
-# print_stat_offset("Outgoing to network - 7", fltr_stats_3[5]['time'], fltr_stats_3[6]['time'], 2.0)
-# print_delay(fltr_stats_3, 5, 6, 2.0)
-# print_stat_offset("Outgoing to network - 8", fltr_stats_3[7]['time'], fltr_stats_3[8]['time'], 2.0)
-# print_delay(fltr_stats_3, 7, 8, 2.0)
+print_stat_offset("Outgoing to network - 7", fltr_stats_3[1]['time'], fltr_stats_3[2]['time'], 2.0)
+print_delay(fltr_stats_3, 1, 2, 2.0)
+print_stat_offset("Outgoing to network - 8", fltr_stats_3[3]['time'], fltr_stats_3[4]['time'], 2.0)
+print_delay(fltr_stats_3, 3, 4, 2.0)
 
-# print_header("Inter-thread", "-")
+print_header("Inter-thread", "-")
 
-# # time between end of SM to beginning of reply
+# time between end of SM to beginning of reply
 # print_stat_abs("SM to reply delay - 1", fltr_stats_2[0]['time'], fltr_stats_3[1]['time'])
 # print_stat_abs("SM to reply delay - 2", fltr_stats_2[3]['time'], fltr_stats_3[2]['time'])
 # print_stat_abs("SM to reply delay - 3", fltr_stats_2[8]['time'], fltr_stats_3[3]['time'])
 # print_stat_abs("SM to reply delay - 4", fltr_stats_2[10]['time'], fltr_stats_3[4]['time'])
-# print_stat_abs("SM to reply delay - 5", fltr_stats_2[13]['time'], fltr_stats_3[6]['time'])
-# print_stat_abs("SM to reply delay - 6", fltr_stats_2[15]['time'], fltr_stats_3[8]['time'])
+print_stat_abs("SM to reply delay - 5", fltr_stats_2[13]['time'], fltr_stats_3[2]['time'])
+print_stat_abs("SM to reply delay - 6", fltr_stats_2[15]['time'], fltr_stats_3[4]['time'])
 
 # print_stat_abs("Net reply to kernel forward delay", fltr_stats_2[20]['time'], fltr_stats_3[10]['time'])

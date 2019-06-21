@@ -3,10 +3,10 @@
 
 /* 
  * This is an example user config file to provide IP addresses and other 
- * information for Shoal to use about your setup. It's included here. Since the 
- * particular values may change between runs, we don't want to commit every 
- * change to this file necessarily. Instead, this is provided as a reference for
- * which variables may need to be defined.
+ * information for Shoal to use about your setup. Since the particular values 
+ * may change between runs, we don't want to commit every change to this file 
+ * necessarily. Instead, this is provided as a reference for which variables may
+ * need to be defined.
  * 
  * To use, copy this file over to the parent include folder. The file with this 
  * name in the parent include folder is ignored in Git.

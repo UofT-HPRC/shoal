@@ -120,7 +120,15 @@ if { $create_proj > 0 } {
   set_property -name "ip_output_repo" -value "$proj_dir/$project_name.cache/ip" -objects $obj
   set_property -name "part" -value "$part_name" -objects $obj
   if {[info exists env(SHOAL_BOARD)]} {
-    set_property board_part ${::env(SHOAL_BOARD)} -objects $obj
+    if { [ lsearch [get_board_parts] ${::env(SHOAL_BOARD)}] != -1 } {
+      set_property board_part ${::env(SHOAL_BOARD)} -objects $obj
+    } else {
+      puts ""
+      catch {common::send_msg_id "BD_TCL-109" "ERROR" "${::env(SHOAL_BOARD)} \
+        not found in this Vivado installation"
+        return -1
+      }
+    }
   }
   set_property -name "sim.ip.auto_export_scripts" -value "1" -objects $obj
   set_property -name "simulator_language" -value "Mixed" -objects $obj

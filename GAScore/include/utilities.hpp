@@ -5,7 +5,9 @@
  * Includes
 *******************************************************************************/
 
+#ifndef __HLS__
 #define __HLS__
+#endif
 #define USE_APUINT
 // #include "active_messages.hpp"
 #include "hls_types.hpp"
@@ -68,17 +70,17 @@ typedef ap_uint<23> btt_t;
     WHEN(EQUAL(key, uaxis_l))\
         (WRITE_WORD_L(word_type, args[0], args[1], args[2], interface))\
     WHEN(EQUAL(key, uaxis_m))\
-    	(WRITE_WORD_M(word_type, args[0], args[1], args[2], args[3], interface))\
+        (WRITE_WORD_M(word_type, args[0], args[1], args[2], args[3], interface))\
     WHEN(EQUAL(key, uaxis_n))\
         (WRITE_WORD_N(word_type, args[0], args[1], interface))
 
 #define READ(key, word_type, interface)\
     WHEN(EQUAL(key, uaxis_l))\
-    	(READ_WORD_L(word_type, readArgs[0], readArgs[1], readArgs[2], interface))\
+        (READ_WORD_L(word_type, readArgs[0], readArgs[1], readArgs[2], interface))\
     WHEN(EQUAL(key, uaxis_m))\
-    	(READ_WORD_M(word_type, readArgs[0], readArgs[1], readArgs[2], readArgs[3], interface))\
+        (READ_WORD_M(word_type, readArgs[0], readArgs[1], readArgs[2], readArgs[3], interface))\
     WHEN(EQUAL(key, uaxis_n))\
-    	(READ_WORD_N(word_type, readArgs[0], readArgs[1], interface))
+        (READ_WORD_N(word_type, readArgs[0], readArgs[1], interface))
 
 #define VERIFY(key)\
     if(!strcmp(key,"uaxis_l")){\
