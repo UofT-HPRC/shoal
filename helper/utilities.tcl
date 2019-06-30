@@ -82,3 +82,43 @@ proc get_design_name {design_name} {
 
   return [list $cur_design $design_name $errMsg $nRet]
 }
+
+proc get_bd_ips {} {
+  return [get_ipdefs -all -filter design_tool_contexts=~*IPI*]
+}
+
+proc get_full_ip_name {ip_name} {
+  return [lsearch -inline [get_bd_ips] *$ip_name*]
+}
+
+proc get_ip_version {ip_name} {
+  return [lindex [split [get_full_ip_name $ip_name] :] end]
+}
+
+proc check_ip {ip supported_versions} {
+  set ip_version [get_ip_version $ip]
+  if { [ lsearch $supported_versions $ip_version] != -1 } {
+    set full_ip_name [get_full_ip_name $ip]
+  } else {
+    puts ""
+    catch {common::send_msg_id "BD_TCL-109" "ERROR" "$ip either doesn't exist, \
+      exists in the wrong version, or is too ambiguous. Supported versions of this
+      IP are: $supported_versions"}
+    set full_ip_name -1
+  }
+  return $full_ip_name
+}
+
+proc check_vivado_version {supported_versions mode} {
+  set current_vivado_version [string range [version -short] 0 5]
+
+  if { [ lsearch $supported_versions $current_vivado_version] != -1 } {
+    return 0
+  } else {
+    puts ""
+    catch {common::send_msg_id "BD_TCL-109" "$mode" "Using untested Vivado version\
+      $current_vivado_version. If everything works as expected, consider adding\
+      this version to the list of supported versions to remove this warning"}
+    return 1
+  }
+}

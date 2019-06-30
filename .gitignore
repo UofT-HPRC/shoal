@@ -20,6 +20,7 @@ vivado_pid*.str
 *.tmp
 GAScore/include/handler_register_map.hpp
 tests/projects/
+tests/src/
 include/user_config.hpp
 
 # Prerequisites

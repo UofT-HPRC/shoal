@@ -1,5 +1,3 @@
-namespace eval 2017_2 {
-
 proc create_GAScore {bd_name} {
   
   set design_name $bd_name
@@ -212,7 +210,11 @@ proc create_GAScore {bd_name} {
 
 proc create_memory {} {
 
-create_ip -name blk_mem_gen -vendor xilinx.com -library ip -version 8.3 -module_name blk_mem_gen_0
+set ip_name [check_ip blk_mem_gen {8.3 8.4}]
+if {$ip_name == -1} {
+  return 1
+}
+create_ip -vlnv $ip_name -module_name blk_mem_gen_0
 set_property -dict [list \
   CONFIG.Interface_Type {AXI4} \
   CONFIG.Write_Width_A {64} \
@@ -362,21 +364,11 @@ proc create_crossbars {} {
   ] [get_ips axi_crossbar_16]
 }
 
-}
-
 # defines get_design_name
 source ${::env(SHOAL_PATH)}/helper/utilities.tcl
 
 set current_vivado_version [version -short]
 
-if { [string first 2017.2 $current_vivado_version] != -1 } {
-  2017_2::create_GAScore GAScore_bd
-  2017_2::create_memory
-  2017_2::create_crossbars
-} else {
-  puts ""
-  catch {common::send_msg_id "BD_TCL-109" "ERROR" "Unsupported Vivado version:\
-    $current_vivado_version for generating the GAScore"}
-
-  return 1
-}
+create_GAScore GAScore_bd
+create_memory
+create_crossbars

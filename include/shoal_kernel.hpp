@@ -3,6 +3,9 @@
 
 // USE_APUINT and CPU may need to be defined prior to these inclusions
 #include "hls_types.hpp"
+#ifndef __HLS__
+#define CPU
+#endif
 #include "galapagos_stream.hpp"
 
 #ifdef __HLS__

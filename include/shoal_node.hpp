@@ -2,6 +2,8 @@
 #define SHOAL_INCLUDE_NODE_H_
 
 #include "active_messages.hpp"
+#define CPU
+#include "galapagos_node.hpp"
 
 namespace shoal{
     class node: public galapagos::node<word_t> {

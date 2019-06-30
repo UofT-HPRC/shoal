@@ -19,21 +19,6 @@ SHELL := bash
 # Variables
 ################################################################################
 
-ifndef SHOAL_PATH
-$(error SHOAL_PATH not set in env -- must be set to the absolute path of \
-of the repository root. Did you source init.sh?)
-endif
-
-ifndef SHOAL_HLS_PATH
-$(error SHOAL_HLS_PATH not set in env -- must be set to the absolute path of \
-of the Vivado HLS include/ directory. Did you source init.sh?)
-endif
-
-ifndef SHOAL_PART
-$(error SHOAL_PART not set in env -- must be set to the FPGA part number Did \
-you source init.sh?)
-endif
-
 global_include_dir = $(SHOAL_PATH)/include
 
 local_dir = $(SHOAL_PATH)/GAScore
@@ -54,7 +39,7 @@ helper_include_dir = $(helper_dir)/include
 
 c_modules := am_rx am_tx xpams_rx hold_buffer xpams_tx handler
 hdl_modules := memory
-custom_modules := handler_wrapper GAScore GAScore_benchmark
+custom_modules := handler_wrapper GAScore
 test_projects := MB_GAScore_0 MB_GAScore_1
 
 obj = $(shell find $(obj_dir) -name '*.o' -printf '%f\n' | \
@@ -66,7 +51,7 @@ dep += $(helper_obj:%.o=$(helper_obj_dir)/%.d)
 
 CC = g++
 CFLAGS = -g -Wall -I$(local_include_dir) -I$(helper_include_dir) -I$(global_include_dir)\
-	-I$(SHOAL_HLS_PATH) \
+	-isystem $(SHOAL_HLS_PATH)/$(SHOAL_HLS_VERSION)/include \
 	-Wno-unknown-pragmas -Wno-comment -Wno-shift-count-overflow -MMD -MP
 
 ################################################################################
@@ -93,6 +78,8 @@ $(foreach module, $(c_modules),$(eval $(call make-test,$(module))))
 #-------------------------------------------------------------------------------
 
 config_modules=$(patsubst %, config-%, $(c_modules))
+config_modules+=$(patsubst %, config-%, $(hdl_modules))
+config_modules+=$(patsubst %, config-%, $(custom_modules))
 config: $(config_modules)
 
 # Overwrites .dat file in sim folders if the file already exists there

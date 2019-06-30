@@ -12,7 +12,7 @@ import subprocess
 # Return: None
 def printMacro(header, macro):
     command = "g++ $SHOAL_PATH/helper/src/print_macro.cpp -w \
-        -I$SHOAL_PATH/include -I$SHOAL_HLS_PATH \
+        -I$SHOAL_PATH/include -I$SHOAL_HLS_PATH/$SHOAL_HLS_VERSION)/include \
         -include " + header + " -D'MACRO_VALUE=" + \
         macro + "' -o $SHOAL_PATH/helper/build/bin/print_macro"
 
@@ -35,7 +35,7 @@ def printMacro(header, macro):
 # Return: integer value of the macro
 def evalMacro(header, macro):
     command = "g++ $SHOAL_PATH/helper/src/eval_macro.cpp -w \
-        -I$SHOAL_PATH/include -I$SHOAL_HLS_PATH \
+        -I$SHOAL_PATH/include -I$SHOAL_HLS_PATH/$SHOAL_HLS_VERSION/include \
         -include " + header + " -DMACRO_VALUE=" + \
         macro + " -o $SHOAL_PATH/helper/build/bin/eval_macro"
 

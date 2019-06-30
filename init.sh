@@ -78,8 +78,6 @@ if [[ -f $configFile ]]; then
   rm $configFile
 fi
 
-hlsPath_append=$hlsPath/$hlsVersion/include
-
 if [[ "$#" > 5 ]]; then
   # https://stackoverflow.com/a/2264537
   part=$(echo "$part" | tr '[:upper:]' '[:lower:]') # convert to lower-case
@@ -102,11 +100,12 @@ mkdir -p $GASCORE_PATH/testbench/build
 mkdir -p $repoPath/tests/build/bin
 mkdir -p $repoPath/apps/build/bin
 mkdir -p $repoPath/helper/build/bin
+mkdir -p $repoPath/build/bin
 
 {
   echo "export SHOAL_PATH=$repoPath"
-  echo "export SHOAL_VIVADO_PATH=$vivadoPath_append"
-  echo "export SHOAL_HLS_PATH=$hlsPath_append"
+  echo "export SHOAL_VIVADO_PATH=$vivadoPath"
+  echo "export SHOAL_HLS_PATH=$hlsPath"
   echo "export SHOAL_PART=$part"
   echo "export SHOAL_VIVADO_VERSION=$vivadoVersion"
   echo "export SHOAL_HLS_VERSION=$hlsVersion"
@@ -192,7 +191,7 @@ shoal-update-versions() {
 EOF
 
 source $configFile
-source $vivadoPath_append/settings64.sh
+source $vivadoPath/$vivadoVersion/settings64.sh
 
 # if it doesn't exist in the .bashrc, add it. Otherwise, uncomment it in case
 if ! grep -Fq "# added by shoal" ~/.bashrc; then 

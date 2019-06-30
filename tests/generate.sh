@@ -15,8 +15,11 @@ solutionPath=$projectPath/$file/$SHOAL_PART_FAMILY
 ipPath=$solutionPath/impl/ip
 repoPath=$SHOAL_PATH/repo/$SHOAL_VIVADO_VERSION/$SHOAL_PART_FAMILY/$file
 
-prefixedName=${file}_${top}
-finalName=$top
+# If the final name is not $file, errors come up in Vivado
+# during implementation. I initially tried using $top but it 
+# doesn't work. There may be additional names I need to change
+prefixedName=${file}_${file}
+finalName=$file
 
 mkdir -p $projectPath
 cd $projectPath

@@ -41,7 +41,7 @@ void kern0(
     shoal::kernel kernel(id, KERNEL_NUM_TOTAL, in, out);
     #endif
 
-    ATOMIC_ACTION(kernel.init());
+    kernel.init();
     #ifndef __HLS__
     ATOMIC_ACTION(kernel.attach(handlers, 1, SEGMENT_SIZE));
     #endif
@@ -101,7 +101,13 @@ void kern1(
 
     while(in->empty()){};
     axis_word = in->read();
+    #if ENABLE_PROFILE == 1
+    profile_read(axis_word);
     axis_word = in->read();
+    profile_read(axis_word);
+    #else
+    axis_word = in->read();
+    #endif
     #ifndef __HLS__
     ATOMIC_ACTION(printWord("Data in kern1 arrived ", axis_word));
     #endif

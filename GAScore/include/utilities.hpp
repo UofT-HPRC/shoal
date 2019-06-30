@@ -152,6 +152,28 @@ void dataMoverWriteCommand(
     btt_t btt
 );
 
+bool isShortAM(gc_AMtype_t arg);
+
+bool isMediumAM(gc_AMtype_t arg);
+
+bool isLongxAM(gc_AMtype_t arg);
+
+bool isLongAM(gc_AMtype_t arg);
+
+bool isLongVectoredAM(gc_AMtype_t arg);
+
+bool isLongStridedAM(gc_AMtype_t arg);
+
+bool isDataFromFIFO(gc_AMtype_t arg);
+
+bool isAsyncAM(gc_AMtype_t arg);
+
+bool isReplyAM(gc_AMtype_t arg);
+
+bool isMediumFIFOAM(gc_AMtype_t arg);
+
+bool isLongFIFOAM(gc_AMtype_t arg);
+
 inline axis_wordNoKeep_t assignWordtoNoKeep(axis_word_t axis_word){
     axis_wordNoKeep_t axis_wordDest;
 

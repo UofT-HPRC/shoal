@@ -51,7 +51,9 @@ void kern1(
     #ifdef __HLS__
     galapagos::stream<word_t> * out,
     int * handler_ctrl,
-    volatile uint_1_t interrupt
+    int * dummy_memory,
+    volatile uint_1_t interrupt,
+    int dummy_int
     #else
     galapagos::stream<word_t> * out
     #endif
@@ -61,6 +63,8 @@ void kern1(
     #pragma HLS INTERFACE ap_ctrl_none port=return
     #pragma HLS INTERFACE ap_none port=interrupt
     #pragma HLS INTERFACE m_axi port=handler_ctrl depth=32 offset=0
+    #pragma HLS INTERFACE m_axi port=dummy_memory depth=32 offset=0
+    #pragma HLS INTERFACE s_axilite port=dummy_int bundle=control
 
     int id = KERN1_ID;
     galapagos::stream_packet <word_t> axis_word;
@@ -94,6 +98,10 @@ void kern1(
     ATOMIC_ACTION(kernel.sendShortAM_async(0, 1, H_INCR_BAR, 0, nullptr));
 
     kernel.wait_barrier(1);
+
+    #ifdef __HLS__
+    dummy_memory[0] = dummy_int;
+    #endif
 
     kernel.end();
 }

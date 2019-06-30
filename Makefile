@@ -27,7 +27,7 @@ endif
 
 ifndef SHOAL_HLS_PATH
 $(error SHOAL_HLS_PATH not set in env -- must be set to the absolute path of \
-of the Vivado HLS include/ directory. Did you source init.sh?)
+of the Vivado HLS directory. Did you source init.sh?)
 endif
 
 include_dir=$(SHOAL_PATH)/include
@@ -59,7 +59,7 @@ dep = $(obj:%.o=$(test_build_dir)/%.d)
 GAScore_build_dirs := $(shell find $(SHOAL_PATH) -type d -name 'build' -not -path "$(SHOAL_PATH)/GAScore/*")
 
 CC = /usr/bin/g++-7
-CFLAGS = -g -Wall -O0 -I$(include_dir) -I$(GAScore_dir) -isystem $(SHOAL_HLS_PATH)\
+CFLAGS = -g -Wall -O0 -I$(include_dir) -I$(GAScore_dir) -isystem $(SHOAL_HLS_PATH)/$(SHOAL_HLS_VERSION)/include\
 	-I$(GALAPAGOS_PATH)/middleware/CPP_lib/Galapagos_lib -I$(GALAPAGOS_PATH)/middleware/include\
 	-Wno-unused-value -Wno-unused-variable -Wno-comment -Wno-unknown-pragmas\
 	-Wno-unused-but-set-variable -Wno-unused-function -MMD -MP -pthread -std=c++17
@@ -88,7 +88,7 @@ init:
 
 lib_modules=$(patsubst %, lib-%, $(lib_files))
 lib: $(lib_modules)
-	rm $(SHOAL_PATH)/build/libTHeGASnet.a
+	rm -f $(SHOAL_PATH)/build/libTHeGASnet.a
 	ar -cr $(SHOAL_PATH)/build/libTHeGASnet.a $(SHOAL_PATH)/build/*.o
 
 define make-libs
@@ -138,7 +138,7 @@ galapagos-$1: $(test_build_dir)/$1$(BUILD_SUFFIX).o $(test_build_dir)/$1_main$(B
 	
 endef
 else ifeq ($(MODE),HLS)
-# Kernels fail to synthesize in 2017.2 but work in 2018.1. Haven't tested others
+# Kernels fail to synthesize in 2017.2 but work in 2018.1/2018.2/2019.1. Haven't tested others
 define make-galapagos-executable
 galapagos-$1: guard-KERNEL
 	$(SHOAL_PATH)/tests/generate.sh $1$(BUILD_SUFFIX) $(KERNEL)

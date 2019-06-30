@@ -5,7 +5,9 @@
 #include "hls_types.hpp"
 
 #define CPU
-#include "galapagos_node.hpp"
+#include "galapagos_stream.hpp"
+
+#include "user_config.hpp"
 
 galapagos::stream_packet <word_t> createHeaderBeat(
     gc_AMsrc_t src,
@@ -35,20 +37,6 @@ galapagos::stream_packet <word_t> createStridedBeat(
 );
 
 void printWord(const std::string& prefix, galapagos::stream_packet <word_t> axis_word);
-
-inline void writeWord(
-    galapagos::stream <word_t> & axis_out,
-    galapagos::stream_packet <word_t> axis_word,
-    gc_AMdst_t dst
-);
-
-inline void writeWord(
-    galapagos::stream <word_t> & axis_out,
-    word_t data,
-    bool last, 
-    gc_AMdst_t dst,
-    gc_keep_t keep = GC_DATA_TKEEP
-);
 
 void sendHandlerArgs(
     galapagos::stream <word_t> & axis_out,
@@ -149,5 +137,9 @@ void longStridedAM(
     word_t dst_addr,
     galapagos::stream <word_t> & out
 );
+
+#if ENABLE_PROFILE == 1
+void profile_read(galapagos::stream_packet <word_t> axis_word);
+#endif
 
 #endif // SHOAL_INCLUDE_ACTIVE_MESSAGES_X86_

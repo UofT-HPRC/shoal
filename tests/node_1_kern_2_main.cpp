@@ -1,6 +1,7 @@
 #include <iostream>
 
 #include "node_1_kern_2.hpp"
+#include "user_config.hpp"
 // typedef std::array<std::byte, 8> byte_array_t;
 
 DECLARE_METHOD(kern0);

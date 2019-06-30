@@ -151,6 +151,10 @@ unsigned long long power_64() {
 
 #define POWER_2(x) (1ULL << (x))
 
+#ifndef __HLS__
+
+#include <iostream>
+
 // taken from https://stackoverflow.com/a/17469726
 namespace Color {
     enum Code {
@@ -179,6 +183,8 @@ namespace Color {
 #define _COLOR(color, mode) std::dec << "\033[" << color << "m" << std::mode
 
 #define COLOR(color, mode, data) _COLOR(color, mode) << data << _COLOR(0, mode)
+
+#endif
 
 #define hdextract(arg, bits) (((arg) & bits##_BITMASK) >> bits##_LOWER)
 #define hdencode(arg, bits,data) (((arg) & (~bits##_BITMASK)) | (((long long)(data) << bits##_LOWER) & bits##_BITMASK))

@@ -52,6 +52,28 @@ galapagos::stream_packet <word_t> createStridedBeat(
     return axis_word;
 }
 
+#if ENABLE_PROFILE == 1
+void profile_write(gc_AMsrc_t src, galapagos::stream_packet <word_t> axis_word){
+    if (src == KERNEL_PROFILE ){
+        std::stringstream ss;
+        ss << "PROFILE:W:" << axis_word.data << "\n";
+        if (axis_word.last){
+            ss << "PROFILE:W:END\n";
+        }
+        std::cout << ss.str();
+    }
+}
+
+void profile_read(galapagos::stream_packet <word_t> axis_word){
+    std::stringstream ss;
+    ss << "PROFILE:R:" << axis_word.data << "\n";
+    if (axis_word.last){
+        ss << "PROFILE:R:END\n";
+    }
+    std::cout << ss.str();
+}
+#endif
+
 void printWord(const std::string& prefix, galapagos::stream_packet <word_t> axis_word){
     std::stringstream ss;
     ss << prefix <<
@@ -62,59 +84,86 @@ void printWord(const std::string& prefix, galapagos::stream_packet <word_t> axis
     std::cout << ss.str();
 }
 
+inline void _writeWord(
+    galapagos::stream <word_t> & axis_out,
+    galapagos::stream_packet <word_t> axis_word,
+    gc_AMsrc_t src
+){
+    printWord("   Sending - ", axis_word);
+    axis_out.write(axis_word);
+    #if ENABLE_PROFILE == 1
+    profile_write(src, axis_word);
+    #endif
+}
+
 inline void writeWord(
     galapagos::stream <word_t> & axis_out,
     galapagos::stream_packet <word_t> axis_word,
+    word_t data,
+    bool last,
+    gc_AMsrc_t src,
+    gc_keep_t keep
+){
+    axis_word.data = data;
+    axis_word.last = last;
+    axis_word.keep = keep;
+    _writeWord(axis_out, axis_word, src);
+}
+
+inline void writeWord(
+    galapagos::stream <word_t> & axis_out,
+    galapagos::stream_packet <word_t> axis_word,
+    gc_AMsrc_t src
+){
+    _writeWord(axis_out, axis_word, src);
+}
+
+inline void writeWord(
+    galapagos::stream <word_t> & axis_out,
+    galapagos::stream_packet <word_t> axis_word,
+    gc_AMsrc_t src,
     gc_AMdst_t dst
 ){
     axis_word.dest = dst;
-    printWord("   Sending - ", axis_word);
-    axis_out.write(axis_word);
+    _writeWord(axis_out, axis_word, src);
 }
 
 inline void writeWord(
     galapagos::stream <word_t> & axis_out,
     word_t data,
     bool last,
+    gc_AMsrc_t src,
     gc_AMdst_t dst,
-    gc_keep_t keep
+    gc_keep_t keep = GC_DATA_TKEEP
 ){
     galapagos::stream_packet <word_t> axis_word;
     axis_word.data = data;
     axis_word.last = last;
     axis_word.keep = keep;
     axis_word.dest = dst;
-    printWord("   Sending - ", axis_word);
-    axis_out.write(axis_word);
+    _writeWord(axis_out, axis_word, src);
 }
 
 void sendHandlerArgs(
     galapagos::stream <word_t> & axis_out,
+    gc_AMsrc_t src,
     gc_AMdst_t dst,
     word_t * handler_args,
     gc_AMargs_t handlerArgCount,
     bool assertLast
 ){
     galapagos::stream_packet <word_t> axis_word;
-    // axis_word.dest = dst;
     int i;
     for (i = 0; i < handlerArgCount-1; i++){
-        writeWord(axis_out, *(handler_args+i), 0, dst);
-        // axis_word.data = *(handler_args+i);
-        // axis_word.last = 0;
-        // axis_word.keep = GC_DATA_TKEEP;
-        // axis_out.write(axis_word);
+        writeWord(axis_out, *(handler_args+i), 0, src, dst);
     }
     i++;
-    writeWord(axis_out, *(handler_args+i), assertLast, dst);
-    // axis_word.data = *(handler_args+i);
-    // axis_word.last = assertLast;
-    // axis_word.keep = GC_DATA_TKEEP;
-    // axis_out.write(axis_word);;
+    writeWord(axis_out, *(handler_args+i), assertLast, src, dst);
 }
 
 void sendPayloadArgs(
     galapagos::stream <word_t> & axis_out,
+    gc_AMsrc_t src,
     gc_AMdst_t dst,
     char * payload_args,
     gc_payloadSize_t payloadArgCount,
@@ -127,14 +176,16 @@ void sendPayloadArgs(
         axis_word.data = *(payload_args+(i-GC_DATA_BYTES));
         axis_word.last = 0;
         axis_word.keep = GC_DATA_TKEEP;
-        printWord("   Sending - ", axis_word);
-        axis_out.write(axis_word);
+        writeWord(axis_out, axis_word, src); 
+        // printWord("   Sending - ", axis_word);
+        // axis_out.write(axis_word);
     }
     axis_word.data = *(word_t*)((payload_args+(i-GC_DATA_BYTES)));
     axis_word.last = assertLast;
     axis_word.keep = GC_DATA_TKEEP;
-    printWord("   Sending - ", axis_word);
-    axis_out.write(axis_word);
+    // printWord("   Sending - ", axis_word);
+    // axis_out.write(axis_word);
+    writeWord(axis_out, axis_word, src);
 }
 
 void sendShortAM(
@@ -150,15 +201,17 @@ void sendShortAM(
     std::cout << "AM Short message from " << src << " to " << dst << "\n";
     galapagos::stream_packet <word_t> axis_word;
     axis_word = createHeaderBeat(src, dst, 0, handlerID, type, handlerArgCount);
-    axis_word.dest = dst;
-    printWord("   Sending - ", axis_word);
-    out.write(axis_word);
+    writeWord(out, axis_word, src, dst);
+    // axis_word.dest = dst;
+    // printWord("   Sending - ", axis_word);
+    // out.write(axis_word);
     axis_word = createTokenBeat(token, handlerArgCount == 0);
-    axis_word.dest = dst;
-    printWord("   Sending - ", axis_word);
-    out.write(axis_word);
+    // axis_word.dest = dst;
+    // printWord("   Sending - ", axis_word);
+    // out.write(axis_word);
+    writeWord(out, axis_word, src, dst);
     if (handlerArgCount > 0){
-        sendHandlerArgs(out, dst, handler_args, handlerArgCount, true);
+        sendHandlerArgs(out, src, dst, handler_args, handlerArgCount, true);
     }
 }
 
@@ -177,17 +230,19 @@ void sendMediumAM(
     std::cout << "AM Medium message\n";
     galapagos::stream_packet <word_t> axis_word;
     axis_word = createHeaderBeat(src, dst, payloadSize, handlerID, type, handlerArgCount);
-    axis_word.dest = dst;
-    printWord("   Sending - ", axis_word);
-    out.write(axis_word);
+    // axis_word.dest = dst;
+    // printWord("   Sending - ", axis_word);
+    // out.write(axis_word);
+    writeWord(out, axis_word, src, dst);
     axis_word = createTokenBeat(token, false);
-    axis_word.dest = dst;
-    printWord("   Sending - ", axis_word);
-    out.write(axis_word);
+    // axis_word.dest = dst;
+    // printWord("   Sending - ", axis_word);
+    // out.write(axis_word);
+    writeWord(out, axis_word, src, dst);
     if (handlerArgCount > 0){
-        sendHandlerArgs(out, dst, handler_args, handlerArgCount, false);
+        sendHandlerArgs(out, src, dst, handler_args, handlerArgCount, false);
     }
-    sendPayloadArgs(out, dst, (char*) payload, payloadSize, true);
+    sendPayloadArgs(out, src, dst, (char*) payload, payloadSize, true);
 }
 
 void sendMediumAM(
@@ -204,17 +259,20 @@ void sendMediumAM(
 ){
     galapagos::stream_packet <word_t> axis_word;
     axis_word = createHeaderBeat(src, dst, payloadSize, handlerID, type, handlerArgCount);
-    axis_word.dest = dst;
-    out.write(axis_word);
+    // axis_word.dest = dst;
+    // out.write(axis_word);
+    writeWord(out, axis_word, src, dst);
     axis_word = createTokenBeat(token, false);
-    axis_word.dest = dst;
-    out.write(axis_word);
-    axis_word.data = src_addr;
-    axis_word.last = handlerArgCount == 0;
-    axis_word.dest = dst;
-    out.write(axis_word);
+    // axis_word.dest = dst;
+    // out.write(axis_word);
+    writeWord(out, axis_word, src, dst);
+    // axis_word.data = src_addr;
+    // axis_word.last = handlerArgCount == 0;
+    // axis_word.dest = dst;
+    // out.write(axis_word);
+    writeWord(out, src_addr, handlerArgCount == 0, src, dst);
     if (handlerArgCount > 0){
-        sendHandlerArgs(out, dst, handler_args, handlerArgCount, true);
+        sendHandlerArgs(out, src, dst, handler_args, handlerArgCount, true);
     }
 }
 
@@ -233,19 +291,22 @@ void sendLongAM(
 ){
     galapagos::stream_packet <word_t> axis_word;
     axis_word = createHeaderBeat(src, dst, payloadSize, handlerID, type, handlerArgCount);
-    axis_word.dest = dst;
-    out.write(axis_word);
+    // axis_word.dest = dst;
+    // out.write(axis_word);
+    writeWord(out, axis_word, src, dst);
     axis_word = createTokenBeat(token, false);
-    axis_word.dest = dst;
-    out.write(axis_word);
-    axis_word.data = dst_addr;
-    axis_word.last = 0;
-    axis_word.dest = dst;
-    out.write(axis_word);
+    // axis_word.dest = dst;
+    // out.write(axis_word);
+    writeWord(out, axis_word, src, dst);
+    // axis_word.data = dst_addr;
+    // axis_word.last = 0;
+    // axis_word.dest = dst;
+    // out.write(axis_word);
+    writeWord(out, dst_addr, 0, src, dst);
     if (handlerArgCount > 0){
-        sendHandlerArgs(out, dst, handler_args, handlerArgCount, false);
+        sendHandlerArgs(out, src, dst, handler_args, handlerArgCount, false);
     }
-    sendPayloadArgs(out, dst, (char*) payload, payloadSize, true);
+    sendPayloadArgs(out, src, dst, (char*) payload, payloadSize, true);
 }
 
 void sendLongAM(
@@ -263,20 +324,24 @@ void sendLongAM(
 ){
     galapagos::stream_packet <word_t> axis_word;
     axis_word = createHeaderBeat(src, dst, payloadSize, handlerID, AM_LONG, handlerArgCount);
-    axis_word.dest = dst;
-    out.write(axis_word);
+    // axis_word.dest = dst;
+    // out.write(axis_word);
+    writeWord(out, axis_word, src, dst);
     axis_word = createTokenBeat(token, false);
-    axis_word.dest = dst;
-    out.write(axis_word);
-    axis_word.data = src_addr;
-    axis_word.dest = dst;
-    out.write(axis_word);
-    axis_word.data = dst_addr;
-    axis_word.last = handlerArgCount == 0;
-    axis_word.dest = dst;
-    out.write(axis_word);
+    // axis_word.dest = dst;
+    // out.write(axis_word);
+    writeWord(out, axis_word, src, dst);
+    // axis_word.data = src_addr;
+    // axis_word.dest = dst;
+    // out.write(axis_word);
+    writeWord(out, src_addr, 0, src, dst);
+    // axis_word.data = dst_addr;
+    // axis_word.last = handlerArgCount == 0;
+    // axis_word.dest = dst;
+    // out.write(axis_word);
+    writeWord(out, dst_addr, handlerArgCount == 0, src, dst);
     if (handlerArgCount > 0){
-        sendHandlerArgs(out, dst, handler_args, handlerArgCount, true);
+        sendHandlerArgs(out, src, dst, handler_args, handlerArgCount, true);
     }
 }
 
@@ -300,23 +365,28 @@ void longStridedAM(
 ){
     galapagos::stream_packet <word_t> axis_word;
     axis_word = createHeaderBeat(src, dst, payloadSize, handlerID, AM_LONG, handlerArgCount);
-    axis_word.dest = dst;
-    out.write(axis_word);
+    // axis_word.dest = dst;
+    // out.write(axis_word);
+    writeWord(out, axis_word, src, dst);
     axis_word = createStridedBeat(src_stride, src_blk_size, src_blk_num);
-    axis_word.dest = dst;
-    out.write(axis_word);
-    axis_word.data = src_addr;
-    axis_word.last = 0;
-    axis_word.dest = dst;
-    out.write(axis_word);
+    // axis_word.dest = dst;
+    // out.write(axis_word);
+    writeWord(out, axis_word, dst);
+    // axis_word.data = src_addr;
+    // axis_word.last = 0;
+    // axis_word.dest = dst;
+    // out.write(axis_word);
+    writeWord(out, src_addr, 0, src, dst);
     axis_word = createStridedBeat(dst_stride, dst_blk_size, dst_blk_num, token);
-    axis_word.dest = dst;
-    out.write(axis_word);
-    axis_word.data = dst_addr;
-    axis_word.last = handlerArgCount == 0;
-    axis_word.dest = dst;
-    out.write(axis_word);
+    // axis_word.dest = dst;
+    // out.write(axis_word);
+    writeWord(out, axis_word, src, dst);
+    // axis_word.data = dst_addr;
+    // axis_word.last = handlerArgCount == 0;
+    // axis_word.dest = dst;
+    // out.write(axis_word);
+    writeWord(out, dst_addr, handlerArgCount == 0, src, dst);
     if (handlerArgCount == 0){
-        sendHandlerArgs(out, dst, handler_args, handlerArgCount, true);
+        sendHandlerArgs(out, src, dst, handler_args, handlerArgCount, true);
     }
 }
