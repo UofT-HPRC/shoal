@@ -46,6 +46,9 @@ void kern0(
     ATOMIC_ACTION(kernel.attach(handlers, 1, SEGMENT_SIZE));
     #endif
 
+    // dummy message sent just to initialize TCP on Pynq Z2
+    ATOMIC_ACTION(kernel.sendShortAM_async(1, 5, H_EMPTY, 0, nullptr));
+
     kernel.barrier_wait();
 
     word_t payload;
