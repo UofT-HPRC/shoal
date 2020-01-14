@@ -6,6 +6,7 @@ from sonar.interfaces import AXIS, SAXILite
 from sonar_strToInt import strToInt
 
 GAScore = Testbench.default('GAScore')
+GAScore.set_metadata("Flag_Count", 2)
 filepath = os.path.join(os.path.dirname(__file__), 'build/GAScore/')
 
 dut = Module.default("DUT")
@@ -118,14 +119,14 @@ ctrl_bus_0.write(smA_t2, 'config', 0)
 short_message_A.add_thread(smA_t2)
 
 smA_t3 = Thread()
-axis_net_out.read(smA_t3, strToInt("{AMHeader,0x1,0x10,0,0,0x41,0}"))
+axis_net_out.read(smA_t3, strToInt("{AMHeader,0x1,0x10,0,1,0x41,0}"))
 axis_net_out.read(smA_t3, strToInt("{AMToken,0x0}"), tlast=1)
-axis_net_out.read(smA_t3, strToInt("{AMHeader,0x1,0x10,0,0,0x41,0}"))
+axis_net_out.read(smA_t3, strToInt("{AMHeader,0x1,0x10,0,1,0x41,0}"))
 axis_net_out.read(smA_t3, strToInt("{AMToken,0x1}"), tlast=1)
 smA_t3.enable_timestamps('STAT_sma_3_', 0)
-axis_net_out.read(smA_t3, strToInt("{AMHeader,0x1,0x10,0,0,0x41,0}"))
+axis_net_out.read(smA_t3, strToInt("{AMHeader,0x1,0x10,0,1,0x41,0}"))
 axis_net_out.read(smA_t3, strToInt("{AMToken,0x2}"), tlast=1)
-axis_net_out.read(smA_t3, strToInt("{AMHeader,0x0,0x10,0,0,0x41,0}"))
+axis_net_out.read(smA_t3, strToInt("{AMHeader,0x0,0x10,0,1,0x41,0}"))
 axis_net_out.read(smA_t3, strToInt("{AMToken,0x3}"), tlast=1)
 smA_t3.disable_timestamps()
 
@@ -176,6 +177,7 @@ axis_net_in.write(smB_t2, strToInt("{AMToken,0x6}"), tlast=1)
 smB_t2.disable_timestamps()
 axis_net_in.write(smB_t2, strToInt("{AMHeader,0x10,0x1,0,0,0x41,0}"))
 axis_net_in.write(smB_t2, strToInt("{AMToken,0x7}"), tlast=1)
+smB_t2.set_flag(1)
 short_message_B.add_thread(smB_t2)
 
 smB_t4 = Thread()
@@ -198,6 +200,7 @@ axis_net_out.read(smB_t3, strToInt("{AMToken,0x5}"), tlast=1)
 smB_t3.set_flag(0)
 # axis_kernel_out.read(smB_t3, strToInt("{KernelHeader,0x41,0x11,0,6}"), tdest=0, tlast=1)
 # axis_kernel_out.read(smB_t3, strToInt("{KernelHeader,0x41,0x10,0,7}"), tdest=1, tlast=1)
+smB_t3.wait_flag(1)
 smB_t3.disable_timestamps()
 smB_t3.end_vector()
 short_message_B.add_thread(smB_t3)
@@ -447,7 +450,7 @@ axis_net_in.writes(message_t1, [
     {"tdata": strToInt("{AMToken,0x0}")},
 
     # sends a reply that should just be absorbed
-    {"tdata": strToInt("{AMHeader,0x11,0x1,0,0,0x41,0}")},
+    {"tdata": strToInt("{AMHeader,0x11,0x1,0,1,0x41,0}")},
     {"tdata": strToInt("{AMToken,0x0}")},
 
     # sends a medium message with two word payload to kernel 1
@@ -505,23 +508,23 @@ axis_net_in.writes(message_t1, [
 message_t2 = Thread()
 axis_net_out.reads(message_t2, [
     # reply to short message
-    {"tdata": strToInt("{AMHeader,0x1,0x11,0,0,0x41,0}")},
+    {"tdata": strToInt("{AMHeader,0x1,0x11,0,1,0x41,0}")},
     {"tdata": strToInt("{AMToken,0x0}")},
 
     # reply to medium message
-    {"tdata": strToInt("{AMHeader,0x1,0x10,0,0,0x41,0}")},
+    {"tdata": strToInt("{AMHeader,0x1,0x10,0,1,0x41,0}")},
     {"tdata": strToInt("{AMToken,0x0}")},
 
     # reply to long message
-    {"tdata": strToInt("{AMHeader,0x1,0x10,0,0,0x41,0}")},
+    {"tdata": strToInt("{AMHeader,0x1,0x10,0,1,0x41,0}")},
     {"tdata": strToInt("{AMToken,0x0}")},
 
     # reply to long strided message
-    {"tdata": strToInt("{AMHeader,0x1,0x10,0,0,0x41,0}")},
+    {"tdata": strToInt("{AMHeader,0x1,0x10,0,1,0x41,0}")},
     {"tdata": strToInt("{AMToken,0xF}")},
 
     # reply to long vectored message
-    {"tdata": strToInt("{AMHeader,0x1,0x10,0,0,0x41,0}")},
+    {"tdata": strToInt("{AMHeader,0x1,0x10,0,1,0x41,0}")},
     {"tdata": strToInt("{AMToken,0xE}")}
 ])
 message_t2.print_elapsed_time('message_recv')

@@ -15,6 +15,8 @@ void xpams_rx(
     #pragma HLS INTERFACE axis port=axis_kernel_out
 	#pragma HLS INTERFACE ap_ctrl_none port=return
 
+    #pragma HLS PIPELINE
+
     #ifdef DEBUG
     #pragma HLS INTERFACE ap_none port=dbg_currentState
     #endif
@@ -81,12 +83,11 @@ void xpams_rx(
                     currentState = st_AMheader;
                 }
                 else if(isReplyAM(AMtype)){
-                    axis_tx.write(axis_word);
-                    axis_rx.read(axis_word);
-                    while(axis_word.last != 1){
+                    do{
+                        #pragma HLS loop_tripcount min=2 max=289 avg=10
                         axis_tx.write(axis_word);
                         axis_rx.read(axis_word);
-                    }
+                    } while(axis_word.last != 1);
                     axis_tx.write(axis_word);
                     currentState = st_AMheader;
                 }
@@ -94,6 +95,7 @@ void xpams_rx(
                     if (AMargs != 0){
                         gc_AMargs_t i;
                         for(i = 0; i < AMargs - 1; i++){
+                            #pragma HLS loop_tripcount min=1 max=255 avg=2
                             axis_rx.read(axis_word);
                             axis_wordNoKeep = assignWordtoNoKeep(axis_word);
                             axis_handler.write(axis_wordNoKeep);
@@ -132,6 +134,7 @@ void xpams_rx(
             gc_payloadSize_t i;
             // for(i = 0; i < AMpayloadSize; i++){
             do{
+                #pragma HLS loop_tripcount min=1 max=65535 avg=2
                 axis_rx.read(axis_word);
                 axis_wordDest = assignWord(axis_word);
                 axis_wordDest.dest = AMdst;

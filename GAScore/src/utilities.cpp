@@ -56,6 +56,7 @@ void dataMoverWriteCommand(
     uint_1_t type,
     btt_t btt
 ){
+    #pragma HLS INLINE
     #define temp (32+GC_ADDR_WIDTH)
     dataMoverCommand_word_t axis_word_s2mmCommand;
     axis_word_s2mmCommand.data(temp+8-1,temp+4) = reserved;
@@ -73,21 +74,23 @@ void dataMoverWriteCommand(
     #undef temp
 }
 
-// inline axis_wordNoKeep_t assignWordtoNoKeep(axis_word_t axis_word){
-//     axis_wordNoKeep_t axis_wordDest;
+axis_wordNoKeep_t assignWordtoNoKeep(axis_word_t axis_word){
+    #pragma HLS INLINE
+    axis_wordNoKeep_t axis_wordDest;
 
-//     axis_wordDest.data = axis_word.data;
-//     axis_wordDest.last = axis_word.last;
-    
-//     return axis_wordDest;
-// }
+    axis_wordDest.data = axis_word.data;
+    axis_wordDest.last = axis_word.last;
 
-// inline axis_wordDest_t assignWord(axis_word_t axis_word){
-//     axis_wordDest_t axis_wordDest;
+    return axis_wordDest;
+}
 
-//     axis_wordDest.data = axis_word.data;
-//     axis_wordDest.keep = axis_word.keep;
-//     axis_wordDest.last = axis_word.last;
-    
-//     return axis_wordDest;
-// }
+axis_wordDest_t assignWord(axis_word_t axis_word){
+    #pragma HLS INLINE
+    axis_wordDest_t axis_wordDest;
+
+    axis_wordDest.data = axis_word.data;
+    axis_wordDest.keep = axis_word.keep;
+    axis_wordDest.last = axis_word.last;
+
+    return axis_wordDest;
+}

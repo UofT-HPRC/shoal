@@ -21,6 +21,8 @@ void xpams_tx(
     #pragma HLS INTERFACE ap_stable port=address_offset_high
     #pragma HLS INTERFACE ap_stable port=address_offset_low
 
+    #pragma HLS PIPELINE
+
     #ifdef DEBUG
     #pragma HLS INTERFACE ap_none port=dbg_currentState
     #endif
@@ -55,55 +57,12 @@ void xpams_tx(
                 if (loopback){
                     if (AMhandler != H_EMPTY){
                         axis_wordNoKeep = assignWordtoNoKeep(axis_word);
+                        if (AMargs == 0){
+                            axis_wordNoKeep.last = 1;
+                        }
                         axis_handler.write(axis_wordNoKeep);
                     }
-                    axis_kernel_in.read(axis_word); //read token
-                    AMToken = axis_word.data(AM_TOKEN);
-                    if (isMediumAM(AMtype)){
-                        axis_word.data(AM_TYPE) = AMtype;
-                        axis_word.data(AM_SRC) = AMsrc;
-                        #ifdef USE_ABS_PAYLOAD
-                        axis_word.data(AM_DST) = AMpayloadSize - AMargs - GC_DATA_BYTES; // ! assuming payloadsize == dst size
-                        #else
-                        axis_word.data(AM_DST) = AMpayloadSize; // ! assuming payloadsize == dst size
-                        #endif
-                        axis_word.data(AM_TOKEN) = AMToken;
-                        axis_wordDest = assignWord(axis_word);
-                        axis_wordDest.dest = AMdst;
-                        axis_kernel_out.write(axis_wordDest);
-                        if (AMargs != 0){
-                            gc_AMargs_t i;
-                            for(i = 0; i < AMargs - 1; i++){
-                                axis_kernel_in.read(axis_word);
-                                axis_wordNoKeep = assignWordtoNoKeep(axis_word);
-                                axis_handler.write(axis_wordNoKeep);
-                            }
-                            axis_kernel_in.read(axis_word);
-                            axis_wordNoKeep = assignWordtoNoKeep(axis_word);
-                            axis_wordNoKeep.last = 1;
-                            axis_handler.write(axis_wordNoKeep);
-                        }
-                        // if medium message, assuming there should be payload 
-                        //// if (AMpayloadSize > 0)
-                            currentState = st_AMpayload;
-                        //// else
-                            //// currentState = st_reply;
-                    }
-                    else {
-                        if (AMargs != 0){
-                            gc_AMargs_t i;
-                            for(i = 0; i < AMargs - 1; i++){
-                                axis_kernel_in.read(axis_word);
-                                axis_wordNoKeep = assignWordtoNoKeep(axis_word);
-                                axis_handler.write(axis_wordNoKeep);
-                            }
-                            axis_kernel_in.read(axis_word);
-                            axis_wordNoKeep = assignWordtoNoKeep(axis_word);
-                            axis_wordNoKeep.last = 1;
-                            axis_handler.write(axis_wordNoKeep);
-                        }
-                        currentState = st_reply;
-                    }
+                    currentState = st_AMloopback;
                 }
                 else{
                     axis_tx.write(axis_word);
@@ -145,31 +104,87 @@ void xpams_tx(
             //// }
             break;
         }
-        case st_reply:{
-            axis_word.data(AM_TYPE) = AM_SHORT + AM_REPLY;
-            axis_word.data(AM_SRC) = AMsrc;
-            axis_word.data(AM_DST) = 0; // payload size
-            axis_word.data(AM_TOKEN) = AMToken;
-            //// axis_word.data(AM_TYPE) = AM_SHORT + AM_REPLY;
-            //// axis_word.data(AM_TOKEN) = AMToken;
-            //// axis_word.keep = GC_DATA_TKEEP;
-            axis_wordDest = assignWord(axis_word);
-            axis_wordDest.dest = AMsrc;
-            axis_wordDest.last = 1;
-            axis_kernel_out.write(axis_wordDest);
-            currentState = st_AMheader;
+        case st_AMloopback:{
+            axis_kernel_in.read(axis_word); //read token
+            AMToken = axis_word.data(AM_TOKEN);
+            if (isMediumAM(AMtype)){
+                axis_word.data(AM_TYPE) = AMtype;
+                axis_word.data(AM_SRC) = AMsrc;
+                #ifdef USE_ABS_PAYLOAD
+                axis_word.data(AM_DST) = AMpayloadSize - AMargs - GC_DATA_BYTES; // ! assuming payloadsize == dst size
+                #else
+                axis_word.data(AM_DST) = AMpayloadSize; // ! assuming payloadsize == dst size
+                #endif
+                axis_word.data(AM_TOKEN) = AMToken;
+                axis_wordDest = assignWord(axis_word);
+                axis_wordDest.dest = AMdst;
+                axis_kernel_out.write(axis_wordDest);
+                if (AMargs != 0){
+                    gc_AMargs_t i;
+                    for(i = 0; i < AMargs - 1; i++){
+                        #pragma HLS loop_tripcount min=1 max=255 avg=2
+                        axis_kernel_in.read(axis_word);
+                        axis_wordNoKeep = assignWordtoNoKeep(axis_word);
+                        axis_handler.write(axis_wordNoKeep);
+                    }
+                    axis_kernel_in.read(axis_word);
+                    axis_wordNoKeep = assignWordtoNoKeep(axis_word);
+                    axis_wordNoKeep.last = 1;
+                    axis_handler.write(axis_wordNoKeep);
+                }
+                // if medium message, assuming there should be payload 
+                //// if (AMpayloadSize > 0)
+                    currentState = st_AMpayload;
+                //// else
+                    //// currentState = st_reply;
+            }
+            else {
+                if (AMargs != 0){
+                    gc_AMargs_t i;
+                    for(i = 0; i < AMargs - 1; i++){
+                        #pragma HLS loop_tripcount min=0 max=255 avg=1
+                        axis_kernel_in.read(axis_word);
+                        axis_wordNoKeep = assignWordtoNoKeep(axis_word);
+                        axis_handler.write(axis_wordNoKeep);
+                    }
+                    axis_kernel_in.read(axis_word);
+                    axis_wordNoKeep = assignWordtoNoKeep(axis_word);
+                    axis_wordNoKeep.last = 1;
+                    axis_handler.write(axis_wordNoKeep);
+                }
+                currentState = st_AMheader;
+            }
             break;
         }
+        // ? reply messages are no longer sent to the kernel directly. Instead,
+        // ? a mem counter is incremented in the handler that the kernel waiting 
+        // ? for a reply can check.
+        // case st_reply:{
+        //     axis_word.data(AM_TYPE) = AM_SHORT + AM_REPLY;
+        //     axis_word.data(AM_SRC) = AMsrc;
+        //     axis_word.data(AM_DST) = 0; // payload size
+        //     axis_word.data(AM_TOKEN) = AMToken;
+        //     //// axis_word.data(AM_TYPE) = AM_SHORT + AM_REPLY;
+        //     //// axis_word.data(AM_TOKEN) = AMToken;
+        //     //// axis_word.keep = GC_DATA_TKEEP;
+        //     axis_wordDest = assignWord(axis_word);
+        //     axis_wordDest.dest = AMsrc;
+        //     axis_wordDest.last = 1;
+        //     axis_kernel_out.write(axis_wordDest);
+        //     currentState = st_AMheader;
+        //     break;
+        // }
         case st_AMpayload:{
             gc_payloadSize_t i;
             // for(i = 0; i < AMpayloadSize; i++){
             do{
+                #pragma HLS loop_tripcount min=1 max=65536 avg=10
                 axis_kernel_in.read(axis_word);
                 axis_wordDest = assignWord(axis_word);
                 axis_wordDest.dest = AMdst;
                 axis_kernel_out.write(axis_wordDest);
             } while(!axis_word.last);
-            currentState = st_reply;
+            currentState = st_AMheader;
             break;
         }
         case st_AMsend:{

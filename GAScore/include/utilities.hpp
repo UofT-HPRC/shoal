@@ -174,23 +174,26 @@ bool isMediumFIFOAM(gc_AMtype_t arg);
 
 bool isLongFIFOAM(gc_AMtype_t arg);
 
-inline axis_wordNoKeep_t assignWordtoNoKeep(axis_word_t axis_word){
-    axis_wordNoKeep_t axis_wordDest;
+axis_wordNoKeep_t assignWordtoNoKeep(axis_word_t axis_word);
+axis_wordDest_t assignWord(axis_word_t axis_word);
 
-    axis_wordDest.data = axis_word.data;
-    axis_wordDest.last = axis_word.last;
+// inline axis_wordNoKeep_t assignWordtoNoKeep(axis_word_t axis_word){
+//     axis_wordNoKeep_t axis_wordDest;
+
+//     axis_wordDest.data = axis_word.data;
+//     axis_wordDest.last = axis_word.last;
     
-    return axis_wordDest;
-}
+//     return axis_wordDest;
+// }
 
-inline axis_wordDest_t assignWord(axis_word_t axis_word){
-    axis_wordDest_t axis_wordDest;
+// inline axis_wordDest_t assignWord(axis_word_t axis_word){
+//     axis_wordDest_t axis_wordDest;
 
-    axis_wordDest.data = axis_word.data;
-    axis_wordDest.keep = axis_word.keep;
-    axis_wordDest.last = axis_word.last;
+//     axis_wordDest.data = axis_word.data;
+//     axis_wordDest.keep = axis_word.keep;
+//     axis_wordDest.last = axis_word.last;
     
-    return axis_wordDest;
-}
+//     return axis_wordDest;
+// }
 
 #endif

@@ -16,6 +16,8 @@ void handler(
     #pragma HLS INTERFACE s_axilite port=config_handler bundle=ctrl_bus
     #pragma HLS INTERFACE s_axilite port=counter_threshold bundle=ctrl_bus
 
+    #pragma HLS PIPELINE
+
     axis_wordNoKeep_t axis_word;
     static uint_32_t counter = 0;
     static uint_32_t barrier_cnt = 0;

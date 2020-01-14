@@ -56,21 +56,55 @@ short_message_A = TestVector()
 short_message_A.add_thread(initT)
 
 smA_t1 = Thread()
+initT.wait_negedge('ap_clk')
 smA_t1.add_delay('100ns')
 smA_t1.init_timer()
 smA_t1.set_signal('address_offset_high_V', 15)
 axis_kernel_in.writes(smA_t1, [
     # USE_ABS_PAYLOAD {"tdata": strToInt("{AMHeader,0x01,0x02,16,0,0x1,0}")},
-    {"tdata": strToInt("{AMHeader,0x01,0x02,0,0,0x1,0}")},
+    {"tdata": strToInt("{AMHeader,0x01,0x02,0,1,0x1,0}")},
     {"tdata": strToInt("{AMToken,0x1}"), "callTB": 2},
 ])
 short_message_A.add_thread(smA_t1)
 
 smA_t2 = Thread()
-axis_kernel_out.read(smA_t2, strToInt("{KernelHeader,0x41,0x1,0,1}"), tdest=1)
+# axis_kernel_out.read(smA_t2, strToInt("{KernelHeader,0x41,0x1,0,1}"), tdest=1)
+axis_handler.read(smA_t2, strToInt("{AMHeader,0x01,0x02,0,1,0x1,0}"))
 smA_t2.print_elapsed_time("Short_Message_A")
 smA_t2.end_vector()
 short_message_A.add_thread(smA_t2)
+
+#-------------------------------------------------------------------------------
+# Short Message B
+#
+# Empty handler reply message
+#-------------------------------------------------------------------------------
+
+short_message_B = TestVector()
+short_message_B.add_thread(initT)
+
+smB_t1 = Thread()
+initT.wait_negedge('ap_clk')
+smB_t1.add_delay('100ns')
+smB_t1.init_timer()
+smB_t1.set_signal('address_offset_high_V', 15)
+axis_kernel_in.write(smB_t1, strToInt("{AMHeader,0x0,0x01,0,2,1,1}"))
+axis_kernel_in.write(smB_t1, strToInt("{AMToken,0x0}"))
+axis_kernel_in.write(smB_t1, 4, tlast=1)
+axis_kernel_in.write(smB_t1, strToInt("{AMHeader,0x0,0x01,0,2,1,2}"))
+axis_kernel_in.write(smB_t1, strToInt("{AMToken,0x1}"))
+axis_kernel_in.write(smB_t1, 1, tlast=1)
+short_message_B.add_thread(smB_t1)
+
+smB_t2 = Thread()
+# axis_kernel_out.read(smB_t2, strToInt("{KernelHeader,0x41,0x1,0,1}"), tdest=1)
+axis_handler.read(smB_t2, strToInt("{AMHeader,0x0,0x01,0,2,1,1}"))
+axis_handler.read(smB_t2, 4)
+axis_handler.read(smB_t2, strToInt("{AMHeader,0x0,0x01,0,2,1,2}"))
+axis_handler.read(smB_t2, 1)
+smB_t2.print_elapsed_time("Short_Message_B")
+smB_t2.end_vector()
+short_message_B.add_thread(smB_t2)
 
 #-------------------------------------------------------------------------------
 # Medium Message A
@@ -82,12 +116,13 @@ medium_message_A = TestVector()
 medium_message_A.add_thread(initT)
 
 mmA_t1 = Thread()
+initT.wait_negedge('ap_clk')
 mmA_t1.add_delay('100ns')
 mmA_t1.set_signal('address_offset_high_V', 15)
 mmA_t1.init_timer()
 axis_kernel_in.writes(mmA_t1, [
     # USE_ABS_PAYLOAD {"tdata": strToInt("{AMHeader,0x01,0x2,0x808,0x0,0x2,0}")},
-    {"tdata": strToInt("{AMHeader,0x01,0x2,0x800,0x0,0x2,0}")},
+    {"tdata": strToInt("{AMHeader,0x01,0x2,0x800,0x1,0x2,0}")},
     {"tdata": strToInt("{AMToken,0x0}"), "callTB": 1},
 ])
 for i in range(255):
@@ -95,13 +130,16 @@ for i in range(255):
 axis_kernel_in.write(mmA_t1, 0x98765432, tlast=1, callTB=3)
 medium_message_A.add_thread(mmA_t1)
 
+mmA_t3 = medium_message_A.add_thread()
+axis_handler.read(mmA_t3, strToInt("{AMHeader,0x01,0x02,0x800,1,0x2,0}"))
+
 mmA_t2 = Thread()
 axis_kernel_out.read(mmA_t2, strToInt("{KernelHeader,0x2,0x01,0x800,0}"), tdest=2)
 # axis_kernel_out.read(mmA_t2, strToInt("{AMToken,0x0}"), tdest=2)
 for i in range(255):
     axis_kernel_out.read(mmA_t2, 0x98765432, tdest=2)
 axis_kernel_out.read(mmA_t2, 0x98765432, tdest=2, tlast=1)
-axis_kernel_out.read(mmA_t2, strToInt("{KernelHeader,0x41,0x1,0,0}"), tdest=1)
+# axis_kernel_out.read(mmA_t2, strToInt("{KernelHeader,0x41,0x1,0,0}"), tdest=1)
 mmA_t2.print_elapsed_time("Medium_Message_A")
 mmA_t2.end_vector()
 medium_message_A.add_thread(mmA_t2)
@@ -116,6 +154,7 @@ long_message_A = TestVector()
 long_message_A.add_thread(initT)
 
 lmA_t1 = Thread()
+initT.wait_negedge('ap_clk')
 lmA_t1.add_delay('100ns')
 lmA_t1.init_timer()
 lmA_t1.set_signal('address_offset_high_V', 15)
@@ -139,6 +178,7 @@ lmA_t2.end_vector()
 long_message_A.add_thread(lmA_t2)
 
 xpams_tx.add_test_vector(short_message_A)
+xpams_tx.add_test_vector(short_message_B)
 xpams_tx.add_test_vector(medium_message_A)
 xpams_tx.add_test_vector(long_message_A)
 

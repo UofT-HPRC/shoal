@@ -22,6 +22,8 @@ void am_tx(
     #pragma HLS INTERFACE ap_none port=dbg_currentState
     #endif
 
+    #pragma HLS PIPELINE
+
     static state_t currentState = st_header;
     axis_word_t axis_word;
     axis_word_8a_t axis_word_mm2sStatus;
@@ -74,14 +76,12 @@ void am_tx(
                 AMdst = axis_word.data(AM_DST);
 
                 if (isReplyAM(AMtype) && (!isShortAM(AMtype))){
-                    write(axis_net, axis_word, AMdst);
-                    // axis_net.write(axis_word);
-                    axis_kernel.read(axis_word);
-                    while(axis_word.last != 1){
+                    do{
+                        #pragma HLS loop_tripcount min=2 max=289 avg=10
                         // axis_net.write(axis_word);
                         write(axis_net, axis_word, AMdst);
                         axis_kernel.read(axis_word);
-                    }
+                    } while(axis_word.last != 1);
                     // axis_net.write(axis_word);
                     write(axis_net, axis_word, AMdst);
                     currentState = st_header;
@@ -92,7 +92,7 @@ void am_tx(
 
                     // axis_net.write(axis_word);
                     write(axis_net, axis_word, AMdst);
-                    if((isLongxAM(AMtype) || isMediumAM(AMtype)) && 
+                    if((isLongxAM(AMtype) || isMediumAM(AMtype)) &&
                         !isDataFromFIFO(AMtype)){
                         bufferRelease = 0;
                     }
@@ -145,6 +145,7 @@ void am_tx(
             gc_AMargs_t argCount;
             // uint_1_t enableLast = AMpayloadSize == 0;
             for(argCount = 0; argCount < AMargs; argCount++){
+                #pragma HLS loop_tripcount min=1 max=255 avg=1
                 // if(!axis_kernel.empty()){
                     axis_kernel.read(axis_word);
                     // axis_word.last = enableLast;
@@ -211,7 +212,7 @@ void am_tx(
             gc_payloadSize_t payload_size = AMpayloadSize;
             #endif
             dataMoverWriteCommand(axis_mm2sCommand, 0, 0, address,
-                address(1,0) != 0, 1, 
+                address(1,0) != 0, 1,
                 address(1,0), 1, payload_size);
             if(isMediumAM(AMtype)){
                 currentState = AMargs == 0 ? st_AMpayload : st_AMHandlerArgs;
@@ -242,7 +243,7 @@ void am_tx(
         //     for(i = 0; i < srcBlockNum; i++){
         //         word_t address = AMsourceLower(31,0);
         //         dataMoverWriteCommand(axis_mm2sCommand, 0, 0, address,
-        //             address(1,0) != 0, i == srcBlockNum - 1, 
+        //             address(1,0) != 0, i == srcBlockNum - 1,
         //             address(1,0), 1, srcBlockSize);
         //         address += srcStride;
         //     }
@@ -267,7 +268,7 @@ void am_tx(
         case st_AMLongStride:{
             gc_stride_t srcStride;
             gc_strideBlockSize_t srcBlockSize;
-            
+
             // if(!axis_kernel.empty()){ //get metadata
                 axis_kernel.read(axis_word);
                 srcStride = axis_word.data(AM_STRIDE_SIZE);
@@ -298,8 +299,9 @@ void am_tx(
             gc_strideBlockNum_t i;
             word_t address = AMsrcAddr(GC_ADDR_WIDTH-1,0);
             for(i = 0; i < srcBlockNum; i++){
+                #pragma HLS loop_tripcount min=1 max=4095 avg=2
                 dataMoverWriteCommand(axis_mm2sCommand, 0, 0, address,
-                    address(1,0) != 0, i == srcBlockNum - 1, 
+                    address(1,0) != 0, i == srcBlockNum - 1,
                     address(1,0), 1, srcBlockSize);
                 address += srcStride;
             }
@@ -327,7 +329,7 @@ void am_tx(
             // }
             word_t address = AMvectorDest[0](GC_ADDR_WIDTH-1,0);
             dataMoverWriteCommand(axis_mm2sCommand, 0, 0, address,
-                address(1,0) != 0, AMsrcVectorNum == 1, 
+                address(1,0) != 0, AMsrcVectorNum == 1,
                 address(1,0), 1, AMvectorSize[0]);
             // if(!axis_kernel.empty()){ //read dst address
                 axis_kernel.read(axis_word);
@@ -338,6 +340,7 @@ void am_tx(
                 #endif
             // }
             for(i = 1; i < AMsrcVectorNum; i++){
+                #pragma HLS loop_tripcount min=2 max=15 avg=2
                 // if(!axis_kernel.empty()){ //read src size
                     axis_kernel.read(axis_word);
                     AMvectorSize[i] = axis_word.data;
@@ -348,10 +351,11 @@ void am_tx(
                 // }
                 word_t address = AMvectorDest[i](GC_ADDR_WIDTH-1,0);
                 dataMoverWriteCommand(axis_mm2sCommand, 0, 0, address,
-                    address(1,0) != 0, i == AMsrcVectorNum - 1, 
+                    address(1,0) != 0, i == AMsrcVectorNum - 1,
                     address(1,0), 1, AMvectorSize[i]);
             }
             for(i = 1; i < AMdstVectorNum; i++){
+                #pragma HLS loop_tripcount min=2 max=15 avg=2
                 // if(!axis_kernel.empty()){ //read dst size
                     axis_kernel.read(axis_word);
                     // axis_net.write(axis_word);
@@ -376,6 +380,7 @@ void am_tx(
         case st_AMpayload:{
             gc_payloadSize_t i = 0;
             for(i = 0; i < AMpayloadSize-GC_DATA_BYTES; i+=GC_DATA_BYTES){
+                #pragma HLS loop_tripcount min=1 max=65535 avg=10
             // while(i < AMpayloadSize){
                 if(isDataFromFIFO(AMtype))
                     axis_kernel.read(axis_word);
@@ -399,12 +404,14 @@ void am_tx(
         case st_done:{
             if(isLongStridedAM(AMtype)){
                 for(int i = 0; i < srcBlockNum; i++){
-                    axis_mm2sStatus.read(axis_word_mm2sStatus);    
+                    #pragma HLS loop_tripcount min=1 max=4095 avg=10
+                    axis_mm2sStatus.read(axis_word_mm2sStatus);
                 }
             }
             else if(isLongVectoredAM(AMtype)){
                 for(int i = 0; i < AMsrcVectorNum; i++){
-                    axis_mm2sStatus.read(axis_word_mm2sStatus);    
+                    #pragma HLS loop_tripcount min=1 max=15 avg=2
+                    axis_mm2sStatus.read(axis_word_mm2sStatus);
                 }
             }
             else if((isLongxAM(AMtype) || isMediumAM(AMtype)) && !isDataFromFIFO(AMtype)){

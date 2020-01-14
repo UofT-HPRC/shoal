@@ -2,7 +2,7 @@
 *.dat
 *.code-workspace
 .vscode/
-vivado*.log
+*.log
 vivado*.jou
 GAScore/vivado_hls/projects/
 GAScore/repo
