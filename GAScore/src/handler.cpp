@@ -27,7 +27,7 @@ void handler(
     uint_1_t reset = config[1];
     static uint_1_t interrupt_wire = 0;
     static uint_1_t acknowledged = 0;
-    
+
     if(lock != 1){
         if(axis_handler.read_nb(axis_word)){
             switch(AMhandler){

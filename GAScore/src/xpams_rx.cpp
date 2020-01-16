@@ -15,12 +15,12 @@ void xpams_rx(
     #pragma HLS INTERFACE axis port=axis_kernel_out
 	#pragma HLS INTERFACE ap_ctrl_none port=return
 
-    #pragma HLS PIPELINE
+    #pragma HLS DATAFLOW
 
     #ifdef DEBUG
     #pragma HLS INTERFACE ap_none port=dbg_currentState
     #endif
-    
+
     axis_word_t axis_word;
     axis_wordDest_t axis_wordDest;
     axis_wordNoKeep_t axis_wordNoKeep;

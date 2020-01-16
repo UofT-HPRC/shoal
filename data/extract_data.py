@@ -3,6 +3,7 @@ import os
 import subprocess
 import xml.etree.ElementTree as ET
 
+import numpy as np
 import pandas as pd
 
 # https://stackoverflow.com/a/40170206
@@ -10,20 +11,20 @@ def git_version():
     def _minimal_ext_cmd(cmd):
         # construct minimal environment
         env = {}
-        for k in ['SYSTEMROOT', 'PATH']:
+        for k in ["SYSTEMROOT", "PATH"]:
             v = os.environ.get(k)
             if v is not None:
                 env[k] = v
         # LANGUAGE is used on win32
-        env['LANGUAGE'] = 'C'
-        env['LANG'] = 'C'
-        env['LC_ALL'] = 'C'
+        env["LANGUAGE"] = "C"
+        env["LANG"] = "C"
+        env["LC_ALL"] = "C"
         out = subprocess.Popen(cmd, stdout = subprocess.PIPE, env=env).communicate()[0]
         return out
 
     try:
-        out = _minimal_ext_cmd(['git', 'rev-parse', 'HEAD'])
-        GIT_REVISION = out.strip().decode('ascii')
+        out = _minimal_ext_cmd(["git", "rev-parse", "HEAD"])
+        GIT_REVISION = out.strip().decode("ascii")
     except OSError:
         GIT_REVISION = "Unknown"
 
@@ -144,7 +145,7 @@ def parse_report(df, row, report):
     Available_DSP48E()
 
 
-def main(path):
+def extract(path):
     df = pd.DataFrame(columns=[
         "Project",
         "Solution",
@@ -176,7 +177,7 @@ def main(path):
         for solution, solution_path in list(zip(solutions, solution_paths)):
             reports, report_paths = get_solution_reports(solution_path)
             for report, report_path in list(zip(reports, report_paths)):
-                df.append(pd.Series(name=row_index))
+                # df.append(pd.Series(name=row_index))
                 df.at[row_index, "Project"] = project
                 df.at[row_index, "Solution"] = solution
                 df.at[row_index, "Report"] = report
@@ -187,12 +188,94 @@ def main(path):
 
     df.to_csv(os.path.join(os.getcwd(), git_version() + ".txt"), index=False)
 
+# https://stackoverflow.com/a/38421614
+def diff_pd(df1, df2):
+    """Identify differences between two pandas DataFrames"""
+    assert (df1.columns == df2.columns).all(), \
+        "DataFrame column names are different"
+    if any(df1.dtypes != df2.dtypes):
+        "Data Types are different, trying to convert"
+        df2 = df2.astype(df1.dtypes)
+    if df1.equals(df2):
+        return None
+    else:
+        # need to account for np.nan != np.nan returning True
+        diff_mask = (df1 != df2) & ~(df1.isnull() & df2.isnull())
+        ne_stacked = diff_mask.stack()
+        changed = ne_stacked[ne_stacked]
+        changed.index.names = ["id", "col"]
+        difference_locations = np.where(diff_mask)
+        changed_from = df1.values[difference_locations]
+        changed_to = df2.values[difference_locations]
+        return pd.DataFrame({"from": changed_from, "to": changed_to},
+                            index=changed.index)
+
+
+def compare(old_file, new_file):
+    old_df = pd.read_csv(old_file)
+    new_df = pd.read_csv(new_file)
+
+    old_df["index"] = old_df[[
+        "Project", "Solution", "Report", "ProductFamily", "Part", "TargetClockPeriod", "ClockUncertainty"
+    ]].apply(lambda x: "-".join(x), axis=1)
+    old_df.set_index("index", inplace=True)
+    new_df["index"] = new_df[[
+        "Project", "Solution", "Report", "ProductFamily", "Part", "TargetClockPeriod", "ClockUncertainty"
+    ]].apply(lambda x: "-".join(x), axis=1)
+    new_df.set_index("index", inplace=True)
+
+    for idx in old_df.index:
+        if idx not in new_df.index:
+            new_df = new_df.append(pd.Series(name=idx))
+            for column in new_df.columns:
+                new_df.at[idx, column] = -1
+
+    for idx in new_df.index:
+        if idx not in old_df.index:
+            old_df = old_df.append(pd.Series(name=idx))
+            for column in old_df.columns:
+                old_df.at[idx, column] = -1
+
+    old_df.sort_index(inplace=True)
+    new_df.sort_index(inplace=True)
+
+    compare_df = diff_pd(old_df, new_df)
+
+    # find all blocks that no longer exist in the new data
+    deleted_dict = dict(compare_df.index[compare_df["to"] == -1].tolist())
+    deleted_indices = list(deleted_dict.keys())
+    compare_df = compare_df.drop(compare_df[compare_df.to == -1].index)
+    for idx in deleted_indices:
+        multi_idx = (idx, "All")
+        compare_df = compare_df.append(pd.Series(name=multi_idx))
+        compare_df.at[multi_idx, "from"] = "Existed"
+        compare_df.at[multi_idx, "to"] = "Deleted"
+
+    # find all blocks that now exist in the new data
+    deleted_dict = dict(compare_df.index[compare_df["from"] == -1].tolist())
+    deleted_indices = list(deleted_dict.keys())
+    compare_df = compare_df.drop(compare_df[compare_df["from"] == -1].index)
+    for idx in deleted_indices:
+        multi_idx = (idx, "All")
+        compare_df = compare_df.append(pd.Series(name=multi_idx))
+        compare_df.at[multi_idx, "from"] = "Does not exist"
+        compare_df.at[multi_idx, "to"] = "New"
+
+    compare_df.to_csv(os.path.join(os.getcwd(), os.path.basename(old_file)[0:6] + "_" + os.path.basename(new_file)[0:6] + ".txt"))
 
 if __name__ == "__main__":
 
     parser = argparse.ArgumentParser(description="Extract timing from Vivado HLS projects")
-    parser.add_argument("path", type=str, help="Full path to vivado hls projects")
+    group = parser.add_mutually_exclusive_group(required=True)
+    group.add_argument("-e", "--extract", type=str, help="Path to vivado hls projects")
+    group.add_argument("-c", "--compare", nargs="+", type=str, help="Data to compare")
     # parser.add_argument("-s", "--solutions", nargs="+", help="Only extract these solutions")
 
     args = parser.parse_args()
-    main(args.path)
+    if args.extract is None:
+        if len(args.compare) == 2:
+            compare(os.path.abspath(args.compare[0]), os.path.abspath(args.compare[1]))
+        else:
+            raise NotImplementedError
+    else:
+        extract(os.path.abspath(args.extract))

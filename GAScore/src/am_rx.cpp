@@ -22,7 +22,7 @@ void am_rx(
     #pragma HLS INTERFACE ap_none port=release
 	#pragma HLS INTERFACE ap_ctrl_none port=return
 
-    #pragma HLS PIPELINE
+    #pragma HLS DATAFLOW
 
     axis_word_t axis_word;
     axis_word_8a_t axis_word_s2mmStatus;
