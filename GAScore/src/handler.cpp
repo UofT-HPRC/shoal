@@ -3,33 +3,37 @@
 void handler(
     axis_noKeep_t &axis_handler, //input to handler
     gc_AMhandler_t AMhandler,
-    uint_2_t config,
-    uint_16_t config_handler,
-    uint_32_t counter_threshold,
-    uint_1_t &interrupt
+    uint_32_t config,
+    ap_int<32> arg,
+    volatile ap_int<32> &counter_out,
+    volatile ap_int<32> &barrier_out,
+    volatile ap_int<32> &mem_ready_out
 ){
     #pragma HLS INTERFACE axis port=axis_handler
 	#pragma HLS INTERFACE ap_ctrl_none port=return
-    #pragma HLS INTERFACE ap_none port=interrupt
     #pragma HLS INTERFACE ap_none port=AMhandler
     #pragma HLS INTERFACE s_axilite port=config bundle=ctrl_bus
-    #pragma HLS INTERFACE s_axilite port=config_handler bundle=ctrl_bus
-    #pragma HLS INTERFACE s_axilite port=counter_threshold bundle=ctrl_bus
+    #pragma HLS INTERFACE s_axilite port=arg bundle=ctrl_bus
+    #pragma HLS INTERFACE s_axilite port=counter_out bundle=ctrl_bus
+    #pragma HLS INTERFACE s_axilite port=barrier_out bundle=ctrl_bus
+    #pragma HLS INTERFACE s_axilite port=mem_ready_out bundle=ctrl_bus
+
+    #pragma HLS INTERFACE ap_none port=counter_out
+    #pragma HLS INTERFACE ap_none port=barrier_out
+    #pragma HLS INTERFACE ap_none port=mem_ready_out
 
     #pragma HLS PIPELINE
 
     axis_wordNoKeep_t axis_word;
-    static uint_32_t counter = 0;
-    static uint_32_t barrier_cnt = 0;
-    static uint_32_t mem_ready_barrier_cnt = 0;
+    static ap_int<32> counter = 0;
+    static ap_int<32> barrier_cnt = 0;
+    static ap_int<32> mem_ready_barrier_cnt = 0;
+    static bool nonce = false;
 
-    uint_1_t lock = config[0];
-    uint_1_t reset = config[1];
-    static uint_1_t interrupt_wire = 0;
-    static uint_1_t acknowledged = 0;
-
-    if(lock != 1){
-        if(axis_handler.read_nb(axis_word)){
+    volatile bool lock = config.get_bit(4) == 0;
+    
+    if(lock || nonce){
+        if (axis_handler.read_nb(axis_word)){
             switch(AMhandler){
                 case H_INCR_MEM:{
                     mem_ready_barrier_cnt++;
@@ -48,59 +52,32 @@ void handler(
                 }
             }
         }
-    } else {
-        if (!acknowledged){
-            switch(config_handler){
-                case H_INCR_MEM:{
-                    mem_ready_barrier_cnt -= counter_threshold;
-                    break;
-                }
-                case H_ADD:{
-                    counter -= counter_threshold;
-                    break;
-                }
-                case H_INCR_BAR:{
-                    barrier_cnt -= counter_threshold;
-                    break;
-                }
-                default:
-                    break;
-            }
-            acknowledged = 1;
+        if (lock){
+            nonce = false;
         }
-    }
-
-    if (reset){
-        interrupt_wire = 0;
-        acknowledged = 0;
     } else {
-        switch(config_handler){
+        switch(config.range(3,0)){
             case H_INCR_MEM:{
-                interrupt_wire = interrupt_wire | (mem_ready_barrier_cnt >= counter_threshold);
+                mem_ready_barrier_cnt -= arg;
                 break;
             }
             case H_ADD:{
-                interrupt_wire = interrupt_wire | (counter >= counter_threshold);
+                counter -= arg;
                 break;
             }
             case H_INCR_BAR:{
-                interrupt_wire = interrupt_wire | (barrier_cnt >= counter_threshold);
+                barrier_cnt -= arg;
                 break;
             }
-            default:
+            default:{
                 break;
+            }
         }
+        // config = config & 0xF; // clear out the lock
+        nonce = true;
     }
 
-    interrupt = interrupt_wire;
+    counter_out = counter;
+    barrier_out = barrier_cnt;
+    mem_ready_out = mem_ready_barrier_cnt;
 }
-
-#ifdef DEBUG
-std::string stateParse(int state){
-    switch(state){
-        CHECK_STATE("st_AMHeader", st_header, 0)
-        CHECK_STATE("st_handler", st_AMHandlerArgs, 1)
-        default: return "Unknown State";
-    }
-}
-#endif

@@ -17,8 +17,8 @@
     input logic s_axi_ctrl_bus_``n``_BREADY, \
     output logic [1:0] s_axi_ctrl_bus_``n``_BRESP
 
-`define INTERRUPT_PORTS(n) \
-    output logic interrupt_``n``
+// `define INTERRUPT_PORTS(n) \
+//     output logic interrupt_``n``
 
 `define ASSIGN_S_AXILITE(n) \
     s_axi_ctrl_bus_AWVALID[``n``] = s_axi_ctrl_bus_``n``_AWVALID; \
@@ -39,8 +39,8 @@
     s_axi_ctrl_bus_BREADY[``n``] = s_axi_ctrl_bus_``n``_BREADY; \
     s_axi_ctrl_bus_``n``_BRESP = s_axi_ctrl_bus_BRESP[``n``];
 
-`define ASSIGN_INTERRUPT(n) \
-    interrupt_``n`` = interrupt_V[``n``];
+// `define ASSIGN_INTERRUPT(n) \
+//     interrupt_``n`` = interrupt_V[``n``];
 
 module handler_wrapper #(
     parameter NUM_KERNELS = 2,
@@ -75,24 +75,24 @@ module handler_wrapper #(
     output axis_handler_tready,
     input axis_handler_tvalid,
 
-    input [15:0] address_offset,
+    input [15:0] address_offset
 
-    `INTERRUPT_PORTS(0),
-    `INTERRUPT_PORTS(1),
-    `INTERRUPT_PORTS(2),
-    `INTERRUPT_PORTS(3),
-    `INTERRUPT_PORTS(4),
-    `INTERRUPT_PORTS(5),
-    `INTERRUPT_PORTS(6),
-    `INTERRUPT_PORTS(7),
-    `INTERRUPT_PORTS(8),
-    `INTERRUPT_PORTS(9),
-    `INTERRUPT_PORTS(10),
-    `INTERRUPT_PORTS(11),
-    `INTERRUPT_PORTS(12),
-    `INTERRUPT_PORTS(13),
-    `INTERRUPT_PORTS(14),
-    `INTERRUPT_PORTS(15)
+    // `INTERRUPT_PORTS(0),
+    // `INTERRUPT_PORTS(1),
+    // `INTERRUPT_PORTS(2),
+    // `INTERRUPT_PORTS(3),
+    // `INTERRUPT_PORTS(4),
+    // `INTERRUPT_PORTS(5),
+    // `INTERRUPT_PORTS(6),
+    // `INTERRUPT_PORTS(7),
+    // `INTERRUPT_PORTS(8),
+    // `INTERRUPT_PORTS(9),
+    // `INTERRUPT_PORTS(10),
+    // `INTERRUPT_PORTS(11),
+    // `INTERRUPT_PORTS(12),
+    // `INTERRUPT_PORTS(13),
+    // `INTERRUPT_PORTS(14),
+    // `INTERRUPT_PORTS(15)
 );
     localparam KERNEL_WIDTH = NUM_KERNELS == 1 ? 1 : $clog2(NUM_KERNELS);
     logic [KERNEL_WIDTH-1:0] address;
@@ -171,7 +171,7 @@ module handler_wrapper #(
     logic s_axi_ctrl_bus_BVALID [NUM_KERNELS];
     logic s_axi_ctrl_bus_BREADY [NUM_KERNELS];
     logic [1:0] s_axi_ctrl_bus_BRESP [NUM_KERNELS];
-    logic interrupt_V [NUM_KERNELS];
+    // logic interrupt_V [NUM_KERNELS];
 
     logic [NUM_KERNELS-1:0] tready;
 
@@ -255,63 +255,63 @@ module handler_wrapper #(
                 .AMhandler_V(AMhandler),
                 .axis_handler_TDATA(axis_handler_tdata),
                 .axis_handler_TLAST(axis_handler_tlast),
-                .interrupt_V(interrupt_V[i]),
+                // .interrupt_V(interrupt_V[i]),
                 .axis_handler_TVALID(valid_signal),
                 .axis_handler_TREADY(tready[i])
             );
         end
     endgenerate
 
-    always @(*) begin
-        if (NUM_KERNELS > 15) begin
-            `ASSIGN_INTERRUPT(15)
-        end
-        if (NUM_KERNELS > 14) begin
-            `ASSIGN_INTERRUPT(14)
-        end
-        if (NUM_KERNELS > 13) begin
-            `ASSIGN_INTERRUPT(13)
-        end
-        if (NUM_KERNELS > 12) begin
-            `ASSIGN_INTERRUPT(12)
-        end
-        if (NUM_KERNELS > 11) begin
-            `ASSIGN_INTERRUPT(11)
-        end
-        if (NUM_KERNELS > 10) begin
-            `ASSIGN_INTERRUPT(10)
-        end
-        if (NUM_KERNELS > 9) begin
-            `ASSIGN_INTERRUPT(9)
-        end
-        if (NUM_KERNELS > 8) begin
-            `ASSIGN_INTERRUPT(8)
-        end
-        if (NUM_KERNELS > 7) begin
-            `ASSIGN_INTERRUPT(7)
-        end
-        if (NUM_KERNELS > 6) begin
-            `ASSIGN_INTERRUPT(6)
-        end
-        if (NUM_KERNELS > 5) begin
-            `ASSIGN_INTERRUPT(5)
-        end
-        if (NUM_KERNELS > 4) begin
-            `ASSIGN_INTERRUPT(4)
-        end
-        if (NUM_KERNELS > 3) begin
-            `ASSIGN_INTERRUPT(3)
-        end
-        if (NUM_KERNELS > 2) begin
-            `ASSIGN_INTERRUPT(2)
-        end
-        if (NUM_KERNELS > 1) begin
-            `ASSIGN_INTERRUPT(1)
-        end
-        if (NUM_KERNELS > 0) begin
-            `ASSIGN_INTERRUPT(0)
-        end
-    end
+    // always @(*) begin
+    //     if (NUM_KERNELS > 15) begin
+    //         `ASSIGN_INTERRUPT(15)
+    //     end
+    //     if (NUM_KERNELS > 14) begin
+    //         `ASSIGN_INTERRUPT(14)
+    //     end
+    //     if (NUM_KERNELS > 13) begin
+    //         `ASSIGN_INTERRUPT(13)
+    //     end
+    //     if (NUM_KERNELS > 12) begin
+    //         `ASSIGN_INTERRUPT(12)
+    //     end
+    //     if (NUM_KERNELS > 11) begin
+    //         `ASSIGN_INTERRUPT(11)
+    //     end
+    //     if (NUM_KERNELS > 10) begin
+    //         `ASSIGN_INTERRUPT(10)
+    //     end
+    //     if (NUM_KERNELS > 9) begin
+    //         `ASSIGN_INTERRUPT(9)
+    //     end
+    //     if (NUM_KERNELS > 8) begin
+    //         `ASSIGN_INTERRUPT(8)
+    //     end
+    //     if (NUM_KERNELS > 7) begin
+    //         `ASSIGN_INTERRUPT(7)
+    //     end
+    //     if (NUM_KERNELS > 6) begin
+    //         `ASSIGN_INTERRUPT(6)
+    //     end
+    //     if (NUM_KERNELS > 5) begin
+    //         `ASSIGN_INTERRUPT(5)
+    //     end
+    //     if (NUM_KERNELS > 4) begin
+    //         `ASSIGN_INTERRUPT(4)
+    //     end
+    //     if (NUM_KERNELS > 3) begin
+    //         `ASSIGN_INTERRUPT(3)
+    //     end
+    //     if (NUM_KERNELS > 2) begin
+    //         `ASSIGN_INTERRUPT(2)
+    //     end
+    //     if (NUM_KERNELS > 1) begin
+    //         `ASSIGN_INTERRUPT(1)
+    //     end
+    //     if (NUM_KERNELS > 0) begin
+    //         `ASSIGN_INTERRUPT(0)
+    //     end
+    // end
 
     assign axis_handler_tready = tready[address];
 

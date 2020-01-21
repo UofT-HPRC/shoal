@@ -176,6 +176,12 @@ bool isLongFIFOAM(gc_AMtype_t arg);
 
 axis_wordNoKeep_t assignWordtoNoKeep(axis_word_t axis_word);
 axis_wordDest_t assignWord(axis_word_t axis_word);
+axis_wordNoKeep_t createHandlerHeader(gc_AMtype_t AMtype, gc_AMToken_t token, 
+    gc_AMsrc_t dst, gc_payloadSize_t payload, gc_AMhandler_t handler, 
+    gc_AMargs_t handler_args);
+axis_wordDest_t createKernelHeader(gc_AMtype_t AMtype, gc_AMToken_t token, 
+    gc_AMsrc_t src, gc_AMdst_t dst, gc_payloadSize_t payload, gc_AMhandler_t handler, 
+    gc_AMargs_t handler_args);
 
 // inline axis_wordNoKeep_t assignWordtoNoKeep(axis_word_t axis_word){
 //     axis_wordNoKeep_t axis_wordDest;

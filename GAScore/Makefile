@@ -68,7 +68,7 @@ test_modules=$(patsubst %, test-%, $(c_modules))
 test: $(test_modules)
 
 define make-test
-test-$1: config-$1 $(bin_dir)/$1_tb
+test-$1: $(bin_dir)/$1_tb
 	@$(bin_dir)/$1_tb --readInterfaces
 endef
 $(foreach module, $(c_modules),$(eval $(call make-test,$(module))))

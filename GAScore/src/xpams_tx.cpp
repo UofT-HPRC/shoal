@@ -38,7 +38,7 @@ void xpams_tx(
 
     static gc_AMargs_t AMargs;
     static gc_AMtype_t AMtype;
-    gc_AMhandler_t AMhandler;
+    static gc_AMhandler_t AMhandler;
 
     bool loopback;
 
@@ -53,11 +53,11 @@ void xpams_tx(
             AMpayloadSize = axis_word.data(AM_PAYLOAD_SIZE);
             loopback = AMdst <= address_offset_high && AMdst >= address_offset_low;
             if (loopback){
-                if (AMhandler != H_EMPTY){
-                    axis_wordNoKeep = assignWordtoNoKeep(axis_word);
-                    axis_wordNoKeep.last = AMargs == 0;
-                    axis_handler.write(axis_wordNoKeep);
-                }
+                // if (AMhandler != H_EMPTY){
+                //     axis_wordNoKeep = assignWordtoNoKeep(axis_word);
+                //     axis_wordNoKeep.last = AMargs == 0;
+                //     axis_handler.write(axis_wordNoKeep);
+                // }
                 currentState = st_AMloopback;
             }
             else{
@@ -76,22 +76,34 @@ void xpams_tx(
         case st_AMloopback:{
             axis_kernel_in.read(axis_word); //read token
             AMToken = axis_word.data(AM_TOKEN);
+            if (AMhandler != H_EMPTY){
+                axis_wordNoKeep = createHandlerHeader(AMtype, AMToken, AMdst, 
+                    AMpayloadSize, AMhandler, AMargs);
+                axis_handler.write(axis_wordNoKeep);
+            }
             if (isMediumAM(AMtype)){
-                axis_word.data(AM_TYPE) = AMtype;
-                axis_word.data(AM_SRC) = AMsrc;
                 #ifdef USE_ABS_PAYLOAD
-                axis_word.data(AM_DST) = AMpayloadSize - AMargs - GC_DATA_BYTES; // ! assuming payloadsize == dst size
+                gc_payloadSize_t payload = AMpayloadSize - AMargs - GC_DATA_BYTES; // ! assuming payloadsize == dst size
                 #else
-                axis_word.data(AM_DST) = AMpayloadSize; // ! assuming payloadsize == dst size
+                gc_payloadSize_t payload = AMpayloadSize; // ! assuming payloadsize == dst size
                 #endif
-                axis_word.data(AM_TOKEN) = AMToken;
-                axis_wordDest = assignWord(axis_word);
-                axis_wordDest.dest = AMdst;
+                axis_wordDest = createKernelHeader(AMtype, AMToken, AMsrc, AMdst, 
+                    payload, AMhandler, AMargs);
+                // axis_word.data(AM_TYPE) = AMtype;
+                // axis_word.data(AM_SRC) = AMsrc;
+                // #ifdef USE_ABS_PAYLOAD
+                // axis_word.data(AM_DST) = AMpayloadSize - AMargs - GC_DATA_BYTES; // ! assuming payloadsize == dst size
+                // #else
+                // axis_word.data(AM_PAYLOAD_SIZE) = AMpayloadSize; // ! assuming payloadsize == dst size
+                // #endif
+                // axis_word.data(AM_TOKEN) = AMToken;
+                // axis_wordDest = createKernelHeader(axis_word);
+                // axis_wordDest.dest = AMdst;
                 axis_kernel_out.write(axis_wordDest);
                 currentState = AMargs != 0 ? st_AMargs : st_AMpayload;
             }
             else {
-                currentState = AMargs != 0 ? st_AMargs : st_AMheader;
+                currentState = AMargs != 0 ? st_AMargs : st_AMreply;
             }
             break;
         }
@@ -108,7 +120,7 @@ void xpams_tx(
             axis_wordNoKeep = assignWordtoNoKeep(axis_word);
             axis_wordNoKeep.last = 1;
             axis_handler.write(axis_wordNoKeep);
-            currentState = isMediumAM(AMtype) ? st_AMpayload : st_AMheader;
+            currentState = isMediumAM(AMtype) ? st_AMpayload : st_AMreply;
             break;
         }
         case st_AMpayload:{
@@ -121,6 +133,16 @@ void xpams_tx(
                 axis_wordDest.dest = AMdst;
                 axis_kernel_out.write(axis_wordDest);
             } while(!axis_word.last);
+            currentState = st_AMreply;
+            break;
+        }
+        case st_AMreply:{
+            if (AMhandler != H_INCR_MEM){
+                axis_wordNoKeep = createHandlerHeader(AMtype, AMToken, AMdst, 
+                    0, H_INCR_MEM, 0);
+                axis_wordNoKeep.last = 1;
+                axis_handler.write(axis_wordNoKeep);
+            }
             currentState = st_AMheader;
             break;
         }

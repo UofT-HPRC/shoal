@@ -94,3 +94,44 @@ axis_wordDest_t assignWord(axis_word_t axis_word){
 
     return axis_wordDest;
 }
+
+axis_wordNoKeep_t createHandlerHeader(gc_AMtype_t AMtype, gc_AMToken_t token, 
+    gc_AMsrc_t dst, gc_payloadSize_t payload, gc_AMhandler_t handler, 
+    gc_AMargs_t handler_args){
+    #pragma HLS INLINE
+
+    axis_wordNoKeep_t new_word;
+    #pragma DEPENDENCE variable=new_word intra false
+
+    new_word.data(AM_TYPE) = AMtype;
+    new_word.data(AM_SRC) = token;
+    new_word.data(AM_DST) = dst;
+    new_word.data(AM_PAYLOAD_SIZE) = payload;
+    new_word.data(AM_HANDLER) = handler;
+    new_word.data(AM_HANDLER_ARGS) = handler_args;
+    new_word.last = handler_args == 0;
+
+    return new_word;
+}
+
+axis_wordDest_t createKernelHeader(gc_AMtype_t AMtype, gc_AMToken_t token, 
+    gc_AMsrc_t src, gc_AMdst_t dst, gc_payloadSize_t payload, gc_AMhandler_t handler, 
+    gc_AMargs_t handler_args){
+    #pragma HLS INLINE
+
+    axis_wordDest_t new_word;
+    #pragma HLS DEPENDENCE variable=new_word intra false
+
+    new_word.data(AM_TYPE) = AMtype;
+    new_word.data(AM_SRC) = token;
+    new_word.data(AM_DST) = src;
+    new_word.data(AM_PAYLOAD_SIZE) = payload;
+    new_word.data(AM_HANDLER) = handler;
+    new_word.data(AM_HANDLER_ARGS) = handler_args;
+
+    // new_word.last = 0;
+    new_word.keep = GC_DATA_TKEEP;
+    new_word.dest = dst;
+
+    return new_word;
+}

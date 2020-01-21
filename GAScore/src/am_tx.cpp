@@ -22,7 +22,7 @@ void am_tx(
     #pragma HLS INTERFACE ap_none port=dbg_currentState
     #endif
 
-    #pragma HLS DATAFLOW
+    #pragma HLS PIPELINE
 
     static state_t currentState = st_header;
     axis_word_t axis_word;

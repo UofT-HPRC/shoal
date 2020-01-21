@@ -252,22 +252,22 @@ module GAScore #(
     input wire [0 : 0] axi_local_rlast,
     input wire [0 : 0] axi_local_rvalid,
     output wire [0 : 0] axi_local_rready,
-    output interrupt_0,
-    output interrupt_1,
-    output interrupt_2,
-    output interrupt_3,
-    output interrupt_4,
-    output interrupt_5,
-    output interrupt_6,
-    output interrupt_7,
-    output interrupt_8,
-    output interrupt_9,
-    output interrupt_10,
-    output interrupt_11,
-    output interrupt_12,
-    output interrupt_13,
-    output interrupt_14,
-    output interrupt_15
+    // output interrupt_0,
+    // output interrupt_1,
+    // output interrupt_2,
+    // output interrupt_3,
+    // output interrupt_4,
+    // output interrupt_5,
+    // output interrupt_6,
+    // output interrupt_7,
+    // output interrupt_8,
+    // output interrupt_9,
+    // output interrupt_10,
+    // output interrupt_11,
+    // output interrupt_12,
+    // output interrupt_13,
+    // output interrupt_14,
+    // output interrupt_15
 );
 
     wire [63:0] axis_handler_tdata;
@@ -435,25 +435,25 @@ module GAScore #(
         .axis_handler_tlast(axis_handler_tlast),
         .axis_handler_tready(axis_handler_tready),
         .axis_handler_tvalid(axis_handler_tvalid),
-        .address_offset(ADDRESS_LOW),
-        .interrupt_0(interrupt_0),
-        .interrupt_1(interrupt_1),
-        .interrupt_2(interrupt_2),
-        .interrupt_3(interrupt_3),
-        .interrupt_4(interrupt_4),
-        .interrupt_5(interrupt_5),
-        .interrupt_6(interrupt_6),
-        .interrupt_7(interrupt_7),
-        .interrupt_8(interrupt_8),
-        .interrupt_9(interrupt_9),
-        .interrupt_10(interrupt_10),
-        .interrupt_11(interrupt_11),
-        .interrupt_12(interrupt_12),
-        .interrupt_13(interrupt_13),
-        .interrupt_14(interrupt_14),
-        .interrupt_15(interrupt_15)
+        .address_offset(ADDRESS_LOW)
+        // .interrupt_0(interrupt_0),
+        // .interrupt_1(interrupt_1),
+        // .interrupt_2(interrupt_2),
+        // .interrupt_3(interrupt_3),
+        // .interrupt_4(interrupt_4),
+        // .interrupt_5(interrupt_5),
+        // .interrupt_6(interrupt_6),
+        // .interrupt_7(interrupt_7),
+        // .interrupt_8(interrupt_8),
+        // .interrupt_9(interrupt_9),
+        // .interrupt_10(interrupt_10),
+        // .interrupt_11(interrupt_11),
+        // .interrupt_12(interrupt_12),
+        // .interrupt_13(interrupt_13),
+        // .interrupt_14(interrupt_14),
+        // .interrupt_15(interrupt_15)
     );
-    
+
     // blk_mem_gen_0 memory (
     //   .s_aclk(clock),                // input wire s_aclk
     //   .s_aresetn(reset_n),          // input wire s_aresetn
@@ -487,5 +487,5 @@ module GAScore #(
     //   .s_axi_rvalid(axi_mem_rvalid),    // output wire s_axi_rvalid
     //   .s_axi_rready(axi_mem_rready)    // input wire s_axi_rready
     // );
-    
+
 endmodule

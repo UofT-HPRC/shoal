@@ -39,12 +39,21 @@ static enum state_rx_t{st_AMHeader, st_handler} currentState;
 #define READ_INTERFACES \
     READ_STREAM_INTERFACE("Handler", uaxis_n, axis_handler, axis_word)
 
+// void handler(
+//     axis_noKeep_t &axis_handler, //input to handler
+//     gc_AMhandler_t AMhandler,
+//     uint_32_t counter_threshold,
+//     uint_2_t counter_reset,
+//     uint_1_t &interrupt
+// );
 void handler(
     axis_noKeep_t &axis_handler, //input to handler
     gc_AMhandler_t AMhandler,
-    uint_32_t counter_threshold,
-    uint_2_t counter_reset,
-    uint_1_t &interrupt
+    uint_32_t config,
+    ap_int<32> arg,
+    volatile ap_int<32> &counter_out,
+    volatile ap_int<32> &barrier_out,
+    volatile ap_int<32> &mem_ready_out
 );
 
 #ifdef DEBUG

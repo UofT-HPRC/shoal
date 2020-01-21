@@ -10,7 +10,7 @@
 #define FSM_EXISTS // allows printing FSM states in debug
 
 static enum state_rx_t{st_AMheader, st_AMsend, st_AMargs,
-    st_AMpayload, st_AMloopback, st_AMtoken} currentState;
+    st_AMpayload, st_AMloopback, st_AMtoken, st_AMreply} currentState;
 
 #define DECLARE_VARIABLES\
     axis_t axis_kernel_in("kernel_in");\

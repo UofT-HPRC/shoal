@@ -12,8 +12,8 @@ filepath = os.path.join(os.path.dirname(__file__), 'build/GAScore/')
 dut = Module.default("DUT")
 dut.add_clock_port('clock', '20ns')
 dut.add_reset_port('reset_n')
-dut.add_port('interrupt_0', 'output')
-dut.add_port('interrupt_1', 'output')
+# dut.add_port('interrupt_0', 'output')
+# dut.add_port('interrupt_1', 'output')
 
 axis_kernel_out = AXIS('axis_kernel_out', 'master', 'clock')
 axis_kernel_out.port.init_channels('tkeep', 64, False)
@@ -33,17 +33,21 @@ axis_net_out.port.init_channels('tkeep', 64, False)
 dut.add_interface(axis_net_out)
 
 ctrl_bus_0 = SAXILite('s_axi_ctrl_bus_00', 'clock', 'reset_n')
-ctrl_bus_0.add_register('counter_threshold', 0x20)
 ctrl_bus_0.add_register('config', 0x10)
-ctrl_bus_0.add_register('config_handler', 0x18)
+ctrl_bus_0.add_register('arg', 0x18)
+ctrl_bus_0.add_register('counter', 0x20)
+ctrl_bus_0.add_register('barrier', 0x28)
+ctrl_bus_0.add_register('memory', 0x30)
 ctrl_bus_0.set_address('4K', 0)
 ctrl_bus_0.port.init_channels(mode='default', dataWidth=32, addrWidth=12)
 dut.add_interface(ctrl_bus_0)
 
 ctrl_bus_1 = SAXILite('s_axi_ctrl_bus_01', 'clock', 'reset_n')
-ctrl_bus_1.add_register('counter_threshold', 0x20)
 ctrl_bus_1.add_register('config', 0x10)
-ctrl_bus_1.add_register('config_handler', 0x18)
+ctrl_bus_1.add_register('arg', 0x18)
+ctrl_bus_1.add_register('counter', 0x20)
+ctrl_bus_1.add_register('barrier', 0x28)
+ctrl_bus_1.add_register('memory', 0x30)
 ctrl_bus_1.set_address('4K', 0)
 ctrl_bus_1.port.init_channels(mode='default', dataWidth=32, addrWidth=12)
 dut.add_interface(ctrl_bus_1)
@@ -67,8 +71,8 @@ initT.set_signal('axis_kernel_out_tready', 1)
 # Short Message A
 #
 # Sends short messages from the network that call the adder handler function
-# that raises the interrupt once the set threshold is exceeded. There are two 
-# kernels here. A short message calling no handler is also inserted which does 
+# that raises the interrupt once the set threshold is exceeded. There are two
+# kernels here. A short message calling no handler is also inserted which does
 # nothing and is just absorbed by the GAScore. All transactions result in reply
 # messages sent back over the network.
 #-------------------------------------------------------------------------------
@@ -80,9 +84,9 @@ smA_t2 = Thread()
 smA_t2.add_delay('100ns')
 
 smA_t2.print_elapsed_time('STAT_sma_2_0')
-ctrl_bus_1.write(smA_t2, 'counter_threshold', 4)
+# ctrl_bus_1.write(smA_t2, 'counter_threshold', 4)
 smA_t2.print_elapsed_time('STAT_sma_2_1')
-ctrl_bus_1.write(smA_t2, 'config_handler', 2)
+# ctrl_bus_1.write(smA_t2, 'config_handler', 2)
 
 
 axis_net_in.write(smA_t2, strToInt("{AMHeader,0x10,0x01,0,2,1,1}"))
@@ -92,10 +96,10 @@ axis_net_in.write(smA_t2, 4, tlast=1)
 
 axis_net_in.write(smA_t2, strToInt("{AMHeader,0x10,0x01,0,2,1,1}"))
 axis_net_in.write(smA_t2, strToInt("{AMToken,0x1}"))
-axis_net_in.write(smA_t2, 1, tlast=1)
+axis_net_in.write(smA_t2, 2, tlast=1)
 
-ctrl_bus_0.write(smA_t2, 'counter_threshold', 4)
-ctrl_bus_0.write(smA_t2, 'config_handler', 2)
+# ctrl_bus_0.write(smA_t2, 'counter_threshold', 4)
+# ctrl_bus_0.write(smA_t2, 'config_handler', 2)
 
 smA_t2.enable_timestamps('STAT_sma_2_', 2)
 axis_net_in.write(smA_t2, strToInt("{AMHeader,0x10,0x01,0,0,1,0}"))
@@ -105,16 +109,28 @@ axis_net_in.write(smA_t2, strToInt("{AMHeader,0x10,0x00,0,2,1,1}"))
 axis_net_in.write(smA_t2, strToInt("{AMToken,0x3}"))
 axis_net_in.write(smA_t2, 5, tlast=1)
 
-smA_t2.wait_level('interrupt_0 == $value', 1)
+# smA_t2.wait_level('interrupt_0 == $value', 1)
+smA_t2.add_delay("100ns")
+ctrl_bus_0.read(smA_t2, "counter", 5)
+ctrl_bus_1.read(smA_t2, "counter", 6)
+ctrl_bus_0.write(smA_t2, "arg", 0x5)
+ctrl_bus_0.write(smA_t2, "config", 0x12)
+ctrl_bus_0.write(smA_t2, "config", 0x02)
+ctrl_bus_1.write(smA_t2, "arg", 0x6)
+ctrl_bus_1.write(smA_t2, "config", 0x12)
+ctrl_bus_1.write(smA_t2, "config", 0x02)
+smA_t2.add_delay("100ns")
+ctrl_bus_0.read(smA_t2, "counter", 0)
+ctrl_bus_1.read(smA_t2, "counter", 0)
 smA_t2.disable_timestamps()
-smA_t2.wait_level('interrupt_1 == $value', 1)
+# smA_t2.wait_level('interrupt_1 == $value', 1)
 
-ctrl_bus_1.write(smA_t2, 'config', 1)
-ctrl_bus_1.write(smA_t2, 'config', 2)
-ctrl_bus_1.write(smA_t2, 'config', 0)
-ctrl_bus_0.write(smA_t2, 'config', 1)
-ctrl_bus_0.write(smA_t2, 'config', 2)
-ctrl_bus_0.write(smA_t2, 'config', 0)
+# ctrl_bus_1.write(smA_t2, 'config', 1)
+# ctrl_bus_1.write(smA_t2, 'config', 2)
+# ctrl_bus_1.write(smA_t2, 'config', 0)
+# ctrl_bus_0.write(smA_t2, 'config', 1)
+# ctrl_bus_0.write(smA_t2, 'config', 2)
+# ctrl_bus_0.write(smA_t2, 'config', 0)
 
 short_message_A.add_thread(smA_t2)
 
@@ -130,8 +146,8 @@ axis_net_out.read(smA_t3, strToInt("{AMHeader,0x0,0x10,0,1,0x41,0}"))
 axis_net_out.read(smA_t3, strToInt("{AMToken,0x3}"), tlast=1)
 smA_t3.disable_timestamps()
 
-smA_t3.wait_level('interrupt_0 == $value', 0)
-smA_t3.wait_level('interrupt_1 == $value', 0)
+# smA_t3.wait_level('interrupt_0 == $value', 0)
+# smA_t3.wait_level('interrupt_1 == $value', 0)
 smA_t3.end_vector()
 
 short_message_A.add_thread(smA_t3)
@@ -140,10 +156,10 @@ short_message_A.add_thread(smA_t3)
 # Short Message B
 #
 # Sends short messages from local kernels that call the adder handler function
-# that raises the interrupt once the set threshold is exceeded. There are two 
-# kernels here. A short message calling no handler is also inserted which does 
-# nothing and is just absorbed by the GAScore. The last two transactions are 
-# routed to the network since the destination is > 0xF. 
+# that raises the interrupt once the set threshold is exceeded. There are two
+# kernels here. A short message calling no handler is also inserted which does
+# nothing and is just absorbed by the GAScore. The last two transactions are
+# routed to the network since the destination is > 0xF.
 #-------------------------------------------------------------------------------
 
 short_message_B = TestVector()
@@ -151,8 +167,8 @@ short_message_B.add_thread(initT)
 
 smB_t2 = Thread()
 smB_t2.add_delay('100ns')
-ctrl_bus_1.write(smB_t2, 'counter_threshold', 4),
-ctrl_bus_1.write(smB_t2, 'config_handler', 2),
+# ctrl_bus_1.write(smB_t2, 'counter_threshold', 4),
+# ctrl_bus_1.write(smB_t2, 'config_handler', 2),
 axis_kernel_in.write(smB_t2, strToInt("{AMHeader,0x0,0x01,0,2,1,1}"))
 smB_t2.enable_timestamps('STAT_smb_2_', 0)
 axis_kernel_in.write(smB_t2, strToInt("{AMToken,0x0}"))
@@ -160,8 +176,8 @@ axis_kernel_in.write(smB_t2, 4, tlast=1)
 axis_kernel_in.write(smB_t2, strToInt("{AMHeader,0x0,0x01,0,2,1,1}"))
 axis_kernel_in.write(smB_t2, strToInt("{AMToken,0x1}"))
 axis_kernel_in.write(smB_t2, 1, tlast=1),
-ctrl_bus_0.write(smB_t2, 'counter_threshold', 4)
-ctrl_bus_0.write(smB_t2, 'config_handler', 2)
+# ctrl_bus_0.write(smB_t2, 'counter_threshold', 4)
+# ctrl_bus_0.write(smB_t2, 'config_handler', 2)
 axis_kernel_in.write(smB_t2, strToInt("{AMHeader,0x0,0x01,0,0,1,0}"))
 axis_kernel_in.write(smB_t2, strToInt("{AMToken,0x2}"), tlast=1)
 axis_kernel_in.write(smB_t2, strToInt("{AMHeader,0x1,0x00,0,2,1,1}"))
@@ -177,15 +193,23 @@ axis_net_in.write(smB_t2, strToInt("{AMToken,0x6}"), tlast=1)
 smB_t2.disable_timestamps()
 axis_net_in.write(smB_t2, strToInt("{AMHeader,0x10,0x1,0,0,0x41,0}"))
 axis_net_in.write(smB_t2, strToInt("{AMToken,0x7}"), tlast=1)
+ctrl_bus_1.read(smB_t2, "counter", 5)
+ctrl_bus_0.read(smB_t2, "counter", 5)
+ctrl_bus_0.write(smB_t2, "arg", 0x5)
+ctrl_bus_0.write(smB_t2, "config", 0x12)
+ctrl_bus_0.write(smB_t2, "config", 0x02)
+ctrl_bus_1.write(smB_t2, "arg", 0x5)
+ctrl_bus_1.write(smB_t2, "config", 0x12)
+ctrl_bus_1.write(smB_t2, "config", 0x02)
 smB_t2.set_flag(1)
 short_message_B.add_thread(smB_t2)
 
-smB_t4 = Thread()
-smB_t4.wait_level('interrupt_1 == $value', 1)
-smB_t4.enable_timestamps('STAT_smb_4_', 0)
-smB_t4.wait_level('interrupt_0 == $value', 1)
-smB_t4.disable_timestamps()
-short_message_B.add_thread(smB_t4)
+# smB_t4 = Thread()
+# smB_t4.wait_level('interrupt_1 == $value', 1)
+# smB_t4.enable_timestamps('STAT_smb_4_', 0)
+# smB_t4.wait_level('interrupt_0 == $value', 1)
+# smB_t4.disable_timestamps()
+# short_message_B.add_thread(smB_t4)
 
 smB_t3 = Thread()
 smB_t3.enable_timestamps('STAT_smb_3_', 0)
@@ -208,9 +232,9 @@ short_message_B.add_thread(smB_t3)
 #-------------------------------------------------------------------------------
 # Medium Message A
 #
-# This sends a pair of medium messages: one for loopback, one externally. The 
-# loopback message is  medium FIFO message which passes the token + payload to 
-# the local kernel and a reply message is sent back. The remote message is 
+# This sends a pair of medium messages: one for loopback, one externally. The
+# loopback message is  medium FIFO message which passes the token + payload to
+# the local kernel and a reply message is sent back. The remote message is
 # forwarded in its entirety out (FIFO bit is changed in the type)
 #-------------------------------------------------------------------------------
 
@@ -255,7 +279,7 @@ medium_message_A.add_thread(mmA_t3)
 #-------------------------------------------------------------------------------
 # Medium Message B
 #
-# This sends a medium message from a local kernel externally. It reads 4 words 
+# This sends a medium message from a local kernel externally. It reads 4 words
 # from byte address 0x10 and streams it out
 #-------------------------------------------------------------------------------
 
@@ -355,7 +379,7 @@ long_message_A.add_thread(lmA_t2)
 #-------------------------------------------------------------------------------
 # Long Message B
 #
-# Sends a long strided message reading 4 words from address 0 with an 
+# Sends a long strided message reading 4 words from address 0 with an
 # offset of 0x100 (32 words) and sent to address 0x20 remotely.
 #-------------------------------------------------------------------------------
 
@@ -435,8 +459,8 @@ long_message_C.add_thread(lmC_t2)
 #-------------------------------------------------------------------------------
 # Receive
 #
-# From the above messages, take the data on net_out and send it back to net_in 
-# (changing src/dst addresses as needed) to make sure the core can handle 
+# From the above messages, take the data on net_out and send it back to net_in
+# (changing src/dst addresses as needed) to make sure the core can handle
 # receiving these messages.
 #-------------------------------------------------------------------------------
 
@@ -535,8 +559,8 @@ message_recv.add_thread(message_t2)
 # Get
 #
 # Tests receiving get message requests (identified by non-short REPLY messages).
-# The requests are handled by passing them off as local-kernel generated SEND 
-# requests but enforce the ASYNC flag high. This prevents a reply back to the 
+# The requests are handled by passing them off as local-kernel generated SEND
+# requests but enforce the ASYNC flag high. This prevents a reply back to the
 # local kernel.
 #-------------------------------------------------------------------------------
 

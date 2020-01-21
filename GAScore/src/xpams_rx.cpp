@@ -53,10 +53,10 @@ void xpams_rx(
                     axis_word.data(AM_DST) = AMsrc;
                     axis_tx.write(axis_word);
                 }
-                else if (AMhandler != H_EMPTY){
-                    axis_wordNoKeep = assignWordtoNoKeep(axis_word);
-                    axis_handler.write(axis_wordNoKeep);
-                }
+                // else if (AMhandler != H_EMPTY){
+                //     axis_wordNoKeep = assignWordtoNoKeep(axis_word);
+                //     axis_handler.write(axis_wordNoKeep);
+                // }
                 currentState = st_AMToken;
                 break;
         }
@@ -64,22 +64,26 @@ void xpams_rx(
                 axis_rx.read(axis_word); //read token
                 AMToken = axis_word.data(AM_TOKEN);
                 if(isReplyAM(AMtype) && isShortAM(AMtype)){
-                    axis_word.data = 0;
-                    axis_word.data(AM_REPLY_TYPE) = AMtype;
-                    axis_word.data(AM_REPLY_SRC) = AMsrc;
-                    #ifdef USE_ABS_PAYLOAD
-                    axis_word.data(AM_REPLY_PAYLOAD_SIZE) = GC_DATA_BYTES;
-                    #else
-                    axis_word.data(AM_REPLY_PAYLOAD_SIZE) = 0;
-                    #endif
-                    axis_word.data(AM_REPLY_TOKEN) = AMToken;
-                    // axis_word.data(AM_TOKEN) = AMToken;
-                    // axis_word.data(39,8) = 0; //TODO parameterize
-                    // axis_word.data(AM_TYPE) = AM_SHORT + AM_REPLY;
-                    // ? Trying out not sending a word reply. Instead, just use a counter
-                    // axis_wordDest = assignWord(axis_word);
-                    // axis_wordDest.dest = AMdst;
-                    // axis_kernel_out.write(axis_wordDest);
+                    // axis_word.data = 0;
+                    // axis_word.data(AM_REPLY_TYPE) = AMtype;
+                    // axis_word.data(AM_REPLY_SRC) = AMsrc;
+                    // #ifdef USE_ABS_PAYLOAD
+                    // axis_word.data(AM_REPLY_PAYLOAD_SIZE) = GC_DATA_BYTES;
+                    // #else
+                    // axis_word.data(AM_REPLY_PAYLOAD_SIZE) = 0;
+                    // #endif
+                    // axis_word.data(AM_REPLY_TOKEN) = AMToken;
+                    // // axis_word.data(AM_TOKEN) = AMToken;
+                    // // axis_word.data(39,8) = 0; //TODO parameterize
+                    // // axis_word.data(AM_TYPE) = AM_SHORT + AM_REPLY;
+                    // // ? Trying out not sending a word reply. Instead, just use a counter
+                    // // axis_wordDest = assignWord(axis_word);
+                    // // axis_wordDest.dest = AMdst;
+                    // // axis_kernel_out.write(axis_wordDest);
+                    axis_wordNoKeep = createHandlerHeader(AMtype, AMToken, AMdst, 
+                        0, H_INCR_MEM, 0);
+                    axis_wordNoKeep.last = 1;
+                    axis_handler.write(axis_wordNoKeep);
                     currentState = st_AMheader;
                 }
                 else if(isReplyAM(AMtype)){
@@ -92,6 +96,12 @@ void xpams_rx(
                     currentState = st_AMheader;
                 }
                 else{
+                    if (AMhandler != H_EMPTY){
+                        axis_wordNoKeep = createHandlerHeader(AMtype, AMToken, AMdst, 
+                            AMpayloadSize, AMhandler, AMargs);
+                        axis_wordNoKeep.last = AMargs == 0;
+                        axis_handler.write(axis_wordNoKeep);
+                    }
                     if (AMargs != 0){
                         gc_AMargs_t i;
                         for(i = 0; i < AMargs - 1; i++){
@@ -106,17 +116,19 @@ void xpams_rx(
                         axis_handler.write(axis_wordNoKeep);
                     }
                     if(isMediumAM(AMtype)){
-                        axis_word.data = 0;
-                        axis_word.data(AM_TYPE) = AMtype;
-                        axis_word.data(AM_SRC) = AMsrc;
-                        #ifdef USE_ABS_PAYLOAD
-                        axis_word.data(AM_DST) = AMpayloadSize - AMargs - GC_DATA_BYTES;
-                        #else
-                        axis_word.data(AM_DST) = AMpayloadSize;
-                        #endif
-                        axis_word.data(AM_TOKEN) = AMToken;
-                        axis_wordDest = assignWord(axis_word);
-                        axis_wordDest.dest = AMdst;
+                        // axis_word.data = 0;
+                        // axis_word.data(AM_TYPE) = AMtype;
+                        // axis_word.data(AM_SRC) = AMsrc;
+                        // #ifdef USE_ABS_PAYLOAD
+                        // axis_word.data(AM_DST) = AMpayloadSize - AMargs - GC_DATA_BYTES;
+                        // #else
+                        // axis_word.data(AM_DST) = AMpayloadSize;
+                        // #endif
+                        // axis_word.data(AM_TOKEN) = AMToken;
+                        // axis_wordDest = assignWord(axis_word);
+                        // axis_wordDest.dest = AMdst;
+                        axis_wordDest = createKernelHeader(AMtype, AMToken, AMsrc, 
+                            AMdst, AMpayloadSize, AMhandler, AMargs);
                         axis_kernel_out.write(axis_wordDest);
                         currentState = st_AMpayload;
                     }
@@ -155,14 +167,14 @@ void xpams_rx(
             axis_word.data(AM_PAYLOAD_SIZE) = 0;
             #endif
             axis_word.data(AM_HANDLER) = H_INCR_MEM;
-            axis_word.data(AM_TYPE) = AM_SHORT + AM_REPLY;
+            axis_word.data(AM_TYPE) = AM_SHORT | AM_REPLY;
             axis_word.data(AM_HANDLER_ARGS) = 0;
             axis_word.keep = GC_DATA_TKEEP;
             axis_tx.write(axis_word);
             axis_word.data(AM_TOKEN_LOWER-1,0) = 0;
             axis_word.data(AM_TOKEN) = AMToken;
             // axis_word.data(39,) = 0;
-            axis_word.last = 1; //!needs to be handled better
+            axis_word.last = 1;
             axis_word.keep = GC_DATA_TKEEP;
             axis_tx.write(axis_word);
             currentState = st_AMheader;

@@ -110,5 +110,5 @@ Short
 
     Reply
     |0                             64|
-    | Type (8) | SRC (16) | Message Size (bytes) (16) | Reserved (8) | Packet ID (16) |
+    | Type (8) | Packet ID (16) | SRC/DST (16) | Message Size (bytes) (16) | Handler (4) | # Args (4) |
 </pre>
