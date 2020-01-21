@@ -6,7 +6,7 @@
 #ifndef __HLS__
 #define CPU
 #endif
-#include "galapagos_stream.hpp"
+#include "galapagos_interface.hpp"
 
 #ifdef __HLS__
 
@@ -27,8 +27,8 @@ namespace shoal{
         private:
             int id;
             int kernel_num;
-            galapagos::stream<word_t> * in;
-            galapagos::stream<word_t> * out;
+            galapagos::interface<word_t> * in;
+            galapagos::interface<word_t> * out;
 
             #ifdef __HLS__
             volatile uint_1_t* interrupt;
@@ -42,12 +42,12 @@ namespace shoal{
             int get_id();
             int init();
             #ifdef __HLS__
-            kernel(int id, int kernel_num, galapagos::stream<word_t> * in,
-                galapagos::stream<word_t> * out, volatile uint_1_t* interrupt, 
+            kernel(int id, int kernel_num, galapagos::interface<word_t> * in,
+                galapagos::interface<word_t> * out, volatile uint_1_t* interrupt, 
                 int * handler_ctrl);
             #else
-            kernel(int id, int kernel_num, galapagos::stream<word_t> * in, 
-                galapagos::stream<word_t> * out);
+            kernel(int id, int kernel_num, galapagos::interface<word_t> * in, 
+                galapagos::interface<word_t> * out);
             int attach(gasnet_handlerentry_t *table, int numentries, int size);
             #endif
             void end();

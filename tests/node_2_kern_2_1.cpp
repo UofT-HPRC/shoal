@@ -15,8 +15,8 @@ static gasnet_handlerentry_t handlers[] =
 
 extern "C"{
 // void kern0(
-//     galapagos::stream <word_t> * in, 
-//     galapagos::stream <word_t> * out
+//     galapagos::interface <word_t> * in, 
+//     galapagos::interface <word_t> * out
 // ){
 //     int id = KERN0_ID;
 //     galapagos::stream_packet <word_t> axis_word;
@@ -47,15 +47,15 @@ extern "C"{
 // }
 
 void kern1(
-    galapagos::stream<word_t> * in,
+    galapagos::interface<word_t> * in,
     #ifdef __HLS__
-    galapagos::stream<word_t> * out,
+    galapagos::interface<word_t> * out,
     int * handler_ctrl,
     int * dummy_memory,
     volatile uint_1_t interrupt,
     int dummy_int
     #else
-    galapagos::stream<word_t> * out
+    galapagos::interface<word_t> * out
     #endif
 ){
     #pragma HLS INTERFACE axis port=in

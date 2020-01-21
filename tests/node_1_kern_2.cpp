@@ -15,13 +15,14 @@ static gasnet_handlerentry_t handlers[] =
 
 extern "C"{
 void kern0(
-    galapagos::stream <word_t> * in, 
+    short id,
+    galapagos::interface <word_t> * in,
     #ifdef __HLS__
-    galapagos::stream<word_t> * out,
+    galapagos::interface<word_t> * out,
     int * handler_ctrl,
     volatile uint_1_t interrupt
     #else
-    galapagos::stream<word_t> * out
+    galapagos::interface<word_t> * out
     #endif
 ){
     #pragma HLS INTERFACE axis port=in
@@ -30,14 +31,13 @@ void kern0(
     #pragma HLS INTERFACE ap_none port=interrupt
     #pragma HLS INTERFACE m_axi port=handler_ctrl depth=32 offset=0
 
-    int id = KERN0_ID;
     galapagos::stream_packet <word_t> axis_word;
 
     SAFE_COUT("Entering kern0\n");
 
     #ifdef __HLS__
     shoal::kernel kernel(id, KERNEL_NUM_TOTAL, in, out, &interrupt, handler_ctrl);
-    #else 
+    #else
     shoal::kernel kernel(id, KERNEL_NUM_TOTAL, in, out);
     #endif
 
@@ -65,13 +65,14 @@ void kern0(
 }
 
 void kern1(
-    galapagos::stream<word_t> * in,
+    short id,
+    galapagos::interface<word_t> * in,
     #ifdef __HLS__
-    galapagos::stream<word_t> * out,
+    galapagos::interface<word_t> * out,
     int * handler_ctrl,
     volatile uint_1_t interrupt
     #else
-    galapagos::stream<word_t> * out
+    galapagos::interface<word_t> * out
     #endif
 ){
     #pragma HLS INTERFACE axis port=in
@@ -80,14 +81,13 @@ void kern1(
     #pragma HLS INTERFACE ap_none port=interrupt
     #pragma HLS INTERFACE m_axi port=handler_ctrl depth=32 offset=0
 
-    int id = KERN1_ID;
     galapagos::stream_packet <word_t> axis_word;
 
     SAFE_COUT("Entering kern1\n");
 
     #ifdef __HLS__
     shoal::kernel kernel(id, KERNEL_NUM_TOTAL, in, out, &interrupt, handler_ctrl);
-    #else 
+    #else
     shoal::kernel kernel(id, KERNEL_NUM_TOTAL, in, out);
     #endif
 

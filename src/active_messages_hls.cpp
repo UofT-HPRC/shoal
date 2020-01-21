@@ -63,7 +63,7 @@ galapagos::stream_packet <word_t> createStridedBeat(
 // }
 
 inline void writeWord(
-    galapagos::stream <word_t> & axis_out,
+    galapagos::interface <word_t> & axis_out,
     galapagos::stream_packet <word_t> axis_word,
     gc_AMdst_t dst
 ){
@@ -73,7 +73,7 @@ inline void writeWord(
 }
 
 inline void writeWord(
-    galapagos::stream <word_t> & axis_out,
+    galapagos::interface <word_t> & axis_out,
     word_t data,
     bool last,
     gc_AMdst_t dst,
@@ -88,8 +88,23 @@ inline void writeWord(
     axis_out.write(axis_word);
 }
 
+inline void writeWord(
+    galapagos::interface <word_t> & axis_out,
+    word_t data,
+    bool last,
+    gc_AMdst_t dst
+){
+    galapagos::stream_packet <word_t> axis_word;
+    axis_word.data = data;
+    axis_word.last = last;
+    axis_word.keep = GC_DATA_TKEEP;
+    axis_word.dest = dst;
+    // printWord("   Sending - ", axis_word);
+    axis_out.write(axis_word);
+}
+
 void sendHandlerArgs(
-    galapagos::stream <word_t> & axis_out,
+    galapagos::interface <word_t> & axis_out,
     gc_AMdst_t dst,
     word_t * handler_args,
     gc_AMargs_t handlerArgCount,
@@ -114,7 +129,7 @@ void sendHandlerArgs(
 }
 
 void sendPayloadArgs(
-    galapagos::stream <word_t> & axis_out,
+    galapagos::interface <word_t> & axis_out,
     gc_AMdst_t dst,
     char * payload_args,
     gc_payloadSize_t payloadArgCount,
@@ -145,7 +160,7 @@ void sendShortAM(
     gc_AMhandler_t handlerID,
     gc_AMargs_t handlerArgCount,
     word_t * handler_args,
-    galapagos::stream <word_t> & out
+    galapagos::interface <word_t> & out
 ){
     // std::cout << "AM Short message from " << src << " to " << dst << "\n";
     galapagos::stream_packet <word_t> axis_word;
@@ -172,7 +187,7 @@ void sendMediumAM(
     word_t * handler_args,
     gc_payloadSize_t payloadSize,
     word_t * payload,
-    galapagos::stream <word_t> & out
+    galapagos::interface <word_t> & out
 ){
     // std::cout << "AM Medium message\n";
     galapagos::stream_packet <word_t> axis_word;
@@ -200,7 +215,7 @@ void sendMediumAM(
     word_t * handler_args,
     gc_payloadSize_t payloadSize,
     word_t src_addr,
-    galapagos::stream <word_t> & out
+    galapagos::interface <word_t> & out
 ){
     galapagos::stream_packet <word_t> axis_word;
     axis_word = createHeaderBeat(src, dst, payloadSize, handlerID, type, handlerArgCount);
@@ -229,7 +244,7 @@ void sendLongAM(
     gc_payloadSize_t payloadSize,
     word_t * payload,
     word_t dst_addr,
-    galapagos::stream <word_t> & out
+    galapagos::interface <word_t> & out
 ){
     galapagos::stream_packet <word_t> axis_word;
     axis_word = createHeaderBeat(src, dst, payloadSize, handlerID, type, handlerArgCount);
@@ -259,7 +274,7 @@ void sendLongAM(
     gc_payloadSize_t payloadSize,
     word_t src_addr,
     word_t dst_addr,
-    galapagos::stream <word_t> & out
+    galapagos::interface <word_t> & out
 ){
     galapagos::stream_packet <word_t> axis_word;
     axis_word = createHeaderBeat(src, dst, payloadSize, handlerID, AM_LONG, handlerArgCount);
@@ -296,7 +311,7 @@ void longStridedAM(
     gc_strideBlockSize_t dst_blk_size,
     gc_strideBlockNum_t dst_blk_num,
     word_t dst_addr,
-    galapagos::stream <word_t> & out
+    galapagos::interface <word_t> & out
 ){
     galapagos::stream_packet <word_t> axis_word;
     axis_word = createHeaderBeat(src, dst, payloadSize, handlerID, AM_LONG, handlerArgCount);

@@ -6,7 +6,7 @@
 #define CPU
 #include "active_messages.hpp"
 
-void am_tx(galapagos::stream <word_t> * in, galapagos::stream <word_t> * out){
+void am_tx(galapagos::interface <word_t> * in, galapagos::interface <word_t> * out){
     gc_AMsrc_t AMsrc;
     gc_AMdst_t AMdst;
     gc_AMToken_t AMToken;
@@ -85,7 +85,7 @@ void am_tx(galapagos::stream <word_t> * in, galapagos::stream <word_t> * out){
         // axis_net.write(axis_word);
         ATOMIC_ACTION(printWord("   Writing to network ", axis_word));
         out->write(axis_word);
-        // if((isLongxAM(AMtype) || isMediumAM(AMtype)) && 
+        // if((isLongxAM(AMtype) || isMediumAM(AMtype)) &&
         //     !isDataFromFIFO(AMtype)){
         //     // bufferRelease = 0;
         // }
@@ -126,13 +126,13 @@ void am_tx(galapagos::stream <word_t> * in, galapagos::stream <word_t> * out){
             address = AMsrcAddr;
             // for(i = 0; i < srcBlockNum; i++){
                 // dataMoverWriteCommand(axis_mm2sCommand, 0, 0, address,
-                //     address(1,0) != 0, i == srcBlockNum - 1, 
+                //     address(1,0) != 0, i == srcBlockNum - 1,
                 //     address(1,0), 1, srcBlockSize);
                 // address += srcStride;
             // }
         }
         else if(isLongVectoredAM(AMtype)){
-            
+
             // if(!in->empty()){
                 axis_word = in->read();
                 AMsrcVectorNum = hdextract(axis_word.data, AM_SRC_VECTOR_NUM);
@@ -153,7 +153,7 @@ void am_tx(galapagos::stream <word_t> * in, galapagos::stream <word_t> * out){
             // }
             address = AMvectorDest[0];
             // dataMoverWriteCommand(axis_mm2sCommand, 0, 0, address,
-            //     address(1,0) != 0, AMsrcVectorNum == 1, 
+            //     address(1,0) != 0, AMsrcVectorNum == 1,
             //     address(1,0), 1, AMvectorSize[0]);
             // if(!in->empty()){ //read dst address
                 axis_word = in->read();
@@ -175,7 +175,7 @@ void am_tx(galapagos::stream <word_t> * in, galapagos::stream <word_t> * out){
                 // }
                 // address = AMvectorDest[i];
                 // dataMoverWriteCommand(axis_mm2sCommand, 0, 0, address,
-                //     address(1,0) != 0, i == AMsrcVectorNum - 1, 
+                //     address(1,0) != 0, i == AMsrcVectorNum - 1,
                 //     address(1,0), 1, AMvectorSize[i]);
             }
             for(i = 1; i < AMdstVectorNum; i++){
@@ -223,7 +223,7 @@ void am_tx(galapagos::stream <word_t> * in, galapagos::stream <word_t> * out){
                 gc_payloadSize_t payload_size = AMpayloadSize;
                 #endif
                 // dataMoverWriteCommand(axis_mm2sCommand, 0, 0, address,
-                //     address(1,0) != 0, 1, 
+                //     address(1,0) != 0, 1,
                 //     address(1,0), 1, payload_size);
                 if(!isMediumAM(AMtype)){
                     // read destination
@@ -325,12 +325,12 @@ void am_tx(galapagos::stream <word_t> * in, galapagos::stream <word_t> * out){
             // axis_net.write(axis_word);
             ATOMIC_ACTION(printWord("   Writing to network ", axis_word));
             out->write(axis_word);
-        }                    
+        }
     }
 }
 
-void xpams_rx(galapagos::stream <word_t> * in, 
-    galapagos::stream <word_t> * out, galapagos::stream <word_t> * to_kernel){
+void xpams_rx(galapagos::interface <word_t> * in,
+    galapagos::interface <word_t> * out, galapagos::interface <word_t> * to_kernel){
     gc_AMsrc_t AMsrc;
     gc_AMdst_t AMdst;
     gc_AMToken_t AMToken;
@@ -365,7 +365,7 @@ void xpams_rx(galapagos::stream <word_t> * in,
     if(isReplyAM(AMtype) && isShortAM(AMtype)){
         axis_word.data = 0;
         axis_word.data = hdencode(axis_word.data, AM_REPLY_TYPE, AMtype);
-        axis_word.data = hdencode(axis_word.data, AM_REPLY_SRC, AMsrc);
+        axis_word.data = hdencode(axis_word.data, AM_REPLY_ADDR, AMsrc);
         #ifdef USE_ABS_PAYLOAD
         axis_word.data = hdencode(axis_word.data, AM_REPLY_PAYLOAD_SIZE, GC_DATA_BYTES);
         #else
@@ -469,8 +469,8 @@ void xpams_rx(galapagos::stream <word_t> * in,
     }
 }
 
-void am_rx(galapagos::stream <word_t> * in, 
-    galapagos::stream <word_t> * out, word_t *arg, gc_AMtype_t* function,
+void am_rx(galapagos::interface <word_t> * in,
+    galapagos::interface <word_t> * out, word_t *arg, gc_AMtype_t* function,
     gc_AMargs_t* numargs, gc_AMhandler_t* handler, gc_AMToken_t* token,
     gc_payloadSize_t* payload){
 
@@ -556,9 +556,9 @@ void am_rx(galapagos::stream <word_t> * in,
             #ifdef USE_ABS_PAYLOAD
             AMpayloadSize-=GC_DATA_BYTES;
             #endif
-            // dataMoverWriteCommand(axis_s2mmCommand, 0, 0, 
+            // dataMoverWriteCommand(axis_s2mmCommand, 0, 0,
             //     AMvectorDest[0](GC_ADDR_WIDTH-1,0),
-            //     AMvectorDest[0](1,0) != 0, 1, 
+            //     AMvectorDest[0](1,0) != 0, 1,
             //     AMvectorDest[0](1,0), 1, AMvectorSize[0]);
 
             gc_dstVectorNum_t i = 0;
@@ -573,12 +573,12 @@ void am_rx(galapagos::stream <word_t> * in,
                 #ifdef USE_ABS_PAYLOAD
                 AMpayloadSize-=GC_DATA_BYTES;
                 #endif
-                // dataMoverWriteCommand(axis_s2mmCommand, 0, 0, 
+                // dataMoverWriteCommand(axis_s2mmCommand, 0, 0,
                 //     AMvectorDest[i](GC_ADDR_WIDTH-1,0),
-                //     AMvectorDest[i](1,0) != 0, 1, 
+                //     AMvectorDest[i](1,0) != 0, 1,
                 //     AMvectorDest[i](1,0), 1, AMvectorSize[i]);
             }
-            
+
             // currentState = AMargs == 0 ? st_AMpayload : st_AMHandlerArgs;
         }
         else{ // st_AMToken
@@ -668,9 +668,9 @@ void am_rx(galapagos::stream <word_t> * in,
                     // }
                     else{
                         vectorCount++;
-                        // dataMoverWriteCommand(axis_s2mmCommand, 0, 0, 
+                        // dataMoverWriteCommand(axis_s2mmCommand, 0, 0,
                         //     AMvectorDest[vectorCount], //address
-                        //     AMvectorDest[vectorCount](1,0) != 0, //ddr 
+                        //     AMvectorDest[vectorCount](1,0) != 0, //ddr
                         //     1, //eof
                         //     AMvectorDest[vectorCount](1,0), 1, //dsa, type
                         //     AMvectorSize[vectorCount]*GC_DATA_BYTES);
@@ -690,10 +690,10 @@ void am_rx(galapagos::stream <word_t> * in,
     *token = AMToken;
 }
 
-void handler_thread(void (*fcnPtr)(galapagos::stream <word_t>* , 
-    galapagos::stream <word_t>*), int id, galapagos::stream <word_t> * in, 
-    galapagos::stream <word_t> * out){
-	
+void handler_thread(void (*fcnPtr)(short id, galapagos::interface <word_t>* ,
+    galapagos::interface <word_t>*), short id, galapagos::interface <word_t> * in,
+    galapagos::interface <word_t> * out){
+
 	unsigned int srcnode;
     gc_AMdst_t dstnode;
 	gc_AMToken_t token;
@@ -706,21 +706,27 @@ void handler_thread(void (*fcnPtr)(galapagos::stream <word_t>* ,
 	word_t arg[power<2, AM_HANDLER_ARGS_WIDTH>()];
     word_t payload[16];
     int i;
+    std::shared_ptr<spdlog::logger> logger = spdlog::basic_logger_mt("basic_logger_" + std::to_string(id), "am_gasnet_" + std::to_string(id) + ".log");
 
-    std::unique_ptr<galapagos::stream <word_t> > kernel_in;
-    kernel_in = std::make_unique <galapagos::stream <word_t> > ();
+    // std::unique_ptr<galapagos::interface <word_t> > kernel_in;
+    // kernel_in = std::make_unique <galapagos::interface <word_t> > ("kernel_in", logger);
 
-    std::unique_ptr<galapagos::stream <word_t> > kernel_out;
-    kernel_out = std::make_unique <galapagos::stream <word_t> > ();
+    // std::unique_ptr<galapagos::interface <word_t> > kernel_out;
+    // kernel_out = std::make_unique <galapagos::interface <word_t> > ("kernel_out", logger);
 
-    std::unique_ptr<galapagos::stream <word_t> > am_xpams_rx;
-    am_xpams_rx = std::make_unique <galapagos::stream <word_t> > ();
+    // std::unique_ptr<galapagos::interface <word_t> > am_xpams_rx;
+    // am_xpams_rx = std::make_unique <galapagos::interface <word_t> > ("am_xpams_rx", logger);
 
-    std::unique_ptr<galapagos::stream <word_t> > am_xpams_out;
-    am_xpams_out = std::make_unique <galapagos::stream <word_t> > ();
+    // std::unique_ptr<galapagos::interface <word_t> > am_xpams_out;
+    // am_xpams_out = std::make_unique <galapagos::interface <word_t> > ("am_xpams_out", logger);
 
-    std::unique_ptr<galapagos::stream <word_t> > am_tx_in;
-    am_tx_in = std::make_unique <galapagos::stream <word_t> > ();
+    // std::unique_ptr<galapagos::interface <word_t> > am_tx_in;
+    // am_tx_in = std::make_unique <galapagos::interface <word_t> > ("am_tx_in", logger);
+    galapagos::interface <word_t> kernel_in(std::string("kernel_in"), logger);
+    galapagos::interface <word_t> kernel_out(std::string("kernel_out"), logger);
+    galapagos::interface <word_t> am_xpams_rx(std::string("am_xpams_rx"), logger);
+    galapagos::interface <word_t> am_xpams_out(std::string("am_xpams_out"), logger);
+    galapagos::interface <word_t> am_tx_in(std::string("am_tx_in"), logger);
 
     kernel_done[id] = new std::atomic_bool(false);
     std::atomic_bool* done = kernel_done[id];
@@ -729,16 +735,16 @@ void handler_thread(void (*fcnPtr)(galapagos::stream <word_t>* ,
     mutex_nodedata_global[id] = new mutex_t;
     mutex_nodedata = mutex_nodedata_global[id];
 
-    thread_t kernel_thread = std::thread(fcnPtr, kernel_in.get(), kernel_out.get());
+    thread_t kernel_thread = std::thread(fcnPtr, id, &kernel_in, &kernel_out);
 
     SAFE_COUT("Handler " << id << " starting with nodedata at " << nodedata << "\n");
 
     while(1){
 
-        while((in->empty() && kernel_out->empty() && am_xpams_out->empty()) && !(*done)){
+        while((in->empty() && kernel_out.empty() && am_xpams_out.empty()) && !(*done)){
             sched_yield();
         };
-        if (*(done) && (in->empty() && kernel_out->empty() && am_xpams_out->empty())){
+        if (*(done) && (in->empty() && kernel_out.empty() && am_xpams_out.empty())){
             SAFE_COUT("Joining thread in kernel " << id << "\n");
             kernel_thread.join();
             break;
@@ -751,9 +757,9 @@ void handler_thread(void (*fcnPtr)(galapagos::stream <word_t>* ,
 
         if (!in->empty()){
             SAFE_COUT("Data arrived in handler " << id << " from network\n");
-            am_rx(in, am_xpams_rx.get(), arg, &function, &numargs, &handler, &token, &payloadSize);
+            am_rx(in, &am_xpams_rx, arg, &function, &numargs, &handler, &token, &payloadSize);
             SAFE_COUT("   Data arrived in xpams " << id << " from am_rx\n");
-            xpams_rx(am_xpams_rx.get(), am_xpams_out.get(), kernel_in.get());
+            xpams_rx(&am_xpams_rx, &am_xpams_out, &kernel_in);
 
             i = payloadSize;
 
@@ -786,7 +792,7 @@ void handler_thread(void (*fcnPtr)(galapagos::stream <word_t>* ,
         //     payload[i] = axis_word.data;
         //     i++;
         // }
-        
+
         // handler calls
         if (isShortAM(function))
             switch(numargs)
@@ -925,22 +931,22 @@ void handler_thread(void (*fcnPtr)(galapagos::stream <word_t>* ,
 
         }
 
-        if(!kernel_out->empty()){
+        if(!kernel_out.empty()){
             SAFE_COUT("Data arrived in handler " << id << " from kernel\n");
             do{
-                axis_word = kernel_out->read();
-                am_tx_in->write(axis_word);
+                axis_word = kernel_out.read();
+                am_tx_in.write(axis_word);
             } while(!axis_word.last);
-            am_tx(am_tx_in.get(), out);
-        } 
-        
-        if(!am_xpams_out->empty()){
+            am_tx(&am_tx_in, out);
+        }
+
+        if(!am_xpams_out.empty()){
             SAFE_COUT("Data arrived in handler " << id << " from loopback\n");
             do{
-                axis_word = am_xpams_out->read();
-                am_tx_in->write(axis_word);
+                axis_word = am_xpams_out.read();
+                am_tx_in.write(axis_word);
             } while(!axis_word.last);
-            am_tx(am_tx_in.get(), out);
+            am_tx(&am_tx_in, out);
         }
     };
 

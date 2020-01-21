@@ -11,7 +11,7 @@ include include.mk
 MAKEFLAGS += --warn-undefined-variables
 SHELL := bash
 .SHELLFLAGS := -eu -o pipefail -c
-.DEFAULT_GOAL := 
+.DEFAULT_GOAL :=
 .DELETE_ON_ERROR:
 .SUFFIXES:
 .SECONDEXPANSION:
@@ -60,13 +60,14 @@ GAScore_build_dirs := $(shell find $(SHOAL_PATH) -type d -name 'build' -not -pat
 
 CC = /usr/bin/g++-7
 CFLAGS = -g -Wall -O0 -I$(include_dir) -I$(GAScore_dir) -isystem $(SHOAL_HLS_PATH)/$(SHOAL_HLS_VERSION)/include\
-	-I$(GALAPAGOS_PATH)/middleware/CPP_lib/Galapagos_lib -I$(GALAPAGOS_PATH)/middleware/include\
+	-I$(GALAPAGOS_PATH)/middleware/libGalapagos -I$(GALAPAGOS_PATH)/middleware/include\
+	-I$(GALAPAGOS_PATH)/util/spdlog/include\
 	-Wno-unused-value -Wno-unused-variable -Wno-comment -Wno-unknown-pragmas\
 	-Wno-unused-but-set-variable -Wno-unused-function -MMD -MP -pthread -std=c++17
 LIBS = -lpthread -lrt
-APP_LIBS = -L$(SHOAL_PATH)/build -lTHeGASnet
+APP_LIBS = -L$(SHOAL_PATH)/build -lTHeGASnet -lGalapagos
 
-GALAPAGOS_LIBS = -L/usr/local/lib -lboost_thread -lboost_system -lpthread -L$(SHOAL_PATH)/build -lTHeGASnet
+GALAPAGOS_LIBS = -L/usr/local/lib -lboost_thread -lboost_system -lpthread $(APP_LIBS)
 
 MYFLAGS += $(foreach N,$(NUM_RANGE),-DMYVAR$N=$(MYVAR$N) )
 
@@ -84,12 +85,13 @@ K_END ?= 0
 #-------------------------------------------------------------------------------
 
 init:
-	./init.sh 
+	./init.sh
 
 lib_modules=$(patsubst %, lib-%, $(lib_files))
 lib: $(lib_modules)
 	rm -f $(SHOAL_PATH)/build/libTHeGASnet.a
 	ar -cr $(SHOAL_PATH)/build/libTHeGASnet.a $(SHOAL_PATH)/build/*.o
+	cp $(GALAPAGOS_PATH)/middleware/libGalapagos/libGalapagos.a $(SHOAL_PATH)/build/
 
 define make-libs
 lib-$1: $(src_dir)/$1.cpp
@@ -116,7 +118,7 @@ test: $(test_modules)
 
 define make-test-executable
 test-$1:  $(test_build_dir)/$1.o
-	$(CC) $(CFLAGS) -o $(test_bin_dir)/$1 $(test_build_dir)/$1.o 
+	$(CC) $(CFLAGS) -o $(test_bin_dir)/$1 $(test_build_dir)/$1.o
 	$(test_bin_dir)/$1 $1_args
 endef
 $(foreach file, $(test_files),$(eval $(call make-test-executable,$(file))))
@@ -126,7 +128,7 @@ galapagos: $(galapagos_modules)
 
 ifeq ($(MODE),x86)
 # .SECONDEXPANSION is needed here to evaluate NUM_RANGE and WRAP in succession.
-# The expansion works without this special target if the body isn't inside a 
+# The expansion works without this special target if the body isn't inside a
 # define.
 define make-galapagos-executable
 galapagos-$1: NUM_RANGE = $(shell seq $(K_START) $(K_END))
@@ -135,7 +137,7 @@ galapagos-$1: $(test_build_dir)/$1$(BUILD_SUFFIX).o $(test_build_dir)/$1_main$(B
 	@echo $$(WRAP)
 	$(CC) $(CFLAGS) -o $(test_bin_dir)/$1$(BUILD_SUFFIX) $(test_build_dir)/$1$(BUILD_SUFFIX).o \
 		$(test_build_dir)/$1_main$(BUILD_SUFFIX).o $$(WRAP) $(GALAPAGOS_LIBS)
-	
+
 endef
 else ifeq ($(MODE),HLS)
 # Kernels fail to synthesize in 2017.2 but work in 2018.1/2018.2/2019.1. Haven't tested others
@@ -145,6 +147,9 @@ galapagos-$1: guard-KERNEL
 endef
 endif
 $(foreach file, $(galapagos_files),$(eval $(call make-galapagos-executable,$(file))))
+
+tmp:
+	$(CC) $(CFLAGS) tmp.cpp -o tmp.exe $(GALAPAGOS_LIBS)
 
 #-------------------------------------------------------------------------------
 # Object Files
@@ -158,7 +163,7 @@ $(foreach file, $(galapagos_files),$(eval $(call make-galapagos-executable,$(fil
 
 define make-app-object
 $(test_build_dir)/$1.o: $(test_dir)/$1.cpp
-	$(CC) $(CFLAGS) -o $(test_build_dir)/$1.o -c $(test_dir)/$1.cpp 
+	$(CC) $(CFLAGS) -o $(test_build_dir)/$1.o -c $(test_dir)/$1.cpp
 endef
 $(foreach file, $(app_files),$(eval $(call make-app-object,$(file))))
 

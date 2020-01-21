@@ -5,8 +5,8 @@
 #include "config.hpp"
 #include "active_messages.hpp"
 
-shoal::kernel::kernel(int id, int kernel_num, galapagos::stream <word_t> * in, 
-    galapagos::stream <word_t> * out)
+shoal::kernel::kernel(int id, int kernel_num, galapagos::interface <word_t> * in, 
+    galapagos::interface <word_t> * out)
 {
     this->id = id;
     this->kernel_num = kernel_num;

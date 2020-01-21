@@ -4,7 +4,7 @@
 #include "config.hpp"
 #include "hls_types.hpp"
 
-#include "galapagos_stream.hpp"
+#include "galapagos_interface.hpp"
 
 galapagos::stream_packet <word_t> createHeaderBeat(
     gc_AMsrc_t src,
@@ -34,13 +34,13 @@ galapagos::stream_packet <word_t> createStridedBeat(
 );
 
 inline void writeWord(
-    galapagos::stream <word_t> & axis_out,
+    galapagos::interface <word_t> & axis_out,
     galapagos::stream_packet <word_t> axis_word,
     gc_AMdst_t dst
 );
 
 inline void writeWord(
-    galapagos::stream <word_t> & axis_out,
+    galapagos::interface <word_t> & axis_out,
     word_t data,
     bool last, 
     gc_AMdst_t dst,
@@ -48,7 +48,7 @@ inline void writeWord(
 );
 
 void sendHandlerArgs(
-    galapagos::stream <word_t> & axis_out,
+    galapagos::interface <word_t> & axis_out,
     gc_AMdst_t dst,
     word_t * handler_args,
     gc_AMargs_t handlerArgCount,
@@ -56,7 +56,7 @@ void sendHandlerArgs(
 );
 
 void sendPayloadArgs(
-    galapagos::stream <word_t> & axis_out,
+    galapagos::interface <word_t> & axis_out,
     gc_AMdst_t dst,
     char * payload_args,
     gc_payloadSize_t payloadArgCount,
@@ -71,7 +71,7 @@ void sendShortAM(
     gc_AMhandler_t handlerID,
     gc_AMargs_t handlerArgCount,
     word_t * handler_args,
-    galapagos::stream <word_t> & out
+    galapagos::interface <word_t> & out
 );
 
 void sendMediumAM(
@@ -84,7 +84,7 @@ void sendMediumAM(
     word_t * handler_args,
     gc_payloadSize_t payloadSize,
     word_t * payload,
-    galapagos::stream <word_t> & out
+    galapagos::interface <word_t> & out
 );
 
 void sendMediumAM(
@@ -97,7 +97,7 @@ void sendMediumAM(
     word_t * handler_args,
     gc_payloadSize_t payloadSize,
     word_t src_addr,
-    galapagos::stream <word_t> & out
+    galapagos::interface <word_t> & out
 );
 
 void sendLongAM(
@@ -111,7 +111,7 @@ void sendLongAM(
     gc_payloadSize_t payloadSize,
     word_t * payload,
     word_t dst_addr,
-    galapagos::stream <word_t> & out
+    galapagos::interface <word_t> & out
 );
 
 void sendLongAM(
@@ -125,7 +125,7 @@ void sendLongAM(
     gc_payloadSize_t payloadSize,
     word_t src_addr,
     word_t dst_addr,
-    galapagos::stream <word_t> & out
+    galapagos::interface <word_t> & out
 );
 
 void longStridedAM(
@@ -144,7 +144,7 @@ void longStridedAM(
     gc_strideBlockSize_t dst_blk_size,
     gc_strideBlockNum_t dst_blk_num,
     word_t dst_addr,
-    galapagos::stream <word_t> & out
+    galapagos::interface <word_t> & out
 );
 
 #endif // SHOAL_INCLUDE_ACTIVE_MESSAGES_HLS_

@@ -9,8 +9,8 @@
 #include "handler_register_map.hpp"
 #undef __HLS__
 
-shoal::kernel::kernel(int id, int kernel_num, galapagos::stream<word_t> * in,
-    galapagos::stream<word_t> * out, volatile uint_1_t* interrupt, int * handler_ctrl)
+shoal::kernel::kernel(int id, int kernel_num, galapagos::interface<word_t> * in,
+    galapagos::interface<word_t> * out, volatile uint_1_t* interrupt, int * handler_ctrl)
 {
     this->id = id;
     this->kernel_num = kernel_num;
