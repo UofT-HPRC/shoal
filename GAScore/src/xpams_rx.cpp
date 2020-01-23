@@ -80,7 +80,9 @@ void xpams_rx(
                     // // axis_wordDest = assignWord(axis_word);
                     // // axis_wordDest.dest = AMdst;
                     // // axis_kernel_out.write(axis_wordDest);
-                    axis_wordNoKeep = createHandlerHeader(AMtype, AMToken, AMdst, 
+                    //! should probably call the original handler (if it's something
+                    //! and then call the MEM one after if it hasn't been called)
+                    axis_wordNoKeep = createHandlerHeader(AMtype, AMToken, AMdst,
                         0, H_INCR_MEM, 0);
                     axis_wordNoKeep.last = 1;
                     axis_handler.write(axis_wordNoKeep);
@@ -97,7 +99,7 @@ void xpams_rx(
                 }
                 else{
                     if (AMhandler != H_EMPTY){
-                        axis_wordNoKeep = createHandlerHeader(AMtype, AMToken, AMdst, 
+                        axis_wordNoKeep = createHandlerHeader(AMtype, AMToken, AMdst,
                             AMpayloadSize, AMhandler, AMargs);
                         axis_wordNoKeep.last = AMargs == 0;
                         axis_handler.write(axis_wordNoKeep);
@@ -127,8 +129,14 @@ void xpams_rx(
                         // axis_word.data(AM_TOKEN) = AMToken;
                         // axis_wordDest = assignWord(axis_word);
                         // axis_wordDest.dest = AMdst;
-                        axis_wordDest = createKernelHeader(AMtype, AMToken, AMsrc, 
-                            AMdst, AMpayloadSize, AMhandler, AMargs);
+                        #ifdef USE_ABS_PAYLOAD
+                        gc_payloadSize_t payloadsize = AMpayloadSize - AMargs - GC_DATA_BYTES;
+                        #else
+                        gc_payloadSize_t payloadsize =  AMpayloadSize;
+                        #endif
+
+                        axis_wordDest = createKernelHeader(AMtype, AMToken, AMsrc,
+                            AMdst, payloadsize, AMhandler, AMargs);
                         axis_kernel_out.write(axis_wordDest);
                         currentState = st_AMpayload;
                     }

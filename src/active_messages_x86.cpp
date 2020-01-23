@@ -74,6 +74,7 @@ void profile_read(galapagos::stream_packet <word_t> axis_word){
 }
 #endif
 
+#ifdef DEBUG
 void printWord(const std::string& prefix, galapagos::stream_packet <word_t> axis_word){
     std::stringstream ss;
     ss << prefix <<
@@ -83,6 +84,10 @@ void printWord(const std::string& prefix, galapagos::stream_packet <word_t> axis
     " Dest: " << COLOR(Color::FG_GREEN, dec, axis_word.dest) << "\n";
     std::cout << ss.str();
 }
+#else
+void printWord(const std::string& prefix, galapagos::stream_packet <word_t> axis_word){
+}
+#endif
 
 inline void _writeWord(
     galapagos::interface <word_t> & axis_out,
@@ -176,7 +181,7 @@ void sendPayloadArgs(
         axis_word.data = *(payload_args+(i-GC_DATA_BYTES));
         axis_word.last = 0;
         axis_word.keep = GC_DATA_TKEEP;
-        writeWord(axis_out, axis_word, src); 
+        writeWord(axis_out, axis_word, src);
         // printWord("   Sending - ", axis_word);
         // axis_out.write(axis_word);
     }
@@ -198,7 +203,7 @@ void sendShortAM(
     word_t * handler_args,
     galapagos::interface <word_t> & out
 ){
-    std::cout << "AM Short message from " << src << " to " << dst << "\n";
+    // std::cout << "AM Short message from " << src << " to " << dst << "\n";
     galapagos::stream_packet <word_t> axis_word;
     axis_word = createHeaderBeat(src, dst, 0, handlerID, type, handlerArgCount);
     writeWord(out, axis_word, src, dst);
@@ -227,7 +232,7 @@ void sendMediumAM(
     word_t * payload,
     galapagos::interface <word_t> & out
 ){
-    std::cout << "AM Medium message\n";
+    // std::cout << "AM Medium message\n";
     galapagos::stream_packet <word_t> axis_word;
     axis_word = createHeaderBeat(src, dst, payloadSize, handlerID, type, handlerArgCount);
     // axis_word.dest = dst;

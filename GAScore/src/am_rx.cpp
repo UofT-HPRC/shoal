@@ -89,7 +89,6 @@ void am_rx(
         }
         case st_AMToken:{
             axis_net.read(axis_word);
-            axis_xpams_rx.write(axis_word);
             AMToken = axis_word.data(AM_TOKEN);
             #ifdef USE_ABS_PAYLOAD
             AMpayloadSize-=GC_DATA_BYTES;
@@ -103,18 +102,31 @@ void am_rx(
             else{
                 currentState = st_AMdestination;
             }
+
+            if((isShortAM(AMtype) || isLongxAM(AMtype)) && AMargs == 0){
+                axis_word.last = 1;
+            }
+            axis_xpams_rx.write(axis_word);
             break;
         }
         case st_AMHandlerArgs:{
             gc_AMargs_t argCount;
-            for(argCount = 0; argCount < AMargs; argCount++){
-                #pragma HLS loop_tripcount min=1 max=255 avg=1
+            for(argCount = 0; argCount < AMargs - 1; argCount++){
+                #pragma HLS loop_tripcount min=1 max=254 avg=1
                 axis_net.read(axis_word);
                 axis_xpams_rx.write(axis_word);
                 #ifdef USE_ABS_PAYLOAD
                 AMpayloadSize-=GC_DATA_BYTES;
                 #endif
             }
+            axis_net.read(axis_word);
+            if(isShortAM(AMtype) || isLongxAM(AMtype)){
+                axis_word.last = 1;
+            }
+            axis_xpams_rx.write(axis_word);
+            #ifdef USE_ABS_PAYLOAD
+            AMpayloadSize-=GC_DATA_BYTES;
+            #endif
             currentState = isShortAM(AMtype) ? st_done : st_AMpayload;
             break;
         }

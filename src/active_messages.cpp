@@ -85,7 +85,7 @@ bool isMediumAM(gc_AMtype_t arg){
 }
 
 bool isLongxAM(gc_AMtype_t arg){
-    return (arg & 0x4) == 1;
+    return (arg & 0x4) == 0x4;
 }
 
 bool isLongAM(gc_AMtype_t arg){

@@ -20,7 +20,6 @@ void kern0(
     #ifdef __HLS__
     galapagos::interface<word_t> * out,
     int * handler_ctrl,
-    volatile uint_1_t interrupt
     #else
     galapagos::interface<word_t> * out
     #endif
@@ -28,7 +27,6 @@ void kern0(
     #pragma HLS INTERFACE axis port=in
     #pragma HLS INTERFACE axis port=out
     #pragma HLS INTERFACE ap_ctrl_none port=return
-    #pragma HLS INTERFACE ap_none port=interrupt
     #pragma HLS INTERFACE m_axi port=handler_ctrl depth=32 offset=0
 
     galapagos::stream_packet <word_t> axis_word;
@@ -36,7 +34,7 @@ void kern0(
     SAFE_COUT("Entering kern0\n");
 
     #ifdef __HLS__
-    shoal::kernel kernel(id, KERNEL_NUM_TOTAL, in, out, &interrupt, handler_ctrl);
+    shoal::kernel kernel(id, KERNEL_NUM_TOTAL, in, out, handler_ctrl);
     #else
     shoal::kernel kernel(id, KERNEL_NUM_TOTAL, in, out);
     #endif
@@ -52,10 +50,13 @@ void kern0(
     memcpy(&payload, "GAScore", 8);
 
     ATOMIC_ACTION(kernel.sendMediumAM_normal(1, 2, 0, 0, nullptr, 8, (word_t*)(&payload)));
+    SAFE_COUT(COLOR(Color::FG_RED, dec, "kern0: sending payload\n"));
 
     ATOMIC_ACTION(kernel.sendShortAM_async(1, 4, H_INCR_BAR, 0, nullptr));
+    SAFE_COUT(COLOR(Color::FG_RED, dec, "kern0: sending short async\n"));
 
     kernel.wait_reply(1); // from medium message
+    SAFE_COUT(COLOR(Color::FG_RED, dec, "kern0: got reply\n"));
 
     kernel.wait_barrier(1);
 
@@ -70,7 +71,6 @@ void kern1(
     #ifdef __HLS__
     galapagos::interface<word_t> * out,
     int * handler_ctrl,
-    volatile uint_1_t interrupt
     #else
     galapagos::interface<word_t> * out
     #endif
@@ -78,7 +78,6 @@ void kern1(
     #pragma HLS INTERFACE axis port=in
     #pragma HLS INTERFACE axis port=out
     #pragma HLS INTERFACE ap_ctrl_none port=return
-    #pragma HLS INTERFACE ap_none port=interrupt
     #pragma HLS INTERFACE m_axi port=handler_ctrl depth=32 offset=0
 
     galapagos::stream_packet <word_t> axis_word;
@@ -86,7 +85,7 @@ void kern1(
     SAFE_COUT("Entering kern1\n");
 
     #ifdef __HLS__
-    shoal::kernel kernel(id, KERNEL_NUM_TOTAL, in, out, &interrupt, handler_ctrl);
+    shoal::kernel kernel(id, KERNEL_NUM_TOTAL, in, out, handler_ctrl);
     #else
     shoal::kernel kernel(id, KERNEL_NUM_TOTAL, in, out);
     #endif
@@ -98,6 +97,7 @@ void kern1(
     #endif
 
     kernel.barrier_send(KERN0_ID);
+    SAFE_COUT(COLOR(Color::FG_RED, dec, "kern1: sending barrier\n"));
 
     while(in->empty()){};
     axis_word = in->read();
@@ -112,12 +112,16 @@ void kern1(
     ATOMIC_ACTION(printWord("Data in kern1 arrived ", axis_word));
     #endif
     kernel.sendLongAM_normal(0, 0xF, 0, 0, nullptr, 8, &(axis_word.data), 0);
+    SAFE_COUT(COLOR(Color::FG_RED, dec, "kern1: sending long message\n"));
 
     kernel.wait_reply(1); // from long message
+    SAFE_COUT(COLOR(Color::FG_RED, dec, "kern1: got reply\n"));
 
     ATOMIC_ACTION(kernel.sendShortAM_async(0, 1, H_INCR_BAR, 0, nullptr));
+    SAFE_COUT(COLOR(Color::FG_RED, dec, "kern1: sending short async\n"));
 
     kernel.wait_barrier(1);
+    SAFE_COUT(COLOR(Color::FG_RED, dec, "kern1: waiting barrier\n"));
 
     kernel.end();
 }

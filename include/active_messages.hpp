@@ -4,6 +4,8 @@
 #include "config.hpp"
 #include "hls_types.hpp"
 
+// #define DEBUG
+
 word_t createHeader(
     gc_AMsrc_t src,
     gc_AMdst_t dst,

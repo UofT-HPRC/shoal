@@ -22,6 +22,7 @@ GAScore/include/handler_register_map.hpp
 tests/projects/
 tests/src/
 include/user_config.hpp
+tmp.cpp
 
 # Prerequisites
 *.d

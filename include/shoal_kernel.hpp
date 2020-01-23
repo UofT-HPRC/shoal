@@ -43,10 +43,9 @@ namespace shoal{
             int init();
             #ifdef __HLS__
             kernel(int id, int kernel_num, galapagos::interface<word_t> * in,
-                galapagos::interface<word_t> * out, volatile uint_1_t* interrupt, 
-                int * handler_ctrl);
+                galapagos::interface<word_t> * out, int * handler_ctrl);
             #else
-            kernel(int id, int kernel_num, galapagos::interface<word_t> * in, 
+            kernel(int id, int kernel_num, galapagos::interface<word_t> * in,
                 galapagos::interface<word_t> * out);
             int attach(gasnet_handlerentry_t *table, int numentries, int size);
             #endif
@@ -61,24 +60,24 @@ namespace shoal{
             void barrier_wait();
 
             void sendShortAM_normal(gc_AMdst_t dst, gc_AMToken_t token,
-                gc_AMhandler_t handlerID, gc_AMargs_t handlerArgCount, 
+                gc_AMhandler_t handlerID, gc_AMargs_t handlerArgCount,
                 word_t * handler_args);
             void sendShortAM_async(gc_AMdst_t dst, gc_AMToken_t token,
-                gc_AMhandler_t handlerID, gc_AMargs_t handlerArgCount, 
+                gc_AMhandler_t handlerID, gc_AMargs_t handlerArgCount,
                 word_t * handler_args);
             void sendMediumAM_normal(gc_AMdst_t dst, gc_AMToken_t token,
-                gc_AMhandler_t handlerID, gc_AMargs_t handlerArgCount, 
+                gc_AMhandler_t handlerID, gc_AMargs_t handlerArgCount,
                 word_t * handler_args, gc_payloadSize_t payloadSize, word_t* payload);
             void sendMediumAM_normal(gc_AMdst_t dst, gc_AMToken_t token,
-                gc_AMhandler_t handlerID, gc_AMargs_t handlerArgCount, 
+                gc_AMhandler_t handlerID, gc_AMargs_t handlerArgCount,
                 word_t * handler_args, gc_payloadSize_t payloadSize, word_t src_addr);
             void sendLongAM_normal(gc_AMdst_t dst, gc_AMToken_t token,
-                gc_AMhandler_t handlerID, gc_AMargs_t handlerArgCount, 
-                word_t * handler_args, gc_payloadSize_t payloadSize, 
+                gc_AMhandler_t handlerID, gc_AMargs_t handlerArgCount,
+                word_t * handler_args, gc_payloadSize_t payloadSize,
                 word_t* payload, word_t dst_addr);
             void sendLongAM_normal(gc_AMdst_t dst, gc_AMToken_t token,
-                gc_AMhandler_t handlerID, gc_AMargs_t handlerArgCount, 
-                word_t * handler_args, gc_payloadSize_t payloadSize, 
+                gc_AMhandler_t handlerID, gc_AMargs_t handlerArgCount,
+                word_t * handler_args, gc_payloadSize_t payloadSize,
                 word_t src_addr, word_t dst_addr);
     };
 } // namespace shoal

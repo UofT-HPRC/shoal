@@ -10,14 +10,13 @@
 #undef __HLS__
 
 shoal::kernel::kernel(int id, int kernel_num, galapagos::interface<word_t> * in,
-    galapagos::interface<word_t> * out, volatile uint_1_t* interrupt, int * handler_ctrl)
+    galapagos::interface<word_t> * out, int * handler_ctrl)
 {
     this->id = id;
     this->kernel_num = kernel_num;
     this->in = in;
     this->out = out;
     this->handler_ctrl = handler_ctrl;
-    this->interrupt = interrupt;
 }
 
 int shoal::kernel::get_id(){
@@ -57,42 +56,36 @@ int shoal::kernel::init(){
 // }
 
 void shoal::kernel::wait_mem(unsigned int value){
-    *(this->handler_ctrl + XHANDLER_THRESHOLD_ADDR) = value;
-    *(this->handler_ctrl + XHANDLER_HANDLER_ADDR) = H_INCR_MEM;
-    uint_1_t interrupt_current = *(this->interrupt);
-    while(interrupt_current == 0){
-        interrupt_current = *(this->interrupt);
-    }
-    *(this->handler_ctrl + XHANDLER_CONTROL_ADDR) = XHANDLER_LOCK;
-    *(this->handler_ctrl + XHANDLER_HANDLER_ADDR) = 0;
-    *(this->handler_ctrl + XHANDLER_CONTROL_ADDR) = XHANDLER_RESET;
-    *(this->handler_ctrl + XHANDLER_CONTROL_ADDR) = 0;
+    unsigned int read_value;
+    do{
+        read_value = *(this->handler_ctrl + XHANDLER_HANDLER_CTRL_BUS_ADDR_MEM_READY_OUT_V_DATA);
+    } while(read_value < value);
+    *(this->handler_ctrl + XHANDLER_HANDLER_CTRL_BUS_ADDR_ARG_V_DATA) = value;
+    *(this->handler_ctrl + XHANDLER_HANDLER_CTRL_BUS_ADDR_CONFIG_V_DATA) = H_INCR_MEM | 0x10;
+    *(this->handler_ctrl + XHANDLER_HANDLER_CTRL_BUS_ADDR_CONFIG_V_DATA) = H_INCR_MEM;
 }
 
 void shoal::kernel::wait_barrier(unsigned int value){
-    *(this->handler_ctrl + XHANDLER_THRESHOLD_ADDR) = value;
-    *(this->handler_ctrl + XHANDLER_HANDLER_ADDR) = H_INCR_BAR;
-    uint_1_t interrupt_current = *(this->interrupt);
-    while(interrupt_current == 0){
-        interrupt_current = *(this->interrupt);
-    }
-    *(this->handler_ctrl + XHANDLER_CONTROL_ADDR) = XHANDLER_LOCK;
-    *(this->handler_ctrl + XHANDLER_HANDLER_ADDR) = 0;
-    *(this->handler_ctrl + XHANDLER_CONTROL_ADDR) = XHANDLER_RESET;
-    *(this->handler_ctrl + XHANDLER_CONTROL_ADDR) = 0;
+    unsigned int read_value;
+    do{
+        read_value = *(this->handler_ctrl + XHANDLER_HANDLER_CTRL_BUS_ADDR_MEM_READY_OUT_V_DATA);
+    } while(read_value < value);
+    *(this->handler_ctrl + XHANDLER_HANDLER_CTRL_BUS_ADDR_ARG_V_DATA) = value;
+    *(this->handler_ctrl + XHANDLER_HANDLER_CTRL_BUS_ADDR_CONFIG_V_DATA) = H_INCR_BAR | 0x10;
+    *(this->handler_ctrl + XHANDLER_HANDLER_CTRL_BUS_ADDR_CONFIG_V_DATA) = H_INCR_BAR;
 }
 
 void shoal::kernel::sendShortAM_normal(gc_AMdst_t dst, gc_AMToken_t token,
     gc_AMhandler_t handlerID, gc_AMargs_t handlerArgCount, word_t * handler_args)
 {
-    sendShortAM(AM_SHORT, this->id, dst, token, handlerID, handlerArgCount, 
+    sendShortAM(AM_SHORT, this->id, dst, token, handlerID, handlerArgCount,
         handler_args, *(this->out));
 }
 
 void shoal::kernel::sendShortAM_async(gc_AMdst_t dst, gc_AMToken_t token,
     gc_AMhandler_t handlerID, gc_AMargs_t handlerArgCount, word_t * handler_args)
 {
-    sendShortAM(AM_SHORT + AM_ASYNC, this->id, dst, token, handlerID, 
+    sendShortAM(AM_SHORT + AM_ASYNC, this->id, dst, token, handlerID,
         handlerArgCount, handler_args, *(this->out));
 }
 
@@ -100,7 +93,7 @@ void shoal::kernel::sendMediumAM_normal(gc_AMdst_t dst, gc_AMToken_t token,
     gc_AMhandler_t handlerID, gc_AMargs_t handlerArgCount, word_t * handler_args,
     gc_payloadSize_t payloadSize, word_t* payload)
 {
-    sendMediumAM(AM_MEDIUM|AM_FIFO, this->id, dst, token, handlerID, handlerArgCount, 
+    sendMediumAM(AM_MEDIUM|AM_FIFO, this->id, dst, token, handlerID, handlerArgCount,
         handler_args, payloadSize, payload, *(this->out));
 }
 
@@ -108,7 +101,7 @@ void shoal::kernel::sendMediumAM_normal(gc_AMdst_t dst, gc_AMToken_t token,
     gc_AMhandler_t handlerID, gc_AMargs_t handlerArgCount, word_t * handler_args,
     gc_payloadSize_t payloadSize, word_t src_addr)
 {
-    sendMediumAM(AM_MEDIUM, this->id, dst, token, handlerID, handlerArgCount, 
+    sendMediumAM(AM_MEDIUM, this->id, dst, token, handlerID, handlerArgCount,
         handler_args, payloadSize, src_addr, *(this->out));
 }
 
@@ -116,7 +109,7 @@ void shoal::kernel::sendLongAM_normal(gc_AMdst_t dst, gc_AMToken_t token,
     gc_AMhandler_t handlerID, gc_AMargs_t handlerArgCount, word_t * handler_args,
     gc_payloadSize_t payloadSize, word_t* payload, word_t dst_addr)
 {
-    sendLongAM(AM_LONG|AM_FIFO, this->id, dst, token, handlerID, handlerArgCount, 
+    sendLongAM(AM_LONG|AM_FIFO, this->id, dst, token, handlerID, handlerArgCount,
         handler_args, payloadSize, payload, dst_addr, *(this->out));
 }
 
@@ -124,7 +117,7 @@ void shoal::kernel::sendLongAM_normal(gc_AMdst_t dst, gc_AMToken_t token,
     gc_AMhandler_t handlerID, gc_AMargs_t handlerArgCount, word_t * handler_args,
     gc_payloadSize_t payloadSize, word_t src_addr, word_t dst_addr)
 {
-    sendLongAM(AM_LONG, this->id, dst, token, handlerID, handlerArgCount, 
+    sendLongAM(AM_LONG, this->id, dst, token, handlerID, handlerArgCount,
         handler_args, payloadSize, src_addr, dst_addr, *(this->out));
 }
 

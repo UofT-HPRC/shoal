@@ -5,7 +5,7 @@
 #include "config.hpp"
 #include "active_messages.hpp"
 
-shoal::kernel::kernel(int id, int kernel_num, galapagos::interface <word_t> * in, 
+shoal::kernel::kernel(int id, int kernel_num, galapagos::interface <word_t> * in,
     galapagos::interface <word_t> * out)
 {
     this->id = id;
@@ -19,7 +19,7 @@ int shoal::kernel::get_id(){
 }
 
 int shoal::kernel::init(){
-    std::cout << "*** Initializing kernel ***\n";
+    // std::cout << "*** Initializing kernel ***\n";
 	mutex_nodedata = mutex_nodedata_global[this->id];
     return 0;
 }
@@ -53,7 +53,7 @@ void emptyHandler(){
 int shoal::kernel::attach(gasnet_handlerentry_t *table, int numentries, int size){
     // build handler table
 	allocate_handlerTable();
-	
+
 	// fill in application handlers
 	for(int t = 0; t < numentries; t++)
 		handlertable[table[t].index] = (void*) table[t].fnptr;
@@ -70,7 +70,7 @@ int shoal::kernel::attach(gasnet_handlerentry_t *table, int numentries, int size
 		abort();
     }
     gasnet_shared_mem_global[this->id] = gasnet_shared_mem;
-    
+
     nodedata = &(gasnet_nodedata_all[this->id]);
 
     // ? no long messages should be sent until all kernels are here
@@ -114,14 +114,14 @@ void shoal::kernel::wait_barrier(unsigned int value){
 void shoal::kernel::sendShortAM_normal(gc_AMdst_t dst, gc_AMToken_t token,
     gc_AMhandler_t handlerID, gc_AMargs_t handlerArgCount, word_t * handler_args)
 {
-    sendShortAM(AM_SHORT, this->id, dst, token, handlerID, handlerArgCount, 
+    sendShortAM(AM_SHORT, this->id, dst, token, handlerID, handlerArgCount,
         handler_args, *(this->out));
 }
 
 void shoal::kernel::sendShortAM_async(gc_AMdst_t dst, gc_AMToken_t token,
     gc_AMhandler_t handlerID, gc_AMargs_t handlerArgCount, word_t * handler_args)
 {
-    sendShortAM(AM_SHORT + AM_ASYNC, this->id, dst, token, handlerID, 
+    sendShortAM(AM_SHORT + AM_ASYNC, this->id, dst, token, handlerID,
         handlerArgCount, handler_args, *(this->out));
 }
 
@@ -129,7 +129,7 @@ void shoal::kernel::sendMediumAM_normal(gc_AMdst_t dst, gc_AMToken_t token,
     gc_AMhandler_t handlerID, gc_AMargs_t handlerArgCount, word_t * handler_args,
     gc_payloadSize_t payloadSize, word_t* payload)
 {
-    sendMediumAM(AM_MEDIUM|AM_FIFO, this->id, dst, token, handlerID, handlerArgCount, 
+    sendMediumAM(AM_MEDIUM|AM_FIFO, this->id, dst, token, handlerID, handlerArgCount,
         handler_args, payloadSize, payload, *(this->out));
 }
 
@@ -137,7 +137,7 @@ void shoal::kernel::sendMediumAM_normal(gc_AMdst_t dst, gc_AMToken_t token,
     gc_AMhandler_t handlerID, gc_AMargs_t handlerArgCount, word_t * handler_args,
     gc_payloadSize_t payloadSize, word_t src_addr)
 {
-    sendMediumAM(AM_MEDIUM, this->id, dst, token, handlerID, handlerArgCount, 
+    sendMediumAM(AM_MEDIUM, this->id, dst, token, handlerID, handlerArgCount,
         handler_args, payloadSize, src_addr, *(this->out));
 }
 
@@ -145,7 +145,7 @@ void shoal::kernel::sendLongAM_normal(gc_AMdst_t dst, gc_AMToken_t token,
     gc_AMhandler_t handlerID, gc_AMargs_t handlerArgCount, word_t * handler_args,
     gc_payloadSize_t payloadSize, word_t* payload, word_t dst_addr)
 {
-    sendLongAM(AM_LONG|AM_FIFO, this->id, dst, token, handlerID, handlerArgCount, 
+    sendLongAM(AM_LONG|AM_FIFO, this->id, dst, token, handlerID, handlerArgCount,
         handler_args, payloadSize, payload, dst_addr, *(this->out));
 }
 
@@ -153,7 +153,7 @@ void shoal::kernel::sendLongAM_normal(gc_AMdst_t dst, gc_AMToken_t token,
     gc_AMhandler_t handlerID, gc_AMargs_t handlerArgCount, word_t * handler_args,
     gc_payloadSize_t payloadSize, word_t src_addr, word_t dst_addr)
 {
-    sendLongAM(AM_LONG, this->id, dst, token, handlerID, handlerArgCount, 
+    sendLongAM(AM_LONG, this->id, dst, token, handlerID, handlerArgCount,
         handler_args, payloadSize, src_addr, dst_addr, *(this->out));
 }
 
@@ -191,4 +191,5 @@ void shoal::kernel::end(){
     free(gasnet_shared_mem);
     *kernel_done[this->id] = true;
     // should free handlertable but it may segfault in the handler
+    // free(handlertable);
 }

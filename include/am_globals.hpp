@@ -19,15 +19,23 @@ typedef struct gasnet_nodedata_str {
     // TODO Add H_WAIT
 } gasnet_nodedata_t;
 
+#ifdef DEBUG
 #define SAFE_COUT(args) \
 lock_print.lock(); \
 std::cout << args; \
 lock_print.unlock();
+#else
+#define SAFE_COUT(args)
+#endif
 
+#ifdef DEBUG
 #define ATOMIC_ACTION(args) \
 lock_print.lock(); \
 args; \
 lock_print.unlock();
+#else
+#define ATOMIC_ACTION(args) args
+#endif
 
 extern void **handlertable; // provided by user application, handler functions to run
 
