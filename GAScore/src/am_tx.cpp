@@ -144,7 +144,7 @@ void am_tx(
         case st_AMHandlerArgs:{
             gc_AMargs_t argCount;
             // uint_1_t enableLast = AMpayloadSize == 0;
-            for(argCount = 0; argCount < AMargs; argCount++){
+            for(argCount = 0; argCount < AMargs - 1; argCount++){
                 #pragma HLS loop_tripcount min=1 max=255 avg=1
                 // if(!axis_kernel.empty()){
                     axis_kernel.read(axis_word);
@@ -156,6 +156,16 @@ void am_tx(
                     #endif
                 // }
             }
+            axis_kernel.read(axis_word);
+            if((isLongxAM(AMtype) || isMediumAM(AMtype)) && !isDataFromFIFO(AMtype)){
+                axis_word.last = 0; // more data will be appended to this packet
+            }
+            // axis_word.last = enableLast;
+            // axis_net.write(axis_word);
+            write(axis_net, axis_word, AMdst);
+            #ifdef USE_ABS_PAYLOAD
+            AMpayloadSize -= GC_DATA_BYTES;
+            #endif
             currentState = isShortAM(AMtype) ? st_done : st_AMpayload;
             break;
         }
@@ -257,6 +267,7 @@ void am_tx(
             // if(!axis_kernel.empty()){ //read address
                 axis_kernel.read(axis_word);
                 // axis_net.write(axis_word);
+                axis_word.last = 0; // more data will be appended to this packet
                 write(axis_net, axis_word, AMdst);
                 #ifdef USE_ABS_PAYLOAD
                 AMpayloadSize -= GC_DATA_BYTES;

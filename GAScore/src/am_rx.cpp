@@ -343,7 +343,9 @@ void am_rx(
                 }
                 for(int i = 0; i < j; i++){
                     //? s2mm doesn't seem to send a status in behav sim
-                    axis_s2mmStatus.read(axis_word_s2mmStatus);
+                    //? to prevent hanging in simulation, use read_nb though it should 
+                    //? be blocking
+                    axis_s2mmStatus.read_nb(axis_word_s2mmStatus);
                 }
                     bufferRelease = 1;
                     currentState = st_header;

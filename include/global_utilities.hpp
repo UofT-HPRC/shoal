@@ -4,7 +4,7 @@
 /*******************************************************************************
  * This allows you to use defined variables as part of pragmas.
  * i.e. ADD_PRAGMA(HLS STREAM depth=FIFO_DEPTH variable=axis_fifo) expands to
- * #pragma HLS STREAM depth=512 variable=axis_fifo where the 512 may be the 
+ * #pragma HLS STREAM depth=512 variable=axis_fifo where the 512 may be the
  * defined value of FIFO_DEPTH
 *******************************************************************************/
 
@@ -12,19 +12,19 @@
 #define ADD_PRAGMA(x) ADD_PRAGMA_INNER(x)
 
 /*******************************************************************************
- * This allows macros to be expanded differently based on the values of the 
- * arguments. i.e. 
- * 
+ * This allows macros to be expanded differently based on the values of the
+ * arguments. i.e.
+ *
  * #define COMPARE_foo(x) x
  * #define COMPARE_bar(x) x
  * #define WRITE(key) \
     WHEN(EQUAL(key, foo))(WRITE_0)\
     WHEN(EQUAL(key, bar))(READ_0)
  * ^ Here, the macro WRITE(key) will expand to another macro WRITE_0 if key is
- * equal to foo or to READ_0 if it is equal to bar. The COMPARE_xxx defines 
- * need to be specified for all options and therefore other define statements 
+ * equal to foo or to READ_0 if it is equal to bar. The COMPARE_xxx defines
+ * need to be specified for all options and therefore other define statements
  * cannot start with COMPARE_
- * 
+ *
  * Reference: https://github.com/pfultz2/Cloak/wiki/C-Preprocessor-tricks,-tips,-and-idioms
  * Credit to Paul Fultz II and Cloak (https://github.com/pfultz2/Cloak)
 *******************************************************************************/
@@ -136,7 +136,7 @@ int power() {
     int sum = 1;
     for(int i = 0; i < exponent; i++)
         sum *= base;
-    
+
     return sum;
 }
 
@@ -145,7 +145,7 @@ unsigned long long power_64() {
     unsigned long long sum = 1ULL;
     for(int i = 0; i < exponent; i++)
         sum *= base;
-    
+
     return sum;
 }
 
@@ -184,6 +184,21 @@ namespace Color {
 
 #define COLOR(color, mode, data) _COLOR(color, mode) << data << _COLOR(0, mode)
 
+#include <chrono>
+#define TIMESTAMP_INIT \
+std::chrono::duration<double> elapsed;\
+lock_print.lock();
+#define TIMESTAMP(name) \
+auto name = std::chrono::high_resolution_clock::now();
+#define TIMESTAMP_DIFF(time1, time0, id) \
+elapsed = time1 - time0;\
+std::cout << "Timing:" << id << ":" << elapsed.count() << std::endl;
+#define TIMESTAMP_END \
+lock_print.unlock();\
+std::cout << "Timing Finished" << std::endl;
+
+#else
+#define TIMESTAMP(name)
 #endif
 
 #define hdextract(arg, bits) (((arg) & bits##_BITMASK) >> bits##_LOWER)

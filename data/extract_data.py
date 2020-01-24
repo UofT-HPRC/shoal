@@ -8,25 +8,16 @@ import pandas as pd
 
 # https://stackoverflow.com/a/40170206
 def git_version():
-    def _minimal_ext_cmd(cmd):
-        # construct minimal environment
-        env = {}
-        for k in ["SYSTEMROOT", "PATH"]:
-            v = os.environ.get(k)
-            if v is not None:
-                env[k] = v
-        # LANGUAGE is used on win32
-        env["LANGUAGE"] = "C"
-        env["LANG"] = "C"
-        env["LC_ALL"] = "C"
-        out = subprocess.Popen(cmd, stdout = subprocess.PIPE, env=env).communicate()[0]
-        return out
-
     try:
-        out = _minimal_ext_cmd(["git", "rev-parse", "HEAD"])
+        out = subprocess.check_output(["git", "rev-parse", "HEAD"])
         GIT_REVISION = out.strip().decode("ascii")
     except OSError:
         GIT_REVISION = "Unknown"
+
+    if GIT_REVISION != "Unknown":
+        out = subprocess.check_output(["git", "show", "-s", "--format=%ci", GIT_REVISION])
+        date = out.strip().split(" ")[0]
+        return date + "_" + GIT_REVISION[:6]
 
     return GIT_REVISION
 
@@ -261,7 +252,7 @@ def compare(old_file, new_file):
         compare_df.at[multi_idx, "from"] = "Does not exist"
         compare_df.at[multi_idx, "to"] = "New"
 
-    compare_df.to_csv(os.path.join(os.getcwd(), os.path.basename(old_file)[0:6] + "_" + os.path.basename(new_file)[0:6] + ".txt"))
+    compare_df.to_csv(os.path.join(os.getcwd(), os.path.basename(old_file)[11:17] + "_" + os.path.basename(new_file)[11:17] + ".txt"))
 
 if __name__ == "__main__":
 

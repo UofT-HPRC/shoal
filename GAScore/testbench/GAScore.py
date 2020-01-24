@@ -101,7 +101,7 @@ axis_net_in.write(smA_t2, 2, tlast=1)
 # ctrl_bus_0.write(smA_t2, 'counter_threshold', 4)
 # ctrl_bus_0.write(smA_t2, 'config_handler', 2)
 
-smA_t2.enable_timestamps('STAT_sma_2_', 2)
+# smA_t2.enable_timestamps('STAT_sma_2_', 2)
 axis_net_in.write(smA_t2, strToInt("{AMHeader,0x10,0x01,0,0,1,0}"))
 axis_net_in.write(smA_t2, strToInt("{AMToken,0x2}"), tlast=1)
 
@@ -110,7 +110,7 @@ axis_net_in.write(smA_t2, strToInt("{AMToken,0x3}"))
 axis_net_in.write(smA_t2, 5, tlast=1)
 
 # smA_t2.wait_level('interrupt_0 == $value', 1)
-smA_t2.add_delay("100ns")
+smA_t2.add_delay("980ns")
 ctrl_bus_0.read(smA_t2, "counter", 5)
 ctrl_bus_1.read(smA_t2, "counter", 6)
 ctrl_bus_0.write(smA_t2, "arg", 0x5)
@@ -139,7 +139,7 @@ axis_net_out.read(smA_t3, strToInt("{AMHeader,0x1,0x10,0,1,0x41,0}"))
 axis_net_out.read(smA_t3, strToInt("{AMToken,0x0}"), tlast=1)
 axis_net_out.read(smA_t3, strToInt("{AMHeader,0x1,0x10,0,1,0x41,0}"))
 axis_net_out.read(smA_t3, strToInt("{AMToken,0x1}"), tlast=1)
-smA_t3.enable_timestamps('STAT_sma_3_', 0)
+# smA_t3.enable_timestamps('STAT_sma_3_', 0)
 axis_net_out.read(smA_t3, strToInt("{AMHeader,0x1,0x10,0,1,0x41,0}"))
 axis_net_out.read(smA_t3, strToInt("{AMToken,0x2}"), tlast=1)
 axis_net_out.read(smA_t3, strToInt("{AMHeader,0x0,0x10,0,1,0x41,0}"))
@@ -170,7 +170,7 @@ smB_t2.add_delay('100ns')
 # ctrl_bus_1.write(smB_t2, 'counter_threshold', 4),
 # ctrl_bus_1.write(smB_t2, 'config_handler', 2),
 axis_kernel_in.write(smB_t2, strToInt("{AMHeader,0x0,0x01,0,2,1,1}"))
-smB_t2.enable_timestamps('STAT_smb_2_', 0)
+# smB_t2.enable_timestamps('STAT_smb_2_', 0)
 axis_kernel_in.write(smB_t2, strToInt("{AMToken,0x0}"))
 axis_kernel_in.write(smB_t2, 4, tlast=1)
 axis_kernel_in.write(smB_t2, strToInt("{AMHeader,0x0,0x01,0,2,1,1}"))
@@ -212,7 +212,7 @@ short_message_B.add_thread(smB_t2)
 # short_message_B.add_thread(smB_t4)
 
 smB_t3 = Thread()
-smB_t3.enable_timestamps('STAT_smb_3_', 0)
+# smB_t3.enable_timestamps('STAT_smb_3_', 0)
 # axis_kernel_out.read(smB_t3, strToInt("{KernelHeader,0x41,0,0,0}"), tdest=0, tlast=1)
 # axis_kernel_out.read(smB_t3, strToInt("{KernelHeader,0x41,0,0,1}"), tdest=0, tlast=1)
 # axis_kernel_out.read(smB_t3, strToInt("{KernelHeader,0x41,0,0,2}"), tdest=0, tlast=1)
@@ -243,7 +243,7 @@ medium_message_A.add_thread(initT)
 
 mmA_t1 = Thread()
 mmA_t1.add_delay('100ns')
-mmA_t1.enable_timestamps('STAT_mma_1_', 0)
+# mmA_t1.enable_timestamps('STAT_mma_1_', 0)
 axis_kernel_in.write(mmA_t1, strToInt("{AMHeader,0x0,0x01,16,0,0x12,0}")),
 axis_kernel_in.write(mmA_t1, strToInt("{AMToken,0x0}")),
 axis_kernel_in.write(mmA_t1, 5), # payload argument of 5
@@ -258,8 +258,9 @@ mmA_t1.disable_timestamps()
 medium_message_A.add_thread(mmA_t1)
 
 mmA_t2 = Thread()
-mmA_t2.enable_timestamps('STAT_mma_2_', 0)
-axis_kernel_out.read(mmA_t2, strToInt("{KernelHeader,0x12,0,16,0}"), tdest=1)
+# mmA_t2.enable_timestamps('STAT_mma_2_', 0)
+# axis_kernel_out.read(mmA_t2, strToInt("{KernelHeader,0x12,0,16,0}"), tdest=1)
+axis_kernel_out.read(mmA_t2, strToInt("{AMHeader,0x0,0x0,16,0,0x12,0}"), tdest=1),
 axis_kernel_out.read(mmA_t2, 5, tdest=1), # payload argument of 5
 axis_kernel_out.read(mmA_t2, 4, tdest=1, tlast=1), # payload argument of 4
 # axis_kernel_out.read(mmA_t2, strToInt("{KernelHeader,0x41,0,0,0}"), tdest=0, tlast=1)
@@ -267,7 +268,7 @@ mmA_t2.disable_timestamps()
 medium_message_A.add_thread(mmA_t2)
 
 mmA_t3 = Thread()
-mmA_t3.enable_timestamps('STAT_mma_3_', 0)
+# mmA_t3.enable_timestamps('STAT_mma_3_', 0)
 axis_net_out.read(mmA_t3, strToInt("{AMHeader,0x0,0x10,16,0,0x02,0}"))
 axis_net_out.read(mmA_t3, strToInt("{AMToken,0x0}"))
 axis_net_out.read(mmA_t3, 5) # payload argument of 5
@@ -288,7 +289,7 @@ medium_message_B.add_thread(initT)
 
 mmB_t1 = Thread()
 mmB_t1.add_delay('100ns')
-mmB_t1.enable_timestamps('STAT_mmb_1_', 0)
+# mmB_t1.enable_timestamps('STAT_mmb_1_', 0)
 axis_kernel_in.write(mmB_t1, strToInt("{AMHeader,0x0,0x10,32,0,0x02,0}")),
 axis_kernel_in.write(mmB_t1, strToInt("{AMToken,0x0}")),
 axis_kernel_in.write(mmB_t1, 0x10, tlast=1)
@@ -296,7 +297,7 @@ mmB_t1.disable_timestamps()
 medium_message_B.add_thread(mmB_t1)
 
 mmB_t2 = Thread()
-mmB_t2.enable_timestamps('STAT_mmb_2_', 0)
+# mmB_t2.enable_timestamps('STAT_mmb_2_', 0)
 axis_net_out.read(mmB_t2, strToInt("{AMHeader,0x0,0x10,32,0,0x02,0}")),
 axis_net_out.read(mmB_t2, strToInt("{AMToken,0x0}")),
 axis_net_out.read(mmB_t2, 2),
@@ -320,7 +321,7 @@ medium_message_C.add_thread(initT)
 
 mmC_t1 = Thread()
 mmC_t1.add_delay('100ns')
-mmC_t1.enable_timestamps('STAT_mmc_1_', 0)
+# mmC_t1.enable_timestamps('STAT_mmc_1_', 0)
 axis_net_in.write(mmC_t1, strToInt("{AMHeader,0x10,0,32,0,0x42,0}")),
 axis_net_in.write(mmC_t1, strToInt("{AMToken,0x0}")),
 axis_net_in.write(mmC_t1, 0x10, tlast=1)
@@ -328,7 +329,7 @@ mmC_t1.disable_timestamps()
 medium_message_C.add_thread(mmC_t1)
 
 mmC_t2 = Thread()
-mmC_t2.enable_timestamps('STAT_mmc_2_', 0)
+# mmC_t2.enable_timestamps('STAT_mmc_2_', 0)
 axis_net_out.read(mmC_t2, strToInt("{AMHeader,0x0,0x10,32,0,0x22,0}")),
 axis_net_out.read(mmC_t2, strToInt("{AMToken,0x0}")),
 axis_net_out.read(mmC_t2, 2),
@@ -471,11 +472,11 @@ message_t1.add_delay('100ns')
 axis_net_in.writes(message_t1, [
     # sends an empty short message doing nothing
     {"tdata": strToInt("{AMHeader,0x11,0x1,0,0,1,0}")},
-    {"tdata": strToInt("{AMToken,0x0}")},
+    {"tdata": strToInt("{AMToken,0x0}"), "tlast": 1},
 
     # sends a reply that should just be absorbed
     {"tdata": strToInt("{AMHeader,0x11,0x1,0,1,0x41,0}")},
-    {"tdata": strToInt("{AMToken,0x0}")},
+    {"tdata": strToInt("{AMToken,0x0}"), "tlast": 1},
 
     # sends a medium message with two word payload to kernel 1
     {"tdata": strToInt("{AMHeader,0x10,0x1,16,0,0x02,0}")},
@@ -496,10 +497,10 @@ axis_net_in.writes(message_t1, [
     {"tdata": strToInt("{AMToken,0x0}")},
     {"tdata": 0x20},
     {"tdata": 4}, # handler arg
+    {"tdata": 4},
     {"tdata": 5},
     {"tdata": 6},
-    {"tdata": 7},
-    {"tdata": 8, "tlast": 1},
+    {"tdata": 7, "tlast": 1},
 
     # long strided message
     {"tdata": strToInt("{AMHeader,0x10,0x1,32,0,0x05,0}")},
@@ -576,9 +577,9 @@ axis_net_in.writes(message_get_t1, [
     {"tdata": 0x10, "tlast": 1}, # address
 
     # GET 4 words from remote and save them locally
-    {"tdata": strToInt("{AMHeader,0x10,0x1,32,2,0x44,1}")},
+    {"tdata": strToInt("{AMHeader,0x10,0x1,64,2,0x44,1}")},
     {"tdata": strToInt("{AMToken,0x0}")},
-    {"tdata": 0x10}, # src address
+    {"tdata": 0x0}, # src address
     {"tdata": 0x20}, # dst address
     {"tdata": 1, "tlast": 1}, # handler arg
 
@@ -610,14 +611,18 @@ axis_net_out.reads(message_get_t2, [
     {"tdata": 3},
 
     # reply to long message
-    {"tdata": strToInt("{AMHeader,0x1,0x10,32,2,0x24,1}")},
+    {"tdata": strToInt("{AMHeader,0x1,0x10,64,2,0x24,1}")},
     {"tdata": strToInt("{AMToken,0x0}")},
     {"tdata": 0x20},
     {"tdata": 1}, # handler arg
+    {"tdata": 0}, 
+    {"tdata": 1},
     {"tdata": 2},
     {"tdata": 3},
     {"tdata": 4},
-    {"tdata": 5, "tlast": 1},
+    {"tdata": 5},
+    {"tdata": 6},
+    {"tdata": 7, "tlast": 1},
 
     # reply to long strided message
     {"tdata": strToInt("{AMHeader,0x1,0x10,32,0,0x25,0}")},
@@ -725,10 +730,6 @@ axis_net_out.reads(message_get_kernel_t2, [
 ])
 message_get_kernel_t2.print_elapsed_time('message_get_kernel')
 message_get_kernel_t2.end_vector()
-
-message_get_kernel_t3 = message_kernel_get.add_thread()
-message_get_kernel_t3.add_delay("5000ns")
-message_get_kernel_t3.end_vector()
 
 GAScore.add_test_vector(short_message_A)
 GAScore.add_test_vector(short_message_B)

@@ -18,15 +18,15 @@
       </db_ref>
    </db_ref_list>
    <zoom_setting>
-      <ZoomStartTime time="12521995926fs"></ZoomStartTime>
-      <ZoomEndTime time="20715600815fs"></ZoomEndTime>
-      <Cursor1Time time="19350000000fs"></Cursor1Time>
+      <ZoomStartTime time="19550000000fs"></ZoomStartTime>
+      <ZoomEndTime time="21290000001fs"></ZoomEndTime>
+      <Cursor1Time time="21000000000fs"></Cursor1Time>
    </zoom_setting>
    <column_width_setting>
-      <NameColumnWidth column_width="229"></NameColumnWidth>
-      <ValueColumnWidth column_width="220"></ValueColumnWidth>
+      <NameColumnWidth column_width="399"></NameColumnWidth>
+      <ValueColumnWidth column_width="193"></ValueColumnWidth>
    </column_width_setting>
-   <WVObjectSize size="11" />
+   <WVObjectSize size="10" />
    <wvobject type="logic" fp_name="/GAScore_tb/clock">
       <obj_property name="ElementShortName">clock</obj_property>
       <obj_property name="ObjectShortName">clock</obj_property>
@@ -35,17 +35,10 @@
       <obj_property name="ElementShortName">reset_n</obj_property>
       <obj_property name="ObjectShortName">reset_n</obj_property>
    </wvobject>
-   <wvobject type="logic" fp_name="/GAScore_tb/interrupt_0">
-      <obj_property name="ElementShortName">interrupt_0</obj_property>
-      <obj_property name="ObjectShortName">interrupt_0</obj_property>
-   </wvobject>
-   <wvobject type="logic" fp_name="/GAScore_tb/interrupt_1">
-      <obj_property name="ElementShortName">interrupt_1</obj_property>
-      <obj_property name="ObjectShortName">interrupt_1</obj_property>
-   </wvobject>
    <wvobject type="group" fp_name="group60">
       <obj_property name="label">Kernel_In</obj_property>
       <obj_property name="DisplayName">label</obj_property>
+      <obj_property name="isExpanded"></obj_property>
       <wvobject type="array" fp_name="/GAScore_tb/axis_kernel_in_tdata">
          <obj_property name="ElementShortName">axis_kernel_in_tdata[63:0]</obj_property>
          <obj_property name="ObjectShortName">axis_kernel_in_tdata[63:0]</obj_property>
@@ -70,6 +63,7 @@
    <wvobject type="group" fp_name="group61">
       <obj_property name="label">Net_In</obj_property>
       <obj_property name="DisplayName">label</obj_property>
+      <obj_property name="isExpanded"></obj_property>
       <wvobject type="array" fp_name="/GAScore_tb/axis_net_in_tdata">
          <obj_property name="ElementShortName">axis_net_in_tdata[63:0]</obj_property>
          <obj_property name="ObjectShortName">axis_net_in_tdata[63:0]</obj_property>
@@ -266,6 +260,7 @@
    <wvobject type="group" fp_name="group65">
       <obj_property name="label">Net_Out</obj_property>
       <obj_property name="DisplayName">label</obj_property>
+      <obj_property name="isExpanded"></obj_property>
       <wvobject type="array" fp_name="/GAScore_tb/axis_net_out_tdata">
          <obj_property name="ElementShortName">axis_net_out_tdata[63:0]</obj_property>
          <obj_property name="ObjectShortName">axis_net_out_tdata[63:0]</obj_property>
@@ -287,9 +282,31 @@
          <obj_property name="ObjectShortName">axis_net_out_tkeep[7:0]</obj_property>
       </wvobject>
    </wvobject>
+   <wvobject type="group" fp_name="group120">
+      <obj_property name="label">Handler</obj_property>
+      <obj_property name="DisplayName">label</obj_property>
+      <obj_property name="isExpanded"></obj_property>
+      <wvobject type="array" fp_name="/GAScore_tb/GAScore_i/axis_handler_tdata">
+         <obj_property name="ElementShortName">axis_handler_tdata[63:0]</obj_property>
+         <obj_property name="ObjectShortName">axis_handler_tdata[63:0]</obj_property>
+      </wvobject>
+      <wvobject type="logic" fp_name="/GAScore_tb/GAScore_i/axis_handler_tlast">
+         <obj_property name="ElementShortName">axis_handler_tlast</obj_property>
+         <obj_property name="ObjectShortName">axis_handler_tlast</obj_property>
+      </wvobject>
+      <wvobject type="logic" fp_name="/GAScore_tb/GAScore_i/axis_handler_tvalid">
+         <obj_property name="ElementShortName">axis_handler_tvalid</obj_property>
+         <obj_property name="ObjectShortName">axis_handler_tvalid</obj_property>
+      </wvobject>
+      <wvobject type="logic" fp_name="/GAScore_tb/GAScore_i/axis_handler_tready">
+         <obj_property name="ElementShortName">axis_handler_tready</obj_property>
+         <obj_property name="ObjectShortName">axis_handler_tready</obj_property>
+      </wvobject>
+   </wvobject>
    <wvobject type="group" fp_name="group67">
       <obj_property name="label">Internals</obj_property>
       <obj_property name="DisplayName">label</obj_property>
+      <obj_property name="isExpanded"></obj_property>
       <wvobject type="group" fp_name="group92">
          <obj_property name="label">am_tx</obj_property>
          <obj_property name="DisplayName">label</obj_property>
@@ -484,6 +501,562 @@
          <wvobject type="array" fp_name="/GAScore_tb/GAScore_i/GAScore_bd_i/GAScore_bd_i/xpams_tx_0/address_offset_high_V">
             <obj_property name="ElementShortName">address_offset_high_V[15:0]</obj_property>
             <obj_property name="ObjectShortName">address_offset_high_V[15:0]</obj_property>
+         </wvobject>
+      </wvobject>
+      <wvobject type="group" fp_name="group121">
+         <obj_property name="label">Datamover</obj_property>
+         <obj_property name="DisplayName">label</obj_property>
+         <wvobject type="logic" fp_name="/GAScore_tb/GAScore_i/GAScore_bd_i/GAScore_bd_i/axi_datamover_0/mm2s_err">
+            <obj_property name="ElementShortName">mm2s_err</obj_property>
+            <obj_property name="ObjectShortName">mm2s_err</obj_property>
+         </wvobject>
+         <wvobject type="logic" fp_name="/GAScore_tb/GAScore_i/GAScore_bd_i/GAScore_bd_i/axi_datamover_0/m_axis_mm2s_cmdsts_aclk">
+            <obj_property name="ElementShortName">m_axis_mm2s_cmdsts_aclk</obj_property>
+            <obj_property name="ObjectShortName">m_axis_mm2s_cmdsts_aclk</obj_property>
+         </wvobject>
+         <wvobject type="logic" fp_name="/GAScore_tb/GAScore_i/GAScore_bd_i/GAScore_bd_i/axi_datamover_0/m_axis_mm2s_cmdsts_aresetn">
+            <obj_property name="ElementShortName">m_axis_mm2s_cmdsts_aresetn</obj_property>
+            <obj_property name="ObjectShortName">m_axis_mm2s_cmdsts_aresetn</obj_property>
+         </wvobject>
+         <wvobject type="logic" fp_name="/GAScore_tb/GAScore_i/GAScore_bd_i/GAScore_bd_i/axi_datamover_0/s_axis_mm2s_cmd_tvalid">
+            <obj_property name="ElementShortName">s_axis_mm2s_cmd_tvalid</obj_property>
+            <obj_property name="ObjectShortName">s_axis_mm2s_cmd_tvalid</obj_property>
+         </wvobject>
+         <wvobject type="logic" fp_name="/GAScore_tb/GAScore_i/GAScore_bd_i/GAScore_bd_i/axi_datamover_0/s_axis_mm2s_cmd_tready">
+            <obj_property name="ElementShortName">s_axis_mm2s_cmd_tready</obj_property>
+            <obj_property name="ObjectShortName">s_axis_mm2s_cmd_tready</obj_property>
+         </wvobject>
+         <wvobject type="array" fp_name="/GAScore_tb/GAScore_i/GAScore_bd_i/GAScore_bd_i/axi_datamover_0/s_axis_mm2s_cmd_tdata">
+            <obj_property name="ElementShortName">s_axis_mm2s_cmd_tdata[71:0]</obj_property>
+            <obj_property name="ObjectShortName">s_axis_mm2s_cmd_tdata[71:0]</obj_property>
+         </wvobject>
+         <wvobject type="logic" fp_name="/GAScore_tb/GAScore_i/GAScore_bd_i/GAScore_bd_i/axi_datamover_0/m_axis_mm2s_sts_tvalid">
+            <obj_property name="ElementShortName">m_axis_mm2s_sts_tvalid</obj_property>
+            <obj_property name="ObjectShortName">m_axis_mm2s_sts_tvalid</obj_property>
+         </wvobject>
+         <wvobject type="logic" fp_name="/GAScore_tb/GAScore_i/GAScore_bd_i/GAScore_bd_i/axi_datamover_0/m_axis_mm2s_sts_tready">
+            <obj_property name="ElementShortName">m_axis_mm2s_sts_tready</obj_property>
+            <obj_property name="ObjectShortName">m_axis_mm2s_sts_tready</obj_property>
+         </wvobject>
+         <wvobject type="array" fp_name="/GAScore_tb/GAScore_i/GAScore_bd_i/GAScore_bd_i/axi_datamover_0/m_axis_mm2s_sts_tdata">
+            <obj_property name="ElementShortName">m_axis_mm2s_sts_tdata[7:0]</obj_property>
+            <obj_property name="ObjectShortName">m_axis_mm2s_sts_tdata[7:0]</obj_property>
+         </wvobject>
+         <wvobject type="array" fp_name="/GAScore_tb/GAScore_i/GAScore_bd_i/GAScore_bd_i/axi_datamover_0/m_axis_mm2s_sts_tkeep">
+            <obj_property name="ElementShortName">m_axis_mm2s_sts_tkeep[0:0]</obj_property>
+            <obj_property name="ObjectShortName">m_axis_mm2s_sts_tkeep[0:0]</obj_property>
+         </wvobject>
+         <wvobject type="logic" fp_name="/GAScore_tb/GAScore_i/GAScore_bd_i/GAScore_bd_i/axi_datamover_0/m_axis_mm2s_sts_tlast">
+            <obj_property name="ElementShortName">m_axis_mm2s_sts_tlast</obj_property>
+            <obj_property name="ObjectShortName">m_axis_mm2s_sts_tlast</obj_property>
+         </wvobject>
+         <wvobject type="array" fp_name="/GAScore_tb/GAScore_i/GAScore_bd_i/GAScore_bd_i/axi_datamover_0/m_axi_mm2s_arid">
+            <obj_property name="ElementShortName">m_axi_mm2s_arid[0:0]</obj_property>
+            <obj_property name="ObjectShortName">m_axi_mm2s_arid[0:0]</obj_property>
+         </wvobject>
+         <wvobject type="array" fp_name="/GAScore_tb/GAScore_i/GAScore_bd_i/GAScore_bd_i/axi_datamover_0/m_axi_mm2s_araddr">
+            <obj_property name="ElementShortName">m_axi_mm2s_araddr[31:0]</obj_property>
+            <obj_property name="ObjectShortName">m_axi_mm2s_araddr[31:0]</obj_property>
+         </wvobject>
+         <wvobject type="array" fp_name="/GAScore_tb/GAScore_i/GAScore_bd_i/GAScore_bd_i/axi_datamover_0/m_axi_mm2s_arlen">
+            <obj_property name="ElementShortName">m_axi_mm2s_arlen[7:0]</obj_property>
+            <obj_property name="ObjectShortName">m_axi_mm2s_arlen[7:0]</obj_property>
+         </wvobject>
+         <wvobject type="array" fp_name="/GAScore_tb/GAScore_i/GAScore_bd_i/GAScore_bd_i/axi_datamover_0/m_axi_mm2s_arsize">
+            <obj_property name="ElementShortName">m_axi_mm2s_arsize[2:0]</obj_property>
+            <obj_property name="ObjectShortName">m_axi_mm2s_arsize[2:0]</obj_property>
+         </wvobject>
+         <wvobject type="array" fp_name="/GAScore_tb/GAScore_i/GAScore_bd_i/GAScore_bd_i/axi_datamover_0/m_axi_mm2s_arburst">
+            <obj_property name="ElementShortName">m_axi_mm2s_arburst[1:0]</obj_property>
+            <obj_property name="ObjectShortName">m_axi_mm2s_arburst[1:0]</obj_property>
+         </wvobject>
+         <wvobject type="array" fp_name="/GAScore_tb/GAScore_i/GAScore_bd_i/GAScore_bd_i/axi_datamover_0/m_axi_mm2s_arprot">
+            <obj_property name="ElementShortName">m_axi_mm2s_arprot[2:0]</obj_property>
+            <obj_property name="ObjectShortName">m_axi_mm2s_arprot[2:0]</obj_property>
+         </wvobject>
+         <wvobject type="array" fp_name="/GAScore_tb/GAScore_i/GAScore_bd_i/GAScore_bd_i/axi_datamover_0/m_axi_mm2s_arcache">
+            <obj_property name="ElementShortName">m_axi_mm2s_arcache[3:0]</obj_property>
+            <obj_property name="ObjectShortName">m_axi_mm2s_arcache[3:0]</obj_property>
+         </wvobject>
+         <wvobject type="array" fp_name="/GAScore_tb/GAScore_i/GAScore_bd_i/GAScore_bd_i/axi_datamover_0/m_axi_mm2s_aruser">
+            <obj_property name="ElementShortName">m_axi_mm2s_aruser[3:0]</obj_property>
+            <obj_property name="ObjectShortName">m_axi_mm2s_aruser[3:0]</obj_property>
+         </wvobject>
+         <wvobject type="logic" fp_name="/GAScore_tb/GAScore_i/GAScore_bd_i/GAScore_bd_i/axi_datamover_0/m_axi_mm2s_arvalid">
+            <obj_property name="ElementShortName">m_axi_mm2s_arvalid</obj_property>
+            <obj_property name="ObjectShortName">m_axi_mm2s_arvalid</obj_property>
+         </wvobject>
+         <wvobject type="logic" fp_name="/GAScore_tb/GAScore_i/GAScore_bd_i/GAScore_bd_i/axi_datamover_0/m_axi_mm2s_arready">
+            <obj_property name="ElementShortName">m_axi_mm2s_arready</obj_property>
+            <obj_property name="ObjectShortName">m_axi_mm2s_arready</obj_property>
+         </wvobject>
+         <wvobject type="array" fp_name="/GAScore_tb/GAScore_i/GAScore_bd_i/GAScore_bd_i/axi_datamover_0/m_axi_mm2s_rdata">
+            <obj_property name="ElementShortName">m_axi_mm2s_rdata[63:0]</obj_property>
+            <obj_property name="ObjectShortName">m_axi_mm2s_rdata[63:0]</obj_property>
+         </wvobject>
+         <wvobject type="array" fp_name="/GAScore_tb/GAScore_i/GAScore_bd_i/GAScore_bd_i/axi_datamover_0/m_axi_mm2s_rresp">
+            <obj_property name="ElementShortName">m_axi_mm2s_rresp[1:0]</obj_property>
+            <obj_property name="ObjectShortName">m_axi_mm2s_rresp[1:0]</obj_property>
+         </wvobject>
+         <wvobject type="logic" fp_name="/GAScore_tb/GAScore_i/GAScore_bd_i/GAScore_bd_i/axi_datamover_0/m_axi_mm2s_rlast">
+            <obj_property name="ElementShortName">m_axi_mm2s_rlast</obj_property>
+            <obj_property name="ObjectShortName">m_axi_mm2s_rlast</obj_property>
+         </wvobject>
+         <wvobject type="logic" fp_name="/GAScore_tb/GAScore_i/GAScore_bd_i/GAScore_bd_i/axi_datamover_0/m_axi_mm2s_rvalid">
+            <obj_property name="ElementShortName">m_axi_mm2s_rvalid</obj_property>
+            <obj_property name="ObjectShortName">m_axi_mm2s_rvalid</obj_property>
+         </wvobject>
+         <wvobject type="logic" fp_name="/GAScore_tb/GAScore_i/GAScore_bd_i/GAScore_bd_i/axi_datamover_0/m_axi_mm2s_rready">
+            <obj_property name="ElementShortName">m_axi_mm2s_rready</obj_property>
+            <obj_property name="ObjectShortName">m_axi_mm2s_rready</obj_property>
+         </wvobject>
+         <wvobject type="array" fp_name="/GAScore_tb/GAScore_i/GAScore_bd_i/GAScore_bd_i/axi_datamover_0/m_axis_mm2s_tdata">
+            <obj_property name="ElementShortName">m_axis_mm2s_tdata[63:0]</obj_property>
+            <obj_property name="ObjectShortName">m_axis_mm2s_tdata[63:0]</obj_property>
+         </wvobject>
+         <wvobject type="array" fp_name="/GAScore_tb/GAScore_i/GAScore_bd_i/GAScore_bd_i/axi_datamover_0/m_axis_mm2s_tkeep">
+            <obj_property name="ElementShortName">m_axis_mm2s_tkeep[7:0]</obj_property>
+            <obj_property name="ObjectShortName">m_axis_mm2s_tkeep[7:0]</obj_property>
+         </wvobject>
+         <wvobject type="logic" fp_name="/GAScore_tb/GAScore_i/GAScore_bd_i/GAScore_bd_i/axi_datamover_0/m_axis_mm2s_tlast">
+            <obj_property name="ElementShortName">m_axis_mm2s_tlast</obj_property>
+            <obj_property name="ObjectShortName">m_axis_mm2s_tlast</obj_property>
+         </wvobject>
+         <wvobject type="logic" fp_name="/GAScore_tb/GAScore_i/GAScore_bd_i/GAScore_bd_i/axi_datamover_0/m_axis_mm2s_tvalid">
+            <obj_property name="ElementShortName">m_axis_mm2s_tvalid</obj_property>
+            <obj_property name="ObjectShortName">m_axis_mm2s_tvalid</obj_property>
+         </wvobject>
+         <wvobject type="logic" fp_name="/GAScore_tb/GAScore_i/GAScore_bd_i/GAScore_bd_i/axi_datamover_0/m_axis_mm2s_tready">
+            <obj_property name="ElementShortName">m_axis_mm2s_tready</obj_property>
+            <obj_property name="ObjectShortName">m_axis_mm2s_tready</obj_property>
+         </wvobject>
+         <wvobject type="logic" fp_name="/GAScore_tb/GAScore_i/GAScore_bd_i/GAScore_bd_i/axi_datamover_0/m_axi_s2mm_aclk">
+            <obj_property name="ElementShortName">m_axi_s2mm_aclk</obj_property>
+            <obj_property name="ObjectShortName">m_axi_s2mm_aclk</obj_property>
+         </wvobject>
+         <wvobject type="logic" fp_name="/GAScore_tb/GAScore_i/GAScore_bd_i/GAScore_bd_i/axi_datamover_0/m_axi_s2mm_aresetn">
+            <obj_property name="ElementShortName">m_axi_s2mm_aresetn</obj_property>
+            <obj_property name="ObjectShortName">m_axi_s2mm_aresetn</obj_property>
+         </wvobject>
+         <wvobject type="logic" fp_name="/GAScore_tb/GAScore_i/GAScore_bd_i/GAScore_bd_i/axi_datamover_0/s2mm_err">
+            <obj_property name="ElementShortName">s2mm_err</obj_property>
+            <obj_property name="ObjectShortName">s2mm_err</obj_property>
+         </wvobject>
+         <wvobject type="logic" fp_name="/GAScore_tb/GAScore_i/GAScore_bd_i/GAScore_bd_i/axi_datamover_0/m_axis_s2mm_cmdsts_awclk">
+            <obj_property name="ElementShortName">m_axis_s2mm_cmdsts_awclk</obj_property>
+            <obj_property name="ObjectShortName">m_axis_s2mm_cmdsts_awclk</obj_property>
+         </wvobject>
+         <wvobject type="logic" fp_name="/GAScore_tb/GAScore_i/GAScore_bd_i/GAScore_bd_i/axi_datamover_0/m_axis_s2mm_cmdsts_aresetn">
+            <obj_property name="ElementShortName">m_axis_s2mm_cmdsts_aresetn</obj_property>
+            <obj_property name="ObjectShortName">m_axis_s2mm_cmdsts_aresetn</obj_property>
+         </wvobject>
+         <wvobject type="logic" fp_name="/GAScore_tb/GAScore_i/GAScore_bd_i/GAScore_bd_i/axi_datamover_0/s_axis_s2mm_cmd_tvalid">
+            <obj_property name="ElementShortName">s_axis_s2mm_cmd_tvalid</obj_property>
+            <obj_property name="ObjectShortName">s_axis_s2mm_cmd_tvalid</obj_property>
+         </wvobject>
+         <wvobject type="logic" fp_name="/GAScore_tb/GAScore_i/GAScore_bd_i/GAScore_bd_i/axi_datamover_0/s_axis_s2mm_cmd_tready">
+            <obj_property name="ElementShortName">s_axis_s2mm_cmd_tready</obj_property>
+            <obj_property name="ObjectShortName">s_axis_s2mm_cmd_tready</obj_property>
+         </wvobject>
+         <wvobject type="array" fp_name="/GAScore_tb/GAScore_i/GAScore_bd_i/GAScore_bd_i/axi_datamover_0/s_axis_s2mm_cmd_tdata">
+            <obj_property name="ElementShortName">s_axis_s2mm_cmd_tdata[71:0]</obj_property>
+            <obj_property name="ObjectShortName">s_axis_s2mm_cmd_tdata[71:0]</obj_property>
+         </wvobject>
+         <wvobject type="logic" fp_name="/GAScore_tb/GAScore_i/GAScore_bd_i/GAScore_bd_i/axi_datamover_0/m_axis_s2mm_sts_tvalid">
+            <obj_property name="ElementShortName">m_axis_s2mm_sts_tvalid</obj_property>
+            <obj_property name="ObjectShortName">m_axis_s2mm_sts_tvalid</obj_property>
+         </wvobject>
+         <wvobject type="logic" fp_name="/GAScore_tb/GAScore_i/GAScore_bd_i/GAScore_bd_i/axi_datamover_0/m_axis_s2mm_sts_tready">
+            <obj_property name="ElementShortName">m_axis_s2mm_sts_tready</obj_property>
+            <obj_property name="ObjectShortName">m_axis_s2mm_sts_tready</obj_property>
+         </wvobject>
+         <wvobject type="array" fp_name="/GAScore_tb/GAScore_i/GAScore_bd_i/GAScore_bd_i/axi_datamover_0/m_axis_s2mm_sts_tdata">
+            <obj_property name="ElementShortName">m_axis_s2mm_sts_tdata[7:0]</obj_property>
+            <obj_property name="ObjectShortName">m_axis_s2mm_sts_tdata[7:0]</obj_property>
+         </wvobject>
+         <wvobject type="array" fp_name="/GAScore_tb/GAScore_i/GAScore_bd_i/GAScore_bd_i/axi_datamover_0/m_axis_s2mm_sts_tkeep">
+            <obj_property name="ElementShortName">m_axis_s2mm_sts_tkeep[0:0]</obj_property>
+            <obj_property name="ObjectShortName">m_axis_s2mm_sts_tkeep[0:0]</obj_property>
+         </wvobject>
+         <wvobject type="logic" fp_name="/GAScore_tb/GAScore_i/GAScore_bd_i/GAScore_bd_i/axi_datamover_0/m_axis_s2mm_sts_tlast">
+            <obj_property name="ElementShortName">m_axis_s2mm_sts_tlast</obj_property>
+            <obj_property name="ObjectShortName">m_axis_s2mm_sts_tlast</obj_property>
+         </wvobject>
+         <wvobject type="array" fp_name="/GAScore_tb/GAScore_i/GAScore_bd_i/GAScore_bd_i/axi_datamover_0/m_axi_s2mm_awid">
+            <obj_property name="ElementShortName">m_axi_s2mm_awid[0:0]</obj_property>
+            <obj_property name="ObjectShortName">m_axi_s2mm_awid[0:0]</obj_property>
+         </wvobject>
+         <wvobject type="array" fp_name="/GAScore_tb/GAScore_i/GAScore_bd_i/GAScore_bd_i/axi_datamover_0/m_axi_s2mm_awaddr">
+            <obj_property name="ElementShortName">m_axi_s2mm_awaddr[31:0]</obj_property>
+            <obj_property name="ObjectShortName">m_axi_s2mm_awaddr[31:0]</obj_property>
+         </wvobject>
+         <wvobject type="array" fp_name="/GAScore_tb/GAScore_i/GAScore_bd_i/GAScore_bd_i/axi_datamover_0/m_axi_s2mm_awlen">
+            <obj_property name="ElementShortName">m_axi_s2mm_awlen[7:0]</obj_property>
+            <obj_property name="ObjectShortName">m_axi_s2mm_awlen[7:0]</obj_property>
+         </wvobject>
+         <wvobject type="array" fp_name="/GAScore_tb/GAScore_i/GAScore_bd_i/GAScore_bd_i/axi_datamover_0/m_axi_s2mm_awsize">
+            <obj_property name="ElementShortName">m_axi_s2mm_awsize[2:0]</obj_property>
+            <obj_property name="ObjectShortName">m_axi_s2mm_awsize[2:0]</obj_property>
+         </wvobject>
+         <wvobject type="array" fp_name="/GAScore_tb/GAScore_i/GAScore_bd_i/GAScore_bd_i/axi_datamover_0/m_axi_s2mm_awburst">
+            <obj_property name="ElementShortName">m_axi_s2mm_awburst[1:0]</obj_property>
+            <obj_property name="ObjectShortName">m_axi_s2mm_awburst[1:0]</obj_property>
+         </wvobject>
+         <wvobject type="array" fp_name="/GAScore_tb/GAScore_i/GAScore_bd_i/GAScore_bd_i/axi_datamover_0/m_axi_s2mm_awprot">
+            <obj_property name="ElementShortName">m_axi_s2mm_awprot[2:0]</obj_property>
+            <obj_property name="ObjectShortName">m_axi_s2mm_awprot[2:0]</obj_property>
+         </wvobject>
+         <wvobject type="array" fp_name="/GAScore_tb/GAScore_i/GAScore_bd_i/GAScore_bd_i/axi_datamover_0/m_axi_s2mm_awcache">
+            <obj_property name="ElementShortName">m_axi_s2mm_awcache[3:0]</obj_property>
+            <obj_property name="ObjectShortName">m_axi_s2mm_awcache[3:0]</obj_property>
+         </wvobject>
+         <wvobject type="array" fp_name="/GAScore_tb/GAScore_i/GAScore_bd_i/GAScore_bd_i/axi_datamover_0/m_axi_s2mm_awuser">
+            <obj_property name="ElementShortName">m_axi_s2mm_awuser[3:0]</obj_property>
+            <obj_property name="ObjectShortName">m_axi_s2mm_awuser[3:0]</obj_property>
+         </wvobject>
+         <wvobject type="logic" fp_name="/GAScore_tb/GAScore_i/GAScore_bd_i/GAScore_bd_i/axi_datamover_0/m_axi_s2mm_awvalid">
+            <obj_property name="ElementShortName">m_axi_s2mm_awvalid</obj_property>
+            <obj_property name="ObjectShortName">m_axi_s2mm_awvalid</obj_property>
+         </wvobject>
+         <wvobject type="logic" fp_name="/GAScore_tb/GAScore_i/GAScore_bd_i/GAScore_bd_i/axi_datamover_0/m_axi_s2mm_awready">
+            <obj_property name="ElementShortName">m_axi_s2mm_awready</obj_property>
+            <obj_property name="ObjectShortName">m_axi_s2mm_awready</obj_property>
+         </wvobject>
+         <wvobject type="array" fp_name="/GAScore_tb/GAScore_i/GAScore_bd_i/GAScore_bd_i/axi_datamover_0/m_axi_s2mm_wdata">
+            <obj_property name="ElementShortName">m_axi_s2mm_wdata[63:0]</obj_property>
+            <obj_property name="ObjectShortName">m_axi_s2mm_wdata[63:0]</obj_property>
+         </wvobject>
+         <wvobject type="array" fp_name="/GAScore_tb/GAScore_i/GAScore_bd_i/GAScore_bd_i/axi_datamover_0/m_axi_s2mm_wstrb">
+            <obj_property name="ElementShortName">m_axi_s2mm_wstrb[7:0]</obj_property>
+            <obj_property name="ObjectShortName">m_axi_s2mm_wstrb[7:0]</obj_property>
+         </wvobject>
+         <wvobject type="logic" fp_name="/GAScore_tb/GAScore_i/GAScore_bd_i/GAScore_bd_i/axi_datamover_0/m_axi_s2mm_wlast">
+            <obj_property name="ElementShortName">m_axi_s2mm_wlast</obj_property>
+            <obj_property name="ObjectShortName">m_axi_s2mm_wlast</obj_property>
+         </wvobject>
+         <wvobject type="logic" fp_name="/GAScore_tb/GAScore_i/GAScore_bd_i/GAScore_bd_i/axi_datamover_0/m_axi_s2mm_wvalid">
+            <obj_property name="ElementShortName">m_axi_s2mm_wvalid</obj_property>
+            <obj_property name="ObjectShortName">m_axi_s2mm_wvalid</obj_property>
+         </wvobject>
+         <wvobject type="logic" fp_name="/GAScore_tb/GAScore_i/GAScore_bd_i/GAScore_bd_i/axi_datamover_0/m_axi_s2mm_wready">
+            <obj_property name="ElementShortName">m_axi_s2mm_wready</obj_property>
+            <obj_property name="ObjectShortName">m_axi_s2mm_wready</obj_property>
+         </wvobject>
+         <wvobject type="array" fp_name="/GAScore_tb/GAScore_i/GAScore_bd_i/GAScore_bd_i/axi_datamover_0/m_axi_s2mm_bresp">
+            <obj_property name="ElementShortName">m_axi_s2mm_bresp[1:0]</obj_property>
+            <obj_property name="ObjectShortName">m_axi_s2mm_bresp[1:0]</obj_property>
+         </wvobject>
+         <wvobject type="logic" fp_name="/GAScore_tb/GAScore_i/GAScore_bd_i/GAScore_bd_i/axi_datamover_0/m_axi_s2mm_bvalid">
+            <obj_property name="ElementShortName">m_axi_s2mm_bvalid</obj_property>
+            <obj_property name="ObjectShortName">m_axi_s2mm_bvalid</obj_property>
+         </wvobject>
+         <wvobject type="logic" fp_name="/GAScore_tb/GAScore_i/GAScore_bd_i/GAScore_bd_i/axi_datamover_0/m_axi_s2mm_bready">
+            <obj_property name="ElementShortName">m_axi_s2mm_bready</obj_property>
+            <obj_property name="ObjectShortName">m_axi_s2mm_bready</obj_property>
+         </wvobject>
+         <wvobject type="array" fp_name="/GAScore_tb/GAScore_i/GAScore_bd_i/GAScore_bd_i/axi_datamover_0/s_axis_s2mm_tdata">
+            <obj_property name="ElementShortName">s_axis_s2mm_tdata[63:0]</obj_property>
+            <obj_property name="ObjectShortName">s_axis_s2mm_tdata[63:0]</obj_property>
+         </wvobject>
+         <wvobject type="array" fp_name="/GAScore_tb/GAScore_i/GAScore_bd_i/GAScore_bd_i/axi_datamover_0/s_axis_s2mm_tkeep">
+            <obj_property name="ElementShortName">s_axis_s2mm_tkeep[7:0]</obj_property>
+            <obj_property name="ObjectShortName">s_axis_s2mm_tkeep[7:0]</obj_property>
+         </wvobject>
+         <wvobject type="logic" fp_name="/GAScore_tb/GAScore_i/GAScore_bd_i/GAScore_bd_i/axi_datamover_0/s_axis_s2mm_tlast">
+            <obj_property name="ElementShortName">s_axis_s2mm_tlast</obj_property>
+            <obj_property name="ObjectShortName">s_axis_s2mm_tlast</obj_property>
+         </wvobject>
+         <wvobject type="logic" fp_name="/GAScore_tb/GAScore_i/GAScore_bd_i/GAScore_bd_i/axi_datamover_0/s_axis_s2mm_tvalid">
+            <obj_property name="ElementShortName">s_axis_s2mm_tvalid</obj_property>
+            <obj_property name="ObjectShortName">s_axis_s2mm_tvalid</obj_property>
+         </wvobject>
+         <wvobject type="logic" fp_name="/GAScore_tb/GAScore_i/GAScore_bd_i/GAScore_bd_i/axi_datamover_0/s_axis_s2mm_tready">
+            <obj_property name="ElementShortName">s_axis_s2mm_tready</obj_property>
+            <obj_property name="ObjectShortName">s_axis_s2mm_tready</obj_property>
+         </wvobject>
+         <wvobject type="logic" fp_name="/GAScore_tb/GAScore_i/GAScore_bd_i/GAScore_bd_i/am_rx_0/axis_xpams_rx_TVALID">
+            <obj_property name="ElementShortName">axis_xpams_rx_TVALID</obj_property>
+            <obj_property name="ObjectShortName">axis_xpams_rx_TVALID</obj_property>
+         </wvobject>
+         <wvobject type="logic" fp_name="/GAScore_tb/GAScore_i/GAScore_bd_i/GAScore_bd_i/am_rx_0/axis_xpams_rx_TREADY">
+            <obj_property name="ElementShortName">axis_xpams_rx_TREADY</obj_property>
+            <obj_property name="ObjectShortName">axis_xpams_rx_TREADY</obj_property>
+         </wvobject>
+         <wvobject type="array" fp_name="/GAScore_tb/GAScore_i/GAScore_bd_i/GAScore_bd_i/am_rx_0/axis_xpams_rx_TDATA">
+            <obj_property name="ElementShortName">axis_xpams_rx_TDATA[63:0]</obj_property>
+            <obj_property name="ObjectShortName">axis_xpams_rx_TDATA[63:0]</obj_property>
+         </wvobject>
+         <wvobject type="array" fp_name="/GAScore_tb/GAScore_i/GAScore_bd_i/GAScore_bd_i/am_rx_0/axis_xpams_rx_TKEEP">
+            <obj_property name="ElementShortName">axis_xpams_rx_TKEEP[7:0]</obj_property>
+            <obj_property name="ObjectShortName">axis_xpams_rx_TKEEP[7:0]</obj_property>
+         </wvobject>
+         <wvobject type="array" fp_name="/GAScore_tb/GAScore_i/GAScore_bd_i/GAScore_bd_i/am_rx_0/axis_xpams_rx_TLAST">
+            <obj_property name="ElementShortName">axis_xpams_rx_TLAST[0:0]</obj_property>
+            <obj_property name="ObjectShortName">axis_xpams_rx_TLAST[0:0]</obj_property>
+         </wvobject>
+         <wvobject type="logic" fp_name="/GAScore_tb/GAScore_i/GAScore_bd_i/GAScore_bd_i/am_rx_0/axis_net_TVALID">
+            <obj_property name="ElementShortName">axis_net_TVALID</obj_property>
+            <obj_property name="ObjectShortName">axis_net_TVALID</obj_property>
+         </wvobject>
+         <wvobject type="logic" fp_name="/GAScore_tb/GAScore_i/GAScore_bd_i/GAScore_bd_i/am_rx_0/axis_net_TREADY">
+            <obj_property name="ElementShortName">axis_net_TREADY</obj_property>
+            <obj_property name="ObjectShortName">axis_net_TREADY</obj_property>
+         </wvobject>
+         <wvobject type="array" fp_name="/GAScore_tb/GAScore_i/GAScore_bd_i/GAScore_bd_i/am_rx_0/axis_net_TDATA">
+            <obj_property name="ElementShortName">axis_net_TDATA[63:0]</obj_property>
+            <obj_property name="ObjectShortName">axis_net_TDATA[63:0]</obj_property>
+         </wvobject>
+         <wvobject type="array" fp_name="/GAScore_tb/GAScore_i/GAScore_bd_i/GAScore_bd_i/am_rx_0/axis_net_TKEEP">
+            <obj_property name="ElementShortName">axis_net_TKEEP[7:0]</obj_property>
+            <obj_property name="ObjectShortName">axis_net_TKEEP[7:0]</obj_property>
+         </wvobject>
+         <wvobject type="array" fp_name="/GAScore_tb/GAScore_i/GAScore_bd_i/GAScore_bd_i/am_rx_0/axis_net_TLAST">
+            <obj_property name="ElementShortName">axis_net_TLAST[0:0]</obj_property>
+            <obj_property name="ObjectShortName">axis_net_TLAST[0:0]</obj_property>
+         </wvobject>
+         <wvobject type="logic" fp_name="/GAScore_tb/GAScore_i/GAScore_bd_i/GAScore_bd_i/am_rx_0/axis_s2mmCommand_V_data_V_TVALID">
+            <obj_property name="ElementShortName">axis_s2mmCommand_V_data_V_TVALID</obj_property>
+            <obj_property name="ObjectShortName">axis_s2mmCommand_V_data_V_TVALID</obj_property>
+         </wvobject>
+         <wvobject type="logic" fp_name="/GAScore_tb/GAScore_i/GAScore_bd_i/GAScore_bd_i/am_rx_0/axis_s2mmCommand_V_data_V_TREADY">
+            <obj_property name="ElementShortName">axis_s2mmCommand_V_data_V_TREADY</obj_property>
+            <obj_property name="ObjectShortName">axis_s2mmCommand_V_data_V_TREADY</obj_property>
+         </wvobject>
+         <wvobject type="array" fp_name="/GAScore_tb/GAScore_i/GAScore_bd_i/GAScore_bd_i/am_rx_0/axis_s2mmCommand_V_data_V_TDATA">
+            <obj_property name="ElementShortName">axis_s2mmCommand_V_data_V_TDATA[71:0]</obj_property>
+            <obj_property name="ObjectShortName">axis_s2mmCommand_V_data_V_TDATA[71:0]</obj_property>
+         </wvobject>
+         <wvobject type="logic" fp_name="/GAScore_tb/GAScore_i/GAScore_bd_i/GAScore_bd_i/am_rx_0/axis_s2mm_TVALID">
+            <obj_property name="ElementShortName">axis_s2mm_TVALID</obj_property>
+            <obj_property name="ObjectShortName">axis_s2mm_TVALID</obj_property>
+         </wvobject>
+         <wvobject type="logic" fp_name="/GAScore_tb/GAScore_i/GAScore_bd_i/GAScore_bd_i/am_rx_0/axis_s2mm_TREADY">
+            <obj_property name="ElementShortName">axis_s2mm_TREADY</obj_property>
+            <obj_property name="ObjectShortName">axis_s2mm_TREADY</obj_property>
+         </wvobject>
+         <wvobject type="array" fp_name="/GAScore_tb/GAScore_i/GAScore_bd_i/GAScore_bd_i/am_rx_0/axis_s2mm_TDATA">
+            <obj_property name="ElementShortName">axis_s2mm_TDATA[63:0]</obj_property>
+            <obj_property name="ObjectShortName">axis_s2mm_TDATA[63:0]</obj_property>
+         </wvobject>
+         <wvobject type="array" fp_name="/GAScore_tb/GAScore_i/GAScore_bd_i/GAScore_bd_i/am_rx_0/axis_s2mm_TKEEP">
+            <obj_property name="ElementShortName">axis_s2mm_TKEEP[7:0]</obj_property>
+            <obj_property name="ObjectShortName">axis_s2mm_TKEEP[7:0]</obj_property>
+         </wvobject>
+         <wvobject type="array" fp_name="/GAScore_tb/GAScore_i/GAScore_bd_i/GAScore_bd_i/am_rx_0/axis_s2mm_TLAST">
+            <obj_property name="ElementShortName">axis_s2mm_TLAST[0:0]</obj_property>
+            <obj_property name="ObjectShortName">axis_s2mm_TLAST[0:0]</obj_property>
+         </wvobject>
+         <wvobject type="logic" fp_name="/GAScore_tb/GAScore_i/GAScore_bd_i/GAScore_bd_i/am_rx_0/axis_s2mmStatus_TVALID">
+            <obj_property name="ElementShortName">axis_s2mmStatus_TVALID</obj_property>
+            <obj_property name="ObjectShortName">axis_s2mmStatus_TVALID</obj_property>
+         </wvobject>
+         <wvobject type="logic" fp_name="/GAScore_tb/GAScore_i/GAScore_bd_i/GAScore_bd_i/am_rx_0/axis_s2mmStatus_TREADY">
+            <obj_property name="ElementShortName">axis_s2mmStatus_TREADY</obj_property>
+            <obj_property name="ObjectShortName">axis_s2mmStatus_TREADY</obj_property>
+         </wvobject>
+         <wvobject type="array" fp_name="/GAScore_tb/GAScore_i/GAScore_bd_i/GAScore_bd_i/am_rx_0/axis_s2mmStatus_TDATA">
+            <obj_property name="ElementShortName">axis_s2mmStatus_TDATA[7:0]</obj_property>
+            <obj_property name="ObjectShortName">axis_s2mmStatus_TDATA[7:0]</obj_property>
+         </wvobject>
+         <wvobject type="array" fp_name="/GAScore_tb/GAScore_i/GAScore_bd_i/GAScore_bd_i/am_rx_0/axis_s2mmStatus_TKEEP">
+            <obj_property name="ElementShortName">axis_s2mmStatus_TKEEP[0:0]</obj_property>
+            <obj_property name="ObjectShortName">axis_s2mmStatus_TKEEP[0:0]</obj_property>
+         </wvobject>
+         <wvobject type="array" fp_name="/GAScore_tb/GAScore_i/GAScore_bd_i/GAScore_bd_i/am_rx_0/axis_s2mmStatus_TLAST">
+            <obj_property name="ElementShortName">axis_s2mmStatus_TLAST[0:0]</obj_property>
+            <obj_property name="ObjectShortName">axis_s2mmStatus_TLAST[0:0]</obj_property>
+         </wvobject>
+         <wvobject type="array" fp_name="/GAScore_tb/GAScore_i/GAScore_bd_i/GAScore_bd_i/am_rx_0/release_V">
+            <obj_property name="ElementShortName">release_V[0:0]</obj_property>
+            <obj_property name="ObjectShortName">release_V[0:0]</obj_property>
+         </wvobject>
+      </wvobject>
+      <wvobject type="group" fp_name="group617">
+         <obj_property name="label">am_rx</obj_property>
+         <obj_property name="DisplayName">label</obj_property>
+         <wvobject type="array" fp_name="/GAScore_tb/GAScore_i/GAScore_bd_i/GAScore_bd_i/am_rx_0/inst/Block_codeRepl42_pro_U0/currentState">
+            <obj_property name="ElementShortName">currentState[2:0]</obj_property>
+            <obj_property name="ObjectShortName">currentState[2:0]</obj_property>
+         </wvobject>
+         <wvobject type="logic" fp_name="/GAScore_tb/GAScore_i/GAScore_bd_i/GAScore_bd_i/am_rx_0/axis_xpams_rx_TVALID">
+            <obj_property name="ElementShortName">axis_xpams_rx_TVALID</obj_property>
+            <obj_property name="ObjectShortName">axis_xpams_rx_TVALID</obj_property>
+         </wvobject>
+         <wvobject type="logic" fp_name="/GAScore_tb/GAScore_i/GAScore_bd_i/GAScore_bd_i/am_rx_0/axis_xpams_rx_TREADY">
+            <obj_property name="ElementShortName">axis_xpams_rx_TREADY</obj_property>
+            <obj_property name="ObjectShortName">axis_xpams_rx_TREADY</obj_property>
+         </wvobject>
+         <wvobject type="array" fp_name="/GAScore_tb/GAScore_i/GAScore_bd_i/GAScore_bd_i/am_rx_0/axis_xpams_rx_TDATA">
+            <obj_property name="ElementShortName">axis_xpams_rx_TDATA[63:0]</obj_property>
+            <obj_property name="ObjectShortName">axis_xpams_rx_TDATA[63:0]</obj_property>
+         </wvobject>
+         <wvobject type="array" fp_name="/GAScore_tb/GAScore_i/GAScore_bd_i/GAScore_bd_i/am_rx_0/axis_xpams_rx_TKEEP">
+            <obj_property name="ElementShortName">axis_xpams_rx_TKEEP[7:0]</obj_property>
+            <obj_property name="ObjectShortName">axis_xpams_rx_TKEEP[7:0]</obj_property>
+         </wvobject>
+         <wvobject type="array" fp_name="/GAScore_tb/GAScore_i/GAScore_bd_i/GAScore_bd_i/am_rx_0/axis_xpams_rx_TLAST">
+            <obj_property name="ElementShortName">axis_xpams_rx_TLAST[0:0]</obj_property>
+            <obj_property name="ObjectShortName">axis_xpams_rx_TLAST[0:0]</obj_property>
+         </wvobject>
+         <wvobject type="logic" fp_name="/GAScore_tb/GAScore_i/GAScore_bd_i/GAScore_bd_i/am_rx_0/axis_net_TVALID">
+            <obj_property name="ElementShortName">axis_net_TVALID</obj_property>
+            <obj_property name="ObjectShortName">axis_net_TVALID</obj_property>
+         </wvobject>
+         <wvobject type="logic" fp_name="/GAScore_tb/GAScore_i/GAScore_bd_i/GAScore_bd_i/am_rx_0/axis_net_TREADY">
+            <obj_property name="ElementShortName">axis_net_TREADY</obj_property>
+            <obj_property name="ObjectShortName">axis_net_TREADY</obj_property>
+         </wvobject>
+         <wvobject type="array" fp_name="/GAScore_tb/GAScore_i/GAScore_bd_i/GAScore_bd_i/am_rx_0/axis_net_TDATA">
+            <obj_property name="ElementShortName">axis_net_TDATA[63:0]</obj_property>
+            <obj_property name="ObjectShortName">axis_net_TDATA[63:0]</obj_property>
+         </wvobject>
+         <wvobject type="array" fp_name="/GAScore_tb/GAScore_i/GAScore_bd_i/GAScore_bd_i/am_rx_0/axis_net_TKEEP">
+            <obj_property name="ElementShortName">axis_net_TKEEP[7:0]</obj_property>
+            <obj_property name="ObjectShortName">axis_net_TKEEP[7:0]</obj_property>
+         </wvobject>
+         <wvobject type="array" fp_name="/GAScore_tb/GAScore_i/GAScore_bd_i/GAScore_bd_i/am_rx_0/axis_net_TLAST">
+            <obj_property name="ElementShortName">axis_net_TLAST[0:0]</obj_property>
+            <obj_property name="ObjectShortName">axis_net_TLAST[0:0]</obj_property>
+         </wvobject>
+         <wvobject type="logic" fp_name="/GAScore_tb/GAScore_i/GAScore_bd_i/GAScore_bd_i/am_rx_0/axis_s2mmCommand_V_data_V_TVALID">
+            <obj_property name="ElementShortName">axis_s2mmCommand_V_data_V_TVALID</obj_property>
+            <obj_property name="ObjectShortName">axis_s2mmCommand_V_data_V_TVALID</obj_property>
+         </wvobject>
+         <wvobject type="logic" fp_name="/GAScore_tb/GAScore_i/GAScore_bd_i/GAScore_bd_i/am_rx_0/axis_s2mmCommand_V_data_V_TREADY">
+            <obj_property name="ElementShortName">axis_s2mmCommand_V_data_V_TREADY</obj_property>
+            <obj_property name="ObjectShortName">axis_s2mmCommand_V_data_V_TREADY</obj_property>
+         </wvobject>
+         <wvobject type="array" fp_name="/GAScore_tb/GAScore_i/GAScore_bd_i/GAScore_bd_i/am_rx_0/axis_s2mmCommand_V_data_V_TDATA">
+            <obj_property name="ElementShortName">axis_s2mmCommand_V_data_V_TDATA[71:0]</obj_property>
+            <obj_property name="ObjectShortName">axis_s2mmCommand_V_data_V_TDATA[71:0]</obj_property>
+         </wvobject>
+         <wvobject type="logic" fp_name="/GAScore_tb/GAScore_i/GAScore_bd_i/GAScore_bd_i/am_rx_0/axis_s2mm_TVALID">
+            <obj_property name="ElementShortName">axis_s2mm_TVALID</obj_property>
+            <obj_property name="ObjectShortName">axis_s2mm_TVALID</obj_property>
+         </wvobject>
+         <wvobject type="logic" fp_name="/GAScore_tb/GAScore_i/GAScore_bd_i/GAScore_bd_i/am_rx_0/axis_s2mm_TREADY">
+            <obj_property name="ElementShortName">axis_s2mm_TREADY</obj_property>
+            <obj_property name="ObjectShortName">axis_s2mm_TREADY</obj_property>
+         </wvobject>
+         <wvobject type="array" fp_name="/GAScore_tb/GAScore_i/GAScore_bd_i/GAScore_bd_i/am_rx_0/axis_s2mm_TDATA">
+            <obj_property name="ElementShortName">axis_s2mm_TDATA[63:0]</obj_property>
+            <obj_property name="ObjectShortName">axis_s2mm_TDATA[63:0]</obj_property>
+         </wvobject>
+         <wvobject type="array" fp_name="/GAScore_tb/GAScore_i/GAScore_bd_i/GAScore_bd_i/am_rx_0/axis_s2mm_TKEEP">
+            <obj_property name="ElementShortName">axis_s2mm_TKEEP[7:0]</obj_property>
+            <obj_property name="ObjectShortName">axis_s2mm_TKEEP[7:0]</obj_property>
+         </wvobject>
+         <wvobject type="array" fp_name="/GAScore_tb/GAScore_i/GAScore_bd_i/GAScore_bd_i/am_rx_0/axis_s2mm_TLAST">
+            <obj_property name="ElementShortName">axis_s2mm_TLAST[0:0]</obj_property>
+            <obj_property name="ObjectShortName">axis_s2mm_TLAST[0:0]</obj_property>
+         </wvobject>
+         <wvobject type="logic" fp_name="/GAScore_tb/GAScore_i/GAScore_bd_i/GAScore_bd_i/am_rx_0/axis_s2mmStatus_TVALID">
+            <obj_property name="ElementShortName">axis_s2mmStatus_TVALID</obj_property>
+            <obj_property name="ObjectShortName">axis_s2mmStatus_TVALID</obj_property>
+         </wvobject>
+         <wvobject type="logic" fp_name="/GAScore_tb/GAScore_i/GAScore_bd_i/GAScore_bd_i/am_rx_0/axis_s2mmStatus_TREADY">
+            <obj_property name="ElementShortName">axis_s2mmStatus_TREADY</obj_property>
+            <obj_property name="ObjectShortName">axis_s2mmStatus_TREADY</obj_property>
+         </wvobject>
+         <wvobject type="array" fp_name="/GAScore_tb/GAScore_i/GAScore_bd_i/GAScore_bd_i/am_rx_0/axis_s2mmStatus_TDATA">
+            <obj_property name="ElementShortName">axis_s2mmStatus_TDATA[7:0]</obj_property>
+            <obj_property name="ObjectShortName">axis_s2mmStatus_TDATA[7:0]</obj_property>
+         </wvobject>
+         <wvobject type="array" fp_name="/GAScore_tb/GAScore_i/GAScore_bd_i/GAScore_bd_i/am_rx_0/axis_s2mmStatus_TKEEP">
+            <obj_property name="ElementShortName">axis_s2mmStatus_TKEEP[0:0]</obj_property>
+            <obj_property name="ObjectShortName">axis_s2mmStatus_TKEEP[0:0]</obj_property>
+         </wvobject>
+         <wvobject type="array" fp_name="/GAScore_tb/GAScore_i/GAScore_bd_i/GAScore_bd_i/am_rx_0/axis_s2mmStatus_TLAST">
+            <obj_property name="ElementShortName">axis_s2mmStatus_TLAST[0:0]</obj_property>
+            <obj_property name="ObjectShortName">axis_s2mmStatus_TLAST[0:0]</obj_property>
+         </wvobject>
+         <wvobject type="array" fp_name="/GAScore_tb/GAScore_i/GAScore_bd_i/GAScore_bd_i/am_rx_0/release_V">
+            <obj_property name="ElementShortName">release_V[0:0]</obj_property>
+            <obj_property name="ObjectShortName">release_V[0:0]</obj_property>
+         </wvobject>
+      </wvobject>
+      <wvobject type="group" fp_name="group638">
+         <obj_property name="label">xpams_rx</obj_property>
+         <obj_property name="DisplayName">label</obj_property>
+         <wvobject type="logic" fp_name="/GAScore_tb/GAScore_i/GAScore_bd_i/GAScore_bd_i/xpams_rx_0/axis_rx_TVALID">
+            <obj_property name="ElementShortName">axis_rx_TVALID</obj_property>
+            <obj_property name="ObjectShortName">axis_rx_TVALID</obj_property>
+         </wvobject>
+         <wvobject type="logic" fp_name="/GAScore_tb/GAScore_i/GAScore_bd_i/GAScore_bd_i/xpams_rx_0/axis_rx_TREADY">
+            <obj_property name="ElementShortName">axis_rx_TREADY</obj_property>
+            <obj_property name="ObjectShortName">axis_rx_TREADY</obj_property>
+         </wvobject>
+         <wvobject type="array" fp_name="/GAScore_tb/GAScore_i/GAScore_bd_i/GAScore_bd_i/xpams_rx_0/axis_rx_TDATA">
+            <obj_property name="ElementShortName">axis_rx_TDATA[63:0]</obj_property>
+            <obj_property name="ObjectShortName">axis_rx_TDATA[63:0]</obj_property>
+         </wvobject>
+         <wvobject type="array" fp_name="/GAScore_tb/GAScore_i/GAScore_bd_i/GAScore_bd_i/xpams_rx_0/axis_rx_TKEEP">
+            <obj_property name="ElementShortName">axis_rx_TKEEP[7:0]</obj_property>
+            <obj_property name="ObjectShortName">axis_rx_TKEEP[7:0]</obj_property>
+         </wvobject>
+         <wvobject type="array" fp_name="/GAScore_tb/GAScore_i/GAScore_bd_i/GAScore_bd_i/xpams_rx_0/axis_rx_TLAST">
+            <obj_property name="ElementShortName">axis_rx_TLAST[0:0]</obj_property>
+            <obj_property name="ObjectShortName">axis_rx_TLAST[0:0]</obj_property>
+         </wvobject>
+         <wvobject type="logic" fp_name="/GAScore_tb/GAScore_i/GAScore_bd_i/GAScore_bd_i/xpams_rx_0/axis_tx_TVALID">
+            <obj_property name="ElementShortName">axis_tx_TVALID</obj_property>
+            <obj_property name="ObjectShortName">axis_tx_TVALID</obj_property>
+         </wvobject>
+         <wvobject type="logic" fp_name="/GAScore_tb/GAScore_i/GAScore_bd_i/GAScore_bd_i/xpams_rx_0/axis_tx_TREADY">
+            <obj_property name="ElementShortName">axis_tx_TREADY</obj_property>
+            <obj_property name="ObjectShortName">axis_tx_TREADY</obj_property>
+         </wvobject>
+         <wvobject type="array" fp_name="/GAScore_tb/GAScore_i/GAScore_bd_i/GAScore_bd_i/xpams_rx_0/axis_tx_TDATA">
+            <obj_property name="ElementShortName">axis_tx_TDATA[63:0]</obj_property>
+            <obj_property name="ObjectShortName">axis_tx_TDATA[63:0]</obj_property>
+         </wvobject>
+         <wvobject type="array" fp_name="/GAScore_tb/GAScore_i/GAScore_bd_i/GAScore_bd_i/xpams_rx_0/axis_tx_TKEEP">
+            <obj_property name="ElementShortName">axis_tx_TKEEP[7:0]</obj_property>
+            <obj_property name="ObjectShortName">axis_tx_TKEEP[7:0]</obj_property>
+         </wvobject>
+         <wvobject type="array" fp_name="/GAScore_tb/GAScore_i/GAScore_bd_i/GAScore_bd_i/xpams_rx_0/axis_tx_TLAST">
+            <obj_property name="ElementShortName">axis_tx_TLAST[0:0]</obj_property>
+            <obj_property name="ObjectShortName">axis_tx_TLAST[0:0]</obj_property>
+         </wvobject>
+         <wvobject type="logic" fp_name="/GAScore_tb/GAScore_i/GAScore_bd_i/GAScore_bd_i/xpams_rx_0/axis_handler_TVALID">
+            <obj_property name="ElementShortName">axis_handler_TVALID</obj_property>
+            <obj_property name="ObjectShortName">axis_handler_TVALID</obj_property>
+         </wvobject>
+         <wvobject type="logic" fp_name="/GAScore_tb/GAScore_i/GAScore_bd_i/GAScore_bd_i/xpams_rx_0/axis_handler_TREADY">
+            <obj_property name="ElementShortName">axis_handler_TREADY</obj_property>
+            <obj_property name="ObjectShortName">axis_handler_TREADY</obj_property>
+         </wvobject>
+         <wvobject type="array" fp_name="/GAScore_tb/GAScore_i/GAScore_bd_i/GAScore_bd_i/xpams_rx_0/axis_handler_TDATA">
+            <obj_property name="ElementShortName">axis_handler_TDATA[63:0]</obj_property>
+            <obj_property name="ObjectShortName">axis_handler_TDATA[63:0]</obj_property>
+         </wvobject>
+         <wvobject type="array" fp_name="/GAScore_tb/GAScore_i/GAScore_bd_i/GAScore_bd_i/xpams_rx_0/axis_handler_TLAST">
+            <obj_property name="ElementShortName">axis_handler_TLAST[0:0]</obj_property>
+            <obj_property name="ObjectShortName">axis_handler_TLAST[0:0]</obj_property>
+         </wvobject>
+         <wvobject type="logic" fp_name="/GAScore_tb/GAScore_i/GAScore_bd_i/GAScore_bd_i/xpams_rx_0/axis_kernel_out_TVALID">
+            <obj_property name="ElementShortName">axis_kernel_out_TVALID</obj_property>
+            <obj_property name="ObjectShortName">axis_kernel_out_TVALID</obj_property>
+         </wvobject>
+         <wvobject type="logic" fp_name="/GAScore_tb/GAScore_i/GAScore_bd_i/GAScore_bd_i/xpams_rx_0/axis_kernel_out_TREADY">
+            <obj_property name="ElementShortName">axis_kernel_out_TREADY</obj_property>
+            <obj_property name="ObjectShortName">axis_kernel_out_TREADY</obj_property>
+         </wvobject>
+         <wvobject type="array" fp_name="/GAScore_tb/GAScore_i/GAScore_bd_i/GAScore_bd_i/xpams_rx_0/axis_kernel_out_TDATA">
+            <obj_property name="ElementShortName">axis_kernel_out_TDATA[63:0]</obj_property>
+            <obj_property name="ObjectShortName">axis_kernel_out_TDATA[63:0]</obj_property>
+         </wvobject>
+         <wvobject type="array" fp_name="/GAScore_tb/GAScore_i/GAScore_bd_i/GAScore_bd_i/xpams_rx_0/axis_kernel_out_TKEEP">
+            <obj_property name="ElementShortName">axis_kernel_out_TKEEP[7:0]</obj_property>
+            <obj_property name="ObjectShortName">axis_kernel_out_TKEEP[7:0]</obj_property>
+         </wvobject>
+         <wvobject type="array" fp_name="/GAScore_tb/GAScore_i/GAScore_bd_i/GAScore_bd_i/xpams_rx_0/axis_kernel_out_TLAST">
+            <obj_property name="ElementShortName">axis_kernel_out_TLAST[0:0]</obj_property>
+            <obj_property name="ObjectShortName">axis_kernel_out_TLAST[0:0]</obj_property>
+         </wvobject>
+         <wvobject type="array" fp_name="/GAScore_tb/GAScore_i/GAScore_bd_i/GAScore_bd_i/xpams_rx_0/axis_kernel_out_TDEST">
+            <obj_property name="ElementShortName">axis_kernel_out_TDEST[15:0]</obj_property>
+            <obj_property name="ObjectShortName">axis_kernel_out_TDEST[15:0]</obj_property>
          </wvobject>
       </wvobject>
    </wvobject>
