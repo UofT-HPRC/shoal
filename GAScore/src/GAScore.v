@@ -251,7 +251,7 @@ module GAScore #(
     input wire [1 : 0] axi_local_rresp,
     input wire [0 : 0] axi_local_rlast,
     input wire [0 : 0] axi_local_rvalid,
-    output wire [0 : 0] axi_local_rready,
+    output wire [0 : 0] axi_local_rready
     // output interrupt_0,
     // output interrupt_1,
     // output interrupt_2,
