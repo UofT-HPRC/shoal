@@ -6,6 +6,8 @@
 #include <atomic>
 #include <cstddef>
 
+#define DEBUG
+
 typedef std::mutex mutex_t;
 typedef std::lock_guard<mutex_t> lock_guard_t;
 typedef std::unique_lock<mutex_t> lock_t;

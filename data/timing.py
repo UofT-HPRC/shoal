@@ -19,6 +19,7 @@ def benchmark(app_path, run_count):
     result = ""
     for i in range(run_count):
         result += subprocess.check_output([app_path], shell=True)
+        print("Run count: %d" % i)
     timings = parse_results(result)
     for key, value in sorted(timings.iteritems()):
         print("%s: %.15g" % (key, value/run_count))

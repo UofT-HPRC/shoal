@@ -141,6 +141,14 @@ void shoal::kernel::sendMediumAM_normal(gc_AMdst_t dst, gc_AMToken_t token,
         handler_args, payloadSize, src_addr, *(this->out));
 }
 
+void shoal::kernel::sendMediumAM_async(gc_AMdst_t dst, gc_AMToken_t token,
+    gc_AMhandler_t handlerID, gc_AMargs_t handlerArgCount, word_t * handler_args,
+    gc_payloadSize_t payloadSize, word_t* payload)
+{
+    sendMediumAM(AM_MEDIUM|AM_FIFO|AM_ASYNC, this->id, dst, token, handlerID, handlerArgCount,
+        handler_args, payloadSize, payload, *(this->out));
+}
+
 void shoal::kernel::sendLongAM_normal(gc_AMdst_t dst, gc_AMToken_t token,
     gc_AMhandler_t handlerID, gc_AMargs_t handlerArgCount, word_t * handler_args,
     gc_payloadSize_t payloadSize, word_t* payload, word_t dst_addr)
@@ -162,7 +170,7 @@ void shoal::kernel::sendMemUpdate(gc_AMdst_t dst){
 }
 
 void shoal::kernel::sendBarrierUpdate(gc_AMdst_t dst){
-    sendShortAM_normal(dst, 0, H_INCR_BAR, 0, nullptr);
+    sendShortAM_normal(dst, 0xABCD, H_INCR_BAR, 0, nullptr);
 }
 
 void shoal::kernel::barrier_wait(){

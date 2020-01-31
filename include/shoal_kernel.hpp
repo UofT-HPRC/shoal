@@ -6,7 +6,7 @@
 #ifndef __HLS__
 #define CPU
 #endif
-#include "galapagos_interface.hpp"
+#include "galapagos_packet.h"
 
 #ifdef __HLS__
 
@@ -71,6 +71,9 @@ namespace shoal{
             void sendMediumAM_normal(gc_AMdst_t dst, gc_AMToken_t token,
                 gc_AMhandler_t handlerID, gc_AMargs_t handlerArgCount,
                 word_t * handler_args, gc_payloadSize_t payloadSize, word_t src_addr);
+            void sendMediumAM_async(gc_AMdst_t dst, gc_AMToken_t token,
+                gc_AMhandler_t handlerID, gc_AMargs_t handlerArgCount,
+                word_t * handler_args, gc_payloadSize_t payloadSize, word_t* payload);
             void sendLongAM_normal(gc_AMdst_t dst, gc_AMToken_t token,
                 gc_AMhandler_t handlerID, gc_AMargs_t handlerArgCount,
                 word_t * handler_args, gc_payloadSize_t payloadSize,
