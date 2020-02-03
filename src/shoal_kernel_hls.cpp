@@ -1,4 +1,5 @@
 #include <iostream>
+#include <cstddef> // needed to resolve ::max_align_t errors
 
 #ifndef __HLS__
 #define __HLS__
@@ -78,8 +79,14 @@ void shoal::kernel::wait_barrier(unsigned int value){
 void shoal::kernel::sendShortAM_normal(gc_AMdst_t dst, gc_AMToken_t token,
     gc_AMhandler_t handlerID, gc_AMargs_t handlerArgCount, word_t * handler_args)
 {
+    // we have to add this here for some reason for the kernel to compile..?
+    word_t tmp[16];
+    int i = 0;
+    for(i = 0; i < 16; i++){
+        tmp[i] = handler_args[i];
+    }
     sendShortAM(AM_SHORT, this->id, dst, token, handlerID, handlerArgCount,
-        handler_args, *(this->out));
+        tmp, *(this->out));
 }
 
 void shoal::kernel::sendShortAM_async(gc_AMdst_t dst, gc_AMToken_t token,
@@ -103,6 +110,14 @@ void shoal::kernel::sendMediumAM_normal(gc_AMdst_t dst, gc_AMToken_t token,
 {
     sendMediumAM(AM_MEDIUM, this->id, dst, token, handlerID, handlerArgCount,
         handler_args, payloadSize, src_addr, *(this->out));
+}
+
+void shoal::kernel::sendMediumAM_async(gc_AMdst_t dst, gc_AMToken_t token,
+    gc_AMhandler_t handlerID, gc_AMargs_t handlerArgCount, word_t * handler_args,
+    gc_payloadSize_t payloadSize, word_t* payload)
+{
+    sendMediumAM(AM_MEDIUM|AM_FIFO|AM_ASYNC, this->id, dst, token, handlerID, handlerArgCount,
+        handler_args, payloadSize, payload, *(this->out));
 }
 
 void shoal::kernel::sendLongAM_normal(gc_AMdst_t dst, gc_AMToken_t token,

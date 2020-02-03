@@ -1,10 +1,15 @@
-#if !defined(SHOAL_INCLUDE_ACTIVE_MESSAGES_HLS_)
-#define SHOAL_INCLUDE_ACTIVE_MESSAGES_HLS_
+#pragma once
 
 #include "config.hpp"
 #include "hls_types.hpp"
 
-#include "galapagos_interface.hpp"
+#ifndef __HLS__
+#define __HLS__
+#endif
+#ifdef CPU
+#undef CPU
+#endif
+#include "galapagos_packet.h"
 
 galapagos::stream_packet <word_t> createHeaderBeat(
     gc_AMsrc_t src,
@@ -33,18 +38,25 @@ galapagos::stream_packet <word_t> createStridedBeat(
     gc_strideBlockNum_t stride_num
 );
 
-inline void writeWord(
+void writeWord(
     galapagos::interface <word_t> & axis_out,
     galapagos::stream_packet <word_t> axis_word,
     gc_AMdst_t dst
 );
 
-inline void writeWord(
+void writeWord(
+    galapagos::interface <word_t> & axis_out,
+    word_t data,
+    bool last, 
+    gc_AMdst_t dst
+);
+
+void writeWord(
     galapagos::interface <word_t> & axis_out,
     word_t data,
     bool last, 
     gc_AMdst_t dst,
-    gc_keep_t keep = GC_DATA_TKEEP
+    gc_keep_t keep
 );
 
 void sendHandlerArgs(
@@ -146,5 +158,3 @@ void longStridedAM(
     word_t dst_addr,
     galapagos::interface <word_t> & out
 );
-
-#endif // SHOAL_INCLUDE_ACTIVE_MESSAGES_HLS_

@@ -62,23 +62,25 @@ galapagos::stream_packet <word_t> createStridedBeat(
 //     std::cout << ss.str();
 // }
 
-inline void writeWord(
+void writeWord(
     galapagos::interface <word_t> & axis_out,
     galapagos::stream_packet <word_t> axis_word,
     gc_AMdst_t dst
 ){
+    #pragma HLS INLINE
     axis_word.dest = dst;
     // printWord("   Sending - ", axis_word);
     axis_out.write(axis_word);
 }
 
-inline void writeWord(
+void writeWord(
     galapagos::interface <word_t> & axis_out,
     word_t data,
     bool last,
     gc_AMdst_t dst,
     gc_keep_t keep
 ){
+    #pragma HLS INLINE
     galapagos::stream_packet <word_t> axis_word;
     axis_word.data = data;
     axis_word.last = last;
@@ -88,12 +90,13 @@ inline void writeWord(
     axis_out.write(axis_word);
 }
 
-inline void writeWord(
+void writeWord(
     galapagos::interface <word_t> & axis_out,
     word_t data,
     bool last,
     gc_AMdst_t dst
 ){
+    #pragma HLS INLINE
     galapagos::stream_packet <word_t> axis_word;
     axis_word.data = data;
     axis_word.last = last;
@@ -110,18 +113,20 @@ void sendHandlerArgs(
     gc_AMargs_t handlerArgCount,
     bool assertLast
 ){
+    #pragma HLS INLINE
     galapagos::stream_packet <word_t> axis_word;
     // axis_word.dest = dst;
     int i;
     for (i = 0; i < handlerArgCount-1; i++){
-        writeWord(axis_out, *(handler_args+i), 0, dst);
+        // writeWord(axis_out, *(handler_args+i), 0, dst);
+        writeWord(axis_out, handler_args[i], 0, dst);
         // axis_word.data = *(handler_args+i);
         // axis_word.last = 0;
         // axis_word.keep = GC_DATA_TKEEP;
         // axis_out.write(axis_word);
     }
     i++;
-    writeWord(axis_out, *(handler_args+i), assertLast, dst);
+    writeWord(axis_out, handler_args[i], assertLast, dst);
     // axis_word.data = *(handler_args+i);
     // axis_word.last = assertLast;
     // axis_word.keep = GC_DATA_TKEEP;

@@ -5,7 +5,7 @@ from sonar.interfaces import AXIS
 from sonar.profile import Profiler
 
 node_2_kern_2_1 = Testbench.default('node_2_kern_2_1')
-filepath = os.path.join(os.path.dirname(__file__), 'build/node_2_kern_2_1')
+filepath = os.path.join(os.path.dirname(__file__), 'build/node_2_kern_2_1/')
 
 dut = Module.default("DUT")
 dut.add_clock_port('ap_clk', '20ns')

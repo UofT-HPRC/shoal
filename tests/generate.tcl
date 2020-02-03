@@ -30,10 +30,11 @@ set src_dir ${::env(SHOAL_PATH)}/src
 set test_dir ${::env(SHOAL_PATH)}/tests
 set local_include -I${::env(SHOAL_PATH)}/GAScore/include
 set global_include -I${::env(SHOAL_PATH)}/include
-set galapagos_include -I${::env(GALAPAGOS_PATH)}/middleware/CPP_lib/Galapagos_lib
+set galapagos_include -I${::env(GALAPAGOS_PATH)}/middleware/libGalapagos
 set galapagos_library -I${::env(GALAPAGOS_PATH)}/middleware/include
+set spdlog_library -I${::env(GALAPAGOS_PATH)}/util/spdlog/include
 append include -D__HLS__ " " -std=c++11 " " $local_include " " $global_include
-append include " " $galapagos_include " " $galapagos_library
+append include " " $galapagos_include " " $galapagos_library " " $spdlog_library
 
 ################################################################################
 # Body

@@ -1,0 +1,68 @@
+import enum
+
+class Instruction(enum.Enum):
+    load = 0
+    send_short = 1
+    send_medium = 2
+    send_long = 3
+    start_timer = 4
+    stop_timer = 5
+    barrier_send = 6
+    recv_medium = 7
+    end = 8
+    barrier_wait = 9
+    send_long_fifo = 10
+    send_medium_fifo = 11
+    read_local = 12
+
+class Instructions(object):
+    def __init__(self):
+        self.instructions = []
+
+    def load(self, dst, token, handler, args_num, args, payloadsize, src_addr, dst_addr):
+        self.instructions.append(Instruction.load.value)
+        self.instructions.append(dst)
+        self.instructions.append(token)
+        self.instructions.append(handler)
+        self.instructions.append(args_num)
+        self.instructions.extend(args)
+        self.instructions.append(payloadsize)
+        self.instructions.append(src_addr)
+        self.instructions.append(dst_addr)
+
+    def write_instruction(self, name):
+        assert isinstance(name, enum.Enum)
+        self.instructions.append(name.value)
+    
+    def write_payload(self, value):
+        if isinstance(value, list):
+            self.instructions.extend(value)
+        else:
+            self.instructions.append(value)
+
+    def write_coe(self, filename):
+        with open(filename, 'w+') as f:
+            f.write("memory_initialization_radix=10;\n")
+            f.write("memory_initialization_vector=\n")
+            instructions = [str(s) + ",\n" for s in self.instructions]
+            instructions.append(str(Instruction.end.value) + ";\n")
+            f.writelines(instructions)
+
+
+if __name__ == "__main__":
+    lst = Instructions()
+    lst.write_instruction(Instruction.barrier_send)
+    lst.write_payload(1)
+    lst.load(1, 0, 0, 0, [], 8, 0, 0)
+    lst.write_instruction(Instruction.send_medium_fifo)
+    lst.write_payload(0xDEAD)
+    lst.write_instruction(Instruction.recv_medium)
+    lst.write_coe("hls_kernel_0.coe")
+
+    lst_1 = Instructions()
+    lst_1.write_instruction(Instruction.barrier_wait)
+    lst_1.load(0, 1, 0, 0, [], 8, 0, 0)
+    lst_1.write_instruction(Instruction.recv_medium)
+    lst_1.write_instruction(Instruction.send_medium_fifo)
+    lst_1.write_payload(0xBEEF)
+    lst_1.write_coe("hls_kernel_1.coe")

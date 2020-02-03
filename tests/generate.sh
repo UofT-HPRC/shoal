@@ -55,5 +55,5 @@ cd $old_path
 
 # call IP specific script if it exists
 if [[ -f "$basePath/$file.sh" ]]; then
-    source $basePath/$file.sh
+    $basePath/$file.sh
 fi
