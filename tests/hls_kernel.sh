@@ -24,7 +24,7 @@ rm -rf $link_path/*
 ln -sf -t $link_path $vivado_path/$file.sv
 ln -sf -t $link_path $vivado_path/$file.tcl
 ln -sf -t $link_path $vivado_path/$file*.coe
-ln -sf -t $link_path $vivado_path/$flie.wcfg
+ln -sf -t $link_path $vivado_path/$file.wcfg
 
 ln -sf -t $link_path $build_path/${file}/${file}_tb.sv
 ln -sf -t $link_path $build_path/${file}/${file}_sv.dat

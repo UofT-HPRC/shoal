@@ -270,9 +270,7 @@ proc create_bd { bd_name } {
   set_property ip_repo_paths ${::env(SHOAL_PATH)}/repo/${::env(SHOAL_VIVADO_VERSION)}/${::env(SHOAL_PART_FAMILY)} [current_project]
   update_ip_catalog -rebuild -scan_changes
 
-  if { $parentCell eq "" } {
-     set parentCell [get_bd_cells /]
-  }
+  set parentCell [get_bd_cells /]
 
   # Get object for parentCell
   set parentObj [get_bd_cells $parentCell]

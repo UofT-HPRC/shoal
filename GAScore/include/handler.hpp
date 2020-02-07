@@ -51,9 +51,9 @@ void handler(
     gc_AMhandler_t AMhandler,
     uint_32_t config,
     ap_int<32> arg,
-    volatile ap_int<32> &counter_out,
-    volatile ap_int<32> &barrier_out,
-    volatile ap_int<32> &mem_ready_out
+    ap_int<32> &counter_out,
+    ap_int<32> &barrier_out,
+    ap_int<32> &mem_ready_out
 );
 
 #ifdef DEBUG

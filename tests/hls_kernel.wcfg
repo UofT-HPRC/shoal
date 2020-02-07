@@ -16,13 +16,13 @@
       </db_ref>
    </db_ref_list>
    <zoom_setting>
-      <ZoomStartTime time="305359477fs"></ZoomStartTime>
-      <ZoomEndTime time="644117648fs"></ZoomEndTime>
-      <Cursor1Time time="451174000fs"></Cursor1Time>
+      <ZoomStartTime time="7864452800fs"></ZoomStartTime>
+      <ZoomEndTime time="10038852434fs"></ZoomEndTime>
+      <Cursor1Time time="8988524000fs"></Cursor1Time>
    </zoom_setting>
    <column_width_setting>
       <NameColumnWidth column_width="319"></NameColumnWidth>
-      <ValueColumnWidth column_width="171"></ValueColumnWidth>
+      <ValueColumnWidth column_width="151"></ValueColumnWidth>
    </column_width_setting>
    <WVObjectSize size="10" />
    <wvobject type="logic" fp_name="/hls_kernel_tb/ap_clk">
@@ -193,12 +193,12 @@
          <obj_property name="ObjectShortName">s_axi_awready</obj_property>
       </wvobject>
       <wvobject type="array" fp_name="/hls_kernel_tb/hls_kernel_i/memory_1/s_axi_wdata">
-         <obj_property name="ElementShortName">s_axi_wdata[31:0]</obj_property>
-         <obj_property name="ObjectShortName">s_axi_wdata[31:0]</obj_property>
+         <obj_property name="ElementShortName">s_axi_wdata[63:0]</obj_property>
+         <obj_property name="ObjectShortName">s_axi_wdata[63:0]</obj_property>
       </wvobject>
       <wvobject type="array" fp_name="/hls_kernel_tb/hls_kernel_i/memory_1/s_axi_wstrb">
-         <obj_property name="ElementShortName">s_axi_wstrb[3:0]</obj_property>
-         <obj_property name="ObjectShortName">s_axi_wstrb[3:0]</obj_property>
+         <obj_property name="ElementShortName">s_axi_wstrb[7:0]</obj_property>
+         <obj_property name="ObjectShortName">s_axi_wstrb[7:0]</obj_property>
       </wvobject>
       <wvobject type="logic" fp_name="/hls_kernel_tb/hls_kernel_i/memory_1/s_axi_wlast">
          <obj_property name="ElementShortName">s_axi_wlast</obj_property>
@@ -261,8 +261,8 @@
          <obj_property name="ObjectShortName">s_axi_rid[3:0]</obj_property>
       </wvobject>
       <wvobject type="array" fp_name="/hls_kernel_tb/hls_kernel_i/memory_1/s_axi_rdata">
-         <obj_property name="ElementShortName">s_axi_rdata[31:0]</obj_property>
-         <obj_property name="ObjectShortName">s_axi_rdata[31:0]</obj_property>
+         <obj_property name="ElementShortName">s_axi_rdata[63:0]</obj_property>
+         <obj_property name="ObjectShortName">s_axi_rdata[63:0]</obj_property>
       </wvobject>
       <wvobject type="array" fp_name="/hls_kernel_tb/hls_kernel_i/memory_1/s_axi_rresp">
          <obj_property name="ElementShortName">s_axi_rresp[1:0]</obj_property>
@@ -324,7 +324,6 @@
       <wvobject type="group" fp_name="group121">
          <obj_property name="label">Kernel_out</obj_property>
          <obj_property name="DisplayName">label</obj_property>
-         <obj_property name="isExpanded"></obj_property>
          <wvobject type="logic" fp_name="/hls_kernel_tb/hls_kernel_i/hls_kernel_bd_wrapper_i/hls_kernel_bd_i/fpga_0/hls_kernel_0/out_r_TVALID">
             <obj_property name="ElementShortName">out_r_TVALID</obj_property>
             <obj_property name="ObjectShortName">out_r_TVALID</obj_property>
@@ -361,145 +360,165 @@
       <wvobject type="group" fp_name="group157">
          <obj_property name="label">Handler</obj_property>
          <obj_property name="DisplayName">label</obj_property>
-         <wvobject type="array" fp_name="/hls_kernel_tb/hls_kernel_i/hls_kernel_bd_wrapper_i/hls_kernel_bd_i/fpga_0/hls_kernel_0/m_axi_handler_ctrl_AWADDR">
-            <obj_property name="ElementShortName">m_axi_handler_ctrl_AWADDR[31:0]</obj_property>
-            <obj_property name="ObjectShortName">m_axi_handler_ctrl_AWADDR[31:0]</obj_property>
+         <wvobject type="group" fp_name="group247">
+            <obj_property name="label">AXI</obj_property>
+            <obj_property name="DisplayName">label</obj_property>
+            <wvobject type="array" fp_name="/hls_kernel_tb/hls_kernel_i/hls_kernel_bd_wrapper_i/hls_kernel_bd_i/fpga_0/hls_kernel_0/m_axi_handler_ctrl_AWADDR">
+               <obj_property name="ElementShortName">m_axi_handler_ctrl_AWADDR[31:0]</obj_property>
+               <obj_property name="ObjectShortName">m_axi_handler_ctrl_AWADDR[31:0]</obj_property>
+            </wvobject>
+            <wvobject type="array" fp_name="/hls_kernel_tb/hls_kernel_i/hls_kernel_bd_wrapper_i/hls_kernel_bd_i/fpga_0/hls_kernel_0/m_axi_handler_ctrl_AWLEN">
+               <obj_property name="ElementShortName">m_axi_handler_ctrl_AWLEN[7:0]</obj_property>
+               <obj_property name="ObjectShortName">m_axi_handler_ctrl_AWLEN[7:0]</obj_property>
+            </wvobject>
+            <wvobject type="array" fp_name="/hls_kernel_tb/hls_kernel_i/hls_kernel_bd_wrapper_i/hls_kernel_bd_i/fpga_0/hls_kernel_0/m_axi_handler_ctrl_AWSIZE">
+               <obj_property name="ElementShortName">m_axi_handler_ctrl_AWSIZE[2:0]</obj_property>
+               <obj_property name="ObjectShortName">m_axi_handler_ctrl_AWSIZE[2:0]</obj_property>
+            </wvobject>
+            <wvobject type="array" fp_name="/hls_kernel_tb/hls_kernel_i/hls_kernel_bd_wrapper_i/hls_kernel_bd_i/fpga_0/hls_kernel_0/m_axi_handler_ctrl_AWBURST">
+               <obj_property name="ElementShortName">m_axi_handler_ctrl_AWBURST[1:0]</obj_property>
+               <obj_property name="ObjectShortName">m_axi_handler_ctrl_AWBURST[1:0]</obj_property>
+            </wvobject>
+            <wvobject type="array" fp_name="/hls_kernel_tb/hls_kernel_i/hls_kernel_bd_wrapper_i/hls_kernel_bd_i/fpga_0/hls_kernel_0/m_axi_handler_ctrl_AWLOCK">
+               <obj_property name="ElementShortName">m_axi_handler_ctrl_AWLOCK[1:0]</obj_property>
+               <obj_property name="ObjectShortName">m_axi_handler_ctrl_AWLOCK[1:0]</obj_property>
+            </wvobject>
+            <wvobject type="array" fp_name="/hls_kernel_tb/hls_kernel_i/hls_kernel_bd_wrapper_i/hls_kernel_bd_i/fpga_0/hls_kernel_0/m_axi_handler_ctrl_AWREGION">
+               <obj_property name="ElementShortName">m_axi_handler_ctrl_AWREGION[3:0]</obj_property>
+               <obj_property name="ObjectShortName">m_axi_handler_ctrl_AWREGION[3:0]</obj_property>
+            </wvobject>
+            <wvobject type="array" fp_name="/hls_kernel_tb/hls_kernel_i/hls_kernel_bd_wrapper_i/hls_kernel_bd_i/fpga_0/hls_kernel_0/m_axi_handler_ctrl_AWCACHE">
+               <obj_property name="ElementShortName">m_axi_handler_ctrl_AWCACHE[3:0]</obj_property>
+               <obj_property name="ObjectShortName">m_axi_handler_ctrl_AWCACHE[3:0]</obj_property>
+            </wvobject>
+            <wvobject type="array" fp_name="/hls_kernel_tb/hls_kernel_i/hls_kernel_bd_wrapper_i/hls_kernel_bd_i/fpga_0/hls_kernel_0/m_axi_handler_ctrl_AWPROT">
+               <obj_property name="ElementShortName">m_axi_handler_ctrl_AWPROT[2:0]</obj_property>
+               <obj_property name="ObjectShortName">m_axi_handler_ctrl_AWPROT[2:0]</obj_property>
+            </wvobject>
+            <wvobject type="array" fp_name="/hls_kernel_tb/hls_kernel_i/hls_kernel_bd_wrapper_i/hls_kernel_bd_i/fpga_0/hls_kernel_0/m_axi_handler_ctrl_AWQOS">
+               <obj_property name="ElementShortName">m_axi_handler_ctrl_AWQOS[3:0]</obj_property>
+               <obj_property name="ObjectShortName">m_axi_handler_ctrl_AWQOS[3:0]</obj_property>
+            </wvobject>
+            <wvobject type="logic" fp_name="/hls_kernel_tb/hls_kernel_i/hls_kernel_bd_wrapper_i/hls_kernel_bd_i/fpga_0/hls_kernel_0/m_axi_handler_ctrl_AWVALID">
+               <obj_property name="ElementShortName">m_axi_handler_ctrl_AWVALID</obj_property>
+               <obj_property name="ObjectShortName">m_axi_handler_ctrl_AWVALID</obj_property>
+            </wvobject>
+            <wvobject type="logic" fp_name="/hls_kernel_tb/hls_kernel_i/hls_kernel_bd_wrapper_i/hls_kernel_bd_i/fpga_0/hls_kernel_0/m_axi_handler_ctrl_AWREADY">
+               <obj_property name="ElementShortName">m_axi_handler_ctrl_AWREADY</obj_property>
+               <obj_property name="ObjectShortName">m_axi_handler_ctrl_AWREADY</obj_property>
+            </wvobject>
+            <wvobject type="array" fp_name="/hls_kernel_tb/hls_kernel_i/hls_kernel_bd_wrapper_i/hls_kernel_bd_i/fpga_0/hls_kernel_0/m_axi_handler_ctrl_WDATA">
+               <obj_property name="ElementShortName">m_axi_handler_ctrl_WDATA[31:0]</obj_property>
+               <obj_property name="ObjectShortName">m_axi_handler_ctrl_WDATA[31:0]</obj_property>
+            </wvobject>
+            <wvobject type="array" fp_name="/hls_kernel_tb/hls_kernel_i/hls_kernel_bd_wrapper_i/hls_kernel_bd_i/fpga_0/hls_kernel_0/m_axi_handler_ctrl_WSTRB">
+               <obj_property name="ElementShortName">m_axi_handler_ctrl_WSTRB[3:0]</obj_property>
+               <obj_property name="ObjectShortName">m_axi_handler_ctrl_WSTRB[3:0]</obj_property>
+            </wvobject>
+            <wvobject type="logic" fp_name="/hls_kernel_tb/hls_kernel_i/hls_kernel_bd_wrapper_i/hls_kernel_bd_i/fpga_0/hls_kernel_0/m_axi_handler_ctrl_WLAST">
+               <obj_property name="ElementShortName">m_axi_handler_ctrl_WLAST</obj_property>
+               <obj_property name="ObjectShortName">m_axi_handler_ctrl_WLAST</obj_property>
+            </wvobject>
+            <wvobject type="logic" fp_name="/hls_kernel_tb/hls_kernel_i/hls_kernel_bd_wrapper_i/hls_kernel_bd_i/fpga_0/hls_kernel_0/m_axi_handler_ctrl_WVALID">
+               <obj_property name="ElementShortName">m_axi_handler_ctrl_WVALID</obj_property>
+               <obj_property name="ObjectShortName">m_axi_handler_ctrl_WVALID</obj_property>
+            </wvobject>
+            <wvobject type="logic" fp_name="/hls_kernel_tb/hls_kernel_i/hls_kernel_bd_wrapper_i/hls_kernel_bd_i/fpga_0/hls_kernel_0/m_axi_handler_ctrl_WREADY">
+               <obj_property name="ElementShortName">m_axi_handler_ctrl_WREADY</obj_property>
+               <obj_property name="ObjectShortName">m_axi_handler_ctrl_WREADY</obj_property>
+            </wvobject>
+            <wvobject type="array" fp_name="/hls_kernel_tb/hls_kernel_i/hls_kernel_bd_wrapper_i/hls_kernel_bd_i/fpga_0/hls_kernel_0/m_axi_handler_ctrl_BRESP">
+               <obj_property name="ElementShortName">m_axi_handler_ctrl_BRESP[1:0]</obj_property>
+               <obj_property name="ObjectShortName">m_axi_handler_ctrl_BRESP[1:0]</obj_property>
+            </wvobject>
+            <wvobject type="logic" fp_name="/hls_kernel_tb/hls_kernel_i/hls_kernel_bd_wrapper_i/hls_kernel_bd_i/fpga_0/hls_kernel_0/m_axi_handler_ctrl_BVALID">
+               <obj_property name="ElementShortName">m_axi_handler_ctrl_BVALID</obj_property>
+               <obj_property name="ObjectShortName">m_axi_handler_ctrl_BVALID</obj_property>
+            </wvobject>
+            <wvobject type="logic" fp_name="/hls_kernel_tb/hls_kernel_i/hls_kernel_bd_wrapper_i/hls_kernel_bd_i/fpga_0/hls_kernel_0/m_axi_handler_ctrl_BREADY">
+               <obj_property name="ElementShortName">m_axi_handler_ctrl_BREADY</obj_property>
+               <obj_property name="ObjectShortName">m_axi_handler_ctrl_BREADY</obj_property>
+            </wvobject>
+            <wvobject type="array" fp_name="/hls_kernel_tb/hls_kernel_i/hls_kernel_bd_wrapper_i/hls_kernel_bd_i/fpga_0/hls_kernel_0/m_axi_handler_ctrl_ARADDR">
+               <obj_property name="ElementShortName">m_axi_handler_ctrl_ARADDR[31:0]</obj_property>
+               <obj_property name="ObjectShortName">m_axi_handler_ctrl_ARADDR[31:0]</obj_property>
+            </wvobject>
+            <wvobject type="array" fp_name="/hls_kernel_tb/hls_kernel_i/hls_kernel_bd_wrapper_i/hls_kernel_bd_i/fpga_0/hls_kernel_0/m_axi_handler_ctrl_ARLEN">
+               <obj_property name="ElementShortName">m_axi_handler_ctrl_ARLEN[7:0]</obj_property>
+               <obj_property name="ObjectShortName">m_axi_handler_ctrl_ARLEN[7:0]</obj_property>
+            </wvobject>
+            <wvobject type="array" fp_name="/hls_kernel_tb/hls_kernel_i/hls_kernel_bd_wrapper_i/hls_kernel_bd_i/fpga_0/hls_kernel_0/m_axi_handler_ctrl_ARSIZE">
+               <obj_property name="ElementShortName">m_axi_handler_ctrl_ARSIZE[2:0]</obj_property>
+               <obj_property name="ObjectShortName">m_axi_handler_ctrl_ARSIZE[2:0]</obj_property>
+            </wvobject>
+            <wvobject type="array" fp_name="/hls_kernel_tb/hls_kernel_i/hls_kernel_bd_wrapper_i/hls_kernel_bd_i/fpga_0/hls_kernel_0/m_axi_handler_ctrl_ARBURST">
+               <obj_property name="ElementShortName">m_axi_handler_ctrl_ARBURST[1:0]</obj_property>
+               <obj_property name="ObjectShortName">m_axi_handler_ctrl_ARBURST[1:0]</obj_property>
+            </wvobject>
+            <wvobject type="array" fp_name="/hls_kernel_tb/hls_kernel_i/hls_kernel_bd_wrapper_i/hls_kernel_bd_i/fpga_0/hls_kernel_0/m_axi_handler_ctrl_ARLOCK">
+               <obj_property name="ElementShortName">m_axi_handler_ctrl_ARLOCK[1:0]</obj_property>
+               <obj_property name="ObjectShortName">m_axi_handler_ctrl_ARLOCK[1:0]</obj_property>
+            </wvobject>
+            <wvobject type="array" fp_name="/hls_kernel_tb/hls_kernel_i/hls_kernel_bd_wrapper_i/hls_kernel_bd_i/fpga_0/hls_kernel_0/m_axi_handler_ctrl_ARREGION">
+               <obj_property name="ElementShortName">m_axi_handler_ctrl_ARREGION[3:0]</obj_property>
+               <obj_property name="ObjectShortName">m_axi_handler_ctrl_ARREGION[3:0]</obj_property>
+            </wvobject>
+            <wvobject type="array" fp_name="/hls_kernel_tb/hls_kernel_i/hls_kernel_bd_wrapper_i/hls_kernel_bd_i/fpga_0/hls_kernel_0/m_axi_handler_ctrl_ARCACHE">
+               <obj_property name="ElementShortName">m_axi_handler_ctrl_ARCACHE[3:0]</obj_property>
+               <obj_property name="ObjectShortName">m_axi_handler_ctrl_ARCACHE[3:0]</obj_property>
+            </wvobject>
+            <wvobject type="array" fp_name="/hls_kernel_tb/hls_kernel_i/hls_kernel_bd_wrapper_i/hls_kernel_bd_i/fpga_0/hls_kernel_0/m_axi_handler_ctrl_ARPROT">
+               <obj_property name="ElementShortName">m_axi_handler_ctrl_ARPROT[2:0]</obj_property>
+               <obj_property name="ObjectShortName">m_axi_handler_ctrl_ARPROT[2:0]</obj_property>
+            </wvobject>
+            <wvobject type="array" fp_name="/hls_kernel_tb/hls_kernel_i/hls_kernel_bd_wrapper_i/hls_kernel_bd_i/fpga_0/hls_kernel_0/m_axi_handler_ctrl_ARQOS">
+               <obj_property name="ElementShortName">m_axi_handler_ctrl_ARQOS[3:0]</obj_property>
+               <obj_property name="ObjectShortName">m_axi_handler_ctrl_ARQOS[3:0]</obj_property>
+            </wvobject>
+            <wvobject type="logic" fp_name="/hls_kernel_tb/hls_kernel_i/hls_kernel_bd_wrapper_i/hls_kernel_bd_i/fpga_0/hls_kernel_0/m_axi_handler_ctrl_ARVALID">
+               <obj_property name="ElementShortName">m_axi_handler_ctrl_ARVALID</obj_property>
+               <obj_property name="ObjectShortName">m_axi_handler_ctrl_ARVALID</obj_property>
+            </wvobject>
+            <wvobject type="logic" fp_name="/hls_kernel_tb/hls_kernel_i/hls_kernel_bd_wrapper_i/hls_kernel_bd_i/fpga_0/hls_kernel_0/m_axi_handler_ctrl_ARREADY">
+               <obj_property name="ElementShortName">m_axi_handler_ctrl_ARREADY</obj_property>
+               <obj_property name="ObjectShortName">m_axi_handler_ctrl_ARREADY</obj_property>
+            </wvobject>
+            <wvobject type="array" fp_name="/hls_kernel_tb/hls_kernel_i/hls_kernel_bd_wrapper_i/hls_kernel_bd_i/fpga_0/hls_kernel_0/m_axi_handler_ctrl_RDATA">
+               <obj_property name="ElementShortName">m_axi_handler_ctrl_RDATA[31:0]</obj_property>
+               <obj_property name="ObjectShortName">m_axi_handler_ctrl_RDATA[31:0]</obj_property>
+            </wvobject>
+            <wvobject type="array" fp_name="/hls_kernel_tb/hls_kernel_i/hls_kernel_bd_wrapper_i/hls_kernel_bd_i/fpga_0/hls_kernel_0/m_axi_handler_ctrl_RRESP">
+               <obj_property name="ElementShortName">m_axi_handler_ctrl_RRESP[1:0]</obj_property>
+               <obj_property name="ObjectShortName">m_axi_handler_ctrl_RRESP[1:0]</obj_property>
+            </wvobject>
+            <wvobject type="logic" fp_name="/hls_kernel_tb/hls_kernel_i/hls_kernel_bd_wrapper_i/hls_kernel_bd_i/fpga_0/hls_kernel_0/m_axi_handler_ctrl_RLAST">
+               <obj_property name="ElementShortName">m_axi_handler_ctrl_RLAST</obj_property>
+               <obj_property name="ObjectShortName">m_axi_handler_ctrl_RLAST</obj_property>
+            </wvobject>
+            <wvobject type="logic" fp_name="/hls_kernel_tb/hls_kernel_i/hls_kernel_bd_wrapper_i/hls_kernel_bd_i/fpga_0/hls_kernel_0/m_axi_handler_ctrl_RVALID">
+               <obj_property name="ElementShortName">m_axi_handler_ctrl_RVALID</obj_property>
+               <obj_property name="ObjectShortName">m_axi_handler_ctrl_RVALID</obj_property>
+            </wvobject>
+            <wvobject type="logic" fp_name="/hls_kernel_tb/hls_kernel_i/hls_kernel_bd_wrapper_i/hls_kernel_bd_i/fpga_0/hls_kernel_0/m_axi_handler_ctrl_RREADY">
+               <obj_property name="ElementShortName">m_axi_handler_ctrl_RREADY</obj_property>
+               <obj_property name="ObjectShortName">m_axi_handler_ctrl_RREADY</obj_property>
+            </wvobject>
          </wvobject>
-         <wvobject type="array" fp_name="/hls_kernel_tb/hls_kernel_i/hls_kernel_bd_wrapper_i/hls_kernel_bd_i/fpga_0/hls_kernel_0/m_axi_handler_ctrl_AWLEN">
-            <obj_property name="ElementShortName">m_axi_handler_ctrl_AWLEN[7:0]</obj_property>
-            <obj_property name="ObjectShortName">m_axi_handler_ctrl_AWLEN[7:0]</obj_property>
+         <wvobject type="logic" fp_name="/hls_kernel_tb/hls_kernel_i/hls_kernel_bd_wrapper_i/hls_kernel_bd_i/fpga_0/GAScore_0/inst/handler_wrapper_i/\genblk1[0].handler_inst /handler_ctrl_bus_s_axi_U/ar_hs">
+            <obj_property name="ElementShortName">ar_hs</obj_property>
+            <obj_property name="ObjectShortName">ar_hs</obj_property>
          </wvobject>
-         <wvobject type="array" fp_name="/hls_kernel_tb/hls_kernel_i/hls_kernel_bd_wrapper_i/hls_kernel_bd_i/fpga_0/hls_kernel_0/m_axi_handler_ctrl_AWSIZE">
-            <obj_property name="ElementShortName">m_axi_handler_ctrl_AWSIZE[2:0]</obj_property>
-            <obj_property name="ObjectShortName">m_axi_handler_ctrl_AWSIZE[2:0]</obj_property>
+         <wvobject type="array" fp_name="/hls_kernel_tb/hls_kernel_i/hls_kernel_bd_wrapper_i/hls_kernel_bd_i/fpga_0/GAScore_0/inst/handler_wrapper_i/\genblk1[0].handler_inst /handler_ctrl_bus_s_axi_U/int_counter_out_V">
+            <obj_property name="ElementShortName">int_counter_out_V[31:0]</obj_property>
+            <obj_property name="ObjectShortName">int_counter_out_V[31:0]</obj_property>
          </wvobject>
-         <wvobject type="array" fp_name="/hls_kernel_tb/hls_kernel_i/hls_kernel_bd_wrapper_i/hls_kernel_bd_i/fpga_0/hls_kernel_0/m_axi_handler_ctrl_AWBURST">
-            <obj_property name="ElementShortName">m_axi_handler_ctrl_AWBURST[1:0]</obj_property>
-            <obj_property name="ObjectShortName">m_axi_handler_ctrl_AWBURST[1:0]</obj_property>
+         <wvobject type="array" fp_name="/hls_kernel_tb/hls_kernel_i/hls_kernel_bd_wrapper_i/hls_kernel_bd_i/fpga_0/GAScore_0/inst/handler_wrapper_i/\genblk1[0].handler_inst /handler_ctrl_bus_s_axi_U/int_barrier_out_V">
+            <obj_property name="ElementShortName">int_barrier_out_V[31:0]</obj_property>
+            <obj_property name="ObjectShortName">int_barrier_out_V[31:0]</obj_property>
          </wvobject>
-         <wvobject type="array" fp_name="/hls_kernel_tb/hls_kernel_i/hls_kernel_bd_wrapper_i/hls_kernel_bd_i/fpga_0/hls_kernel_0/m_axi_handler_ctrl_AWLOCK">
-            <obj_property name="ElementShortName">m_axi_handler_ctrl_AWLOCK[1:0]</obj_property>
-            <obj_property name="ObjectShortName">m_axi_handler_ctrl_AWLOCK[1:0]</obj_property>
-         </wvobject>
-         <wvobject type="array" fp_name="/hls_kernel_tb/hls_kernel_i/hls_kernel_bd_wrapper_i/hls_kernel_bd_i/fpga_0/hls_kernel_0/m_axi_handler_ctrl_AWREGION">
-            <obj_property name="ElementShortName">m_axi_handler_ctrl_AWREGION[3:0]</obj_property>
-            <obj_property name="ObjectShortName">m_axi_handler_ctrl_AWREGION[3:0]</obj_property>
-         </wvobject>
-         <wvobject type="array" fp_name="/hls_kernel_tb/hls_kernel_i/hls_kernel_bd_wrapper_i/hls_kernel_bd_i/fpga_0/hls_kernel_0/m_axi_handler_ctrl_AWCACHE">
-            <obj_property name="ElementShortName">m_axi_handler_ctrl_AWCACHE[3:0]</obj_property>
-            <obj_property name="ObjectShortName">m_axi_handler_ctrl_AWCACHE[3:0]</obj_property>
-         </wvobject>
-         <wvobject type="array" fp_name="/hls_kernel_tb/hls_kernel_i/hls_kernel_bd_wrapper_i/hls_kernel_bd_i/fpga_0/hls_kernel_0/m_axi_handler_ctrl_AWPROT">
-            <obj_property name="ElementShortName">m_axi_handler_ctrl_AWPROT[2:0]</obj_property>
-            <obj_property name="ObjectShortName">m_axi_handler_ctrl_AWPROT[2:0]</obj_property>
-         </wvobject>
-         <wvobject type="array" fp_name="/hls_kernel_tb/hls_kernel_i/hls_kernel_bd_wrapper_i/hls_kernel_bd_i/fpga_0/hls_kernel_0/m_axi_handler_ctrl_AWQOS">
-            <obj_property name="ElementShortName">m_axi_handler_ctrl_AWQOS[3:0]</obj_property>
-            <obj_property name="ObjectShortName">m_axi_handler_ctrl_AWQOS[3:0]</obj_property>
-         </wvobject>
-         <wvobject type="logic" fp_name="/hls_kernel_tb/hls_kernel_i/hls_kernel_bd_wrapper_i/hls_kernel_bd_i/fpga_0/hls_kernel_0/m_axi_handler_ctrl_AWVALID">
-            <obj_property name="ElementShortName">m_axi_handler_ctrl_AWVALID</obj_property>
-            <obj_property name="ObjectShortName">m_axi_handler_ctrl_AWVALID</obj_property>
-         </wvobject>
-         <wvobject type="logic" fp_name="/hls_kernel_tb/hls_kernel_i/hls_kernel_bd_wrapper_i/hls_kernel_bd_i/fpga_0/hls_kernel_0/m_axi_handler_ctrl_AWREADY">
-            <obj_property name="ElementShortName">m_axi_handler_ctrl_AWREADY</obj_property>
-            <obj_property name="ObjectShortName">m_axi_handler_ctrl_AWREADY</obj_property>
-         </wvobject>
-         <wvobject type="array" fp_name="/hls_kernel_tb/hls_kernel_i/hls_kernel_bd_wrapper_i/hls_kernel_bd_i/fpga_0/hls_kernel_0/m_axi_handler_ctrl_WDATA">
-            <obj_property name="ElementShortName">m_axi_handler_ctrl_WDATA[31:0]</obj_property>
-            <obj_property name="ObjectShortName">m_axi_handler_ctrl_WDATA[31:0]</obj_property>
-         </wvobject>
-         <wvobject type="array" fp_name="/hls_kernel_tb/hls_kernel_i/hls_kernel_bd_wrapper_i/hls_kernel_bd_i/fpga_0/hls_kernel_0/m_axi_handler_ctrl_WSTRB">
-            <obj_property name="ElementShortName">m_axi_handler_ctrl_WSTRB[3:0]</obj_property>
-            <obj_property name="ObjectShortName">m_axi_handler_ctrl_WSTRB[3:0]</obj_property>
-         </wvobject>
-         <wvobject type="logic" fp_name="/hls_kernel_tb/hls_kernel_i/hls_kernel_bd_wrapper_i/hls_kernel_bd_i/fpga_0/hls_kernel_0/m_axi_handler_ctrl_WLAST">
-            <obj_property name="ElementShortName">m_axi_handler_ctrl_WLAST</obj_property>
-            <obj_property name="ObjectShortName">m_axi_handler_ctrl_WLAST</obj_property>
-         </wvobject>
-         <wvobject type="logic" fp_name="/hls_kernel_tb/hls_kernel_i/hls_kernel_bd_wrapper_i/hls_kernel_bd_i/fpga_0/hls_kernel_0/m_axi_handler_ctrl_WVALID">
-            <obj_property name="ElementShortName">m_axi_handler_ctrl_WVALID</obj_property>
-            <obj_property name="ObjectShortName">m_axi_handler_ctrl_WVALID</obj_property>
-         </wvobject>
-         <wvobject type="logic" fp_name="/hls_kernel_tb/hls_kernel_i/hls_kernel_bd_wrapper_i/hls_kernel_bd_i/fpga_0/hls_kernel_0/m_axi_handler_ctrl_WREADY">
-            <obj_property name="ElementShortName">m_axi_handler_ctrl_WREADY</obj_property>
-            <obj_property name="ObjectShortName">m_axi_handler_ctrl_WREADY</obj_property>
-         </wvobject>
-         <wvobject type="array" fp_name="/hls_kernel_tb/hls_kernel_i/hls_kernel_bd_wrapper_i/hls_kernel_bd_i/fpga_0/hls_kernel_0/m_axi_handler_ctrl_BRESP">
-            <obj_property name="ElementShortName">m_axi_handler_ctrl_BRESP[1:0]</obj_property>
-            <obj_property name="ObjectShortName">m_axi_handler_ctrl_BRESP[1:0]</obj_property>
-         </wvobject>
-         <wvobject type="logic" fp_name="/hls_kernel_tb/hls_kernel_i/hls_kernel_bd_wrapper_i/hls_kernel_bd_i/fpga_0/hls_kernel_0/m_axi_handler_ctrl_BVALID">
-            <obj_property name="ElementShortName">m_axi_handler_ctrl_BVALID</obj_property>
-            <obj_property name="ObjectShortName">m_axi_handler_ctrl_BVALID</obj_property>
-         </wvobject>
-         <wvobject type="logic" fp_name="/hls_kernel_tb/hls_kernel_i/hls_kernel_bd_wrapper_i/hls_kernel_bd_i/fpga_0/hls_kernel_0/m_axi_handler_ctrl_BREADY">
-            <obj_property name="ElementShortName">m_axi_handler_ctrl_BREADY</obj_property>
-            <obj_property name="ObjectShortName">m_axi_handler_ctrl_BREADY</obj_property>
-         </wvobject>
-         <wvobject type="array" fp_name="/hls_kernel_tb/hls_kernel_i/hls_kernel_bd_wrapper_i/hls_kernel_bd_i/fpga_0/hls_kernel_0/m_axi_handler_ctrl_ARADDR">
-            <obj_property name="ElementShortName">m_axi_handler_ctrl_ARADDR[31:0]</obj_property>
-            <obj_property name="ObjectShortName">m_axi_handler_ctrl_ARADDR[31:0]</obj_property>
-         </wvobject>
-         <wvobject type="array" fp_name="/hls_kernel_tb/hls_kernel_i/hls_kernel_bd_wrapper_i/hls_kernel_bd_i/fpga_0/hls_kernel_0/m_axi_handler_ctrl_ARLEN">
-            <obj_property name="ElementShortName">m_axi_handler_ctrl_ARLEN[7:0]</obj_property>
-            <obj_property name="ObjectShortName">m_axi_handler_ctrl_ARLEN[7:0]</obj_property>
-         </wvobject>
-         <wvobject type="array" fp_name="/hls_kernel_tb/hls_kernel_i/hls_kernel_bd_wrapper_i/hls_kernel_bd_i/fpga_0/hls_kernel_0/m_axi_handler_ctrl_ARSIZE">
-            <obj_property name="ElementShortName">m_axi_handler_ctrl_ARSIZE[2:0]</obj_property>
-            <obj_property name="ObjectShortName">m_axi_handler_ctrl_ARSIZE[2:0]</obj_property>
-         </wvobject>
-         <wvobject type="array" fp_name="/hls_kernel_tb/hls_kernel_i/hls_kernel_bd_wrapper_i/hls_kernel_bd_i/fpga_0/hls_kernel_0/m_axi_handler_ctrl_ARBURST">
-            <obj_property name="ElementShortName">m_axi_handler_ctrl_ARBURST[1:0]</obj_property>
-            <obj_property name="ObjectShortName">m_axi_handler_ctrl_ARBURST[1:0]</obj_property>
-         </wvobject>
-         <wvobject type="array" fp_name="/hls_kernel_tb/hls_kernel_i/hls_kernel_bd_wrapper_i/hls_kernel_bd_i/fpga_0/hls_kernel_0/m_axi_handler_ctrl_ARLOCK">
-            <obj_property name="ElementShortName">m_axi_handler_ctrl_ARLOCK[1:0]</obj_property>
-            <obj_property name="ObjectShortName">m_axi_handler_ctrl_ARLOCK[1:0]</obj_property>
-         </wvobject>
-         <wvobject type="array" fp_name="/hls_kernel_tb/hls_kernel_i/hls_kernel_bd_wrapper_i/hls_kernel_bd_i/fpga_0/hls_kernel_0/m_axi_handler_ctrl_ARREGION">
-            <obj_property name="ElementShortName">m_axi_handler_ctrl_ARREGION[3:0]</obj_property>
-            <obj_property name="ObjectShortName">m_axi_handler_ctrl_ARREGION[3:0]</obj_property>
-         </wvobject>
-         <wvobject type="array" fp_name="/hls_kernel_tb/hls_kernel_i/hls_kernel_bd_wrapper_i/hls_kernel_bd_i/fpga_0/hls_kernel_0/m_axi_handler_ctrl_ARCACHE">
-            <obj_property name="ElementShortName">m_axi_handler_ctrl_ARCACHE[3:0]</obj_property>
-            <obj_property name="ObjectShortName">m_axi_handler_ctrl_ARCACHE[3:0]</obj_property>
-         </wvobject>
-         <wvobject type="array" fp_name="/hls_kernel_tb/hls_kernel_i/hls_kernel_bd_wrapper_i/hls_kernel_bd_i/fpga_0/hls_kernel_0/m_axi_handler_ctrl_ARPROT">
-            <obj_property name="ElementShortName">m_axi_handler_ctrl_ARPROT[2:0]</obj_property>
-            <obj_property name="ObjectShortName">m_axi_handler_ctrl_ARPROT[2:0]</obj_property>
-         </wvobject>
-         <wvobject type="array" fp_name="/hls_kernel_tb/hls_kernel_i/hls_kernel_bd_wrapper_i/hls_kernel_bd_i/fpga_0/hls_kernel_0/m_axi_handler_ctrl_ARQOS">
-            <obj_property name="ElementShortName">m_axi_handler_ctrl_ARQOS[3:0]</obj_property>
-            <obj_property name="ObjectShortName">m_axi_handler_ctrl_ARQOS[3:0]</obj_property>
-         </wvobject>
-         <wvobject type="logic" fp_name="/hls_kernel_tb/hls_kernel_i/hls_kernel_bd_wrapper_i/hls_kernel_bd_i/fpga_0/hls_kernel_0/m_axi_handler_ctrl_ARVALID">
-            <obj_property name="ElementShortName">m_axi_handler_ctrl_ARVALID</obj_property>
-            <obj_property name="ObjectShortName">m_axi_handler_ctrl_ARVALID</obj_property>
-         </wvobject>
-         <wvobject type="logic" fp_name="/hls_kernel_tb/hls_kernel_i/hls_kernel_bd_wrapper_i/hls_kernel_bd_i/fpga_0/hls_kernel_0/m_axi_handler_ctrl_ARREADY">
-            <obj_property name="ElementShortName">m_axi_handler_ctrl_ARREADY</obj_property>
-            <obj_property name="ObjectShortName">m_axi_handler_ctrl_ARREADY</obj_property>
-         </wvobject>
-         <wvobject type="array" fp_name="/hls_kernel_tb/hls_kernel_i/hls_kernel_bd_wrapper_i/hls_kernel_bd_i/fpga_0/hls_kernel_0/m_axi_handler_ctrl_RDATA">
-            <obj_property name="ElementShortName">m_axi_handler_ctrl_RDATA[31:0]</obj_property>
-            <obj_property name="ObjectShortName">m_axi_handler_ctrl_RDATA[31:0]</obj_property>
-         </wvobject>
-         <wvobject type="array" fp_name="/hls_kernel_tb/hls_kernel_i/hls_kernel_bd_wrapper_i/hls_kernel_bd_i/fpga_0/hls_kernel_0/m_axi_handler_ctrl_RRESP">
-            <obj_property name="ElementShortName">m_axi_handler_ctrl_RRESP[1:0]</obj_property>
-            <obj_property name="ObjectShortName">m_axi_handler_ctrl_RRESP[1:0]</obj_property>
-         </wvobject>
-         <wvobject type="logic" fp_name="/hls_kernel_tb/hls_kernel_i/hls_kernel_bd_wrapper_i/hls_kernel_bd_i/fpga_0/hls_kernel_0/m_axi_handler_ctrl_RLAST">
-            <obj_property name="ElementShortName">m_axi_handler_ctrl_RLAST</obj_property>
-            <obj_property name="ObjectShortName">m_axi_handler_ctrl_RLAST</obj_property>
-         </wvobject>
-         <wvobject type="logic" fp_name="/hls_kernel_tb/hls_kernel_i/hls_kernel_bd_wrapper_i/hls_kernel_bd_i/fpga_0/hls_kernel_0/m_axi_handler_ctrl_RVALID">
-            <obj_property name="ElementShortName">m_axi_handler_ctrl_RVALID</obj_property>
-            <obj_property name="ObjectShortName">m_axi_handler_ctrl_RVALID</obj_property>
-         </wvobject>
-         <wvobject type="logic" fp_name="/hls_kernel_tb/hls_kernel_i/hls_kernel_bd_wrapper_i/hls_kernel_bd_i/fpga_0/hls_kernel_0/m_axi_handler_ctrl_RREADY">
-            <obj_property name="ElementShortName">m_axi_handler_ctrl_RREADY</obj_property>
-            <obj_property name="ObjectShortName">m_axi_handler_ctrl_RREADY</obj_property>
+         <wvobject type="array" fp_name="/hls_kernel_tb/hls_kernel_i/hls_kernel_bd_wrapper_i/hls_kernel_bd_i/fpga_0/GAScore_0/inst/handler_wrapper_i/\genblk1[0].handler_inst /handler_ctrl_bus_s_axi_U/int_mem_ready_out_V">
+            <obj_property name="ElementShortName">int_mem_ready_out_V[31:0]</obj_property>
+            <obj_property name="ObjectShortName">int_mem_ready_out_V[31:0]</obj_property>
          </wvobject>
       </wvobject>
       <wvobject type="group" fp_name="group504">
@@ -650,148 +669,238 @@
    <wvobject type="group" fp_name="group714">
       <obj_property name="label">Kernel_1</obj_property>
       <obj_property name="DisplayName">label</obj_property>
+      <obj_property name="isExpanded"></obj_property>
       <wvobject type="group" fp_name="group313">
          <obj_property name="label">Handler</obj_property>
          <obj_property name="DisplayName">label</obj_property>
-         <wvobject type="array" fp_name="/hls_kernel_tb/hls_kernel_i/hls_kernel_bd_wrapper_i/hls_kernel_bd_i/fpga_1/hls_kernel_0/m_axi_handler_ctrl_AWADDR">
-            <obj_property name="ElementShortName">m_axi_handler_ctrl_AWADDR[31:0]</obj_property>
-            <obj_property name="ObjectShortName">m_axi_handler_ctrl_AWADDR[31:0]</obj_property>
+         <wvobject type="group" fp_name="group248">
+            <obj_property name="label">AXI</obj_property>
+            <obj_property name="DisplayName">label</obj_property>
+            <obj_property name="isExpanded"></obj_property>
+            <wvobject type="array" fp_name="/hls_kernel_tb/hls_kernel_i/hls_kernel_bd_wrapper_i/hls_kernel_bd_i/fpga_1/hls_kernel_0/m_axi_handler_ctrl_AWADDR">
+               <obj_property name="ElementShortName">m_axi_handler_ctrl_AWADDR[31:0]</obj_property>
+               <obj_property name="ObjectShortName">m_axi_handler_ctrl_AWADDR[31:0]</obj_property>
+            </wvobject>
+            <wvobject type="array" fp_name="/hls_kernel_tb/hls_kernel_i/hls_kernel_bd_wrapper_i/hls_kernel_bd_i/fpga_1/hls_kernel_0/m_axi_handler_ctrl_AWLEN">
+               <obj_property name="ElementShortName">m_axi_handler_ctrl_AWLEN[7:0]</obj_property>
+               <obj_property name="ObjectShortName">m_axi_handler_ctrl_AWLEN[7:0]</obj_property>
+            </wvobject>
+            <wvobject type="array" fp_name="/hls_kernel_tb/hls_kernel_i/hls_kernel_bd_wrapper_i/hls_kernel_bd_i/fpga_1/hls_kernel_0/m_axi_handler_ctrl_AWSIZE">
+               <obj_property name="ElementShortName">m_axi_handler_ctrl_AWSIZE[2:0]</obj_property>
+               <obj_property name="ObjectShortName">m_axi_handler_ctrl_AWSIZE[2:0]</obj_property>
+            </wvobject>
+            <wvobject type="array" fp_name="/hls_kernel_tb/hls_kernel_i/hls_kernel_bd_wrapper_i/hls_kernel_bd_i/fpga_1/hls_kernel_0/m_axi_handler_ctrl_AWBURST">
+               <obj_property name="ElementShortName">m_axi_handler_ctrl_AWBURST[1:0]</obj_property>
+               <obj_property name="ObjectShortName">m_axi_handler_ctrl_AWBURST[1:0]</obj_property>
+            </wvobject>
+            <wvobject type="array" fp_name="/hls_kernel_tb/hls_kernel_i/hls_kernel_bd_wrapper_i/hls_kernel_bd_i/fpga_1/hls_kernel_0/m_axi_handler_ctrl_AWLOCK">
+               <obj_property name="ElementShortName">m_axi_handler_ctrl_AWLOCK[1:0]</obj_property>
+               <obj_property name="ObjectShortName">m_axi_handler_ctrl_AWLOCK[1:0]</obj_property>
+            </wvobject>
+            <wvobject type="array" fp_name="/hls_kernel_tb/hls_kernel_i/hls_kernel_bd_wrapper_i/hls_kernel_bd_i/fpga_1/hls_kernel_0/m_axi_handler_ctrl_AWREGION">
+               <obj_property name="ElementShortName">m_axi_handler_ctrl_AWREGION[3:0]</obj_property>
+               <obj_property name="ObjectShortName">m_axi_handler_ctrl_AWREGION[3:0]</obj_property>
+            </wvobject>
+            <wvobject type="array" fp_name="/hls_kernel_tb/hls_kernel_i/hls_kernel_bd_wrapper_i/hls_kernel_bd_i/fpga_1/hls_kernel_0/m_axi_handler_ctrl_AWCACHE">
+               <obj_property name="ElementShortName">m_axi_handler_ctrl_AWCACHE[3:0]</obj_property>
+               <obj_property name="ObjectShortName">m_axi_handler_ctrl_AWCACHE[3:0]</obj_property>
+            </wvobject>
+            <wvobject type="array" fp_name="/hls_kernel_tb/hls_kernel_i/hls_kernel_bd_wrapper_i/hls_kernel_bd_i/fpga_1/hls_kernel_0/m_axi_handler_ctrl_AWPROT">
+               <obj_property name="ElementShortName">m_axi_handler_ctrl_AWPROT[2:0]</obj_property>
+               <obj_property name="ObjectShortName">m_axi_handler_ctrl_AWPROT[2:0]</obj_property>
+            </wvobject>
+            <wvobject type="array" fp_name="/hls_kernel_tb/hls_kernel_i/hls_kernel_bd_wrapper_i/hls_kernel_bd_i/fpga_1/hls_kernel_0/m_axi_handler_ctrl_AWQOS">
+               <obj_property name="ElementShortName">m_axi_handler_ctrl_AWQOS[3:0]</obj_property>
+               <obj_property name="ObjectShortName">m_axi_handler_ctrl_AWQOS[3:0]</obj_property>
+            </wvobject>
+            <wvobject type="logic" fp_name="/hls_kernel_tb/hls_kernel_i/hls_kernel_bd_wrapper_i/hls_kernel_bd_i/fpga_1/hls_kernel_0/m_axi_handler_ctrl_AWVALID">
+               <obj_property name="ElementShortName">m_axi_handler_ctrl_AWVALID</obj_property>
+               <obj_property name="ObjectShortName">m_axi_handler_ctrl_AWVALID</obj_property>
+            </wvobject>
+            <wvobject type="logic" fp_name="/hls_kernel_tb/hls_kernel_i/hls_kernel_bd_wrapper_i/hls_kernel_bd_i/fpga_1/hls_kernel_0/m_axi_handler_ctrl_AWREADY">
+               <obj_property name="ElementShortName">m_axi_handler_ctrl_AWREADY</obj_property>
+               <obj_property name="ObjectShortName">m_axi_handler_ctrl_AWREADY</obj_property>
+            </wvobject>
+            <wvobject type="array" fp_name="/hls_kernel_tb/hls_kernel_i/hls_kernel_bd_wrapper_i/hls_kernel_bd_i/fpga_1/hls_kernel_0/m_axi_handler_ctrl_WDATA">
+               <obj_property name="ElementShortName">m_axi_handler_ctrl_WDATA[31:0]</obj_property>
+               <obj_property name="ObjectShortName">m_axi_handler_ctrl_WDATA[31:0]</obj_property>
+            </wvobject>
+            <wvobject type="array" fp_name="/hls_kernel_tb/hls_kernel_i/hls_kernel_bd_wrapper_i/hls_kernel_bd_i/fpga_1/hls_kernel_0/m_axi_handler_ctrl_WSTRB">
+               <obj_property name="ElementShortName">m_axi_handler_ctrl_WSTRB[3:0]</obj_property>
+               <obj_property name="ObjectShortName">m_axi_handler_ctrl_WSTRB[3:0]</obj_property>
+            </wvobject>
+            <wvobject type="logic" fp_name="/hls_kernel_tb/hls_kernel_i/hls_kernel_bd_wrapper_i/hls_kernel_bd_i/fpga_1/hls_kernel_0/m_axi_handler_ctrl_WLAST">
+               <obj_property name="ElementShortName">m_axi_handler_ctrl_WLAST</obj_property>
+               <obj_property name="ObjectShortName">m_axi_handler_ctrl_WLAST</obj_property>
+            </wvobject>
+            <wvobject type="logic" fp_name="/hls_kernel_tb/hls_kernel_i/hls_kernel_bd_wrapper_i/hls_kernel_bd_i/fpga_1/hls_kernel_0/m_axi_handler_ctrl_WVALID">
+               <obj_property name="ElementShortName">m_axi_handler_ctrl_WVALID</obj_property>
+               <obj_property name="ObjectShortName">m_axi_handler_ctrl_WVALID</obj_property>
+            </wvobject>
+            <wvobject type="logic" fp_name="/hls_kernel_tb/hls_kernel_i/hls_kernel_bd_wrapper_i/hls_kernel_bd_i/fpga_1/hls_kernel_0/m_axi_handler_ctrl_WREADY">
+               <obj_property name="ElementShortName">m_axi_handler_ctrl_WREADY</obj_property>
+               <obj_property name="ObjectShortName">m_axi_handler_ctrl_WREADY</obj_property>
+            </wvobject>
+            <wvobject type="array" fp_name="/hls_kernel_tb/hls_kernel_i/hls_kernel_bd_wrapper_i/hls_kernel_bd_i/fpga_1/hls_kernel_0/m_axi_handler_ctrl_BRESP">
+               <obj_property name="ElementShortName">m_axi_handler_ctrl_BRESP[1:0]</obj_property>
+               <obj_property name="ObjectShortName">m_axi_handler_ctrl_BRESP[1:0]</obj_property>
+            </wvobject>
+            <wvobject type="logic" fp_name="/hls_kernel_tb/hls_kernel_i/hls_kernel_bd_wrapper_i/hls_kernel_bd_i/fpga_1/hls_kernel_0/m_axi_handler_ctrl_BVALID">
+               <obj_property name="ElementShortName">m_axi_handler_ctrl_BVALID</obj_property>
+               <obj_property name="ObjectShortName">m_axi_handler_ctrl_BVALID</obj_property>
+            </wvobject>
+            <wvobject type="logic" fp_name="/hls_kernel_tb/hls_kernel_i/hls_kernel_bd_wrapper_i/hls_kernel_bd_i/fpga_1/hls_kernel_0/m_axi_handler_ctrl_BREADY">
+               <obj_property name="ElementShortName">m_axi_handler_ctrl_BREADY</obj_property>
+               <obj_property name="ObjectShortName">m_axi_handler_ctrl_BREADY</obj_property>
+            </wvobject>
+            <wvobject type="array" fp_name="/hls_kernel_tb/hls_kernel_i/hls_kernel_bd_wrapper_i/hls_kernel_bd_i/fpga_1/hls_kernel_0/m_axi_handler_ctrl_ARADDR">
+               <obj_property name="ElementShortName">m_axi_handler_ctrl_ARADDR[31:0]</obj_property>
+               <obj_property name="ObjectShortName">m_axi_handler_ctrl_ARADDR[31:0]</obj_property>
+            </wvobject>
+            <wvobject type="array" fp_name="/hls_kernel_tb/hls_kernel_i/hls_kernel_bd_wrapper_i/hls_kernel_bd_i/fpga_1/hls_kernel_0/m_axi_handler_ctrl_ARLEN">
+               <obj_property name="ElementShortName">m_axi_handler_ctrl_ARLEN[7:0]</obj_property>
+               <obj_property name="ObjectShortName">m_axi_handler_ctrl_ARLEN[7:0]</obj_property>
+            </wvobject>
+            <wvobject type="array" fp_name="/hls_kernel_tb/hls_kernel_i/hls_kernel_bd_wrapper_i/hls_kernel_bd_i/fpga_1/hls_kernel_0/m_axi_handler_ctrl_ARSIZE">
+               <obj_property name="ElementShortName">m_axi_handler_ctrl_ARSIZE[2:0]</obj_property>
+               <obj_property name="ObjectShortName">m_axi_handler_ctrl_ARSIZE[2:0]</obj_property>
+            </wvobject>
+            <wvobject type="array" fp_name="/hls_kernel_tb/hls_kernel_i/hls_kernel_bd_wrapper_i/hls_kernel_bd_i/fpga_1/hls_kernel_0/m_axi_handler_ctrl_ARBURST">
+               <obj_property name="ElementShortName">m_axi_handler_ctrl_ARBURST[1:0]</obj_property>
+               <obj_property name="ObjectShortName">m_axi_handler_ctrl_ARBURST[1:0]</obj_property>
+            </wvobject>
+            <wvobject type="array" fp_name="/hls_kernel_tb/hls_kernel_i/hls_kernel_bd_wrapper_i/hls_kernel_bd_i/fpga_1/hls_kernel_0/m_axi_handler_ctrl_ARLOCK">
+               <obj_property name="ElementShortName">m_axi_handler_ctrl_ARLOCK[1:0]</obj_property>
+               <obj_property name="ObjectShortName">m_axi_handler_ctrl_ARLOCK[1:0]</obj_property>
+            </wvobject>
+            <wvobject type="array" fp_name="/hls_kernel_tb/hls_kernel_i/hls_kernel_bd_wrapper_i/hls_kernel_bd_i/fpga_1/hls_kernel_0/m_axi_handler_ctrl_ARREGION">
+               <obj_property name="ElementShortName">m_axi_handler_ctrl_ARREGION[3:0]</obj_property>
+               <obj_property name="ObjectShortName">m_axi_handler_ctrl_ARREGION[3:0]</obj_property>
+            </wvobject>
+            <wvobject type="array" fp_name="/hls_kernel_tb/hls_kernel_i/hls_kernel_bd_wrapper_i/hls_kernel_bd_i/fpga_1/hls_kernel_0/m_axi_handler_ctrl_ARCACHE">
+               <obj_property name="ElementShortName">m_axi_handler_ctrl_ARCACHE[3:0]</obj_property>
+               <obj_property name="ObjectShortName">m_axi_handler_ctrl_ARCACHE[3:0]</obj_property>
+            </wvobject>
+            <wvobject type="array" fp_name="/hls_kernel_tb/hls_kernel_i/hls_kernel_bd_wrapper_i/hls_kernel_bd_i/fpga_1/hls_kernel_0/m_axi_handler_ctrl_ARPROT">
+               <obj_property name="ElementShortName">m_axi_handler_ctrl_ARPROT[2:0]</obj_property>
+               <obj_property name="ObjectShortName">m_axi_handler_ctrl_ARPROT[2:0]</obj_property>
+            </wvobject>
+            <wvobject type="array" fp_name="/hls_kernel_tb/hls_kernel_i/hls_kernel_bd_wrapper_i/hls_kernel_bd_i/fpga_1/hls_kernel_0/m_axi_handler_ctrl_ARQOS">
+               <obj_property name="ElementShortName">m_axi_handler_ctrl_ARQOS[3:0]</obj_property>
+               <obj_property name="ObjectShortName">m_axi_handler_ctrl_ARQOS[3:0]</obj_property>
+            </wvobject>
+            <wvobject type="logic" fp_name="/hls_kernel_tb/hls_kernel_i/hls_kernel_bd_wrapper_i/hls_kernel_bd_i/fpga_1/hls_kernel_0/m_axi_handler_ctrl_ARVALID">
+               <obj_property name="ElementShortName">m_axi_handler_ctrl_ARVALID</obj_property>
+               <obj_property name="ObjectShortName">m_axi_handler_ctrl_ARVALID</obj_property>
+            </wvobject>
+            <wvobject type="logic" fp_name="/hls_kernel_tb/hls_kernel_i/hls_kernel_bd_wrapper_i/hls_kernel_bd_i/fpga_1/hls_kernel_0/m_axi_handler_ctrl_ARREADY">
+               <obj_property name="ElementShortName">m_axi_handler_ctrl_ARREADY</obj_property>
+               <obj_property name="ObjectShortName">m_axi_handler_ctrl_ARREADY</obj_property>
+            </wvobject>
+            <wvobject type="array" fp_name="/hls_kernel_tb/hls_kernel_i/hls_kernel_bd_wrapper_i/hls_kernel_bd_i/fpga_1/hls_kernel_0/m_axi_handler_ctrl_RDATA">
+               <obj_property name="ElementShortName">m_axi_handler_ctrl_RDATA[31:0]</obj_property>
+               <obj_property name="ObjectShortName">m_axi_handler_ctrl_RDATA[31:0]</obj_property>
+            </wvobject>
+            <wvobject type="array" fp_name="/hls_kernel_tb/hls_kernel_i/hls_kernel_bd_wrapper_i/hls_kernel_bd_i/fpga_1/hls_kernel_0/m_axi_handler_ctrl_RRESP">
+               <obj_property name="ElementShortName">m_axi_handler_ctrl_RRESP[1:0]</obj_property>
+               <obj_property name="ObjectShortName">m_axi_handler_ctrl_RRESP[1:0]</obj_property>
+            </wvobject>
+            <wvobject type="logic" fp_name="/hls_kernel_tb/hls_kernel_i/hls_kernel_bd_wrapper_i/hls_kernel_bd_i/fpga_1/hls_kernel_0/m_axi_handler_ctrl_RLAST">
+               <obj_property name="ElementShortName">m_axi_handler_ctrl_RLAST</obj_property>
+               <obj_property name="ObjectShortName">m_axi_handler_ctrl_RLAST</obj_property>
+            </wvobject>
+            <wvobject type="logic" fp_name="/hls_kernel_tb/hls_kernel_i/hls_kernel_bd_wrapper_i/hls_kernel_bd_i/fpga_1/hls_kernel_0/m_axi_handler_ctrl_RVALID">
+               <obj_property name="ElementShortName">m_axi_handler_ctrl_RVALID</obj_property>
+               <obj_property name="ObjectShortName">m_axi_handler_ctrl_RVALID</obj_property>
+            </wvobject>
+            <wvobject type="logic" fp_name="/hls_kernel_tb/hls_kernel_i/hls_kernel_bd_wrapper_i/hls_kernel_bd_i/fpga_1/hls_kernel_0/m_axi_handler_ctrl_RREADY">
+               <obj_property name="ElementShortName">m_axi_handler_ctrl_RREADY</obj_property>
+               <obj_property name="ObjectShortName">m_axi_handler_ctrl_RREADY</obj_property>
+            </wvobject>
          </wvobject>
-         <wvobject type="array" fp_name="/hls_kernel_tb/hls_kernel_i/hls_kernel_bd_wrapper_i/hls_kernel_bd_i/fpga_1/hls_kernel_0/m_axi_handler_ctrl_AWLEN">
-            <obj_property name="ElementShortName">m_axi_handler_ctrl_AWLEN[7:0]</obj_property>
-            <obj_property name="ObjectShortName">m_axi_handler_ctrl_AWLEN[7:0]</obj_property>
+         <wvobject type="array" fp_name="/hls_kernel_tb/hls_kernel_i/hls_kernel_bd_wrapper_i/hls_kernel_bd_i/fpga_1/GAScore_0/inst/handler_wrapper_i/axis_handler_tdata">
+            <obj_property name="ElementShortName">axis_handler_tdata[63:0]</obj_property>
+            <obj_property name="ObjectShortName">axis_handler_tdata[63:0]</obj_property>
          </wvobject>
-         <wvobject type="array" fp_name="/hls_kernel_tb/hls_kernel_i/hls_kernel_bd_wrapper_i/hls_kernel_bd_i/fpga_1/hls_kernel_0/m_axi_handler_ctrl_AWSIZE">
-            <obj_property name="ElementShortName">m_axi_handler_ctrl_AWSIZE[2:0]</obj_property>
-            <obj_property name="ObjectShortName">m_axi_handler_ctrl_AWSIZE[2:0]</obj_property>
+         <wvobject type="logic" fp_name="/hls_kernel_tb/hls_kernel_i/hls_kernel_bd_wrapper_i/hls_kernel_bd_i/fpga_1/GAScore_0/inst/handler_wrapper_i/axis_handler_tlast">
+            <obj_property name="ElementShortName">axis_handler_tlast</obj_property>
+            <obj_property name="ObjectShortName">axis_handler_tlast</obj_property>
          </wvobject>
-         <wvobject type="array" fp_name="/hls_kernel_tb/hls_kernel_i/hls_kernel_bd_wrapper_i/hls_kernel_bd_i/fpga_1/hls_kernel_0/m_axi_handler_ctrl_AWBURST">
-            <obj_property name="ElementShortName">m_axi_handler_ctrl_AWBURST[1:0]</obj_property>
-            <obj_property name="ObjectShortName">m_axi_handler_ctrl_AWBURST[1:0]</obj_property>
+         <wvobject type="logic" fp_name="/hls_kernel_tb/hls_kernel_i/hls_kernel_bd_wrapper_i/hls_kernel_bd_i/fpga_1/GAScore_0/inst/handler_wrapper_i/axis_handler_tready">
+            <obj_property name="ElementShortName">axis_handler_tready</obj_property>
+            <obj_property name="ObjectShortName">axis_handler_tready</obj_property>
          </wvobject>
-         <wvobject type="array" fp_name="/hls_kernel_tb/hls_kernel_i/hls_kernel_bd_wrapper_i/hls_kernel_bd_i/fpga_1/hls_kernel_0/m_axi_handler_ctrl_AWLOCK">
-            <obj_property name="ElementShortName">m_axi_handler_ctrl_AWLOCK[1:0]</obj_property>
-            <obj_property name="ObjectShortName">m_axi_handler_ctrl_AWLOCK[1:0]</obj_property>
+         <wvobject type="logic" fp_name="/hls_kernel_tb/hls_kernel_i/hls_kernel_bd_wrapper_i/hls_kernel_bd_i/fpga_1/GAScore_0/inst/handler_wrapper_i/axis_handler_tvalid">
+            <obj_property name="ElementShortName">axis_handler_tvalid</obj_property>
+            <obj_property name="ObjectShortName">axis_handler_tvalid</obj_property>
          </wvobject>
-         <wvobject type="array" fp_name="/hls_kernel_tb/hls_kernel_i/hls_kernel_bd_wrapper_i/hls_kernel_bd_i/fpga_1/hls_kernel_0/m_axi_handler_ctrl_AWREGION">
-            <obj_property name="ElementShortName">m_axi_handler_ctrl_AWREGION[3:0]</obj_property>
-            <obj_property name="ObjectShortName">m_axi_handler_ctrl_AWREGION[3:0]</obj_property>
+         <wvobject type="array" fp_name="/hls_kernel_tb/hls_kernel_i/hls_kernel_bd_wrapper_i/hls_kernel_bd_i/fpga_1/GAScore_0/inst/handler_wrapper_i/AMhandler">
+            <obj_property name="ElementShortName">AMhandler[3:0]</obj_property>
+            <obj_property name="ObjectShortName">AMhandler[3:0]</obj_property>
          </wvobject>
-         <wvobject type="array" fp_name="/hls_kernel_tb/hls_kernel_i/hls_kernel_bd_wrapper_i/hls_kernel_bd_i/fpga_1/hls_kernel_0/m_axi_handler_ctrl_AWCACHE">
-            <obj_property name="ElementShortName">m_axi_handler_ctrl_AWCACHE[3:0]</obj_property>
-            <obj_property name="ObjectShortName">m_axi_handler_ctrl_AWCACHE[3:0]</obj_property>
+         <wvobject type="array" fp_name="/hls_kernel_tb/hls_kernel_i/hls_kernel_bd_wrapper_i/hls_kernel_bd_i/fpga_1/GAScore_0/inst/handler_wrapper_i/\genblk1[0].handler_inst /mem_ready_barrier_cn">
+            <obj_property name="ElementShortName">mem_ready_barrier_cn[31:0]</obj_property>
+            <obj_property name="ObjectShortName">mem_ready_barrier_cn[31:0]</obj_property>
          </wvobject>
-         <wvobject type="array" fp_name="/hls_kernel_tb/hls_kernel_i/hls_kernel_bd_wrapper_i/hls_kernel_bd_i/fpga_1/hls_kernel_0/m_axi_handler_ctrl_AWPROT">
-            <obj_property name="ElementShortName">m_axi_handler_ctrl_AWPROT[2:0]</obj_property>
-            <obj_property name="ObjectShortName">m_axi_handler_ctrl_AWPROT[2:0]</obj_property>
+         <wvobject type="array" fp_name="/hls_kernel_tb/hls_kernel_i/hls_kernel_bd_wrapper_i/hls_kernel_bd_i/fpga_1/GAScore_0/inst/handler_wrapper_i/\genblk1[0].handler_inst /barrier_cnt_V">
+            <obj_property name="ElementShortName">barrier_cnt_V[31:0]</obj_property>
+            <obj_property name="ObjectShortName">barrier_cnt_V[31:0]</obj_property>
          </wvobject>
-         <wvobject type="array" fp_name="/hls_kernel_tb/hls_kernel_i/hls_kernel_bd_wrapper_i/hls_kernel_bd_i/fpga_1/hls_kernel_0/m_axi_handler_ctrl_AWQOS">
-            <obj_property name="ElementShortName">m_axi_handler_ctrl_AWQOS[3:0]</obj_property>
-            <obj_property name="ObjectShortName">m_axi_handler_ctrl_AWQOS[3:0]</obj_property>
+         <wvobject type="array" fp_name="/hls_kernel_tb/hls_kernel_i/hls_kernel_bd_wrapper_i/hls_kernel_bd_i/fpga_1/GAScore_0/inst/handler_wrapper_i/\genblk1[0].handler_inst /counter_V">
+            <obj_property name="ElementShortName">counter_V[31:0]</obj_property>
+            <obj_property name="ObjectShortName">counter_V[31:0]</obj_property>
          </wvobject>
-         <wvobject type="logic" fp_name="/hls_kernel_tb/hls_kernel_i/hls_kernel_bd_wrapper_i/hls_kernel_bd_i/fpga_1/hls_kernel_0/m_axi_handler_ctrl_AWVALID">
-            <obj_property name="ElementShortName">m_axi_handler_ctrl_AWVALID</obj_property>
-            <obj_property name="ObjectShortName">m_axi_handler_ctrl_AWVALID</obj_property>
+         <wvobject type="array" fp_name="/hls_kernel_tb/hls_kernel_i/hls_kernel_bd_wrapper_i/hls_kernel_bd_i/fpga_1/GAScore_0/inst/handler_wrapper_i/\genblk1[0].handler_inst /config_V">
+            <obj_property name="ElementShortName">config_V[31:0]</obj_property>
+            <obj_property name="ObjectShortName">config_V[31:0]</obj_property>
          </wvobject>
-         <wvobject type="logic" fp_name="/hls_kernel_tb/hls_kernel_i/hls_kernel_bd_wrapper_i/hls_kernel_bd_i/fpga_1/hls_kernel_0/m_axi_handler_ctrl_AWREADY">
-            <obj_property name="ElementShortName">m_axi_handler_ctrl_AWREADY</obj_property>
-            <obj_property name="ObjectShortName">m_axi_handler_ctrl_AWREADY</obj_property>
+         <wvobject type="array" fp_name="/hls_kernel_tb/hls_kernel_i/hls_kernel_bd_wrapper_i/hls_kernel_bd_i/fpga_1/GAScore_0/inst/handler_wrapper_i/currentState">
+            <obj_property name="ElementShortName">currentState[2:0]</obj_property>
+            <obj_property name="ObjectShortName">currentState[2:0]</obj_property>
          </wvobject>
-         <wvobject type="array" fp_name="/hls_kernel_tb/hls_kernel_i/hls_kernel_bd_wrapper_i/hls_kernel_bd_i/fpga_1/hls_kernel_0/m_axi_handler_ctrl_WDATA">
-            <obj_property name="ElementShortName">m_axi_handler_ctrl_WDATA[31:0]</obj_property>
-            <obj_property name="ObjectShortName">m_axi_handler_ctrl_WDATA[31:0]</obj_property>
+         <wvobject type="logic" fp_name="/hls_kernel_tb/hls_kernel_i/hls_kernel_bd_wrapper_i/hls_kernel_bd_i/fpga_1/GAScore_0/inst/handler_wrapper_i/\genblk1[0].handler_inst /handler_ctrl_bus_s_axi_U/ACLK_EN">
+            <obj_property name="ElementShortName">ACLK_EN</obj_property>
+            <obj_property name="ObjectShortName">ACLK_EN</obj_property>
          </wvobject>
-         <wvobject type="array" fp_name="/hls_kernel_tb/hls_kernel_i/hls_kernel_bd_wrapper_i/hls_kernel_bd_i/fpga_1/hls_kernel_0/m_axi_handler_ctrl_WSTRB">
-            <obj_property name="ElementShortName">m_axi_handler_ctrl_WSTRB[3:0]</obj_property>
-            <obj_property name="ObjectShortName">m_axi_handler_ctrl_WSTRB[3:0]</obj_property>
+         <wvobject type="array" fp_name="/hls_kernel_tb/hls_kernel_i/hls_kernel_bd_wrapper_i/hls_kernel_bd_i/fpga_1/GAScore_0/inst/handler_wrapper_i/\genblk1[0].handler_inst /handler_ctrl_bus_s_axi_U/raddr">
+            <obj_property name="ElementShortName">raddr[5:0]</obj_property>
+            <obj_property name="ObjectShortName">raddr[5:0]</obj_property>
          </wvobject>
-         <wvobject type="logic" fp_name="/hls_kernel_tb/hls_kernel_i/hls_kernel_bd_wrapper_i/hls_kernel_bd_i/fpga_1/hls_kernel_0/m_axi_handler_ctrl_WLAST">
-            <obj_property name="ElementShortName">m_axi_handler_ctrl_WLAST</obj_property>
-            <obj_property name="ObjectShortName">m_axi_handler_ctrl_WLAST</obj_property>
+         <wvobject type="logic" fp_name="/hls_kernel_tb/hls_kernel_i/hls_kernel_bd_wrapper_i/hls_kernel_bd_i/fpga_1/GAScore_0/inst/handler_wrapper_i/\genblk1[0].handler_inst /handler_ctrl_bus_s_axi_U/ARVALID">
+            <obj_property name="ElementShortName">ARVALID</obj_property>
+            <obj_property name="ObjectShortName">ARVALID</obj_property>
          </wvobject>
-         <wvobject type="logic" fp_name="/hls_kernel_tb/hls_kernel_i/hls_kernel_bd_wrapper_i/hls_kernel_bd_i/fpga_1/hls_kernel_0/m_axi_handler_ctrl_WVALID">
-            <obj_property name="ElementShortName">m_axi_handler_ctrl_WVALID</obj_property>
-            <obj_property name="ObjectShortName">m_axi_handler_ctrl_WVALID</obj_property>
+         <wvobject type="logic" fp_name="/hls_kernel_tb/hls_kernel_i/hls_kernel_bd_wrapper_i/hls_kernel_bd_i/fpga_1/GAScore_0/inst/handler_wrapper_i/\genblk1[0].handler_inst /handler_ctrl_bus_s_axi_U/ARREADY">
+            <obj_property name="ElementShortName">ARREADY</obj_property>
+            <obj_property name="ObjectShortName">ARREADY</obj_property>
          </wvobject>
-         <wvobject type="logic" fp_name="/hls_kernel_tb/hls_kernel_i/hls_kernel_bd_wrapper_i/hls_kernel_bd_i/fpga_1/hls_kernel_0/m_axi_handler_ctrl_WREADY">
-            <obj_property name="ElementShortName">m_axi_handler_ctrl_WREADY</obj_property>
-            <obj_property name="ObjectShortName">m_axi_handler_ctrl_WREADY</obj_property>
+         <wvobject type="logic" fp_name="/hls_kernel_tb/hls_kernel_i/hls_kernel_bd_wrapper_i/hls_kernel_bd_i/fpga_1/GAScore_0/inst/handler_wrapper_i/\genblk1[0].handler_inst /handler_ctrl_bus_s_axi_U/ar_hs">
+            <obj_property name="ElementShortName">ar_hs</obj_property>
+            <obj_property name="ObjectShortName">ar_hs</obj_property>
          </wvobject>
-         <wvobject type="array" fp_name="/hls_kernel_tb/hls_kernel_i/hls_kernel_bd_wrapper_i/hls_kernel_bd_i/fpga_1/hls_kernel_0/m_axi_handler_ctrl_BRESP">
-            <obj_property name="ElementShortName">m_axi_handler_ctrl_BRESP[1:0]</obj_property>
-            <obj_property name="ObjectShortName">m_axi_handler_ctrl_BRESP[1:0]</obj_property>
+         <wvobject type="array" fp_name="/hls_kernel_tb/hls_kernel_i/hls_kernel_bd_wrapper_i/hls_kernel_bd_i/fpga_1/GAScore_0/inst/handler_wrapper_i/\genblk1[0].handler_inst /handler_ctrl_bus_s_axi_U/counter_out_V">
+            <obj_property name="ElementShortName">counter_out_V[31:0]</obj_property>
+            <obj_property name="ObjectShortName">counter_out_V[31:0]</obj_property>
          </wvobject>
-         <wvobject type="logic" fp_name="/hls_kernel_tb/hls_kernel_i/hls_kernel_bd_wrapper_i/hls_kernel_bd_i/fpga_1/hls_kernel_0/m_axi_handler_ctrl_BVALID">
-            <obj_property name="ElementShortName">m_axi_handler_ctrl_BVALID</obj_property>
-            <obj_property name="ObjectShortName">m_axi_handler_ctrl_BVALID</obj_property>
+         <wvobject type="array" fp_name="/hls_kernel_tb/hls_kernel_i/hls_kernel_bd_wrapper_i/hls_kernel_bd_i/fpga_1/GAScore_0/inst/handler_wrapper_i/\genblk1[0].handler_inst /handler_ctrl_bus_s_axi_U/barrier_out_V">
+            <obj_property name="ElementShortName">barrier_out_V[31:0]</obj_property>
+            <obj_property name="ObjectShortName">barrier_out_V[31:0]</obj_property>
          </wvobject>
-         <wvobject type="logic" fp_name="/hls_kernel_tb/hls_kernel_i/hls_kernel_bd_wrapper_i/hls_kernel_bd_i/fpga_1/hls_kernel_0/m_axi_handler_ctrl_BREADY">
-            <obj_property name="ElementShortName">m_axi_handler_ctrl_BREADY</obj_property>
-            <obj_property name="ObjectShortName">m_axi_handler_ctrl_BREADY</obj_property>
+         <wvobject type="array" fp_name="/hls_kernel_tb/hls_kernel_i/hls_kernel_bd_wrapper_i/hls_kernel_bd_i/fpga_1/GAScore_0/inst/handler_wrapper_i/\genblk1[0].handler_inst /handler_ctrl_bus_s_axi_U/mem_ready_out_V">
+            <obj_property name="ElementShortName">mem_ready_out_V[31:0]</obj_property>
+            <obj_property name="ObjectShortName">mem_ready_out_V[31:0]</obj_property>
          </wvobject>
-         <wvobject type="array" fp_name="/hls_kernel_tb/hls_kernel_i/hls_kernel_bd_wrapper_i/hls_kernel_bd_i/fpga_1/hls_kernel_0/m_axi_handler_ctrl_ARADDR">
-            <obj_property name="ElementShortName">m_axi_handler_ctrl_ARADDR[31:0]</obj_property>
-            <obj_property name="ObjectShortName">m_axi_handler_ctrl_ARADDR[31:0]</obj_property>
+         <wvobject type="array" fp_name="/hls_kernel_tb/hls_kernel_i/hls_kernel_bd_wrapper_i/hls_kernel_bd_i/fpga_1/GAScore_0/inst/handler_wrapper_i/\genblk1[0].handler_inst /handler_ctrl_bus_s_axi_U/int_counter_out_V">
+            <obj_property name="ElementShortName">int_counter_out_V[31:0]</obj_property>
+            <obj_property name="ObjectShortName">int_counter_out_V[31:0]</obj_property>
          </wvobject>
-         <wvobject type="array" fp_name="/hls_kernel_tb/hls_kernel_i/hls_kernel_bd_wrapper_i/hls_kernel_bd_i/fpga_1/hls_kernel_0/m_axi_handler_ctrl_ARLEN">
-            <obj_property name="ElementShortName">m_axi_handler_ctrl_ARLEN[7:0]</obj_property>
-            <obj_property name="ObjectShortName">m_axi_handler_ctrl_ARLEN[7:0]</obj_property>
+         <wvobject type="array" fp_name="/hls_kernel_tb/hls_kernel_i/hls_kernel_bd_wrapper_i/hls_kernel_bd_i/fpga_1/GAScore_0/inst/handler_wrapper_i/\genblk1[0].handler_inst /handler_ctrl_bus_s_axi_U/int_barrier_out_V">
+            <obj_property name="ElementShortName">int_barrier_out_V[31:0]</obj_property>
+            <obj_property name="ObjectShortName">int_barrier_out_V[31:0]</obj_property>
          </wvobject>
-         <wvobject type="array" fp_name="/hls_kernel_tb/hls_kernel_i/hls_kernel_bd_wrapper_i/hls_kernel_bd_i/fpga_1/hls_kernel_0/m_axi_handler_ctrl_ARSIZE">
-            <obj_property name="ElementShortName">m_axi_handler_ctrl_ARSIZE[2:0]</obj_property>
-            <obj_property name="ObjectShortName">m_axi_handler_ctrl_ARSIZE[2:0]</obj_property>
-         </wvobject>
-         <wvobject type="array" fp_name="/hls_kernel_tb/hls_kernel_i/hls_kernel_bd_wrapper_i/hls_kernel_bd_i/fpga_1/hls_kernel_0/m_axi_handler_ctrl_ARBURST">
-            <obj_property name="ElementShortName">m_axi_handler_ctrl_ARBURST[1:0]</obj_property>
-            <obj_property name="ObjectShortName">m_axi_handler_ctrl_ARBURST[1:0]</obj_property>
-         </wvobject>
-         <wvobject type="array" fp_name="/hls_kernel_tb/hls_kernel_i/hls_kernel_bd_wrapper_i/hls_kernel_bd_i/fpga_1/hls_kernel_0/m_axi_handler_ctrl_ARLOCK">
-            <obj_property name="ElementShortName">m_axi_handler_ctrl_ARLOCK[1:0]</obj_property>
-            <obj_property name="ObjectShortName">m_axi_handler_ctrl_ARLOCK[1:0]</obj_property>
-         </wvobject>
-         <wvobject type="array" fp_name="/hls_kernel_tb/hls_kernel_i/hls_kernel_bd_wrapper_i/hls_kernel_bd_i/fpga_1/hls_kernel_0/m_axi_handler_ctrl_ARREGION">
-            <obj_property name="ElementShortName">m_axi_handler_ctrl_ARREGION[3:0]</obj_property>
-            <obj_property name="ObjectShortName">m_axi_handler_ctrl_ARREGION[3:0]</obj_property>
-         </wvobject>
-         <wvobject type="array" fp_name="/hls_kernel_tb/hls_kernel_i/hls_kernel_bd_wrapper_i/hls_kernel_bd_i/fpga_1/hls_kernel_0/m_axi_handler_ctrl_ARCACHE">
-            <obj_property name="ElementShortName">m_axi_handler_ctrl_ARCACHE[3:0]</obj_property>
-            <obj_property name="ObjectShortName">m_axi_handler_ctrl_ARCACHE[3:0]</obj_property>
-         </wvobject>
-         <wvobject type="array" fp_name="/hls_kernel_tb/hls_kernel_i/hls_kernel_bd_wrapper_i/hls_kernel_bd_i/fpga_1/hls_kernel_0/m_axi_handler_ctrl_ARPROT">
-            <obj_property name="ElementShortName">m_axi_handler_ctrl_ARPROT[2:0]</obj_property>
-            <obj_property name="ObjectShortName">m_axi_handler_ctrl_ARPROT[2:0]</obj_property>
-         </wvobject>
-         <wvobject type="array" fp_name="/hls_kernel_tb/hls_kernel_i/hls_kernel_bd_wrapper_i/hls_kernel_bd_i/fpga_1/hls_kernel_0/m_axi_handler_ctrl_ARQOS">
-            <obj_property name="ElementShortName">m_axi_handler_ctrl_ARQOS[3:0]</obj_property>
-            <obj_property name="ObjectShortName">m_axi_handler_ctrl_ARQOS[3:0]</obj_property>
-         </wvobject>
-         <wvobject type="logic" fp_name="/hls_kernel_tb/hls_kernel_i/hls_kernel_bd_wrapper_i/hls_kernel_bd_i/fpga_1/hls_kernel_0/m_axi_handler_ctrl_ARVALID">
-            <obj_property name="ElementShortName">m_axi_handler_ctrl_ARVALID</obj_property>
-            <obj_property name="ObjectShortName">m_axi_handler_ctrl_ARVALID</obj_property>
-         </wvobject>
-         <wvobject type="logic" fp_name="/hls_kernel_tb/hls_kernel_i/hls_kernel_bd_wrapper_i/hls_kernel_bd_i/fpga_1/hls_kernel_0/m_axi_handler_ctrl_ARREADY">
-            <obj_property name="ElementShortName">m_axi_handler_ctrl_ARREADY</obj_property>
-            <obj_property name="ObjectShortName">m_axi_handler_ctrl_ARREADY</obj_property>
-         </wvobject>
-         <wvobject type="array" fp_name="/hls_kernel_tb/hls_kernel_i/hls_kernel_bd_wrapper_i/hls_kernel_bd_i/fpga_1/hls_kernel_0/m_axi_handler_ctrl_RDATA">
-            <obj_property name="ElementShortName">m_axi_handler_ctrl_RDATA[31:0]</obj_property>
-            <obj_property name="ObjectShortName">m_axi_handler_ctrl_RDATA[31:0]</obj_property>
-         </wvobject>
-         <wvobject type="array" fp_name="/hls_kernel_tb/hls_kernel_i/hls_kernel_bd_wrapper_i/hls_kernel_bd_i/fpga_1/hls_kernel_0/m_axi_handler_ctrl_RRESP">
-            <obj_property name="ElementShortName">m_axi_handler_ctrl_RRESP[1:0]</obj_property>
-            <obj_property name="ObjectShortName">m_axi_handler_ctrl_RRESP[1:0]</obj_property>
-         </wvobject>
-         <wvobject type="logic" fp_name="/hls_kernel_tb/hls_kernel_i/hls_kernel_bd_wrapper_i/hls_kernel_bd_i/fpga_1/hls_kernel_0/m_axi_handler_ctrl_RLAST">
-            <obj_property name="ElementShortName">m_axi_handler_ctrl_RLAST</obj_property>
-            <obj_property name="ObjectShortName">m_axi_handler_ctrl_RLAST</obj_property>
-         </wvobject>
-         <wvobject type="logic" fp_name="/hls_kernel_tb/hls_kernel_i/hls_kernel_bd_wrapper_i/hls_kernel_bd_i/fpga_1/hls_kernel_0/m_axi_handler_ctrl_RVALID">
-            <obj_property name="ElementShortName">m_axi_handler_ctrl_RVALID</obj_property>
-            <obj_property name="ObjectShortName">m_axi_handler_ctrl_RVALID</obj_property>
-         </wvobject>
-         <wvobject type="logic" fp_name="/hls_kernel_tb/hls_kernel_i/hls_kernel_bd_wrapper_i/hls_kernel_bd_i/fpga_1/hls_kernel_0/m_axi_handler_ctrl_RREADY">
-            <obj_property name="ElementShortName">m_axi_handler_ctrl_RREADY</obj_property>
-            <obj_property name="ObjectShortName">m_axi_handler_ctrl_RREADY</obj_property>
+         <wvobject type="array" fp_name="/hls_kernel_tb/hls_kernel_i/hls_kernel_bd_wrapper_i/hls_kernel_bd_i/fpga_1/GAScore_0/inst/handler_wrapper_i/\genblk1[0].handler_inst /handler_ctrl_bus_s_axi_U/int_mem_ready_out_V">
+            <obj_property name="ElementShortName">int_mem_ready_out_V[31:0]</obj_property>
+            <obj_property name="ObjectShortName">int_mem_ready_out_V[31:0]</obj_property>
          </wvobject>
       </wvobject>
       <wvobject type="group" fp_name="group712">
@@ -864,6 +973,232 @@
          <wvobject type="array" fp_name="/hls_kernel_tb/hls_kernel_i/hls_kernel_bd_wrapper_i/hls_kernel_bd_i/fpga_1/hls_kernel_0/out_r_TUSER">
             <obj_property name="ElementShortName">out_r_TUSER[15:0]</obj_property>
             <obj_property name="ObjectShortName">out_r_TUSER[15:0]</obj_property>
+         </wvobject>
+      </wvobject>
+      <wvobject type="array" fp_name="/hls_kernel_tb/hls_kernel_i/hls_kernel_bd_wrapper_i/hls_kernel_bd_i/fpga_1/axi_timer_0/s_axi_araddr">
+         <obj_property name="ElementShortName">s_axi_araddr[4:0]</obj_property>
+         <obj_property name="ObjectShortName">s_axi_araddr[4:0]</obj_property>
+      </wvobject>
+      <wvobject type="logic" fp_name="/hls_kernel_tb/hls_kernel_i/hls_kernel_bd_wrapper_i/hls_kernel_bd_i/fpga_1/axi_timer_0/s_axi_arvalid">
+         <obj_property name="ElementShortName">s_axi_arvalid</obj_property>
+         <obj_property name="ObjectShortName">s_axi_arvalid</obj_property>
+      </wvobject>
+      <wvobject type="logic" fp_name="/hls_kernel_tb/hls_kernel_i/hls_kernel_bd_wrapper_i/hls_kernel_bd_i/fpga_1/axi_timer_0/s_axi_arready">
+         <obj_property name="ElementShortName">s_axi_arready</obj_property>
+         <obj_property name="ObjectShortName">s_axi_arready</obj_property>
+      </wvobject>
+      <wvobject type="array" fp_name="/hls_kernel_tb/hls_kernel_i/hls_kernel_bd_wrapper_i/hls_kernel_bd_i/fpga_1/axi_timer_0/s_axi_rdata">
+         <obj_property name="ElementShortName">s_axi_rdata[31:0]</obj_property>
+         <obj_property name="ObjectShortName">s_axi_rdata[31:0]</obj_property>
+      </wvobject>
+      <wvobject type="array" fp_name="/hls_kernel_tb/hls_kernel_i/hls_kernel_bd_wrapper_i/hls_kernel_bd_i/fpga_1/axi_timer_0/s_axi_rresp">
+         <obj_property name="ElementShortName">s_axi_rresp[1:0]</obj_property>
+         <obj_property name="ObjectShortName">s_axi_rresp[1:0]</obj_property>
+      </wvobject>
+      <wvobject type="logic" fp_name="/hls_kernel_tb/hls_kernel_i/hls_kernel_bd_wrapper_i/hls_kernel_bd_i/fpga_1/axi_timer_0/s_axi_rvalid">
+         <obj_property name="ElementShortName">s_axi_rvalid</obj_property>
+         <obj_property name="ObjectShortName">s_axi_rvalid</obj_property>
+      </wvobject>
+      <wvobject type="logic" fp_name="/hls_kernel_tb/hls_kernel_i/hls_kernel_bd_wrapper_i/hls_kernel_bd_i/fpga_1/axi_timer_0/s_axi_rready">
+         <obj_property name="ElementShortName">s_axi_rready</obj_property>
+         <obj_property name="ObjectShortName">s_axi_rready</obj_property>
+      </wvobject>
+      <wvobject type="group" fp_name="group843">
+         <obj_property name="label">Timer</obj_property>
+         <obj_property name="DisplayName">label</obj_property>
+         <obj_property name="isExpanded"></obj_property>
+         <wvobject type="logic" fp_name="/hls_kernel_tb/hls_kernel_i/hls_kernel_bd_wrapper_i/hls_kernel_bd_i/fpga_1/axi_timer_0/s_axi_aclk">
+            <obj_property name="ElementShortName">s_axi_aclk</obj_property>
+            <obj_property name="ObjectShortName">s_axi_aclk</obj_property>
+         </wvobject>
+         <wvobject type="logic" fp_name="/hls_kernel_tb/hls_kernel_i/hls_kernel_bd_wrapper_i/hls_kernel_bd_i/fpga_1/axi_timer_0/s_axi_aresetn">
+            <obj_property name="ElementShortName">s_axi_aresetn</obj_property>
+            <obj_property name="ObjectShortName">s_axi_aresetn</obj_property>
+         </wvobject>
+         <wvobject type="array" fp_name="/hls_kernel_tb/hls_kernel_i/hls_kernel_bd_wrapper_i/hls_kernel_bd_i/fpga_1/axi_timer_0/s_axi_awaddr">
+            <obj_property name="ElementShortName">s_axi_awaddr[4:0]</obj_property>
+            <obj_property name="ObjectShortName">s_axi_awaddr[4:0]</obj_property>
+         </wvobject>
+         <wvobject type="logic" fp_name="/hls_kernel_tb/hls_kernel_i/hls_kernel_bd_wrapper_i/hls_kernel_bd_i/fpga_1/axi_timer_0/s_axi_awvalid">
+            <obj_property name="ElementShortName">s_axi_awvalid</obj_property>
+            <obj_property name="ObjectShortName">s_axi_awvalid</obj_property>
+         </wvobject>
+         <wvobject type="logic" fp_name="/hls_kernel_tb/hls_kernel_i/hls_kernel_bd_wrapper_i/hls_kernel_bd_i/fpga_1/axi_timer_0/s_axi_awready">
+            <obj_property name="ElementShortName">s_axi_awready</obj_property>
+            <obj_property name="ObjectShortName">s_axi_awready</obj_property>
+         </wvobject>
+         <wvobject type="array" fp_name="/hls_kernel_tb/hls_kernel_i/hls_kernel_bd_wrapper_i/hls_kernel_bd_i/fpga_1/axi_timer_0/s_axi_wdata">
+            <obj_property name="ElementShortName">s_axi_wdata[31:0]</obj_property>
+            <obj_property name="ObjectShortName">s_axi_wdata[31:0]</obj_property>
+         </wvobject>
+         <wvobject type="array" fp_name="/hls_kernel_tb/hls_kernel_i/hls_kernel_bd_wrapper_i/hls_kernel_bd_i/fpga_1/axi_timer_0/s_axi_wstrb">
+            <obj_property name="ElementShortName">s_axi_wstrb[3:0]</obj_property>
+            <obj_property name="ObjectShortName">s_axi_wstrb[3:0]</obj_property>
+         </wvobject>
+         <wvobject type="logic" fp_name="/hls_kernel_tb/hls_kernel_i/hls_kernel_bd_wrapper_i/hls_kernel_bd_i/fpga_1/axi_timer_0/s_axi_wvalid">
+            <obj_property name="ElementShortName">s_axi_wvalid</obj_property>
+            <obj_property name="ObjectShortName">s_axi_wvalid</obj_property>
+         </wvobject>
+         <wvobject type="logic" fp_name="/hls_kernel_tb/hls_kernel_i/hls_kernel_bd_wrapper_i/hls_kernel_bd_i/fpga_1/axi_timer_0/s_axi_wready">
+            <obj_property name="ElementShortName">s_axi_wready</obj_property>
+            <obj_property name="ObjectShortName">s_axi_wready</obj_property>
+         </wvobject>
+         <wvobject type="array" fp_name="/hls_kernel_tb/hls_kernel_i/hls_kernel_bd_wrapper_i/hls_kernel_bd_i/fpga_1/axi_timer_0/s_axi_bresp">
+            <obj_property name="ElementShortName">s_axi_bresp[1:0]</obj_property>
+            <obj_property name="ObjectShortName">s_axi_bresp[1:0]</obj_property>
+         </wvobject>
+         <wvobject type="logic" fp_name="/hls_kernel_tb/hls_kernel_i/hls_kernel_bd_wrapper_i/hls_kernel_bd_i/fpga_1/axi_timer_0/s_axi_bvalid">
+            <obj_property name="ElementShortName">s_axi_bvalid</obj_property>
+            <obj_property name="ObjectShortName">s_axi_bvalid</obj_property>
+         </wvobject>
+         <wvobject type="logic" fp_name="/hls_kernel_tb/hls_kernel_i/hls_kernel_bd_wrapper_i/hls_kernel_bd_i/fpga_1/axi_timer_0/s_axi_bready">
+            <obj_property name="ElementShortName">s_axi_bready</obj_property>
+            <obj_property name="ObjectShortName">s_axi_bready</obj_property>
+         </wvobject>
+      </wvobject>
+      <wvobject type="group" fp_name="group1703">
+         <obj_property name="label">Timer_kernel</obj_property>
+         <obj_property name="DisplayName">label</obj_property>
+         <obj_property name="isExpanded"></obj_property>
+         <wvobject type="array" fp_name="/hls_kernel_tb/hls_kernel_i/hls_kernel_bd_wrapper_i/hls_kernel_bd_i/fpga_1/hls_kernel_0/m_axi_axi_timer_AWADDR">
+            <obj_property name="ElementShortName">m_axi_axi_timer_AWADDR[31:0]</obj_property>
+            <obj_property name="ObjectShortName">m_axi_axi_timer_AWADDR[31:0]</obj_property>
+         </wvobject>
+         <wvobject type="array" fp_name="/hls_kernel_tb/hls_kernel_i/hls_kernel_bd_wrapper_i/hls_kernel_bd_i/fpga_1/hls_kernel_0/m_axi_axi_timer_AWLEN">
+            <obj_property name="ElementShortName">m_axi_axi_timer_AWLEN[7:0]</obj_property>
+            <obj_property name="ObjectShortName">m_axi_axi_timer_AWLEN[7:0]</obj_property>
+         </wvobject>
+         <wvobject type="array" fp_name="/hls_kernel_tb/hls_kernel_i/hls_kernel_bd_wrapper_i/hls_kernel_bd_i/fpga_1/hls_kernel_0/m_axi_axi_timer_AWSIZE">
+            <obj_property name="ElementShortName">m_axi_axi_timer_AWSIZE[2:0]</obj_property>
+            <obj_property name="ObjectShortName">m_axi_axi_timer_AWSIZE[2:0]</obj_property>
+         </wvobject>
+         <wvobject type="array" fp_name="/hls_kernel_tb/hls_kernel_i/hls_kernel_bd_wrapper_i/hls_kernel_bd_i/fpga_1/hls_kernel_0/m_axi_axi_timer_AWBURST">
+            <obj_property name="ElementShortName">m_axi_axi_timer_AWBURST[1:0]</obj_property>
+            <obj_property name="ObjectShortName">m_axi_axi_timer_AWBURST[1:0]</obj_property>
+         </wvobject>
+         <wvobject type="array" fp_name="/hls_kernel_tb/hls_kernel_i/hls_kernel_bd_wrapper_i/hls_kernel_bd_i/fpga_1/hls_kernel_0/m_axi_axi_timer_AWLOCK">
+            <obj_property name="ElementShortName">m_axi_axi_timer_AWLOCK[1:0]</obj_property>
+            <obj_property name="ObjectShortName">m_axi_axi_timer_AWLOCK[1:0]</obj_property>
+         </wvobject>
+         <wvobject type="array" fp_name="/hls_kernel_tb/hls_kernel_i/hls_kernel_bd_wrapper_i/hls_kernel_bd_i/fpga_1/hls_kernel_0/m_axi_axi_timer_AWREGION">
+            <obj_property name="ElementShortName">m_axi_axi_timer_AWREGION[3:0]</obj_property>
+            <obj_property name="ObjectShortName">m_axi_axi_timer_AWREGION[3:0]</obj_property>
+         </wvobject>
+         <wvobject type="array" fp_name="/hls_kernel_tb/hls_kernel_i/hls_kernel_bd_wrapper_i/hls_kernel_bd_i/fpga_1/hls_kernel_0/m_axi_axi_timer_AWCACHE">
+            <obj_property name="ElementShortName">m_axi_axi_timer_AWCACHE[3:0]</obj_property>
+            <obj_property name="ObjectShortName">m_axi_axi_timer_AWCACHE[3:0]</obj_property>
+         </wvobject>
+         <wvobject type="array" fp_name="/hls_kernel_tb/hls_kernel_i/hls_kernel_bd_wrapper_i/hls_kernel_bd_i/fpga_1/hls_kernel_0/m_axi_axi_timer_AWPROT">
+            <obj_property name="ElementShortName">m_axi_axi_timer_AWPROT[2:0]</obj_property>
+            <obj_property name="ObjectShortName">m_axi_axi_timer_AWPROT[2:0]</obj_property>
+         </wvobject>
+         <wvobject type="array" fp_name="/hls_kernel_tb/hls_kernel_i/hls_kernel_bd_wrapper_i/hls_kernel_bd_i/fpga_1/hls_kernel_0/m_axi_axi_timer_AWQOS">
+            <obj_property name="ElementShortName">m_axi_axi_timer_AWQOS[3:0]</obj_property>
+            <obj_property name="ObjectShortName">m_axi_axi_timer_AWQOS[3:0]</obj_property>
+         </wvobject>
+         <wvobject type="logic" fp_name="/hls_kernel_tb/hls_kernel_i/hls_kernel_bd_wrapper_i/hls_kernel_bd_i/fpga_1/hls_kernel_0/m_axi_axi_timer_AWVALID">
+            <obj_property name="ElementShortName">m_axi_axi_timer_AWVALID</obj_property>
+            <obj_property name="ObjectShortName">m_axi_axi_timer_AWVALID</obj_property>
+         </wvobject>
+         <wvobject type="logic" fp_name="/hls_kernel_tb/hls_kernel_i/hls_kernel_bd_wrapper_i/hls_kernel_bd_i/fpga_1/hls_kernel_0/m_axi_axi_timer_AWREADY">
+            <obj_property name="ElementShortName">m_axi_axi_timer_AWREADY</obj_property>
+            <obj_property name="ObjectShortName">m_axi_axi_timer_AWREADY</obj_property>
+         </wvobject>
+         <wvobject type="array" fp_name="/hls_kernel_tb/hls_kernel_i/hls_kernel_bd_wrapper_i/hls_kernel_bd_i/fpga_1/hls_kernel_0/m_axi_axi_timer_WDATA">
+            <obj_property name="ElementShortName">m_axi_axi_timer_WDATA[31:0]</obj_property>
+            <obj_property name="ObjectShortName">m_axi_axi_timer_WDATA[31:0]</obj_property>
+         </wvobject>
+         <wvobject type="array" fp_name="/hls_kernel_tb/hls_kernel_i/hls_kernel_bd_wrapper_i/hls_kernel_bd_i/fpga_1/hls_kernel_0/m_axi_axi_timer_WSTRB">
+            <obj_property name="ElementShortName">m_axi_axi_timer_WSTRB[3:0]</obj_property>
+            <obj_property name="ObjectShortName">m_axi_axi_timer_WSTRB[3:0]</obj_property>
+         </wvobject>
+         <wvobject type="logic" fp_name="/hls_kernel_tb/hls_kernel_i/hls_kernel_bd_wrapper_i/hls_kernel_bd_i/fpga_1/hls_kernel_0/m_axi_axi_timer_WLAST">
+            <obj_property name="ElementShortName">m_axi_axi_timer_WLAST</obj_property>
+            <obj_property name="ObjectShortName">m_axi_axi_timer_WLAST</obj_property>
+         </wvobject>
+         <wvobject type="logic" fp_name="/hls_kernel_tb/hls_kernel_i/hls_kernel_bd_wrapper_i/hls_kernel_bd_i/fpga_1/hls_kernel_0/m_axi_axi_timer_WVALID">
+            <obj_property name="ElementShortName">m_axi_axi_timer_WVALID</obj_property>
+            <obj_property name="ObjectShortName">m_axi_axi_timer_WVALID</obj_property>
+         </wvobject>
+         <wvobject type="logic" fp_name="/hls_kernel_tb/hls_kernel_i/hls_kernel_bd_wrapper_i/hls_kernel_bd_i/fpga_1/hls_kernel_0/m_axi_axi_timer_WREADY">
+            <obj_property name="ElementShortName">m_axi_axi_timer_WREADY</obj_property>
+            <obj_property name="ObjectShortName">m_axi_axi_timer_WREADY</obj_property>
+         </wvobject>
+         <wvobject type="array" fp_name="/hls_kernel_tb/hls_kernel_i/hls_kernel_bd_wrapper_i/hls_kernel_bd_i/fpga_1/hls_kernel_0/m_axi_axi_timer_BRESP">
+            <obj_property name="ElementShortName">m_axi_axi_timer_BRESP[1:0]</obj_property>
+            <obj_property name="ObjectShortName">m_axi_axi_timer_BRESP[1:0]</obj_property>
+         </wvobject>
+         <wvobject type="logic" fp_name="/hls_kernel_tb/hls_kernel_i/hls_kernel_bd_wrapper_i/hls_kernel_bd_i/fpga_1/hls_kernel_0/m_axi_axi_timer_BVALID">
+            <obj_property name="ElementShortName">m_axi_axi_timer_BVALID</obj_property>
+            <obj_property name="ObjectShortName">m_axi_axi_timer_BVALID</obj_property>
+         </wvobject>
+         <wvobject type="logic" fp_name="/hls_kernel_tb/hls_kernel_i/hls_kernel_bd_wrapper_i/hls_kernel_bd_i/fpga_1/hls_kernel_0/m_axi_axi_timer_BREADY">
+            <obj_property name="ElementShortName">m_axi_axi_timer_BREADY</obj_property>
+            <obj_property name="ObjectShortName">m_axi_axi_timer_BREADY</obj_property>
+         </wvobject>
+         <wvobject type="array" fp_name="/hls_kernel_tb/hls_kernel_i/hls_kernel_bd_wrapper_i/hls_kernel_bd_i/fpga_1/hls_kernel_0/m_axi_axi_timer_ARADDR">
+            <obj_property name="ElementShortName">m_axi_axi_timer_ARADDR[31:0]</obj_property>
+            <obj_property name="ObjectShortName">m_axi_axi_timer_ARADDR[31:0]</obj_property>
+         </wvobject>
+         <wvobject type="array" fp_name="/hls_kernel_tb/hls_kernel_i/hls_kernel_bd_wrapper_i/hls_kernel_bd_i/fpga_1/hls_kernel_0/m_axi_axi_timer_ARLEN">
+            <obj_property name="ElementShortName">m_axi_axi_timer_ARLEN[7:0]</obj_property>
+            <obj_property name="ObjectShortName">m_axi_axi_timer_ARLEN[7:0]</obj_property>
+         </wvobject>
+         <wvobject type="array" fp_name="/hls_kernel_tb/hls_kernel_i/hls_kernel_bd_wrapper_i/hls_kernel_bd_i/fpga_1/hls_kernel_0/m_axi_axi_timer_ARSIZE">
+            <obj_property name="ElementShortName">m_axi_axi_timer_ARSIZE[2:0]</obj_property>
+            <obj_property name="ObjectShortName">m_axi_axi_timer_ARSIZE[2:0]</obj_property>
+         </wvobject>
+         <wvobject type="array" fp_name="/hls_kernel_tb/hls_kernel_i/hls_kernel_bd_wrapper_i/hls_kernel_bd_i/fpga_1/hls_kernel_0/m_axi_axi_timer_ARBURST">
+            <obj_property name="ElementShortName">m_axi_axi_timer_ARBURST[1:0]</obj_property>
+            <obj_property name="ObjectShortName">m_axi_axi_timer_ARBURST[1:0]</obj_property>
+         </wvobject>
+         <wvobject type="array" fp_name="/hls_kernel_tb/hls_kernel_i/hls_kernel_bd_wrapper_i/hls_kernel_bd_i/fpga_1/hls_kernel_0/m_axi_axi_timer_ARLOCK">
+            <obj_property name="ElementShortName">m_axi_axi_timer_ARLOCK[1:0]</obj_property>
+            <obj_property name="ObjectShortName">m_axi_axi_timer_ARLOCK[1:0]</obj_property>
+         </wvobject>
+         <wvobject type="array" fp_name="/hls_kernel_tb/hls_kernel_i/hls_kernel_bd_wrapper_i/hls_kernel_bd_i/fpga_1/hls_kernel_0/m_axi_axi_timer_ARREGION">
+            <obj_property name="ElementShortName">m_axi_axi_timer_ARREGION[3:0]</obj_property>
+            <obj_property name="ObjectShortName">m_axi_axi_timer_ARREGION[3:0]</obj_property>
+         </wvobject>
+         <wvobject type="array" fp_name="/hls_kernel_tb/hls_kernel_i/hls_kernel_bd_wrapper_i/hls_kernel_bd_i/fpga_1/hls_kernel_0/m_axi_axi_timer_ARCACHE">
+            <obj_property name="ElementShortName">m_axi_axi_timer_ARCACHE[3:0]</obj_property>
+            <obj_property name="ObjectShortName">m_axi_axi_timer_ARCACHE[3:0]</obj_property>
+         </wvobject>
+         <wvobject type="array" fp_name="/hls_kernel_tb/hls_kernel_i/hls_kernel_bd_wrapper_i/hls_kernel_bd_i/fpga_1/hls_kernel_0/m_axi_axi_timer_ARPROT">
+            <obj_property name="ElementShortName">m_axi_axi_timer_ARPROT[2:0]</obj_property>
+            <obj_property name="ObjectShortName">m_axi_axi_timer_ARPROT[2:0]</obj_property>
+         </wvobject>
+         <wvobject type="array" fp_name="/hls_kernel_tb/hls_kernel_i/hls_kernel_bd_wrapper_i/hls_kernel_bd_i/fpga_1/hls_kernel_0/m_axi_axi_timer_ARQOS">
+            <obj_property name="ElementShortName">m_axi_axi_timer_ARQOS[3:0]</obj_property>
+            <obj_property name="ObjectShortName">m_axi_axi_timer_ARQOS[3:0]</obj_property>
+         </wvobject>
+         <wvobject type="logic" fp_name="/hls_kernel_tb/hls_kernel_i/hls_kernel_bd_wrapper_i/hls_kernel_bd_i/fpga_1/hls_kernel_0/m_axi_axi_timer_ARVALID">
+            <obj_property name="ElementShortName">m_axi_axi_timer_ARVALID</obj_property>
+            <obj_property name="ObjectShortName">m_axi_axi_timer_ARVALID</obj_property>
+         </wvobject>
+         <wvobject type="logic" fp_name="/hls_kernel_tb/hls_kernel_i/hls_kernel_bd_wrapper_i/hls_kernel_bd_i/fpga_1/hls_kernel_0/m_axi_axi_timer_ARREADY">
+            <obj_property name="ElementShortName">m_axi_axi_timer_ARREADY</obj_property>
+            <obj_property name="ObjectShortName">m_axi_axi_timer_ARREADY</obj_property>
+         </wvobject>
+         <wvobject type="array" fp_name="/hls_kernel_tb/hls_kernel_i/hls_kernel_bd_wrapper_i/hls_kernel_bd_i/fpga_1/hls_kernel_0/m_axi_axi_timer_RDATA">
+            <obj_property name="ElementShortName">m_axi_axi_timer_RDATA[31:0]</obj_property>
+            <obj_property name="ObjectShortName">m_axi_axi_timer_RDATA[31:0]</obj_property>
+         </wvobject>
+         <wvobject type="array" fp_name="/hls_kernel_tb/hls_kernel_i/hls_kernel_bd_wrapper_i/hls_kernel_bd_i/fpga_1/hls_kernel_0/m_axi_axi_timer_RRESP">
+            <obj_property name="ElementShortName">m_axi_axi_timer_RRESP[1:0]</obj_property>
+            <obj_property name="ObjectShortName">m_axi_axi_timer_RRESP[1:0]</obj_property>
+         </wvobject>
+         <wvobject type="logic" fp_name="/hls_kernel_tb/hls_kernel_i/hls_kernel_bd_wrapper_i/hls_kernel_bd_i/fpga_1/hls_kernel_0/m_axi_axi_timer_RLAST">
+            <obj_property name="ElementShortName">m_axi_axi_timer_RLAST</obj_property>
+            <obj_property name="ObjectShortName">m_axi_axi_timer_RLAST</obj_property>
+         </wvobject>
+         <wvobject type="logic" fp_name="/hls_kernel_tb/hls_kernel_i/hls_kernel_bd_wrapper_i/hls_kernel_bd_i/fpga_1/hls_kernel_0/m_axi_axi_timer_RVALID">
+            <obj_property name="ElementShortName">m_axi_axi_timer_RVALID</obj_property>
+            <obj_property name="ObjectShortName">m_axi_axi_timer_RVALID</obj_property>
+         </wvobject>
+         <wvobject type="logic" fp_name="/hls_kernel_tb/hls_kernel_i/hls_kernel_bd_wrapper_i/hls_kernel_bd_i/fpga_1/hls_kernel_0/m_axi_axi_timer_RREADY">
+            <obj_property name="ElementShortName">m_axi_axi_timer_RREADY</obj_property>
+            <obj_property name="ObjectShortName">m_axi_axi_timer_RREADY</obj_property>
          </wvobject>
       </wvobject>
    </wvobject>

@@ -141,7 +141,7 @@ module handler_wrapper #(
                     end
                 end
                 st_payload: begin
-                    if(axis_handler_tlast & axis_handler_tvalid & axis_handler_tready) begin
+                    if(axis_handler_tlast & axis_handler_tvalid & tready[address]) begin
                         currentState <= st_header;
                     end
                 end
@@ -173,7 +173,7 @@ module handler_wrapper #(
     logic [1:0] s_axi_ctrl_bus_BRESP [NUM_KERNELS];
     // logic interrupt_V [NUM_KERNELS];
 
-    logic [NUM_KERNELS-1:0] tready;
+    logic [2**KERNEL_WIDTH-1:0] tready;
 
     always @(*) begin
         if (NUM_KERNELS > 15) begin
@@ -230,8 +230,8 @@ module handler_wrapper #(
     generate
         for (i = 0; i < NUM_KERNELS; i++) begin
             wire valid_signal = address == i & 
-                (axis_handler_tvalid & currentState == st_payload) | 
-                (currentState == st_empty);
+                ((axis_handler_tvalid & currentState == st_payload) | 
+                (currentState == st_empty));
             handler handler_inst(
                 .s_axi_ctrl_bus_AWVALID(s_axi_ctrl_bus_AWVALID[i]),
                 .s_axi_ctrl_bus_AWREADY(s_axi_ctrl_bus_AWREADY[i]),
@@ -259,6 +259,9 @@ module handler_wrapper #(
                 .axis_handler_TVALID(valid_signal),
                 .axis_handler_TREADY(tready[i])
             );
+        end
+        for (i = NUM_KERNELS; i < 2**KERNEL_WIDTH; i++) begin
+            assign tready[i] = 1'b0;
         end
     endgenerate
 

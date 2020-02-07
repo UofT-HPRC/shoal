@@ -75,12 +75,30 @@ short_message_A.add_thread(smA_t1)
 
 smA_t2 = short_message_A.add_thread()
 smA_t2.wait_flag(0)
-smA_t2.add_delay('200ns')
+smA_t2.add_delay('800ns')
 ctrl_bus_1.read(smA_t2, "counter", 5)
 # ctrl_bus_0.read(smA_t2, "memory", 1)
 smA_t2.print_elapsed_time("short_message_A")
 smA_t2.end_vector()
 
+short_message_B = TestVector()
+short_message_B.add_thread(initT)
+
+smB_t1 = Thread()
+smB_t1.add_delay('100ns')
+smB_t1.init_timer()
+axis_handler.write(smB_t1, strToInt("{AMHeader,0xAA,0x1,0xC,3,0x5,0}"), tlast=1)
+smB_t1.set_flag(0)
+short_message_B.add_thread(smB_t1)
+
+smB_t2 = short_message_B.add_thread()
+smB_t2.wait_flag(0)
+smB_t2.add_delay('800ns')
+ctrl_bus_1.read(smB_t2, "barrier", 1)
+smB_t2.print_elapsed_time("short_message_B")
+smB_t2.end_vector()
+
 handler_wrapper.add_test_vector(short_message_A)
+handler_wrapper.add_test_vector(short_message_B)
 
 handler_wrapper.generateTB(filepath, 'sv')

@@ -2,15 +2,25 @@
 #define __HLS__
 #endif
 #include <cstddef> // needed to resolve ::max_align_t errors
+#include <cstring>
 #include "hls_kernel.hpp"
+
+// this function, if inlined, or placed in code, behaves badly in Verilog. In 
+// simulation, it does do three writes but they appear as burst writes to the wrong
+// addresses. Doing it this way seems to work properly. Tested in HLS 2018.1
+void start_timer_func(volatile int* axi_timer){
+    axi_timer[1] = 0; // set load register to 0
+    axi_timer[0] = 0x10; // load timer with load register
+    axi_timer[0] = 0x40; // start timer
+}
 
 extern "C"{
 void hls_kernel(
     short id,
     galapagos::interface <word_t> * in,
     galapagos::interface<word_t> * out,
-    int * handler_ctrl,
-    int * axi_timer,
+    volatile int * handler_ctrl,
+    volatile int * axi_timer,
     word_t * instr_mem,
     word_t * local_mem
 ){
@@ -36,6 +46,7 @@ void hls_kernel(
     static gc_AMsrc_t src_addr;
     static gc_AMdest_t dst_addr;
     int i;
+    static short addr;
 
     instruction_t instruction = (instruction_t) *(instr_mem + pc++);
     // pc++;
@@ -73,6 +84,7 @@ void hls_kernel(
             payload[i] = (instruction_t) *(instr_mem + (pc++));
         }
         kernel.sendMediumAM_normal(AMdst, AMtoken, AMhandler, AMargs, handler_args, payloadSize, payload);
+        kernel.wait_reply(1);
         break;
     }
     case send_long:{
@@ -91,14 +103,21 @@ void hls_kernel(
         break;
     }
     case start_timer:{
-        *(axi_timer + 0x4) = 0; // set load register to 0
-        *(axi_timer + 0x0) = 0x10; // load timer with load register
-        *(axi_timer + 0x0) = 0x40; // start timer
+        // int i = 0;
+        // int j = 0x10;
+        // int k = 0x40;
+        // axi_timer[1] = 0; // set load register to 0
+        // axi_timer[0] = 0x10; // load timer with load register
+        // axi_timer[0] = 0x40; // start timer
+        // std::memset((void *)(axi_timer + 1), i, 4);
+        // std::memset((void *)(axi_timer + 0), j, 4);
+        // std::memset((void *)(axi_timer + 0), k, 4);
+        start_timer_func(axi_timer);
         break;
     }
     case stop_timer:{
-        *(axi_timer + 0x0) = 0x0; // stop timer
-        word_t time = *(axi_timer + 0x8); // read timer count
+        axi_timer[0] = 0x0; // stop timer
+        word_t time = *(axi_timer + 0x2); // read timer count
         // gc_AMdst_t AMdst_tmp = (instruction_t) *(instr_mem + (pc++));
         kernel.sendMediumAM_async(0, AMtoken, H_EMPTY, 0, handler_args, 8, &time);
         AMtoken++;
@@ -120,7 +139,7 @@ void hls_kernel(
     case read_local:{
         word_t addr = (word_t) *(instr_mem + (pc++));
         word_t read_value = *(local_mem + addr);
-        *(local_mem + addr + 8) = read_value;
+        *(local_mem + addr + 1) = read_value;
         break;
     }
     case end:{

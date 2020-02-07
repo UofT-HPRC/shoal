@@ -11,7 +11,7 @@
 #undef __HLS__
 
 shoal::kernel::kernel(int id, int kernel_num, galapagos::interface<word_t> * in,
-    galapagos::interface<word_t> * out, int * handler_ctrl)
+    galapagos::interface<word_t> * out, volatile int * handler_ctrl)
 {
     this->id = id;
     this->kernel_num = kernel_num;
@@ -56,24 +56,25 @@ int shoal::kernel::init(){
 // 	return;
 // }
 
+// divide by 4 because int = 4 bytes
 void shoal::kernel::wait_mem(unsigned int value){
     unsigned int read_value;
     do{
-        read_value = *(this->handler_ctrl + XHANDLER_HANDLER_CTRL_BUS_ADDR_MEM_READY_OUT_V_DATA);
+        read_value = *(this->handler_ctrl + XHANDLER_HANDLER_CTRL_BUS_ADDR_MEM_READY_OUT_V_DATA/4);
     } while(read_value < value);
-    *(this->handler_ctrl + XHANDLER_HANDLER_CTRL_BUS_ADDR_ARG_V_DATA) = value;
-    *(this->handler_ctrl + XHANDLER_HANDLER_CTRL_BUS_ADDR_CONFIG_V_DATA) = H_INCR_MEM | 0x10;
-    *(this->handler_ctrl + XHANDLER_HANDLER_CTRL_BUS_ADDR_CONFIG_V_DATA) = H_INCR_MEM;
+    *(this->handler_ctrl + XHANDLER_HANDLER_CTRL_BUS_ADDR_ARG_V_DATA/4) = value;
+    *(this->handler_ctrl + XHANDLER_HANDLER_CTRL_BUS_ADDR_CONFIG_V_DATA/4) = H_INCR_MEM | 0x10;
+    *(this->handler_ctrl + XHANDLER_HANDLER_CTRL_BUS_ADDR_CONFIG_V_DATA/4) = H_INCR_MEM;
 }
 
 void shoal::kernel::wait_barrier(unsigned int value){
     unsigned int read_value;
     do{
-        read_value = *(this->handler_ctrl + XHANDLER_HANDLER_CTRL_BUS_ADDR_MEM_READY_OUT_V_DATA);
+        read_value = *(this->handler_ctrl + XHANDLER_HANDLER_CTRL_BUS_ADDR_BARRIER_OUT_V_DATA/4);
     } while(read_value < value);
-    *(this->handler_ctrl + XHANDLER_HANDLER_CTRL_BUS_ADDR_ARG_V_DATA) = value;
-    *(this->handler_ctrl + XHANDLER_HANDLER_CTRL_BUS_ADDR_CONFIG_V_DATA) = H_INCR_BAR | 0x10;
-    *(this->handler_ctrl + XHANDLER_HANDLER_CTRL_BUS_ADDR_CONFIG_V_DATA) = H_INCR_BAR;
+    *(this->handler_ctrl + XHANDLER_HANDLER_CTRL_BUS_ADDR_ARG_V_DATA/4) = value;
+    *(this->handler_ctrl + XHANDLER_HANDLER_CTRL_BUS_ADDR_CONFIG_V_DATA/4) = H_INCR_BAR | 0x10;
+    *(this->handler_ctrl + XHANDLER_HANDLER_CTRL_BUS_ADDR_CONFIG_V_DATA/4) = H_INCR_BAR;
 }
 
 void shoal::kernel::sendShortAM_normal(gc_AMdst_t dst, gc_AMToken_t token,

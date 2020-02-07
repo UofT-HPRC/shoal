@@ -31,8 +31,7 @@ namespace shoal{
             galapagos::interface<word_t> * out;
 
             #ifdef __HLS__
-            volatile uint_1_t* interrupt;
-            int* handler_ctrl;
+            volatile int* handler_ctrl;
             #else
             void allocate_handlerTable();
             #endif
@@ -43,7 +42,7 @@ namespace shoal{
             int init();
             #ifdef __HLS__
             kernel(int id, int kernel_num, galapagos::interface<word_t> * in,
-                galapagos::interface<word_t> * out, int * handler_ctrl);
+                galapagos::interface<word_t> * out, volatile int * handler_ctrl);
             #else
             kernel(int id, int kernel_num, galapagos::interface<word_t> * in,
                 galapagos::interface<word_t> * out);

@@ -21,8 +21,8 @@ extern "C" void hls_kernel(
     short id,
     galapagos::interface <word_t> * in,
     galapagos::interface<word_t> * out,
-    int * handler_ctrl,
-    int * axi_timer,
+    volatile int * handler_ctrl,
+    volatile int * axi_timer,
     word_t * instr_mem,
     word_t * local_mem
 );

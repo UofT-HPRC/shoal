@@ -5,9 +5,9 @@ void handler(
     gc_AMhandler_t AMhandler,
     uint_32_t config,
     ap_int<32> arg,
-    volatile ap_int<32> &counter_out,
-    volatile ap_int<32> &barrier_out,
-    volatile ap_int<32> &mem_ready_out
+    ap_int<32> &counter_out,
+    ap_int<32> &barrier_out,
+    ap_int<32> &mem_ready_out
 ){
     #pragma HLS INTERFACE axis port=axis_handler
 	#pragma HLS INTERFACE ap_ctrl_none port=return
@@ -18,19 +18,24 @@ void handler(
     #pragma HLS INTERFACE s_axilite port=barrier_out bundle=ctrl_bus
     #pragma HLS INTERFACE s_axilite port=mem_ready_out bundle=ctrl_bus
 
-    #pragma HLS INTERFACE ap_none port=counter_out
-    #pragma HLS INTERFACE ap_none port=barrier_out
-    #pragma HLS INTERFACE ap_none port=mem_ready_out
+    // #pragma HLS INTERFACE ap_none port=counter_out
+    // #pragma HLS INTERFACE ap_none port=barrier_out
+    // #pragma HLS INTERFACE ap_none port=mem_ready_out
 
-    #pragma HLS PIPELINE
+    // #pragma HLS PIPELINE
+    // #pragma HLS DATAFLOW
 
     axis_wordNoKeep_t axis_word;
-    static ap_int<32> counter = 0;
-    static ap_int<32> barrier_cnt = 0;
-    static ap_int<32> mem_ready_barrier_cnt = 0;
+    static ap_int<32> counter;
+    static ap_int<32> barrier_cnt;
+    static ap_int<32> mem_ready_barrier_cnt;
     static bool nonce = false;
 
     volatile bool lock = config.get_bit(4) == 0;
+
+    counter_out = counter;
+    barrier_out = barrier_cnt;
+    mem_ready_out = mem_ready_barrier_cnt;
     
     if(lock || nonce){
         if (axis_handler.read_nb(axis_word)){
@@ -77,7 +82,4 @@ void handler(
         nonce = true;
     }
 
-    counter_out = counter;
-    barrier_out = barrier_cnt;
-    mem_ready_out = mem_ready_barrier_cnt;
 }
