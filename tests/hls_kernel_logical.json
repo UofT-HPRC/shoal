@@ -1,0 +1,52 @@
+{
+  "cluster": {
+    "packet": {
+      "data": "64",
+      "keep": "1",
+      "last": "1"
+    },
+    "kernel": [
+      {
+        "#text": "hls_kernel",
+        "vendor": "xilinx.com",
+        "version": "1.0",
+        "lib": "hls",
+        "num": "1",
+        "rep": "1",
+        "clk": "ap_clk",
+        "aresetn": "ap_rst_n",
+        "s_axis": {
+          "scope": "global",
+          "name": "in_r"
+        },
+        "m_axis": {
+          "scope": "global",
+          "name": "out_r"
+        },
+        "m_axi": [
+          {
+            "scope": "global",
+            "name": "m_axi_handler_ctrl"
+          },
+          {
+            "scope": "global",
+            "name": "m_axi_local_mem"
+          }
+        ]
+      },
+      {
+        "#text": "cpu",
+        "num": "0",
+        "rep": "1",
+        "s_axis": {
+          "scope": "global",
+          "name": "stream_in"
+        },
+        "m_axis": {
+          "scope": "global",
+          "name": "stream_out"
+        }
+      }
+    ]
+  }
+}

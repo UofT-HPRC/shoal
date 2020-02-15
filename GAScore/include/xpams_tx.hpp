@@ -64,4 +64,10 @@ void xpams_tx(
 std::string stateParse(int state);
 #endif
 
+// for TCP
+#define NETWORK_HEADER_LENGTH 32
+
+// for Ethernet
+// #define NETWORK_HEADER_LENGTH 48
+
 #endif

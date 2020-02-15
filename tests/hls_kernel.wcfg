@@ -16,13 +16,13 @@
       </db_ref>
    </db_ref_list>
    <zoom_setting>
-      <ZoomStartTime time="7864452800fs"></ZoomStartTime>
-      <ZoomEndTime time="10038852434fs"></ZoomEndTime>
-      <Cursor1Time time="8988524000fs"></Cursor1Time>
+      <ZoomStartTime time="0fs"></ZoomStartTime>
+      <ZoomEndTime time="15110000001fs"></ZoomEndTime>
+      <Cursor1Time time="10250000000fs"></Cursor1Time>
    </zoom_setting>
    <column_width_setting>
       <NameColumnWidth column_width="319"></NameColumnWidth>
-      <ValueColumnWidth column_width="151"></ValueColumnWidth>
+      <ValueColumnWidth column_width="147"></ValueColumnWidth>
    </column_width_setting>
    <WVObjectSize size="10" />
    <wvobject type="logic" fp_name="/hls_kernel_tb/ap_clk">
@@ -975,38 +975,9 @@
             <obj_property name="ObjectShortName">out_r_TUSER[15:0]</obj_property>
          </wvobject>
       </wvobject>
-      <wvobject type="array" fp_name="/hls_kernel_tb/hls_kernel_i/hls_kernel_bd_wrapper_i/hls_kernel_bd_i/fpga_1/axi_timer_0/s_axi_araddr">
-         <obj_property name="ElementShortName">s_axi_araddr[4:0]</obj_property>
-         <obj_property name="ObjectShortName">s_axi_araddr[4:0]</obj_property>
-      </wvobject>
-      <wvobject type="logic" fp_name="/hls_kernel_tb/hls_kernel_i/hls_kernel_bd_wrapper_i/hls_kernel_bd_i/fpga_1/axi_timer_0/s_axi_arvalid">
-         <obj_property name="ElementShortName">s_axi_arvalid</obj_property>
-         <obj_property name="ObjectShortName">s_axi_arvalid</obj_property>
-      </wvobject>
-      <wvobject type="logic" fp_name="/hls_kernel_tb/hls_kernel_i/hls_kernel_bd_wrapper_i/hls_kernel_bd_i/fpga_1/axi_timer_0/s_axi_arready">
-         <obj_property name="ElementShortName">s_axi_arready</obj_property>
-         <obj_property name="ObjectShortName">s_axi_arready</obj_property>
-      </wvobject>
-      <wvobject type="array" fp_name="/hls_kernel_tb/hls_kernel_i/hls_kernel_bd_wrapper_i/hls_kernel_bd_i/fpga_1/axi_timer_0/s_axi_rdata">
-         <obj_property name="ElementShortName">s_axi_rdata[31:0]</obj_property>
-         <obj_property name="ObjectShortName">s_axi_rdata[31:0]</obj_property>
-      </wvobject>
-      <wvobject type="array" fp_name="/hls_kernel_tb/hls_kernel_i/hls_kernel_bd_wrapper_i/hls_kernel_bd_i/fpga_1/axi_timer_0/s_axi_rresp">
-         <obj_property name="ElementShortName">s_axi_rresp[1:0]</obj_property>
-         <obj_property name="ObjectShortName">s_axi_rresp[1:0]</obj_property>
-      </wvobject>
-      <wvobject type="logic" fp_name="/hls_kernel_tb/hls_kernel_i/hls_kernel_bd_wrapper_i/hls_kernel_bd_i/fpga_1/axi_timer_0/s_axi_rvalid">
-         <obj_property name="ElementShortName">s_axi_rvalid</obj_property>
-         <obj_property name="ObjectShortName">s_axi_rvalid</obj_property>
-      </wvobject>
-      <wvobject type="logic" fp_name="/hls_kernel_tb/hls_kernel_i/hls_kernel_bd_wrapper_i/hls_kernel_bd_i/fpga_1/axi_timer_0/s_axi_rready">
-         <obj_property name="ElementShortName">s_axi_rready</obj_property>
-         <obj_property name="ObjectShortName">s_axi_rready</obj_property>
-      </wvobject>
       <wvobject type="group" fp_name="group843">
          <obj_property name="label">Timer</obj_property>
          <obj_property name="DisplayName">label</obj_property>
-         <obj_property name="isExpanded"></obj_property>
          <wvobject type="logic" fp_name="/hls_kernel_tb/hls_kernel_i/hls_kernel_bd_wrapper_i/hls_kernel_bd_i/fpga_1/axi_timer_0/s_axi_aclk">
             <obj_property name="ElementShortName">s_axi_aclk</obj_property>
             <obj_property name="ObjectShortName">s_axi_aclk</obj_property>
@@ -1055,11 +1026,38 @@
             <obj_property name="ElementShortName">s_axi_bready</obj_property>
             <obj_property name="ObjectShortName">s_axi_bready</obj_property>
          </wvobject>
+         <wvobject type="array" fp_name="/hls_kernel_tb/hls_kernel_i/hls_kernel_bd_wrapper_i/hls_kernel_bd_i/fpga_1/axi_timer_0/s_axi_araddr">
+            <obj_property name="ElementShortName">s_axi_araddr[4:0]</obj_property>
+            <obj_property name="ObjectShortName">s_axi_araddr[4:0]</obj_property>
+         </wvobject>
+         <wvobject type="logic" fp_name="/hls_kernel_tb/hls_kernel_i/hls_kernel_bd_wrapper_i/hls_kernel_bd_i/fpga_1/axi_timer_0/s_axi_arvalid">
+            <obj_property name="ElementShortName">s_axi_arvalid</obj_property>
+            <obj_property name="ObjectShortName">s_axi_arvalid</obj_property>
+         </wvobject>
+         <wvobject type="logic" fp_name="/hls_kernel_tb/hls_kernel_i/hls_kernel_bd_wrapper_i/hls_kernel_bd_i/fpga_1/axi_timer_0/s_axi_arready">
+            <obj_property name="ElementShortName">s_axi_arready</obj_property>
+            <obj_property name="ObjectShortName">s_axi_arready</obj_property>
+         </wvobject>
+         <wvobject type="array" fp_name="/hls_kernel_tb/hls_kernel_i/hls_kernel_bd_wrapper_i/hls_kernel_bd_i/fpga_1/axi_timer_0/s_axi_rdata">
+            <obj_property name="ElementShortName">s_axi_rdata[31:0]</obj_property>
+            <obj_property name="ObjectShortName">s_axi_rdata[31:0]</obj_property>
+         </wvobject>
+         <wvobject type="array" fp_name="/hls_kernel_tb/hls_kernel_i/hls_kernel_bd_wrapper_i/hls_kernel_bd_i/fpga_1/axi_timer_0/s_axi_rresp">
+            <obj_property name="ElementShortName">s_axi_rresp[1:0]</obj_property>
+            <obj_property name="ObjectShortName">s_axi_rresp[1:0]</obj_property>
+         </wvobject>
+         <wvobject type="logic" fp_name="/hls_kernel_tb/hls_kernel_i/hls_kernel_bd_wrapper_i/hls_kernel_bd_i/fpga_1/axi_timer_0/s_axi_rvalid">
+            <obj_property name="ElementShortName">s_axi_rvalid</obj_property>
+            <obj_property name="ObjectShortName">s_axi_rvalid</obj_property>
+         </wvobject>
+         <wvobject type="logic" fp_name="/hls_kernel_tb/hls_kernel_i/hls_kernel_bd_wrapper_i/hls_kernel_bd_i/fpga_1/axi_timer_0/s_axi_rready">
+            <obj_property name="ElementShortName">s_axi_rready</obj_property>
+            <obj_property name="ObjectShortName">s_axi_rready</obj_property>
+         </wvobject>
       </wvobject>
       <wvobject type="group" fp_name="group1703">
          <obj_property name="label">Timer_kernel</obj_property>
          <obj_property name="DisplayName">label</obj_property>
-         <obj_property name="isExpanded"></obj_property>
          <wvobject type="array" fp_name="/hls_kernel_tb/hls_kernel_i/hls_kernel_bd_wrapper_i/hls_kernel_bd_i/fpga_1/hls_kernel_0/m_axi_axi_timer_AWADDR">
             <obj_property name="ElementShortName">m_axi_axi_timer_AWADDR[31:0]</obj_property>
             <obj_property name="ObjectShortName">m_axi_axi_timer_AWADDR[31:0]</obj_property>

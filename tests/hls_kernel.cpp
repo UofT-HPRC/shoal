@@ -11,7 +11,7 @@
 void start_timer_func(volatile int* axi_timer){
     axi_timer[1] = 0; // set load register to 0
     axi_timer[0] = 0x10; // load timer with load register
-    axi_timer[0] = 0x40; // start timer
+    axi_timer[0] = 0x80; // start timer
 }
 
 extern "C"{

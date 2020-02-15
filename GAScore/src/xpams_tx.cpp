@@ -12,6 +12,8 @@ void xpams_tx(
 
     const gc_AMdest_t address_offset_low,
     const gc_AMdest_t address_offset_high
+    // const ap_uint<NETWORK_HEADER_LENGTH> network_table[256],
+    // const ap_uint <NETWORK_HEADER_LENGTH> network_addr
 ){
     #pragma HLS INTERFACE axis port=axis_kernel_in
     #pragma HLS INTERFACE axis port=axis_tx
@@ -20,6 +22,8 @@ void xpams_tx(
 	#pragma HLS INTERFACE ap_ctrl_none port=return
     #pragma HLS INTERFACE ap_stable port=address_offset_high
     #pragma HLS INTERFACE ap_stable port=address_offset_low
+    // #pragma HLS INTERFACE bram port=network_table
+    // #pragma HLS INTERFACE ap_stable port=network_addr
 
     #pragma HLS DATAFLOW
     #ifdef DEBUG
@@ -41,6 +45,7 @@ void xpams_tx(
     static gc_AMhandler_t AMhandler;
 
     bool loopback;
+    ap_uint <NETWORK_HEADER_LENGTH> network_addr_in;
 
     switch(currentState){
         case st_AMheader:{
@@ -52,6 +57,8 @@ void xpams_tx(
             AMtype = axis_word.data(AM_TYPE);
             AMpayloadSize = axis_word.data(AM_PAYLOAD_SIZE);
             loopback = AMdst <= address_offset_high && AMdst >= address_offset_low;
+            // network_addr_in = network_table[AMdst];
+            // loopback = (network_addr == network_addr_in);
             if (loopback){
                 // if (AMhandler != H_EMPTY){
                 //     axis_wordNoKeep = assignWordtoNoKeep(axis_word);
