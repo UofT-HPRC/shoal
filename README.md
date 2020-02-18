@@ -31,11 +31,13 @@ The test kernels can be made through these commands
 ```bash
 # one x86 node with kernels 0 and 1
 make galapagos-node_1_kern_2 K_START=0 K_END=1 MODE=x86
+make galapagos-hls_kernel K_START=0 K_END=1 MODE=x86
 
 # one x86 node with kernel 0, one HW node with kernel 1
 # NOTE: kernels fail to build in Vivado 2017.2 but 2018.2 works.
 make galapagos-node_2_kern_2 BUILD_SUFFIX=_0 K_START=0 K_END=0 MODE=x86
 make galapagos-node_2_kern_2 BUILD_SUFFIX=_1 KERNEL=kern1 MODE=HLS
+make galapagos-hls_kernel BUILD_SUFFIX= MODE=HLS KERNEL=hls_kernel
 
 ```
 
@@ -57,3 +59,5 @@ Boost can be installed with:
 `wget -O boost_1_66_0.tar.gz http://sourceforge.net/projects/boost/files/boost/1.66.0/boost_1_66_0.tar.gz/download && tar xzvf boost_1_66_0.tar.gz && cd boost_1_66_0/ && ./bootstrap.sh --prefix=/usr/local && ./b2 --with=all install && bash -c 'echo "/usr/local/lib" >> /etc/ld.so.conf.d/local.conf' && ldconfig`
 
 There are also some dependencies of building parts of the project with different versions of Vivado (see notes above).
+
+conda: python=2.7, enum34

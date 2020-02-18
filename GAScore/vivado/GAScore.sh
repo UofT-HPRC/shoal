@@ -26,8 +26,10 @@ ln -sf -t $link_path $src_path/$file.sv
 ln -sf -t $link_path $vivado_path/$file.tcl
 ln -sf -t $link_path $GAScore_path/testbench/GAScore.wcfg
 
-ln -sf -t $link_path $build_path/${file}/${file}_tb.sv
-ln -sf -t $link_path $build_path/${file}/${file}_sv.dat
+if [ -f $build_path/${file}/${file}_tb.sv ]; then
+    ln -sf -t $link_path $build_path/${file}/${file}_tb.sv
+    ln -sf -t $link_path $build_path/${file}/${file}_sv.dat
+fi
 for i in $build_path/${file}/*.tcl; do
     [ -f "$i" ] || break
     ln -sf -t $link_path $i

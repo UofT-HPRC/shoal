@@ -33,7 +33,7 @@ class Instructions(object):
     def write_instruction(self, name):
         assert isinstance(name, enum.Enum)
         self.instructions.append(name.value)
-    
+
     def write_payload(self, value):
         if isinstance(value, list):
             self.instructions.extend(value)
@@ -48,6 +48,16 @@ class Instructions(object):
             instructions.append(str(Instruction.end.value) + ";\n")
             f.writelines(instructions)
 
+    def write_mem(self, filename):
+        with open(filename, "w+") as f:
+            f.write("@%08d\n" % 0)
+            for instruction in self.instructions:
+                f.write("%08d\n" % instruction)
+            f.write("%08d\n" % Instruction.end.value)
+
+    def write_files(self, filename):
+        self.write_coe(filename + ".coe")
+        self.write_mem(filename + ".mem")
 
 if __name__ == "__main__":
     lst = Instructions()
@@ -58,7 +68,9 @@ if __name__ == "__main__":
     lst.write_payload(0xDEAD)
     lst.write_instruction(Instruction.recv_medium)
     lst.write_instruction(Instruction.recv_medium)
-    lst.write_coe("hls_kernel_0.coe")
+    lst.write_instruction(Instruction.recv_medium)
+    lst.write_instruction(Instruction.recv_medium)
+    lst.write_files("hls_kernel_0")
 
     lst_1 = Instructions()
     lst_1.write_instruction(Instruction.barrier_wait)
@@ -69,4 +81,4 @@ if __name__ == "__main__":
     lst_1.write_instruction(Instruction.send_medium_fifo)
     lst_1.write_payload(0xBEEF)
     lst_1.write_instruction(Instruction.stop_timer)
-    lst_1.write_coe("hls_kernel_1.coe")
+    lst_1.write_files("hls_kernel_1")

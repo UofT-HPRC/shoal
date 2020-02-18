@@ -14,7 +14,7 @@
 #define ATOMIC_ACTION(args) args
 
 #else // x86 or MB
-
+#include "galapagos_interface.hpp"
 typedef struct{
 	gc_AMhandler_t index; // == 0 for don’t care
 	void (*fnptr)();

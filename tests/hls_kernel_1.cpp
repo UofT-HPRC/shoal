@@ -199,52 +199,52 @@ void hls_kernel(
 
 #ifndef __HLS__
 
-void kern0(
-    short id,
-    galapagos::interface <word_t> * in,
-    #ifdef __HLS__
-    galapagos::interface<word_t> * out,
-    int * handler_ctrl
-    #else
-    galapagos::interface<word_t> * out
-    #endif
-){
+// void kern0(
+//     short id,
+//     galapagos::interface <word_t> * in,
+//     #ifdef __HLS__
+//     galapagos::interface<word_t> * out,
+//     int * handler_ctrl
+//     #else
+//     galapagos::interface<word_t> * out
+//     #endif
+// ){
 
-    int numbers[256];
-    std::ifstream inputFile("/home/savi/Documents/varun/repos/shoal/tests/hls_kernel_0.mem");        // Input file stream object
+//     int numbers[256];
+//     std::ifstream inputFile("/home/savi/Documents/varun/repos/shoal/tests/hls_kernel_0.mem");        // Input file stream object
 
-    // Check if exists and then open the file.
-    if (inputFile.good()) {
-        // Push items into a vector
-        int current_number = 0;
-        std::string first_address;
-        inputFile >> first_address;
-        int i = 0;
-        while (inputFile >> current_number){
-            numbers[i] = current_number;
-            i++;
-        }
+//     // Check if exists and then open the file.
+//     if (inputFile.good()) {
+//         // Push items into a vector
+//         int current_number = 0;
+//         std::string first_address;
+//         inputFile >> first_address;
+//         int i = 0;
+//         while (inputFile >> current_number){
+//             numbers[i] = current_number;
+//             i++;
+//         }
 
-        // Close the file.
-        inputFile.close();
+//         // Close the file.
+//         inputFile.close();
 
-        // std::cout << "The numbers are: ";
-        // for (unsigned int count = 0; count < numbers.size(); count++){
-        //     std::cout << numbers[count] << " ";
+//         // std::cout << "The numbers are: ";
+//         // for (unsigned int count = 0; count < numbers.size(); count++){
+//         //     std::cout << numbers[count] << " ";
 
-        // }
-        hls_kernel(id, in, out, &numbers[0]);
-        // hls_kernel(id, in, out, &numbers[2]);
-        // hls_kernel(id, in, out, &numbers[10]);
-        // hls_kernel(id, in, out, &numbers[12]);
-        // hls_kernel(id, in, out, &numbers[13]);
+//         // }
+//         hls_kernel(id, in, out, &numbers[0]);
+//         // hls_kernel(id, in, out, &numbers[2]);
+//         // hls_kernel(id, in, out, &numbers[10]);
+//         // hls_kernel(id, in, out, &numbers[12]);
+//         // hls_kernel(id, in, out, &numbers[13]);
 
-        std::cout << std::endl;
+//         std::cout << std::endl;
 
-    } else {
-        std::cout << "Error!";
-    }
-}
+//     } else {
+//         std::cout << "Error!";
+//     }
+// }
 
 void kern1(
     short id,
@@ -295,7 +295,7 @@ void kern1(
     }
 }
 
-PGAS_METHOD(kern0, KERN0_ID)
+// PGAS_METHOD(kern0, KERN0_ID)
 PGAS_METHOD(kern1, KERN1_ID)
 
 #endif

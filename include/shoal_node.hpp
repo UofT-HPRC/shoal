@@ -28,7 +28,7 @@ namespace shoal{
                 std::shared_ptr<spdlog::logger> logger
             ){
                 static galapagos::net::tcp <word_t> my_tcp(
-                    8889, // TCP port 
+                    7, // TCP port 
                     _kern_info_table, 
                     _my_address, 
                     logger
