@@ -137,6 +137,9 @@ module GAScore #(
     output axis_net_out_tlast,
     output axis_net_out_tvalid,
     input axis_net_out_tready,
+    output [15:0] axis_net_out_tdest,
+    output [15:0] axis_net_out_tid,
+    output [15:0] axis_net_out_tuser,
     input [63:0] axis_net_in_tdata,
     input axis_net_in_tlast,
     input [7:0] axis_net_in_tkeep,
@@ -275,6 +278,13 @@ module GAScore #(
     wire axis_handler_tvalid;
     wire axis_handler_tready;
 
+    wire [63:0] GAScore_out_tdata;
+    wire [7:0] GAScore_out_tkeep;
+    wire GAScore_out_tlast;
+    wire GAScore_out_tvalid;
+    wire GAScore_out_tready;
+    wire [15:0] GAScore_out_tdest;
+
     GAScore_bd_wrapper GAScore_bd_i(
         .clk(clock),
         .reset_n(reset_n),
@@ -288,11 +298,12 @@ module GAScore #(
         .axis_net_in_tlast(axis_net_in_tlast),
         .axis_net_in_tready(axis_net_in_tready),
         .axis_net_in_tvalid(axis_net_in_tvalid),
-        .axis_net_out_tdata(axis_net_out_tdata),
-        .axis_net_out_tkeep(axis_net_out_tkeep),
-        .axis_net_out_tlast(axis_net_out_tlast),
-        .axis_net_out_tready(axis_net_out_tready),
-        .axis_net_out_tvalid(axis_net_out_tvalid),
+        .axis_net_out_tdata(GAScore_out_tdata),
+        .axis_net_out_tkeep(GAScore_out_tkeep),
+        .axis_net_out_tlast(GAScore_out_tlast),
+        .axis_net_out_tready(GAScore_out_tready),
+        .axis_net_out_tvalid(GAScore_out_tvalid),
+        .axis_net_out_tdest(GAScore_out_tdest),
         .axis_kernel_out_tvalid(axis_kernel_out_tvalid),
         .axis_kernel_out_tready(axis_kernel_out_tready),
         .axis_kernel_out_tdata(axis_kernel_out_tdata),
@@ -487,5 +498,24 @@ module GAScore #(
     //   .s_axi_rvalid(axi_mem_rvalid),    // output wire s_axi_rvalid
     //   .s_axi_rready(axi_mem_rready)    // input wire s_axi_rready
     // );
+
+    add_id add_id_i(
+        .ap_clk(clock),
+        .ap_rst_n(reset_n),
+        .in_TDATA(GAScore_out_tdata),
+        .in_TVALID(GAScore_out_tvalid),
+        .in_TREADY(GAScore_out_tready),
+        .in_TDEST(GAScore_out_tdest),
+        .in_TLAST(GAScore_out_tlast),
+        .in_TKEEP(GAScore_out_tkeep),
+        .out_TDATA(axis_net_out_tdata),
+        .out_TVALID(axis_net_out_tvalid),
+        .out_TREADY(axis_net_out_tready),
+        .out_TDEST(axis_net_out_tdest),
+        .out_TLAST(axis_net_out_tlast),
+        .out_TKEEP(axis_net_out_tkeep),
+        .out_TID(axis_net_out_tid),
+        .out_TUSER(axis_net_out_tuser)
+    );
 
 endmodule

@@ -41,6 +41,8 @@ typedef ap_uint<72> uint_72_t;
 #define GC_ADDR_WIDTH 32 // bit width of addressable memory on a node
 #define GC_DEST_WIDTH 16 // bit width of tdest
 #define MAX_VECTOR_NUM 16 // Maximum number of vectors for vectored messages
+#define GALAPAGOS_ID_WIDTH 16 // bit width of ID for Galapagos
+#define GALAPAGOS_USER_WIDTH 16 // bit width of user field for Galapagos
 
 /*******************************************************************************
  * Derived defines
@@ -60,6 +62,8 @@ typedef uaxis_m<GC_DATA_WIDTH, GC_DEST_WIDTH> axis_wordDest_t;
 typedef hls::stream<axis_wordDest_t> axis_dest_t;
 typedef uaxis_n<GC_DATA_WIDTH> axis_wordNoKeep_t;
 typedef hls::stream<axis_wordNoKeep_t> axis_noKeep_t;
+typedef uaxis_p<GC_DATA_WIDTH, GC_DEST_WIDTH, GALAPAGOS_USER_WIDTH, GALAPAGOS_ID_WIDTH> axis_wordGalapagos_t;
+typedef hls::stream<axis_wordGalapagos_t> axis_galapagos_t;
 
 #ifdef USE_APUINT
 

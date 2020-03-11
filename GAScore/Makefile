@@ -37,8 +37,8 @@ helper_obj_dir = $(helper_dir)/build
 helper_bin_dir = $(helper_dir)/build/bin
 helper_include_dir = $(helper_dir)/include
 
-c_modules := am_rx am_tx xpams_rx hold_buffer xpams_tx handler
-hdl_modules := memory
+c_modules := am_rx am_tx xpams_rx hold_buffer xpams_tx handler hold_buffer_dest
+hdl_modules := memory add_id
 custom_modules := handler_wrapper GAScore
 test_projects := MB_GAScore_0 MB_GAScore_1
 
@@ -194,7 +194,7 @@ $(foreach module, $(c_modules),$(eval $(call make-object,$(module))))
 
 shoal_make = $(MAKE) --no-print-directory -f $(SHOAL_PATH)/Makefile $1
 
-clean: 
+clean:
 	@$(call shoal_make, clean)
 clean-1:
 	@$(call shoal_make, clean-1)

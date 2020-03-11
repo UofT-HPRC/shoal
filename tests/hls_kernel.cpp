@@ -112,7 +112,7 @@ void hls_kernel(
         int i = 0;
         word_t payload[16];
         for(i = 0; i < payloadSize/GC_DATA_BYTES; i++){
-            payload[i] = (instruction_t) *(instr_mem + (pc++));
+            payload[i] = (word_t) *(instr_mem + (pc++));
         }
         kernel.sendMediumAM_normal(AMdst, AMtoken, AMhandler, AMargs, handler_args, payloadSize, payload);
         kernel.wait_reply(1);
@@ -128,7 +128,7 @@ void hls_kernel(
         int i = 0;
         word_t payload[16];
         for(i = 0; i < payloadSize/GC_DATA_BYTES; i++){
-            payload[i] = (instruction_t) *(instr_mem + (pc++));
+            payload[i] = (word_t) *(instr_mem + (pc++));
         }
         kernel.sendLongAM_normal(AMdst, AMtoken, AMhandler, AMargs, handler_args, payloadSize, payload, dst_addr);
         break;
@@ -154,7 +154,7 @@ void hls_kernel(
         #ifdef __HLS__
         axi_timer[0] = 0x0; // stop timer
         word_t time = *(axi_timer + 0x2); // read timer count
-        // gc_AMdst_t AMdst_tmp = (instruction_t) *(instr_mem + (pc++));
+        // gc_AMdst_t AMdst_tmp = (word_t) *(instr_mem + (pc++));
         #else
         auto now = std::chrono::high_resolution_clock::now();
         std::chrono::duration<double> elapsed = now - timer;
@@ -165,7 +165,7 @@ void hls_kernel(
         break;
     }
     case barrier_send:{
-        word_t dst = (instruction_t) *(instr_mem + (pc++));
+        word_t dst = (word_t) *(instr_mem + (pc++));
         kernel.barrier_send(dst);
         break;
     }
@@ -195,6 +195,9 @@ void hls_kernel(
     }
     }
     kernel.end();
+    #ifdef __HLS__
+    while(1){}
+    #endif
 }
 
 #ifndef __HLS__
@@ -210,8 +213,8 @@ void kern0(
     #endif
 ){
 
-    int numbers[256];
-    std::ifstream inputFile("/home/savi/Documents/varun/repos/shoal/tests/hls_kernel_0.mem");        // Input file stream object
+    int numbers[1024];
+    std::ifstream inputFile("/home/savi/Documents/varun/repos/shoal/tests/hls_kernel_0_sw.mem");        // Input file stream object
 
     // Check if exists and then open the file.
     if (inputFile.good()) {
@@ -257,8 +260,8 @@ void kern1(
     #endif
 ){
 
-    int numbers[256];
-    std::ifstream inputFile("/home/savi/Documents/varun/repos/shoal/tests/hls_kernel_1.mem");        // Input file stream object
+    int numbers[1024];
+    std::ifstream inputFile("/home/savi/Documents/varun/repos/shoal/tests/hls_kernel_1_sw.mem");        // Input file stream object
 
     // Check if exists and then open the file.
     if (inputFile.good()) {

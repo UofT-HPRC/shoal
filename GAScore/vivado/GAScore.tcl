@@ -145,8 +145,8 @@ proc create_GAScore {bd_name} {
   # Create instance: hold_buffer_0, and set properties
   set hold_buffer_0 [ create_bd_cell -type ip -vlnv xilinx.com:hls:hold_buffer:1.0 hold_buffer_0 ]
 
-  # Create instance: hold_buffer_1, and set properties
-  set hold_buffer_1 [ create_bd_cell -type ip -vlnv xilinx.com:hls:hold_buffer:1.0 hold_buffer_1 ]
+  # Create instance: hold_buffer_dest_0, and set properties
+  set hold_buffer_dest_0 [ create_bd_cell -type ip -vlnv xilinx.com:hls:hold_buffer_dest:1.0 hold_buffer_dest_0 ]
 
   # Create instance: axi_interconnect_0, and set properties
   set axi_interconnect_0 [ create_bd_cell -type ip -vlnv xilinx.com:ip:axi_interconnect:2.1 axi_interconnect_0 ]
@@ -163,7 +163,7 @@ proc create_GAScore {bd_name} {
   # Create interface connections
   connect_bd_intf_net -intf_net am_rx_0_axis_xpams_rx [get_bd_intf_pins am_rx_0/axis_xpams_rx] [get_bd_intf_pins hold_buffer_0/axis_input]
   connect_bd_intf_net -intf_net am_rx_0_axis_s2mm [get_bd_intf_pins am_rx_0/axis_s2mm] [get_bd_intf_pins axi_datamover_0/S_AXIS_S2MM]
-  connect_bd_intf_net -intf_net am_tx_0_axis_net [get_bd_intf_pins am_tx_0/axis_net] [get_bd_intf_pins hold_buffer_1/axis_input]
+  connect_bd_intf_net -intf_net am_tx_0_axis_net [get_bd_intf_pins am_tx_0/axis_net] [get_bd_intf_pins hold_buffer_dest_0/axis_input]
   connect_bd_intf_net -intf_net am_rx_0_axis_s2mmCommand_V_data_V [get_bd_intf_pins am_rx_0/axis_s2mmCommand_V_data_V] [get_bd_intf_pins axi_datamover_0/S_AXIS_S2MM_CMD]
   connect_bd_intf_net -intf_net am_tx_0_axis_mm2sCommand_V_data_V [get_bd_intf_pins am_tx_0/axis_mm2sCommand_V_data_V] [get_bd_intf_pins axi_datamover_0/S_AXIS_MM2S_CMD]
   connect_bd_intf_net -intf_net axi_datamover_0_M_AXIS_MM2S [get_bd_intf_pins am_tx_0/axis_mm2s] [get_bd_intf_pins axi_datamover_0/M_AXIS_MM2S]
@@ -178,7 +178,7 @@ proc create_GAScore {bd_name} {
   connect_bd_intf_net -intf_net axis_kernel_in_1 [get_bd_intf_ports axis_kernel_in] [get_bd_intf_pins xpams_tx_0/axis_kernel_in]
   connect_bd_intf_net -intf_net axis_net_1 [get_bd_intf_ports axis_net_in] [get_bd_intf_pins am_rx_0/axis_net]
   connect_bd_intf_net -intf_net hold_buffer_0_axis_output [get_bd_intf_pins hold_buffer_0/axis_output] [get_bd_intf_pins xpams_rx_0/axis_rx]
-  connect_bd_intf_net -intf_net hold_buffer_1_axis_output [get_bd_intf_ports axis_net_out] [get_bd_intf_pins hold_buffer_1/axis_output]
+  connect_bd_intf_net -intf_net hold_buffer_dest_0_axis_output [get_bd_intf_ports axis_net_out] [get_bd_intf_pins hold_buffer_dest_0/axis_output]
   connect_bd_intf_net -intf_net xpams_rx_0_axis_handler [get_bd_intf_pins axis_interconnect_1/S01_AXIS] [get_bd_intf_pins xpams_rx_0/axis_handler]
   connect_bd_intf_net -intf_net xpams_rx_0_axis_kernel_out [get_bd_intf_pins axis_interconnect_2/S01_AXIS] [get_bd_intf_pins xpams_rx_0/axis_kernel_out]
   connect_bd_intf_net -intf_net xpams_rx_0_axis_tx [get_bd_intf_pins axis_interconnect_0/S01_AXIS] [get_bd_intf_pins xpams_rx_0/axis_tx]
@@ -190,9 +190,9 @@ proc create_GAScore {bd_name} {
   connect_bd_net -net address_offset_high_V_1 [get_bd_ports address_high] [get_bd_pins xpams_tx_0/address_offset_high_V]
   connect_bd_net -net address_offset_low_V_1 [get_bd_ports address_low] [get_bd_pins xpams_tx_0/address_offset_low_V]
   connect_bd_net -net am_rx_0_release_V [get_bd_pins am_rx_0/release_V] [get_bd_pins hold_buffer_0/dataRelease_V]
-  connect_bd_net -net am_tx_0_release_V [get_bd_pins am_tx_0/release_V] [get_bd_pins hold_buffer_1/dataRelease_V]
-  connect_bd_net -net ap_clk_1 [get_bd_ports clk] [get_bd_pins am_rx_0/ap_clk] [get_bd_pins am_tx_0/ap_clk] [get_bd_pins axi_datamover_0/m_axi_mm2s_aclk] [get_bd_pins axi_datamover_0/m_axi_s2mm_aclk] [get_bd_pins axi_datamover_0/m_axis_mm2s_cmdsts_aclk] [get_bd_pins axi_datamover_0/m_axis_s2mm_cmdsts_awclk] [get_bd_pins axis_interconnect_0/ACLK] [get_bd_pins axis_interconnect_0/M00_AXIS_ACLK] [get_bd_pins axis_interconnect_0/S00_AXIS_ACLK] [get_bd_pins axis_interconnect_0/S01_AXIS_ACLK] [get_bd_pins axis_interconnect_1/ACLK] [get_bd_pins axis_interconnect_1/M00_AXIS_ACLK] [get_bd_pins axis_interconnect_1/S00_AXIS_ACLK] [get_bd_pins axis_interconnect_1/S01_AXIS_ACLK] [get_bd_pins axis_interconnect_2/ACLK] [get_bd_pins axis_interconnect_2/M00_AXIS_ACLK] [get_bd_pins axis_interconnect_2/S00_AXIS_ACLK] [get_bd_pins axis_interconnect_2/S01_AXIS_ACLK] [get_bd_pins hold_buffer_0/ap_clk] [get_bd_pins hold_buffer_1/ap_clk] [get_bd_pins xpams_rx_0/ap_clk] [get_bd_pins xpams_tx_0/ap_clk] [get_bd_pins axi_interconnect_0/ACLK] [get_bd_pins axi_interconnect_0/S00_ACLK] [get_bd_pins axi_interconnect_0/S01_ACLK] [get_bd_pins axi_interconnect_0/M00_ACLK]
-  connect_bd_net -net ap_rst_n_1 [get_bd_ports reset_n] [get_bd_pins am_rx_0/ap_rst_n] [get_bd_pins am_tx_0/ap_rst_n] [get_bd_pins axi_datamover_0/m_axi_mm2s_aresetn] [get_bd_pins axi_datamover_0/m_axi_s2mm_aresetn] [get_bd_pins axi_datamover_0/m_axis_mm2s_cmdsts_aresetn] [get_bd_pins axi_datamover_0/m_axis_s2mm_cmdsts_aresetn] [get_bd_pins axis_interconnect_0/ARESETN] [get_bd_pins axis_interconnect_0/M00_AXIS_ARESETN] [get_bd_pins axis_interconnect_0/S00_AXIS_ARESETN] [get_bd_pins axis_interconnect_0/S01_AXIS_ARESETN] [get_bd_pins axis_interconnect_1/ARESETN] [get_bd_pins axis_interconnect_1/M00_AXIS_ARESETN] [get_bd_pins axis_interconnect_1/S00_AXIS_ARESETN] [get_bd_pins axis_interconnect_1/S01_AXIS_ARESETN] [get_bd_pins axis_interconnect_2/ARESETN] [get_bd_pins axis_interconnect_2/M00_AXIS_ARESETN] [get_bd_pins axis_interconnect_2/S00_AXIS_ARESETN] [get_bd_pins axis_interconnect_2/S01_AXIS_ARESETN] [get_bd_pins hold_buffer_0/ap_rst_n] [get_bd_pins hold_buffer_1/ap_rst_n] [get_bd_pins xpams_rx_0/ap_rst_n] [get_bd_pins xpams_tx_0/ap_rst_n] [get_bd_pins axi_interconnect_0/ARESETN] [get_bd_pins axi_interconnect_0/S00_ARESETN] [get_bd_pins axi_interconnect_0/S01_ARESETN] [get_bd_pins axi_interconnect_0/M00_ARESETN]
+  connect_bd_net -net am_tx_0_release_V [get_bd_pins am_tx_0/release_V] [get_bd_pins hold_buffer_dest_0/dataRelease_V]
+  connect_bd_net -net ap_clk_1 [get_bd_ports clk] [get_bd_pins am_rx_0/ap_clk] [get_bd_pins am_tx_0/ap_clk] [get_bd_pins axi_datamover_0/m_axi_mm2s_aclk] [get_bd_pins axi_datamover_0/m_axi_s2mm_aclk] [get_bd_pins axi_datamover_0/m_axis_mm2s_cmdsts_aclk] [get_bd_pins axi_datamover_0/m_axis_s2mm_cmdsts_awclk] [get_bd_pins axis_interconnect_0/ACLK] [get_bd_pins axis_interconnect_0/M00_AXIS_ACLK] [get_bd_pins axis_interconnect_0/S00_AXIS_ACLK] [get_bd_pins axis_interconnect_0/S01_AXIS_ACLK] [get_bd_pins axis_interconnect_1/ACLK] [get_bd_pins axis_interconnect_1/M00_AXIS_ACLK] [get_bd_pins axis_interconnect_1/S00_AXIS_ACLK] [get_bd_pins axis_interconnect_1/S01_AXIS_ACLK] [get_bd_pins axis_interconnect_2/ACLK] [get_bd_pins axis_interconnect_2/M00_AXIS_ACLK] [get_bd_pins axis_interconnect_2/S00_AXIS_ACLK] [get_bd_pins axis_interconnect_2/S01_AXIS_ACLK] [get_bd_pins hold_buffer_0/ap_clk] [get_bd_pins hold_buffer_dest_0/ap_clk] [get_bd_pins xpams_rx_0/ap_clk] [get_bd_pins xpams_tx_0/ap_clk] [get_bd_pins axi_interconnect_0/ACLK] [get_bd_pins axi_interconnect_0/S00_ACLK] [get_bd_pins axi_interconnect_0/S01_ACLK] [get_bd_pins axi_interconnect_0/M00_ACLK]
+  connect_bd_net -net ap_rst_n_1 [get_bd_ports reset_n] [get_bd_pins am_rx_0/ap_rst_n] [get_bd_pins am_tx_0/ap_rst_n] [get_bd_pins axi_datamover_0/m_axi_mm2s_aresetn] [get_bd_pins axi_datamover_0/m_axi_s2mm_aresetn] [get_bd_pins axi_datamover_0/m_axis_mm2s_cmdsts_aresetn] [get_bd_pins axi_datamover_0/m_axis_s2mm_cmdsts_aresetn] [get_bd_pins axis_interconnect_0/ARESETN] [get_bd_pins axis_interconnect_0/M00_AXIS_ARESETN] [get_bd_pins axis_interconnect_0/S00_AXIS_ARESETN] [get_bd_pins axis_interconnect_0/S01_AXIS_ARESETN] [get_bd_pins axis_interconnect_1/ARESETN] [get_bd_pins axis_interconnect_1/M00_AXIS_ARESETN] [get_bd_pins axis_interconnect_1/S00_AXIS_ARESETN] [get_bd_pins axis_interconnect_1/S01_AXIS_ARESETN] [get_bd_pins axis_interconnect_2/ARESETN] [get_bd_pins axis_interconnect_2/M00_AXIS_ARESETN] [get_bd_pins axis_interconnect_2/S00_AXIS_ARESETN] [get_bd_pins axis_interconnect_2/S01_AXIS_ARESETN] [get_bd_pins hold_buffer_0/ap_rst_n] [get_bd_pins hold_buffer_dest_0/ap_rst_n] [get_bd_pins xpams_rx_0/ap_rst_n] [get_bd_pins xpams_tx_0/ap_rst_n] [get_bd_pins axi_interconnect_0/ARESETN] [get_bd_pins axi_interconnect_0/S00_ARESETN] [get_bd_pins axi_interconnect_0/S01_ARESETN] [get_bd_pins axi_interconnect_0/M00_ARESETN]
 
   # Create address segments
   create_bd_addr_seg -range 0x000100000000 -offset 0x00000000 [get_bd_addr_spaces axi_datamover_0/Data_MM2S] [get_bd_addr_segs axi_mem/Reg] SEG_axi_mem_Reg
@@ -372,3 +372,5 @@ set current_vivado_version [version -short]
 create_GAScore GAScore_bd
 create_memory
 create_crossbars
+
+set_property XPM_LIBRARIES {XPM_FIFO} [current_project]

@@ -30,6 +30,9 @@ dut.add_interface(axis_net_in)
 
 axis_net_out = AXIS('axis_net_out', 'master', 'clock')
 axis_net_out.port.init_channels('tkeep', 64, False)
+axis_net_out.port.add_channel("tdest", "tdest", 16)
+axis_net_out.port.add_channel("tid", "tid", 16)
+axis_net_out.port.add_channel("tuser", "tuser", 16)
 dut.add_interface(axis_net_out)
 
 ctrl_bus_0 = SAXILite('s_axi_ctrl_bus_00', 'clock', 'reset_n')

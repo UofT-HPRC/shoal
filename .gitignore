@@ -23,6 +23,8 @@ tests/projects/
 tests/src/
 include/user_config.hpp
 tmp.cpp
+*.coe
+*.mem
 
 # Prerequisites
 *.d

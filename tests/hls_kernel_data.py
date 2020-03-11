@@ -48,16 +48,32 @@ class Instructions(object):
             instructions.append(str(Instruction.end.value) + ";\n")
             f.writelines(instructions)
 
-    def write_mem(self, filename):
+    @staticmethod
+    def byte_reverse(instruction):
+        instr_str = "%08d" % instruction
+        reverse_str = instr_str[6:8] + instr_str[4:6] + instr_str[2:4] + instr_str[0:2]
+        return reverse_str + "\n"
+
+
+    def write_sw_mem(self, filename):
         with open(filename, "w+") as f:
             f.write("@%08d\n" % 0)
             for instruction in self.instructions:
                 f.write("%08d\n" % instruction)
             f.write("%08d\n" % Instruction.end.value)
 
+    def write_mem(self, filename):
+        with open(filename, "w+") as f:
+            f.write("@%08d\n" % 0)
+            for instruction in self.instructions:
+                f.write(self.byte_reverse(instruction))
+            for i in range(1024 - len(self.instructions)):
+                f.write(self.byte_reverse(Instruction.end.value))
+
     def write_files(self, filename):
         self.write_coe(filename + ".coe")
         self.write_mem(filename + ".mem")
+        self.write_sw_mem(filename + "_sw.mem")
 
 if __name__ == "__main__":
     lst = Instructions()
