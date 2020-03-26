@@ -54,11 +54,12 @@ def decode(packet):
     parse_shoal(words)
 
 if __name__ == "__main__":
-    # parser = argparse.ArgumentParser()
-    # parser.add_argument("packet", type=str, help="packet to decode")
-    # args = parser.parse_args()
+    parser = argparse.ArgumentParser()
+    parser.add_argument("packet", type=str, help="packet to decode")
+    args = parser.parse_args()
 
-    # decode(args.packet)
+    decode(args.packet)
+    exit(0)
 
     # from master to slave: gratituous arp request from 10.1.2.101 to 10.1.2.101
     packet = "16faffffffffffff0100060802ca553e16fa0100040600086502010a02ca553e010affffffffffff000000000000650200000000000000000000000000000000"
@@ -66,7 +67,7 @@ if __name__ == "__main__":
     # from master to slave: TCP syn (sent after ~1us)
     # this was initiated after the GAScore on master tried sending something
     packet = "16fa02ca553e16fa0045000802ca553e0640000000002c00010a6502010a636223560700008003020a6000000000b00104020000daa7ffff000000000000b405"
-
+    
     # from slave to master: TCP syn/ack (sent after ~1us)
     packet = "16fa02ca553e16fa0045000802ca553e0640000000002c00010a0302010a636223560080070065021a60b1012356b00104020000f64fffff000000000000b405"
 
@@ -96,12 +97,20 @@ if __name__ == "__main__":
     # two more TCP transactions, one from master to slave (probably syn/ack), and then from slave to master (probably ack)
     # this was initiated after the GAScore on slave tried sending something
     
+    # grat arp request: fffffffffffffa163e55ca0208060001080006040001fa163e55ca020a01029cffffffffffff0a01029c00000000000000000000000000000000000000000000
+    # packet = "16faffffffffffff0100060802ca553e16fa0100040600089c02010a02ca553e010affffffffffff0000000000009c0200000000000000000000000000000000"
     
-    # packet_bytes = [packet[i:i+2] for i in range(0, len(packet), 2)]
-    # words = get_words(packet_bytes)
-    # print("".join(words))
+    # grat arp reply
+    packet = "16fa02ca553e16fa0100060802ca553e16fa0200040600089c02010a02ca553e010a02ca553e16fa0000000000009c0200000000000000000000000000000000"
+    
+    # packet = "16fa02ca553e16fa0045000801ca553e0640000000002c00010a6502010a636223560700008003020a6000000000b00104020000daa7ffff000000000000b405"
+
+    packet = "16fa02ca553e16fa0045000801ca553e0640000000002800010a6502010a676223560700008003021850b1012356b10100000000b367ffff0000000000000000"
+    packet_bytes = [packet[i:i+2] for i in range(0, len(packet), 2)]
+    words = get_words(packet_bytes)
+    print("".join(words))
 
     # decode("100001010000000001000001000000030000000000000000")
 
-    words = ["0000080001000012"]
-    parse_shoal(words)
+    # words = ["0000080001000012"]
+    # parse_shoal(words)

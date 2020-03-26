@@ -49,9 +49,12 @@ class Instructions(object):
             f.writelines(instructions)
 
     @staticmethod
-    def byte_reverse(instruction):
-        instr_str = "%08d" % instruction
-        reverse_str = instr_str[6:8] + instr_str[4:6] + instr_str[2:4] + instr_str[0:2]
+    def byte_reverse(instruction, reverse=True):
+        instr_str = instruction
+        if reverse:
+            reverse_str = instr_str[6:8] + instr_str[4:6] + instr_str[2:4] + instr_str[0:2]
+        else:
+            reverse_str = instr_str
         return reverse_str + "\n"
 
 
@@ -66,9 +69,9 @@ class Instructions(object):
         with open(filename, "w+") as f:
             f.write("@%08d\n" % 0)
             for instruction in self.instructions:
-                f.write(self.byte_reverse(instruction))
+                f.write(self.byte_reverse("{:08x}".format(instruction)))
             for i in range(1024 - len(self.instructions)):
-                f.write(self.byte_reverse(Instruction.end.value))
+                f.write(self.byte_reverse("{:08x}".format(Instruction.end.value)))
 
     def write_files(self, filename):
         self.write_coe(filename + ".coe")

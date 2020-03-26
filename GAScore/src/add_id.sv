@@ -133,12 +133,18 @@ always @(*) begin
                 increment_counter = 1;
                 if (in_TLAST) begin
                     nextState = STATE_LAST;
+                end else begin
+                    nextState = STATE_COUNT;
                 end
+            end else begin
+                nextState = STATE_COUNT;
             end
         end
         STATE_LAST: begin
             if (counter_fifo_tready)
                 nextState = STATE_WAIT;
+            else
+                nextState = STATE_LAST;
         end
         default:
             nextState = STATE_ERROR;
