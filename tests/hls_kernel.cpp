@@ -110,11 +110,15 @@ void hls_kernel(
     }
     case send_medium_fifo:{
         int i = 0;
-        word_t payload[16];
-        for(i = 0; i < payloadSize/GC_DATA_BYTES; i++){
-            payload[i] = (word_t) *(instr_mem + (pc++));
+        // word_t payload[16];
+        // for(i = 0; i < payloadSize/GC_DATA_BYTES; i++){
+        //     payload[i] = (word_t) *(instr_mem + (pc++));
+        // }
+        kernel.sendMediumAM_normal(AMdst, AMtoken, AMhandler, AMargs, handler_args, payloadSize);
+        for (i = 0; i < payloadSize; i+=GC_DATA_BYTES){
+            word_t payload = (word_t) *(instr_mem + (pc++));
+            kernel.sendPayload(AMdst, payload, i == payloadSize - GC_DATA_BYTES);
         }
-        kernel.sendMediumAM_normal(AMdst, AMtoken, AMhandler, AMargs, handler_args, payloadSize, payload);
         kernel.wait_reply(1);
         break;
     }
@@ -126,11 +130,15 @@ void hls_kernel(
     }
     case send_long_fifo:{
         int i = 0;
-        word_t payload[16];
-        for(i = 0; i < payloadSize/GC_DATA_BYTES; i++){
-            payload[i] = (word_t) *(instr_mem + (pc++));
+        // word_t payload[16];
+        // for(i = 0; i < payloadSize/GC_DATA_BYTES; i++){
+        //     payload[i] = (word_t) *(instr_mem + (pc++));
+        // }
+        kernel.sendLongAM_normal(AMdst, AMtoken, AMhandler, AMargs, handler_args, payloadSize, dst_addr);
+        for (i = 0; i < payloadSize; i+=GC_DATA_BYTES){
+            word_t payload = (word_t) *(instr_mem + (pc++));
+            kernel.sendPayload(AMdst, payload, i == payloadSize - GC_DATA_BYTES);
         }
-        kernel.sendLongAM_normal(AMdst, AMtoken, AMhandler, AMargs, handler_args, payloadSize, payload, dst_addr);
         break;
     }
     case start_timer:{
@@ -160,7 +168,8 @@ void hls_kernel(
         std::chrono::duration<double> elapsed = now - timer;
         word_t time = (word_t)(elapsed.count() * 1E9); // convert to ns
         #endif
-        kernel.sendMediumAM_async(0, AMtoken, H_EMPTY, 0, handler_args, 8, &time);
+        kernel.sendMediumAM_async(0, AMtoken, H_EMPTY, 0, handler_args, 8);
+        kernel.sendPayload(AMdst, time, true);
         AMtoken++;
         break;
     }
@@ -202,6 +211,7 @@ void hls_kernel(
 
 #ifndef __HLS__
 
+#if(KERN_BUILD == -1 || KERN_BUILD == 0)
 void kern0(
     short id,
     galapagos::interface <word_t> * in,
@@ -248,7 +258,9 @@ void kern0(
         std::cout << "Error!";
     }
 }
+#endif
 
+#if(KERN_BUILD == -1 || KERN_BUILD == 1)
 void kern1(
     short id,
     galapagos::interface <word_t> * in,
@@ -297,9 +309,14 @@ void kern1(
         std::cout << "Error!";
     }
 }
+#endif
 
+#if(KERN_BUILD == -1 || KERN_BUILD == 0)
 PGAS_METHOD(kern0, KERN0_ID)
+#endif
+#if(KERN_BUILD == -1 || KERN_BUILD == 1)
 PGAS_METHOD(kern1, KERN1_ID)
+#endif
 
 #endif
 }

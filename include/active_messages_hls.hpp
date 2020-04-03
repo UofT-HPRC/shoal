@@ -95,7 +95,7 @@ void sendMediumAM(
     gc_AMargs_t handlerArgCount,
     word_t * handler_args,
     gc_payloadSize_t payloadSize,
-    word_t * payload,
+    // word_t * payload,
     galapagos::interface <word_t> & out
 );
 
@@ -121,7 +121,7 @@ void sendLongAM(
     gc_AMargs_t handlerArgCount,
     word_t * handler_args,
     gc_payloadSize_t payloadSize,
-    word_t * payload,
+    // word_t * payload,
     word_t dst_addr,
     galapagos::interface <word_t> & out
 );

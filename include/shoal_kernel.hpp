@@ -66,17 +66,18 @@ namespace shoal{
                 word_t * handler_args);
             void sendMediumAM_normal(gc_AMdst_t dst, gc_AMToken_t token,
                 gc_AMhandler_t handlerID, gc_AMargs_t handlerArgCount,
-                word_t * handler_args, gc_payloadSize_t payloadSize, word_t* payload);
+                word_t * handler_args, gc_payloadSize_t payloadSize);
+            void sendPayload(gc_AMdst_t dst, word_t payload, bool assertLast);
             void sendMediumAM_normal(gc_AMdst_t dst, gc_AMToken_t token,
                 gc_AMhandler_t handlerID, gc_AMargs_t handlerArgCount,
                 word_t * handler_args, gc_payloadSize_t payloadSize, word_t src_addr);
             void sendMediumAM_async(gc_AMdst_t dst, gc_AMToken_t token,
                 gc_AMhandler_t handlerID, gc_AMargs_t handlerArgCount,
-                word_t * handler_args, gc_payloadSize_t payloadSize, word_t* payload);
+                word_t * handler_args, gc_payloadSize_t payloadSize);
             void sendLongAM_normal(gc_AMdst_t dst, gc_AMToken_t token,
                 gc_AMhandler_t handlerID, gc_AMargs_t handlerArgCount,
                 word_t * handler_args, gc_payloadSize_t payloadSize,
-                word_t* payload, word_t dst_addr);
+                word_t dst_addr);
             void sendLongAM_normal(gc_AMdst_t dst, gc_AMToken_t token,
                 gc_AMhandler_t handlerID, gc_AMargs_t handlerArgCount,
                 word_t * handler_args, gc_payloadSize_t payloadSize,

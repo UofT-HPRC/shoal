@@ -55,7 +55,8 @@ void kern0(
     memcpy(&payload, "GAScore", 8);
 
     TIMESTAMP(kern0_5)
-    ATOMIC_ACTION(kernel.sendMediumAM_normal(1, 2, 0, 0, nullptr, 8, (word_t*)(&payload)));
+    ATOMIC_ACTION(kernel.sendMediumAM_normal(1, 2, 0, 0, nullptr, 8));
+    ATOMIC_ACTION(kernel.sendPayload(1, payload, true));
     TIMESTAMP(kern0_6)
     SAFE_COUT(COLOR(Color::FG_RED, dec, "kern0: sending payload\n"));
 
@@ -135,7 +136,8 @@ void kern1(
     ATOMIC_ACTION(printWord("Data in kern1 arrived ", axis_word));
     #endif
     TIMESTAMP(kern1_4)
-    kernel.sendLongAM_normal(0, 0xF, 0, 0, nullptr, 8, &(axis_word.data), 0);
+    kernel.sendLongAM_normal(0, 0xF, 0, 0, nullptr, 8, 0);
+    kernel.sendPayload(0, axis_word.data, true);
     TIMESTAMP(kern1_5)
     SAFE_COUT(COLOR(Color::FG_RED, dec, "kern1: sending long message\n"));
 

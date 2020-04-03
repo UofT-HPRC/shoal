@@ -126,6 +126,14 @@ $(foreach file, $(test_files),$(eval $(call make-test-executable,$(file))))
 galapagos_modules=$(patsubst %, galapagos-%, $(galapagos_files))
 galapagos: $(galapagos_modules)
 
+ifeq ($(BUILD_SUFFIX), _0)
+KERN_BUILD = 0
+else ifeq ($(BUILD_SUFFIX), _1)
+KERN_BUILD = 1
+else
+KERN_BUILD = -1
+endif
+
 ifeq ($(MODE),x86)
 # .SECONDEXPANSION is needed here to evaluate NUM_RANGE and WRAP in succession.
 # The expansion works without this special target if the body isn't inside a
@@ -174,11 +182,11 @@ endef
 $(foreach file, $(test_files),$(eval $(call make-test-object,$(file))))
 
 define make-galapagos-object
-$(test_build_dir)/$1$(BUILD_SUFFIX).o: $(test_dir)/$1$(BUILD_SUFFIX).cpp
-	$(CC) $(CFLAGS) -o $(test_build_dir)/$1$(BUILD_SUFFIX).o -c $(test_dir)/$1$(BUILD_SUFFIX).cpp $(LIBS)
+$(test_build_dir)/$1$(BUILD_SUFFIX).o: $(test_dir)/$1.cpp
+	$(CC) $(CFLAGS) -o $(test_build_dir)/$1$(BUILD_SUFFIX).o -c $(test_dir)/$1.cpp $(LIBS) -DKERN_BUILD=$(KERN_BUILD)
 
-$(test_build_dir)/$1_main$(BUILD_SUFFIX).o: $(test_dir)/$1_main$(BUILD_SUFFIX).cpp
-	$(CC) $(CFLAGS) -o $(test_build_dir)/$1_main$(BUILD_SUFFIX).o -c $(test_dir)/$1_main$(BUILD_SUFFIX).cpp $(LIBS)
+$(test_build_dir)/$1_main$(BUILD_SUFFIX).o: $(test_dir)/$1_main.cpp
+	$(CC) $(CFLAGS) -o $(test_build_dir)/$1_main$(BUILD_SUFFIX).o -c $(test_dir)/$1_main.cpp $(LIBS) -DKERN_BUILD=$(KERN_BUILD)
 endef
 $(foreach file, $(galapagos_files),$(eval $(call make-galapagos-object,$(file))))
 

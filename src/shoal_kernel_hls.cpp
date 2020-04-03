@@ -99,10 +99,19 @@ void shoal::kernel::sendShortAM_async(gc_AMdst_t dst, gc_AMToken_t token,
 
 void shoal::kernel::sendMediumAM_normal(gc_AMdst_t dst, gc_AMToken_t token,
     gc_AMhandler_t handlerID, gc_AMargs_t handlerArgCount, word_t * handler_args,
-    gc_payloadSize_t payloadSize, word_t* payload)
+    gc_payloadSize_t payloadSize)
 {
     sendMediumAM(AM_MEDIUM|AM_FIFO, this->id, dst, token, handlerID, handlerArgCount,
-        handler_args, payloadSize, payload, *(this->out));
+        handler_args, payloadSize, *(this->out));
+}
+
+void shoal::kernel::sendPayload(gc_AMdst_t dst, word_t payload, bool assertLast){
+    galapagos::stream_packet <word_t> axis_word;
+    axis_word.dest = dst;
+    axis_word.data = payload;
+    axis_word.last = assertLast;
+    axis_word.keep = GC_DATA_TKEEP;
+    this->out->write(axis_word);
 }
 
 void shoal::kernel::sendMediumAM_normal(gc_AMdst_t dst, gc_AMToken_t token,
@@ -115,18 +124,18 @@ void shoal::kernel::sendMediumAM_normal(gc_AMdst_t dst, gc_AMToken_t token,
 
 void shoal::kernel::sendMediumAM_async(gc_AMdst_t dst, gc_AMToken_t token,
     gc_AMhandler_t handlerID, gc_AMargs_t handlerArgCount, word_t * handler_args,
-    gc_payloadSize_t payloadSize, word_t* payload)
+    gc_payloadSize_t payloadSize)
 {
     sendMediumAM(AM_MEDIUM|AM_FIFO|AM_ASYNC, this->id, dst, token, handlerID, handlerArgCount,
-        handler_args, payloadSize, payload, *(this->out));
+        handler_args, payloadSize, *(this->out));
 }
 
 void shoal::kernel::sendLongAM_normal(gc_AMdst_t dst, gc_AMToken_t token,
     gc_AMhandler_t handlerID, gc_AMargs_t handlerArgCount, word_t * handler_args,
-    gc_payloadSize_t payloadSize, word_t* payload, word_t dst_addr)
+    gc_payloadSize_t payloadSize, word_t dst_addr)
 {
     sendLongAM(AM_LONG|AM_FIFO, this->id, dst, token, handlerID, handlerArgCount,
-        handler_args, payloadSize, payload, dst_addr, *(this->out));
+        handler_args, payloadSize, dst_addr, *(this->out));
 }
 
 void shoal::kernel::sendLongAM_normal(gc_AMdst_t dst, gc_AMToken_t token,

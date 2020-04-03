@@ -222,7 +222,7 @@ xpm_fifo_axis #(
     .m_axis_tstrb(), // TDATA_WIDTH-bit output: TSTRB
     .m_axis_tuser(), // TUSER_WIDTH-bit output: TUSER
     .m_axis_tvalid(counter_valid), // 1-bit output: TVALID
-    .m_axis_tready(m_axis_tlast), // 1-bit input: TREADY
+    .m_axis_tready(m_axis_tlast & out_TREADY), // 1-bit input: TREADY
     
     .almost_empty_axis(), // 1-bit output: one more read can be performed
     .almost_full_axis(), // 1-bit output: one more write can be performed

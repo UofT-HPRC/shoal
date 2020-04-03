@@ -74,30 +74,55 @@ class Instructions(object):
                 f.write(self.byte_reverse("{:08x}".format(Instruction.end.value)))
 
     def write_files(self, filename):
-        self.write_coe(filename + ".coe")
-        self.write_mem(filename + ".mem")
-        self.write_sw_mem(filename + "_sw.mem")
+        path = "build/" + filename
+        self.write_coe(path + ".coe")
+        self.write_mem(path + ".mem")
+        self.write_sw_mem(path + "_sw.mem")
 
 if __name__ == "__main__":
     lst = Instructions()
     lst.write_instruction(Instruction.barrier_send)
     lst.write_payload(1)
-    lst.load(1, 0, 0, 0, [], 8, 0, 0)
+    lst.load(1, 0, 0, 0, [], 8, 0, 8)
+
     lst.write_instruction(Instruction.send_medium_fifo)
     lst.write_payload(0xDEAD)
+
+    # receive 0xBEEF
     lst.write_instruction(Instruction.recv_medium)
     lst.write_instruction(Instruction.recv_medium)
+    
+    # receive timer data
     lst.write_instruction(Instruction.recv_medium)
     lst.write_instruction(Instruction.recv_medium)
+
+    # long message to 0x8 in other memory
+    lst.write_instruction(Instruction.send_long_fifo)
+    lst.write_payload(0xAABB)
+    lst.write_instruction(Instruction.barrier_send)
+    lst.write_payload(1)
+    lst.write_instruction(Instruction.barrier_send)
+    lst.write_payload(1)
+
     lst.write_files("hls_kernel_0")
 
+    
     lst_1 = Instructions()
     lst_1.write_instruction(Instruction.barrier_wait)
-    lst_1.load(0, 1, 0, 0, [], 8, 0, 0)
+    lst_1.load(0, 1, 0, 0, [], 8, 8, 0)
+
+    # receive 0xDEAD
     lst_1.write_instruction(Instruction.recv_medium)
     lst_1.write_instruction(Instruction.recv_medium)
+
     lst_1.write_instruction(Instruction.start_timer)
     lst_1.write_instruction(Instruction.send_medium_fifo)
     lst_1.write_payload(0xBEEF)
     lst_1.write_instruction(Instruction.stop_timer)
+
+    # send received 0xAABB back from address 0x8
+    lst_1.write_instruction(Instruction.barrier_wait)
+    lst_1.write_instruction(Instruction.send_long)
+    lst_1.write_instruction(Instruction.barrier_wait)
+
     lst_1.write_files("hls_kernel_1")

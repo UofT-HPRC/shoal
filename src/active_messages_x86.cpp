@@ -229,7 +229,7 @@ void sendMediumAM(
     gc_AMargs_t handlerArgCount,
     word_t * handler_args,
     gc_payloadSize_t payloadSize,
-    word_t * payload,
+    // word_t * payload,
     galapagos::interface <word_t> & out
 ){
     // std::cout << "AM Medium message\n";
@@ -247,7 +247,7 @@ void sendMediumAM(
     if (handlerArgCount > 0){
         sendHandlerArgs(out, src, dst, handler_args, handlerArgCount, false);
     }
-    sendPayloadArgs(out, src, dst, (char*) payload, payloadSize, true);
+    // sendPayloadArgs(out, src, dst, (char*) payload, payloadSize, true);
 }
 
 void sendMediumAM(
@@ -290,7 +290,7 @@ void sendLongAM(
     gc_AMargs_t handlerArgCount,
     word_t * handler_args,
     gc_payloadSize_t payloadSize,
-    word_t * payload,
+    // word_t * payload,
     word_t dst_addr,
     galapagos::interface <word_t> & out
 ){
@@ -311,7 +311,7 @@ void sendLongAM(
     if (handlerArgCount > 0){
         sendHandlerArgs(out, src, dst, handler_args, handlerArgCount, false);
     }
-    sendPayloadArgs(out, src, dst, (char*) payload, payloadSize, true);
+    // sendPayloadArgs(out, src, dst, (char*) payload, payloadSize, true);
 }
 
 void sendLongAM(
