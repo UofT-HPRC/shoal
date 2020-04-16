@@ -84,7 +84,7 @@ void xpams_tx(
             axis_kernel_in.read(axis_word); //read token
             AMToken = axis_word.data(AM_TOKEN);
             if (AMhandler != H_EMPTY){
-                axis_wordNoKeep = createHandlerHeader(AMtype, AMToken, AMdst, 
+                axis_wordNoKeep = createHandlerHeader(AMtype, AMToken, AMdst,
                     AMpayloadSize, AMhandler, AMargs);
                 axis_handler.write(axis_wordNoKeep);
             }
@@ -94,7 +94,7 @@ void xpams_tx(
                 #else
                 gc_payloadSize_t payload = AMpayloadSize; // ! assuming payloadsize == dst size
                 #endif
-                axis_wordDest = createKernelHeader(AMtype, AMToken, AMsrc, AMdst, 
+                axis_wordDest = createKernelHeader(AMtype, AMToken, AMsrc, AMdst,
                     payload, AMhandler, AMargs);
                 // axis_word.data(AM_TYPE) = AMtype;
                 // axis_word.data(AM_SRC) = AMsrc;
@@ -144,8 +144,8 @@ void xpams_tx(
             break;
         }
         case st_AMreply:{
-            if (AMhandler != H_INCR_MEM){
-                axis_wordNoKeep = createHandlerHeader(AMtype, AMToken, AMdst, 
+            if (!isAsyncAM(AMtype)){
+                axis_wordNoKeep = createHandlerHeader(AMtype, AMToken, AMsrc,
                     0, H_INCR_MEM, 0);
                 axis_wordNoKeep.last = 1;
                 axis_handler.write(axis_wordNoKeep);

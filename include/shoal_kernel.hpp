@@ -60,27 +60,27 @@ namespace shoal{
 
             void sendShortAM_normal(gc_AMdst_t dst, gc_AMToken_t token,
                 gc_AMhandler_t handlerID, gc_AMargs_t handlerArgCount,
-                word_t * handler_args);
+                const word_t * handler_args);
             void sendShortAM_async(gc_AMdst_t dst, gc_AMToken_t token,
                 gc_AMhandler_t handlerID, gc_AMargs_t handlerArgCount,
-                word_t * handler_args);
+                const word_t * handler_args);
             void sendMediumAM_normal(gc_AMdst_t dst, gc_AMToken_t token,
                 gc_AMhandler_t handlerID, gc_AMargs_t handlerArgCount,
-                word_t * handler_args, gc_payloadSize_t payloadSize);
+                const word_t * handler_args, gc_payloadSize_t payloadSize);
             void sendPayload(gc_AMdst_t dst, word_t payload, bool assertLast);
             void sendMediumAM_normal(gc_AMdst_t dst, gc_AMToken_t token,
                 gc_AMhandler_t handlerID, gc_AMargs_t handlerArgCount,
-                word_t * handler_args, gc_payloadSize_t payloadSize, word_t src_addr);
+                const word_t * handler_args, gc_payloadSize_t payloadSize, word_t src_addr);
             void sendMediumAM_async(gc_AMdst_t dst, gc_AMToken_t token,
                 gc_AMhandler_t handlerID, gc_AMargs_t handlerArgCount,
-                word_t * handler_args, gc_payloadSize_t payloadSize);
+                const word_t * handler_args, gc_payloadSize_t payloadSize);
             void sendLongAM_normal(gc_AMdst_t dst, gc_AMToken_t token,
                 gc_AMhandler_t handlerID, gc_AMargs_t handlerArgCount,
-                word_t * handler_args, gc_payloadSize_t payloadSize,
+                const word_t * handler_args, gc_payloadSize_t payloadSize,
                 word_t dst_addr);
             void sendLongAM_normal(gc_AMdst_t dst, gc_AMToken_t token,
                 gc_AMhandler_t handlerID, gc_AMargs_t handlerArgCount,
-                word_t * handler_args, gc_payloadSize_t payloadSize,
+                const word_t * handler_args, gc_payloadSize_t payloadSize,
                 word_t src_addr, word_t dst_addr);
     };
 } // namespace shoal

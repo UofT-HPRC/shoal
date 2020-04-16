@@ -47,14 +47,14 @@ void writeWord(
 void writeWord(
     galapagos::interface <word_t> & axis_out,
     word_t data,
-    bool last, 
+    bool last,
     gc_AMdst_t dst
 );
 
 void writeWord(
     galapagos::interface <word_t> & axis_out,
     word_t data,
-    bool last, 
+    bool last,
     gc_AMdst_t dst,
     gc_keep_t keep
 );
@@ -62,7 +62,7 @@ void writeWord(
 void sendHandlerArgs(
     galapagos::interface <word_t> & axis_out,
     gc_AMdst_t dst,
-    word_t * handler_args,
+    const word_t * handler_args,
     gc_AMargs_t handlerArgCount,
     bool assertLast
 );
@@ -82,7 +82,7 @@ void sendShortAM(
     gc_AMToken_t token,
     gc_AMhandler_t handlerID,
     gc_AMargs_t handlerArgCount,
-    word_t * handler_args,
+    const word_t * handler_args,
     galapagos::interface <word_t> & out
 );
 
@@ -93,9 +93,9 @@ void sendMediumAM(
     gc_AMToken_t token,
     gc_AMhandler_t handlerID,
     gc_AMargs_t handlerArgCount,
-    word_t * handler_args,
+    const word_t * handler_args,
     gc_payloadSize_t payloadSize,
-    // word_t * payload,
+    // const word_t * payload,
     galapagos::interface <word_t> & out
 );
 
@@ -106,7 +106,7 @@ void sendMediumAM(
     gc_AMToken_t token,
     gc_AMhandler_t handlerID,
     gc_AMargs_t handlerArgCount,
-    word_t * handler_args,
+    const word_t * handler_args,
     gc_payloadSize_t payloadSize,
     word_t src_addr,
     galapagos::interface <word_t> & out
@@ -119,9 +119,9 @@ void sendLongAM(
     gc_AMToken_t token,
     gc_AMhandler_t handlerID,
     gc_AMargs_t handlerArgCount,
-    word_t * handler_args,
+    const word_t * handler_args,
     gc_payloadSize_t payloadSize,
-    // word_t * payload,
+    // const word_t * payload,
     word_t dst_addr,
     galapagos::interface <word_t> & out
 );
@@ -133,7 +133,7 @@ void sendLongAM(
     gc_AMToken_t token,
     gc_AMhandler_t handlerID,
     gc_AMargs_t handlerArgCount,
-    word_t * handler_args,
+    const word_t * handler_args,
     gc_payloadSize_t payloadSize,
     word_t src_addr,
     word_t dst_addr,
@@ -146,7 +146,7 @@ void longStridedAM(
     gc_AMToken_t token,
     gc_AMhandler_t handlerID,
     gc_AMargs_t handlerArgCount,
-    word_t * handler_args,
+    const word_t * handler_args,
     gc_payloadSize_t payloadSize,
     gc_stride_t src_stride,
     gc_strideBlockSize_t src_blk_size,

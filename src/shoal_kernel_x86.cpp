@@ -95,7 +95,7 @@ void shoal::kernel::wait_mem(unsigned int value){
     };
     lock_guard_t lck(*mutex_nodedata);
     SAFE_COUT("PROFILE:S:interrupt_V:1\n")
-    SAFE_COUT(COLOR(Color::FG_BLUE, dec, "Resetting mem_ready_barrier_cnt at " << nodedata << " to " << nodedata->mem_ready_barrier_cnt - 1 << "\n"));
+    SAFE_COUT(COLOR(Color::FG_BLUE, dec, "Resetting mem_ready_barrier_cnt at " << nodedata << " to " << nodedata->mem_ready_barrier_cnt - value << "\n"));
     nodedata->mem_ready_barrier_cnt -= value;
     SAFE_COUT("PROFILE:S:interrupt_V:0\n")
 }
@@ -106,27 +106,27 @@ void shoal::kernel::wait_barrier(unsigned int value){
     };
     lock_guard_t lck(*mutex_nodedata);
     SAFE_COUT("PROFILE:S:interrupt_V:1\n")
-    SAFE_COUT(COLOR(Color::FG_BLUE, dec, "Resetting barrier at " << nodedata << " to " << nodedata->barrier_cnt - 1 << "\n"));
+    SAFE_COUT(COLOR(Color::FG_BLUE, dec, "Resetting barrier at " << nodedata << " from " << nodedata->barrier_cnt << " to " << nodedata->barrier_cnt - value << "\n"));
     nodedata->barrier_cnt -= value;
     SAFE_COUT("PROFILE:S:interrupt_V:0\n")
 }
 
 void shoal::kernel::sendShortAM_normal(gc_AMdst_t dst, gc_AMToken_t token,
-    gc_AMhandler_t handlerID, gc_AMargs_t handlerArgCount, word_t * handler_args)
+    gc_AMhandler_t handlerID, gc_AMargs_t handlerArgCount, const word_t * handler_args)
 {
     sendShortAM(AM_SHORT, this->id, dst, token, handlerID, handlerArgCount,
         handler_args, *(this->out));
 }
 
 void shoal::kernel::sendShortAM_async(gc_AMdst_t dst, gc_AMToken_t token,
-    gc_AMhandler_t handlerID, gc_AMargs_t handlerArgCount, word_t * handler_args)
+    gc_AMhandler_t handlerID, gc_AMargs_t handlerArgCount, const word_t * handler_args)
 {
     sendShortAM(AM_SHORT + AM_ASYNC, this->id, dst, token, handlerID,
         handlerArgCount, handler_args, *(this->out));
 }
 
 void shoal::kernel::sendMediumAM_normal(gc_AMdst_t dst, gc_AMToken_t token,
-    gc_AMhandler_t handlerID, gc_AMargs_t handlerArgCount, word_t * handler_args,
+    gc_AMhandler_t handlerID, gc_AMargs_t handlerArgCount, const word_t * handler_args,
     gc_payloadSize_t payloadSize)
 {
     sendMediumAM(AM_MEDIUM|AM_FIFO, this->id, dst, token, handlerID, handlerArgCount,
@@ -143,7 +143,7 @@ void shoal::kernel::sendPayload(gc_AMdst_t dst, word_t payload, bool assertLast)
 }
 
 void shoal::kernel::sendMediumAM_normal(gc_AMdst_t dst, gc_AMToken_t token,
-    gc_AMhandler_t handlerID, gc_AMargs_t handlerArgCount, word_t * handler_args,
+    gc_AMhandler_t handlerID, gc_AMargs_t handlerArgCount, const word_t * handler_args,
     gc_payloadSize_t payloadSize, word_t src_addr)
 {
     sendMediumAM(AM_MEDIUM, this->id, dst, token, handlerID, handlerArgCount,
@@ -151,7 +151,7 @@ void shoal::kernel::sendMediumAM_normal(gc_AMdst_t dst, gc_AMToken_t token,
 }
 
 void shoal::kernel::sendMediumAM_async(gc_AMdst_t dst, gc_AMToken_t token,
-    gc_AMhandler_t handlerID, gc_AMargs_t handlerArgCount, word_t * handler_args,
+    gc_AMhandler_t handlerID, gc_AMargs_t handlerArgCount, const word_t * handler_args,
     gc_payloadSize_t payloadSize)
 {
     sendMediumAM(AM_MEDIUM|AM_FIFO|AM_ASYNC, this->id, dst, token, handlerID, handlerArgCount,
@@ -159,7 +159,7 @@ void shoal::kernel::sendMediumAM_async(gc_AMdst_t dst, gc_AMToken_t token,
 }
 
 void shoal::kernel::sendLongAM_normal(gc_AMdst_t dst, gc_AMToken_t token,
-    gc_AMhandler_t handlerID, gc_AMargs_t handlerArgCount, word_t * handler_args,
+    gc_AMhandler_t handlerID, gc_AMargs_t handlerArgCount, const word_t * handler_args,
     gc_payloadSize_t payloadSize, word_t dst_addr)
 {
     sendLongAM(AM_LONG|AM_FIFO, this->id, dst, token, handlerID, handlerArgCount,
@@ -167,7 +167,7 @@ void shoal::kernel::sendLongAM_normal(gc_AMdst_t dst, gc_AMToken_t token,
 }
 
 void shoal::kernel::sendLongAM_normal(gc_AMdst_t dst, gc_AMToken_t token,
-    gc_AMhandler_t handlerID, gc_AMargs_t handlerArgCount, word_t * handler_args,
+    gc_AMhandler_t handlerID, gc_AMargs_t handlerArgCount, const word_t * handler_args,
     gc_payloadSize_t payloadSize, word_t src_addr, word_t dst_addr)
 {
     sendLongAM(AM_LONG, this->id, dst, token, handlerID, handlerArgCount,

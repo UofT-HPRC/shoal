@@ -46,7 +46,7 @@ void am_tx(galapagos::interface <word_t> * in, galapagos::interface <word_t> * o
     // static gc_destinationUpper_t AMsourceUpper;
     // static gc_destinationLower_t AMdestinationLower;
     // static gc_destinationUpper_t AMdestinationUpper;
-    gc_destination_t AMsrcAddr;
+    gc_destination_t AMsrcAddr = -1;
     gc_destination_t AMdstAddr;
     // static gc_strideBlockSize_t AMstrideBlockSize;
     // static gc_strideBlockNum_t AMsstrideBlockNum;
@@ -59,12 +59,12 @@ void am_tx(galapagos::interface <word_t> * in, galapagos::interface <word_t> * o
 
     // static uint_1_t bufferRelease = 1;
 
-    gc_stride_t srcStride;
-    gc_strideBlockSize_t srcBlockSize;
+    gc_stride_t srcStride = -1;
+    gc_strideBlockSize_t srcBlockSize = -1;
 
     gc_dstVectorNum_t i = 0;
 
-    word_t address;
+    word_t address = -1;
 
     galapagos::stream_packet <word_t> axis_word;
 
@@ -502,7 +502,7 @@ void am_rx(galapagos::interface <word_t> * in,
 
     gc_AMsrc_t AMsrc;
     gc_AMdst_t AMdst;
-    gc_AMToken_t AMToken;
+    gc_AMToken_t AMToken = -1;
     gc_AMtype_t AMtype;
     gc_AMargs_t AMargs;
     gc_AMhandler_t AMhandler;
@@ -511,10 +511,10 @@ void am_rx(galapagos::interface <word_t> * in,
     gc_payloadSize_t AMpayloadSize;
     gc_dstVectorNum_t AMdstVectorNum;
 
-    gc_destination_t AMdestination;
+    gc_destination_t AMdestination = -1;
     gc_strideBlockSize_t AMstrideBlockSize = 0;
-    gc_strideBlockNum_t AMstrideBlockNum;
-    gc_stride_t AMstride;
+    gc_strideBlockNum_t AMstrideBlockNum = -1;
+    gc_stride_t AMstride = -1;
 
     gc_vectorSize_t AMvectorSize[MAX_VECTOR_NUM];
     gc_destination_t AMvectorDest[MAX_VECTOR_NUM];

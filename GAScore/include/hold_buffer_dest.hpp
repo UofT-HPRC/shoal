@@ -6,8 +6,8 @@
 #include "testbench.hpp"
 #endif
 
-#define FIFO_DEPTH 512
-#define LOG_FIFO_DEPTH 9
+#define FIFO_DEPTH 4096
+#define LOG_FIFO_DEPTH 12
 
 typedef ap_uint<LOG_FIFO_DEPTH> count_t;
 

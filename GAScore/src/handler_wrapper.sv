@@ -98,16 +98,17 @@ module handler_wrapper #(
     logic [KERNEL_WIDTH-1:0] address;
     logic [3:0] AMhandler;
     logic [63:0] axis_handler_tdata_latched;
+    logic axis_handler_tready_addressed;
 
     enum logic [1:0] {st_header, st_payload, st_empty} currentState;
 
     // always @(*) begin
     //     case(currentState)
     //         st_header: begin
-    //             nextState = axis_handler_tvalid & axis_handler_tready ? st_payload : st_header;
+    //             nextState = axis_handler_tvalid & axis_handler_tready_addressed ? st_payload : st_header;
     //         end
     //         st_payload: begin
-    //             if(axis_handler_tlast & axis_handler_tvalid & axis_handler_tready) begin
+    //             if(axis_handler_tlast & axis_handler_tvalid & axis_handler_tready_addressed) begin
     //                 nextState = st_header;
     //             end
     //             else begin
@@ -132,7 +133,7 @@ module handler_wrapper #(
                     address <= address_wire[KERNEL_WIDTH-1:0];
                     AMhandler <= axis_handler_tdata[59:56];
                     axis_handler_tdata_latched <= axis_handler_tdata;
-                    if (axis_handler_tvalid & axis_handler_tready) begin
+                    if (axis_handler_tvalid & axis_handler_tready_addressed) begin
                         if (~axis_handler_tlast) begin
                             currentState <= st_payload;
                         end else begin
@@ -146,7 +147,7 @@ module handler_wrapper #(
                     end
                 end
                 st_empty: begin
-                    if(axis_handler_tready) begin
+                    if(axis_handler_tready_addressed) begin
                         currentState <= st_header;
                     end
                 end
@@ -229,8 +230,8 @@ module handler_wrapper #(
     genvar i;
     generate
         for (i = 0; i < NUM_KERNELS; i++) begin
-            wire valid_signal = address == i & 
-                ((axis_handler_tvalid & currentState == st_payload) | 
+            wire valid_signal = address == i &
+                ((axis_handler_tvalid & currentState == st_payload) |
                 (currentState == st_empty));
             handler handler_inst(
                 .s_axi_ctrl_bus_AWVALID(s_axi_ctrl_bus_AWVALID[i]),
@@ -316,6 +317,7 @@ module handler_wrapper #(
     //     end
     // end
 
-    assign axis_handler_tready = tready[address];
+    assign axis_handler_tready_addressed = tready[address];
+    assign axis_handler_tready = axis_handler_tready_addressed & (currentState == st_header);
 
 endmodule

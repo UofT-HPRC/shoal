@@ -47,7 +47,7 @@ open_project $Project -reset
 puts $include
 add_files $src_dir/active_messages.cpp -cflags $include
 add_files $src_dir/shoal_kernel.cpp -cflags $include
-add_files $test_dir/$Project.cpp -cflags $include
+add_files $test_dir/$top.cpp -cflags $include
 
 # Add testbench files for co-simulation
 # add_files -tb  $test_dir/${Project}/${Project}_tb.cpp -cflags $include

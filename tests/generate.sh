@@ -16,7 +16,7 @@ ipPath=$solutionPath/impl/ip
 repoPath=$SHOAL_PATH/repo/$SHOAL_VIVADO_VERSION/$SHOAL_PART_FAMILY/$file
 
 # If the final name is not $file, errors come up in Vivado
-# during implementation. I initially tried using $top but it 
+# during implementation. I initially tried using $top but it
 # doesn't work. There may be additional names I need to change
 prefixedName=${file}_${file}
 finalName=$file
@@ -44,7 +44,7 @@ mv $ipPath/hdl/vhdl/${prefixedName}.vhd \
     $ipPath/hdl/vhdl/${finalName}.vhd
 mv $ipPath/hdl/verilog/${prefixedName}.v \
     $ipPath/hdl/verilog/${finalName}.v
-cd $ipPath 
+cd $ipPath
 ./pack.sh
 zipFile=xilinx_com_hls_${file}_1_0.zip
 cp $ipPath/$zipFile $repoPath

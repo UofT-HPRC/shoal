@@ -6,8 +6,8 @@
 #include "testbench.hpp"
 #endif
 
-#define FIFO_DEPTH 512
-#define LOG_FIFO_DEPTH 9
+#define FIFO_DEPTH 4096
+#define LOG_FIFO_DEPTH 12
 
 typedef ap_uint<LOG_FIFO_DEPTH> count_t;
 
@@ -25,8 +25,8 @@ typedef ap_uint<LOG_FIFO_DEPTH> count_t;
 
 #define PRINT_INTERFACES std::cout << "Stream statuses:\n"; \
     PRINT_AXIS_SIZE("Input", axis_input) \
-    PRINT_AXIS_SIZE("Output", axis_output) 
-    
+    PRINT_AXIS_SIZE("Output", axis_output)
+
 #define READ_INTERFACES \
     READ_STREAM_INTERFACE("Input", uaxis_l, axis_input, axis_word)\
     READ_STREAM_INTERFACE("Output", uaxis_l, axis_output, axis_word)

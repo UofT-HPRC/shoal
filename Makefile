@@ -50,7 +50,7 @@ app_files := commtest_gascorev2
 
 test_files := queue_test
 
-galapagos_files := node_1_kern_2 node_2_kern_2 hls_kernel
+galapagos_files := node_1_kern_2 node_2_kern_2 hls_kernel benchmark
 
 obj = $(shell find $(test_build_dir) -name '*.o' -printf '%f\n' | \
 sort -k 1nr | cut -f2-)
@@ -58,8 +58,15 @@ dep = $(obj:%.o=$(test_build_dir)/%.d)
 
 GAScore_build_dirs := $(shell find $(SHOAL_PATH) -type d -name 'build' -not -path "$(SHOAL_PATH)/GAScore/*")
 
+DEBUG ?= 1
+ifeq ($(DEBUG), 0)
+OPT = -O2
+else
+OPT = -g -O0 -DDEBUG
+endif
+
 CC = /usr/bin/g++-7
-CFLAGS = -g -Wall -O0 -I$(include_dir) -I$(GAScore_dir) -isystem $(SHOAL_HLS_PATH)/$(SHOAL_HLS_VERSION)/include\
+CFLAGS = $(OPT) -Wall -I$(include_dir) -I$(GAScore_dir) -isystem $(SHOAL_HLS_PATH)/$(SHOAL_HLS_VERSION)/include\
 	-I$(GALAPAGOS_PATH)/middleware/libGalapagos -I$(GALAPAGOS_PATH)/middleware/include\
 	-I$(GALAPAGOS_PATH)/util/spdlog/include\
 	-Wno-unused-value -Wno-unused-variable -Wno-comment -Wno-unknown-pragmas\

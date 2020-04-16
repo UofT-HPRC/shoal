@@ -48,15 +48,15 @@ def get_words(packet_bytes):
 def decode(packet):
     packet_bytes = [packet[i:i+2] for i in range(0, len(packet), 2)]
     words = get_words(packet_bytes)
-    
+
     words = parse_galapagos_header(words)
     print("")
     parse_shoal(words)
 
 if __name__ == "__main__":
-    parser = argparse.ArgumentParser()
-    parser.add_argument("packet", type=str, help="packet to decode")
-    args = parser.parse_args()
+    # parser = argparse.ArgumentParser()
+    # parser.add_argument("packet", type=str, help="packet to decode")
+    # args = parser.parse_args()
 
     # decode(args.packet)
     # exit(0)
@@ -67,13 +67,13 @@ if __name__ == "__main__":
     # from master to slave: TCP syn (sent after ~1us)
     # this was initiated after the GAScore on master tried sending something
     packet = "16fa02ca553e16fa0045000802ca553e0640000000002c00010a6502010a636223560700008003020a6000000000b00104020000daa7ffff000000000000b405"
-    
+
     # from slave to master: TCP syn/ack (sent after ~1us)
     packet = "16fa02ca553e16fa0045000802ca553e0640000000002c00010a0302010a636223560080070065021a60b1012356b00104020000f64fffff000000000000b405"
 
     # from master to slave: TCP ack (sent after ~0.8us)
     packet = "16fa02ca553e16fa0045000802ca553e0640000000002800010a6502010a676223560700008003021850b1012356b10100000000b367ffff0000000000000000"
-    
+
     # from master to slave: TCP data (100001010000000001000001000000030000000000000000)
     # Galapagos Header
     #     TUSER (word count): 0010
@@ -96,18 +96,18 @@ if __name__ == "__main__":
 
     # two more TCP transactions, one from master to slave (probably syn/ack), and then from slave to master (probably ack)
     # this was initiated after the GAScore on slave tried sending something
-    
+
     # grat arp request: fffffffffffffa163e55ca0208060001080006040001fa163e55ca020a01029cffffffffffff0a01029c00000000000000000000000000000000000000000000
     # packet = "16faffffffffffff0100060802ca553e16fa0100040600089c02010a02ca553e010affffffffffff0000000000009c0200000000000000000000000000000000"
-    
+
     # grat arp reply
     packet = "16fa02ca553e16fa0100060802ca553e16fa0200040600089c02010a02ca553e010a02ca553e16fa0000000000009c0200000000000000000000000000000000"
-    
+
     # packet = "16fa02ca553e16fa0045000801ca553e0640000000002c00010a6502010a636223560700008003020a6000000000b00104020000daa7ffff000000000000b405"
 
     packet = "16fa02ca553e16fa0045000801ca553e0640000000002800010a6502010a676223560700008003021850b1012356b10100000000b367ffff0000000000000000"
-    
-    
+
+
 
     # master syn: aabbccddee01aabbccddee0008004500002c00000000400662630a0102650a01020380000007562301b000000000600affffa7da0000020405b4000000000000
     # src port 32768, dst port 7
@@ -120,6 +120,8 @@ if __name__ == "__main__":
     # master ack: aabbccddee01aabbccddee0008004500002800000000400662670a0102650a01020380000007562301c9562301b15018ffff679b0000000000000000
     # src port 32768, dst port 7
     # packet = "bbaa01eeddccbbaa0045000800eeddcc0640000000002800010a6502010a676223560700008003021850b1012356c901000000009b67ffff0000000000000000"
+
+    packet = "bbaa01eeddccbbaa0045000800eeddcc0640000000004000010a6502010a4e6223560080070004021850c9012356b101000200007f24ffff0041000000000100000001000000010000000000000000"
     packet_bytes = [packet[i:i+2] for i in range(0, len(packet), 2)]
     words = get_words(packet_bytes)
     print("".join(words))

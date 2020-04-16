@@ -224,7 +224,7 @@ void kern0(
 ){
 
     int numbers[1024];
-    std::ifstream inputFile("/home/savi/Documents/varun/repos/shoal/tests/hls_kernel_0_sw.mem");        // Input file stream object
+    std::ifstream inputFile("/home/savi/Documents/varun/repos/shoal/tests/build/hls_kernel_0_sw.mem");        // Input file stream object
 
     // Check if exists and then open the file.
     if (inputFile.good()) {
@@ -273,7 +273,7 @@ void kern1(
 ){
 
     int numbers[1024];
-    std::ifstream inputFile("/home/savi/Documents/varun/repos/shoal/tests/hls_kernel_1_sw.mem");        // Input file stream object
+    std::ifstream inputFile("/home/savi/Documents/varun/repos/shoal/tests/build/hls_kernel_1_sw.mem");        // Input file stream object
 
     // Check if exists and then open the file.
     if (inputFile.good()) {

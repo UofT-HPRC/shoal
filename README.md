@@ -33,12 +33,15 @@ The test kernels can be made through these commands
 make galapagos-node_1_kern_2 K_START=0 K_END=1 MODE=x86
 make galapagos-hls_kernel K_START=0 K_END=1 MODE=x86
 make galapagos-hls_kernel K_START=0 K_END=0 MODE=x86 BUILD_SUFFIX=_0
+make galapagos-benchmark K_START=0 K_END=2 MODE=x86
+make galapagos-benchmark K_START=0 K_END=2 MODE=x86 KERN_BUILD=2 DEBUG=0
 
 # one x86 node with kernel 0, one HW node with kernel 1
 # NOTE: kernels fail to build in Vivado 2017.2 but 2018.2 works.
 make galapagos-node_2_kern_2 BUILD_SUFFIX=_0 K_START=0 K_END=0 MODE=x86
 make galapagos-node_2_kern_2 BUILD_SUFFIX=_1 KERNEL=kern1 MODE=HLS
 make galapagos-hls_kernel BUILD_SUFFIX= MODE=HLS KERNEL=hls_kernel
+make galapagos-benchmark MODE=HLS KERNEL=benchmark
 
 ```
 

@@ -6,7 +6,7 @@
 #include <atomic>
 #include <cstddef>
 
-#define DEBUG
+// #define DEBUG
 
 typedef std::mutex mutex_t;
 typedef std::lock_guard<mutex_t> lock_guard_t;

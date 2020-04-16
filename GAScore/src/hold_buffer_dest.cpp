@@ -105,12 +105,17 @@ void hold_buffer_dest(axis_dest_t &axis_input, axis_dest_t &axis_output, uint_1_
     #pragma HLS INTERFACE axis port=axis_output
     #pragma HLS INTERFACE ap_stable port=dataRelease
     #pragma HLS INTERFACE ap_ctrl_none port=return
-    #pragma HLS DATAFLOW
+    // #pragma HLS DATAFLOW
 
-    static axis_dest_t temp;
-    ADD_PRAGMA(HLS STREAM depth=FIFO_DEPTH variable=temp dim=1)
-    #pragma HLS data_pack variable=temp
+    // static axis_dest_t temp;
+    // ADD_PRAGMA(HLS STREAM depth=FIFO_DEPTH variable=temp dim=1)
+    // #pragma HLS data_pack variable=temp
 
-    read(axis_input, temp);
-    write(temp, axis_output, dataRelease);
+    // read(axis_input, temp);
+    // write(temp, axis_output, dataRelease);
+
+    #pragma HLS PIPELINE
+    // axis_wordDest_t axis_word;
+    // axis_word = axis_input.read();
+    axis_output.write(axis_input.read());
 }

@@ -78,7 +78,7 @@ void shoal::kernel::wait_barrier(unsigned int value){
 }
 
 void shoal::kernel::sendShortAM_normal(gc_AMdst_t dst, gc_AMToken_t token,
-    gc_AMhandler_t handlerID, gc_AMargs_t handlerArgCount, word_t * handler_args)
+    gc_AMhandler_t handlerID, gc_AMargs_t handlerArgCount, const word_t * handler_args)
 {
     // we have to add this here for some reason for the kernel to compile..?
     word_t tmp[16];
@@ -91,21 +91,34 @@ void shoal::kernel::sendShortAM_normal(gc_AMdst_t dst, gc_AMToken_t token,
 }
 
 void shoal::kernel::sendShortAM_async(gc_AMdst_t dst, gc_AMToken_t token,
-    gc_AMhandler_t handlerID, gc_AMargs_t handlerArgCount, word_t * handler_args)
+    gc_AMhandler_t handlerID, gc_AMargs_t handlerArgCount, const word_t * handler_args)
 {
+    // we have to add this here for some reason for the kernel to compile..?
+    word_t tmp[16];
+    int i = 0;
+    for(i = 0; i < 16; i++){
+        tmp[i] = handler_args[i];
+    }
     sendShortAM(AM_SHORT + AM_ASYNC, this->id, dst, token, handlerID,
-        handlerArgCount, handler_args, *(this->out));
+        handlerArgCount, tmp, *(this->out));
 }
 
 void shoal::kernel::sendMediumAM_normal(gc_AMdst_t dst, gc_AMToken_t token,
-    gc_AMhandler_t handlerID, gc_AMargs_t handlerArgCount, word_t * handler_args,
+    gc_AMhandler_t handlerID, gc_AMargs_t handlerArgCount, const word_t * handler_args,
     gc_payloadSize_t payloadSize)
 {
+    // we have to add this here for some reason for the kernel to compile..?
+    word_t tmp[16];
+    int i = 0;
+    for(i = 0; i < 16; i++){
+        tmp[i] = handler_args[i];
+    }
     sendMediumAM(AM_MEDIUM|AM_FIFO, this->id, dst, token, handlerID, handlerArgCount,
-        handler_args, payloadSize, *(this->out));
+        tmp, payloadSize, *(this->out));
 }
 
 void shoal::kernel::sendPayload(gc_AMdst_t dst, word_t payload, bool assertLast){
+    #pragma HLS INLINE
     galapagos::stream_packet <word_t> axis_word;
     axis_word.dest = dst;
     axis_word.data = payload;
@@ -115,35 +128,59 @@ void shoal::kernel::sendPayload(gc_AMdst_t dst, word_t payload, bool assertLast)
 }
 
 void shoal::kernel::sendMediumAM_normal(gc_AMdst_t dst, gc_AMToken_t token,
-    gc_AMhandler_t handlerID, gc_AMargs_t handlerArgCount, word_t * handler_args,
+    gc_AMhandler_t handlerID, gc_AMargs_t handlerArgCount, const word_t * handler_args,
     gc_payloadSize_t payloadSize, word_t src_addr)
 {
+    // we have to add this here for some reason for the kernel to compile..?
+    word_t tmp[16];
+    int i = 0;
+    for(i = 0; i < 16; i++){
+        tmp[i] = handler_args[i];
+    }
     sendMediumAM(AM_MEDIUM, this->id, dst, token, handlerID, handlerArgCount,
-        handler_args, payloadSize, src_addr, *(this->out));
+        tmp, payloadSize, src_addr, *(this->out));
 }
 
 void shoal::kernel::sendMediumAM_async(gc_AMdst_t dst, gc_AMToken_t token,
-    gc_AMhandler_t handlerID, gc_AMargs_t handlerArgCount, word_t * handler_args,
+    gc_AMhandler_t handlerID, gc_AMargs_t handlerArgCount, const word_t * handler_args,
     gc_payloadSize_t payloadSize)
 {
+    // we have to add this here for some reason for the kernel to compile..?
+    word_t tmp[16];
+    int i = 0;
+    for(i = 0; i < 16; i++){
+        tmp[i] = handler_args[i];
+    }
     sendMediumAM(AM_MEDIUM|AM_FIFO|AM_ASYNC, this->id, dst, token, handlerID, handlerArgCount,
-        handler_args, payloadSize, *(this->out));
+        tmp, payloadSize, *(this->out));
 }
 
 void shoal::kernel::sendLongAM_normal(gc_AMdst_t dst, gc_AMToken_t token,
-    gc_AMhandler_t handlerID, gc_AMargs_t handlerArgCount, word_t * handler_args,
+    gc_AMhandler_t handlerID, gc_AMargs_t handlerArgCount, const word_t * handler_args,
     gc_payloadSize_t payloadSize, word_t dst_addr)
 {
+    // we have to add this here for some reason for the kernel to compile..?
+    word_t tmp[16];
+    int i = 0;
+    for(i = 0; i < 16; i++){
+        tmp[i] = handler_args[i];
+    }
     sendLongAM(AM_LONG|AM_FIFO, this->id, dst, token, handlerID, handlerArgCount,
-        handler_args, payloadSize, dst_addr, *(this->out));
+        tmp, payloadSize, dst_addr, *(this->out));
 }
 
 void shoal::kernel::sendLongAM_normal(gc_AMdst_t dst, gc_AMToken_t token,
-    gc_AMhandler_t handlerID, gc_AMargs_t handlerArgCount, word_t * handler_args,
+    gc_AMhandler_t handlerID, gc_AMargs_t handlerArgCount, const word_t * handler_args,
     gc_payloadSize_t payloadSize, word_t src_addr, word_t dst_addr)
 {
+    // we have to add this here for some reason for the kernel to compile..?
+    word_t tmp[16];
+    int i = 0;
+    for(i = 0; i < 16; i++){
+        tmp[i] = handler_args[i];
+    }
     sendLongAM(AM_LONG, this->id, dst, token, handlerID, handlerArgCount,
-        handler_args, payloadSize, src_addr, dst_addr, *(this->out));
+        tmp, payloadSize, src_addr, dst_addr, *(this->out));
 }
 
 void shoal::kernel::sendMemUpdate(gc_AMdst_t dst){
@@ -165,6 +202,7 @@ void shoal::kernel::barrier_wait(){
 }
 
 void shoal::kernel::barrier_send(int id){
+    #pragma HLS INLINE OFF
     ATOMIC_ACTION(this->sendBarrierUpdate(id));
     this->wait_barrier(1);
     this->wait_reply(1);
