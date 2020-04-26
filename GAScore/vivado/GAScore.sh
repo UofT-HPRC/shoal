@@ -23,6 +23,7 @@ ln -sf -t $link_path $GAScore_path/repo/$SHOAL_VIVADO_VERSION/$SHOAL_PART_FAMILY
 ln -sf -t $link_path $src_path/handler_wrapper.sv
 ln -sf -t $link_path $src_path/memory.sv
 ln -sf -t $link_path $src_path/add_id.sv
+ln -sf -t $link_path $src_path/datamover_mem.v
 ln -sf -t $link_path $src_path/$file.sv
 ln -sf -t $link_path $vivado_path/$file.tcl
 ln -sf -t $link_path $GAScore_path/testbench/GAScore.wcfg

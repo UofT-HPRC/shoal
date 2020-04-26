@@ -243,12 +243,14 @@ void am_tx(galapagos::interface <word_t> * in, galapagos::interface <word_t> * o
                     // read destination
                     axis_word = in->read();
                     ATOMIC_ACTION(printWord("   Writing to network ", axis_word));
+                    axis_word.last = 0;
                     out->write(axis_word);
                 }
             }
             else if(isLongAM(AMtype)){ //st_AMdestination
                 // read destination
                 axis_word = in->read();
+                axis_word.last = 0;
                 ATOMIC_ACTION(printWord("   Writing to network ", axis_word));
                 out->write(axis_word);
             }
@@ -786,7 +788,7 @@ void handler_thread(void (*fcnPtr)(short id, galapagos::interface <word_t>* ,
         if (!in->empty()){
             SAFE_COUT("Data arrived in handler " << id << " from network\n");
             am_rx(in, &am_xpams_rx, arg, &function, &numargs, &handler, &token, &payloadSize);
-            SAFE_COUT("   Data arrived in xpams " << id << " from am_rx\n");
+            // SAFE_COUT("   Data arrived in xpams " << id << " from am_rx\n");
             xpams_rx(&am_xpams_rx, &am_xpams_out, &kernel_in);
 
             i = payloadSize;

@@ -94,10 +94,10 @@ void shoal::kernel::wait_mem(unsigned int value){
         sched_yield();
     };
     lock_guard_t lck(*mutex_nodedata);
-    SAFE_COUT("PROFILE:S:interrupt_V:1\n")
+    // SAFE_COUT("PROFILE:S:interrupt_V:1\n")
     SAFE_COUT(COLOR(Color::FG_BLUE, dec, "Resetting mem_ready_barrier_cnt at " << nodedata << " to " << nodedata->mem_ready_barrier_cnt - value << "\n"));
     nodedata->mem_ready_barrier_cnt -= value;
-    SAFE_COUT("PROFILE:S:interrupt_V:0\n")
+    // SAFE_COUT("PROFILE:S:interrupt_V:0\n")
 }
 
 void shoal::kernel::wait_barrier(unsigned int value){
@@ -105,10 +105,10 @@ void shoal::kernel::wait_barrier(unsigned int value){
         sched_yield();
     };
     lock_guard_t lck(*mutex_nodedata);
-    SAFE_COUT("PROFILE:S:interrupt_V:1\n")
+    // SAFE_COUT("PROFILE:S:interrupt_V:1\n")
     SAFE_COUT(COLOR(Color::FG_BLUE, dec, "Resetting barrier at " << nodedata << " from " << nodedata->barrier_cnt << " to " << nodedata->barrier_cnt - value << "\n"));
     nodedata->barrier_cnt -= value;
-    SAFE_COUT("PROFILE:S:interrupt_V:0\n")
+    // SAFE_COUT("PROFILE:S:interrupt_V:0\n")
 }
 
 void shoal::kernel::sendShortAM_normal(gc_AMdst_t dst, gc_AMToken_t token,

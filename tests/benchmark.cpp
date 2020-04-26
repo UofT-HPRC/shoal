@@ -278,10 +278,10 @@ void benchmark(
                 label_string = "long_latency_" + std::to_string(test_meta);
                 break;
             case long_fifo_latency:
-                label_string = "long_fifo_latency_" + std::to_string(test_meta);
+                label_string = "long-fifo_latency_" + std::to_string(test_meta);
                 break;
             case medium_fifo_latency:
-                label_string = "medium_fifo_latency_" + std::to_string(test_meta);
+                label_string = "medium-fifo_latency_" + std::to_string(test_meta);
                 break;
             default:
                 label_string = "null";
