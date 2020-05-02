@@ -351,7 +351,7 @@ void am_tx(
                 #endif
             // }
             for(i = 1; i < AMsrcVectorNum; i++){
-                #pragma HLS loop_tripcount min=2 max=15 avg=2
+                #pragma HLS loop_tripcount min=0 max=15 avg=2
                 // if(!axis_kernel.empty()){ //read src size
                     axis_kernel.read(axis_word);
                     AMvectorSize[i] = axis_word.data;
@@ -366,7 +366,7 @@ void am_tx(
                     address(1,0), 1, AMvectorSize[i]);
             }
             for(i = 1; i < AMdstVectorNum; i++){
-                #pragma HLS loop_tripcount min=2 max=15 avg=2
+                #pragma HLS loop_tripcount min=0 max=15 avg=2
                 // if(!axis_kernel.empty()){ //read dst size
                     axis_kernel.read(axis_word);
                     // axis_net.write(axis_word);

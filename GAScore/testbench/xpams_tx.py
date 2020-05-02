@@ -126,7 +126,7 @@ mmA_t1.set_signal('address_offset_high_V', 15)
 mmA_t1.init_timer()
 axis_kernel_in.writes(mmA_t1, [
     # USE_ABS_PAYLOAD {"tdata": strToInt("{AMHeader,0x01,0x2,0x808,0x0,0x2,0}")},
-    {"tdata": strToInt("{AMHeader,0x01,0x2,0x800,0x1,0x2,0}")},
+    {"tdata": strToInt("{AMHeader,0x01,0x2,0x800,0x1,0x12,0}")},
     {"tdata": strToInt("{AMToken,0x0}"), "callTB": 1},
 ])
 for i in range(255):
@@ -135,11 +135,11 @@ axis_kernel_in.write(mmA_t1, 0x98765432, tlast=1, callTB=3)
 medium_message_A.add_thread(mmA_t1)
 
 mmA_t3 = medium_message_A.add_thread()
-axis_handler.read(mmA_t3, strToInt("{AMHeader,0x0,0x02,0x800,1,0x2,0}"))
-axis_handler.read(mmA_t3, strToInt("{AMHeader,0x0,0x01,0,1,0x2,0}"))
+axis_handler.read(mmA_t3, strToInt("{AMHeader,0x0,0x02,0x800,1,0x12,0}"))
+axis_handler.read(mmA_t3, strToInt("{AMHeader,0x0,0x01,0,1,0x12,0}"))
 
 mmA_t2 = Thread()
-axis_kernel_out.read(mmA_t2, strToInt("{AMHeader,0,0x1,0x800,0x1,0x2,0}"), tdest=2)
+axis_kernel_out.read(mmA_t2, strToInt("{AMHeader,0,0x1,0x800,0x1,0x12,0}"), tdest=2)
 # axis_kernel_out.read(mmA_t2, strToInt("{AMToken,0x0}"), tdest=2)
 for i in range(255):
     axis_kernel_out.read(mmA_t2, 0x98765432, tdest=2)

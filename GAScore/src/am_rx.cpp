@@ -181,7 +181,7 @@ void am_rx(
 
             gc_dstVectorNum_t i;
             for(i = 1; i < AMdstVectorNum; i++){
-                #pragma HLS loop_tripcount min=1 max=16 avg=2
+                #pragma HLS loop_tripcount min=0 max=16 avg=2
 
                 axis_net.read(axis_word);
                 AMvectorSize[i] = axis_word.data(AM_DST_VECTOR_SIZE_BODY);

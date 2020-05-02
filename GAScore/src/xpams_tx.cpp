@@ -56,7 +56,8 @@ void xpams_tx(
             AMdst = axis_word.data(AM_DST);
             AMtype = axis_word.data(AM_TYPE);
             AMpayloadSize = axis_word.data(AM_PAYLOAD_SIZE);
-            loopback = AMdst <= address_offset_high && AMdst >= address_offset_low;
+            loopback = AMdst <= address_offset_high && AMdst >= address_offset_low && 
+                !isLongxAM(AMtype) && !(isMediumAM(AMtype) && !isDataFromFIFO(AMtype));
             // network_addr_in = network_table[AMdst];
             // loopback = (network_addr == network_addr_in);
             if (loopback){
@@ -69,17 +70,17 @@ void xpams_tx(
             }
             else{
                 axis_tx.write(axis_word);
-                currentState = st_AMtoken;
+                currentState = st_AMsend;
             }
             break;
         }
-        case st_AMtoken:{
-            axis_kernel_in.read(axis_word); //read token
-            AMToken = axis_word.data(AM_TOKEN);
-            axis_tx.write(axis_word);
-            currentState = st_AMsend;
-            break;
-        }
+        // case st_AMtoken:{
+        //     axis_kernel_in.read(axis_word); //read token
+        //     AMToken = axis_word.data(AM_TOKEN);
+        //     axis_tx.write(axis_word);
+        //     currentState = st_AMsend;
+        //     break;
+        // }
         case st_AMloopback:{
             axis_kernel_in.read(axis_word); //read token
             AMToken = axis_word.data(AM_TOKEN);
