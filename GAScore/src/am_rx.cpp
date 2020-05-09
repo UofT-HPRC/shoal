@@ -148,6 +148,7 @@ void am_rx(
         }
         case st_AMLongStride:{
             axis_net.read(axis_word);
+            axis_word.last = AMargs == 0;
             axis_xpams_rx.write(axis_word);
             AMstride = axis_word.data(AM_STRIDE_SIZE);
             AMstrideBlockSize = axis_word.data(AM_STRIDE_BLK_SIZE);
@@ -164,6 +165,7 @@ void am_rx(
             AMdstVectorNum = axis_word.data(AM_DST_VECTOR_NUM);
             AMvectorSize[0] = axis_word.data(AM_DST_VECTOR_SIZE_HEAD);
             AMToken = axis_word.data(AM_TOKEN);
+            axis_word.last = AMargs == 0;
             axis_xpams_rx.write(axis_word);
             #ifdef USE_ABS_PAYLOAD
             AMpayloadSize-=GC_DATA_BYTES;
@@ -299,26 +301,29 @@ void am_rx(
                                 axis_s2mm.write(axis_word);
                             // }
                         }
-                        else if(writeCount == AMvectorSize[vectorCount]){
+                        // else if(writeCount == AMvectorSize[vectorCount]){
+                        else{
                             // if(!axis_s2mm.full()){
                                 axis_word.last = 1;
                                 axis_s2mm.write(axis_word);
+                                vectorCount++;
+                                writeCount = 0;
                             // }
                         }
-                        else{
-                            vectorCount++;
-                            // dataMoverWriteCommand(axis_s2mmCommand, 0, 0,
-                            //     AMvectorDest[vectorCount], //address
-                            //     AMvectorDest[vectorCount](1,0) != 0, //ddr
-                            //     1, //eof
-                            //     AMvectorDest[vectorCount](1,0), 1, //dsa, type
-                            //     AMvectorSize[vectorCount]*GC_DATA_BYTES);
-                            // if(!axis_s2mm.full()){
-                                axis_word.last = 0;
-                                axis_s2mm.write(axis_word);
-                            // }
-                            writeCount = 1;
-                        }
+                        // else{
+                        //     vectorCount++;
+                        //     // dataMoverWriteCommand(axis_s2mmCommand, 0, 0,
+                        //     //     AMvectorDest[vectorCount], //address
+                        //     //     AMvectorDest[vectorCount](1,0) != 0, //ddr
+                        //     //     1, //eof
+                        //     //     AMvectorDest[vectorCount](1,0), 1, //dsa, type
+                        //     //     AMvectorSize[vectorCount]*GC_DATA_BYTES);
+                        //     // if(!axis_s2mm.full()){
+                        //         axis_word.last = 0;
+                        //         axis_s2mm.write(axis_word);
+                        //     // }
+                        //     writeCount = 8;
+                        // }
                     }
                 }
             }

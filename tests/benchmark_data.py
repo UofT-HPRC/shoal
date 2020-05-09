@@ -15,6 +15,21 @@ class Instruction(enum.Enum):
     read_local = 10
     recv_time = 11
     add_label = 12
+    short_throughput = 13
+    medium_throughput = 14
+    long_throughput = 15
+    medium_fifo_throughput = 16
+    long_fifo_throughput = 17
+    strided_latency = 18
+    strided_throughput = 19
+    vector_latency = 20
+    vector_throughput = 21
+    load_stride = 22
+    load_vector = 23
+    wait_counter = 24
+    busy_loop = 25
+    send_pilot = 26
+    recv_pilot = 27
 
 class Instructions(object):
     def __init__(self):
@@ -27,7 +42,7 @@ class Instructions(object):
         Args:
             handler (int): handler
             args_num (int): args_num
-            args (int): args
+            args (list): args
             payloadsize (int): payloadsize
             src_addr (int): src_addr
             dst_addr (int): dst_addr
@@ -39,6 +54,55 @@ class Instructions(object):
         self.instructions.append(payloadsize)
         self.instructions.append(src_addr)
         self.instructions.append(dst_addr)
+
+    def load_strided(self, src_stride, src_blk_size, src_blk_num, dst_stride, dst_blk_size, dst_blk_num):
+        """
+        Load strided values
+
+        Args:
+            src_stride (int): src stride
+            src_blk_size (int): src block size
+            src_blk_num (int): src block num
+            dst_stride (int): dst stride
+            dst_blk_size (int): dst block size
+            dst_blk_num (int): dst block num
+        """
+        self.instructions.append(Instruction.load_stride.value)
+        self.instructions.append(src_stride)
+        self.instructions.append(src_blk_size)
+        self.instructions.append(src_blk_num)
+        self.instructions.append(dst_stride)
+        self.instructions.append(dst_blk_size)
+        self.instructions.append(dst_blk_num)
+
+    def load_vectored(self, srcVectorCount, dstVectorCount, srcSize, src_addrs, dstSize, dst_addrs):
+        """
+        Load vectored values
+
+        Args:
+            srcVectorCount (int): src vector count
+            dstVectorCount (int): dst vector count
+            srcSize (list): src vector sizes
+            src_addrs (list): src vector addresses
+            dstSize (list): dst vector sizes
+            dst_addrs (list): dst vector addresses
+        """
+        self.instructions.append(Instruction.load_vector.value)
+        self.instructions.append(srcVectorCount)
+        self.instructions.append(dstVectorCount)
+        self.instructions.extend(srcSize)
+        self.instructions.extend(src_addrs)
+        self.instructions.extend(dstSize)
+        self.instructions.extend(dst_addrs)
+
+    def send_pilot(self, dest):
+        self.load(0, 0, [], 8, 0, 0)
+        self.write_instruction(Instruction.send_pilot)
+        self.write_payload(dest)
+
+    def recv_pilot(self):
+        self.load(0, 0, [], 8, 0, 0)
+        self.write_instruction(Instruction.recv_pilot)
 
     def write_instruction(self, name):
         assert isinstance(name, enum.Enum)
@@ -94,114 +158,217 @@ class Instructions(object):
         self.write_payload(label.value)
         self.write_payload(meta)
 
-LATENCY_ITERATIONS = 1000
-PAYLOAD_MIN = 0
-PAYLOAD_MAX = 10 # 2^(10-1) = 512
+def prologue(kern0, kern1, kern2):
+    kern0.load(0, 0, [], 0, 0, 0)
+    kern0.write_instruction(Instruction.barrier_wait)
 
-def kern0():
-    lst = Instructions()
-    lst.load(0, 0, [], 0, 0, 0)
-    lst.write_instruction(Instruction.barrier_wait)
+    kern1.load(0, 0, [], 0, 0, 0)
+    kern1.write_instruction(Instruction.barrier_send)
 
-    lst.add_label(Instruction.short_latency, 0)
-    lst.write_instruction(Instruction.recv_time)
-    lst.write_payload(LATENCY_ITERATIONS)
-    lst.write_instruction(Instruction.barrier_wait)
+    kern2.load(0, 0, [], 0, 0, 0)
+    kern2.write_instruction(Instruction.barrier_send)
 
-    for i in range(PAYLOAD_MIN,PAYLOAD_MAX):
-        lst.add_label(Instruction.medium_latency, i)
-        lst.write_instruction(Instruction.recv_time)
-        lst.write_payload(LATENCY_ITERATIONS)
-        lst.write_instruction(Instruction.barrier_wait)
 
-    for i in range(PAYLOAD_MIN,PAYLOAD_MAX):
-        lst.add_label(Instruction.medium_fifo_latency, i)
-        lst.write_instruction(Instruction.recv_time)
-        lst.write_payload(LATENCY_ITERATIONS)
-        lst.write_instruction(Instruction.barrier_wait)
+def short_latency(kern0, kern1, kern2, throughput=False):
+    if throughput:
+        instruction = Instruction.short_throughput
+        iterations = THROUGHPUT_ITERATIONS
+        time_iterations = 1
+    else:
+        instruction = Instruction.short_latency
+        iterations = LATENCY_ITERATIONS
+        time_iterations = LATENCY_ITERATIONS
+    
+    kern0.add_label(instruction, 0)
+    kern0.write_instruction(Instruction.recv_time)
+    kern0.write_payload(time_iterations)
+    kern0.write_instruction(Instruction.barrier_wait)
+    
+    kern1.recv_pilot()
+    kern1.write_instruction(instruction)
+    kern1.write_payload(iterations)
+    kern1.write_instruction(Instruction.barrier_send)
 
-    for i in range(PAYLOAD_MIN,PAYLOAD_MAX):
-        lst.add_label(Instruction.long_latency, i)
-        lst.write_instruction(Instruction.recv_time)
-        lst.write_payload(LATENCY_ITERATIONS)
-        lst.write_instruction(Instruction.barrier_wait)
+    kern2.send_pilot(1)
+    kern2.write_instruction(Instruction.barrier_send)
 
-    for i in range(PAYLOAD_MIN,PAYLOAD_MAX):
-        lst.add_label(Instruction.long_fifo_latency, i)
-        lst.write_instruction(Instruction.recv_time)
-        lst.write_payload(LATENCY_ITERATIONS)
-        lst.write_instruction(Instruction.barrier_wait)
-
-    lst.write_files("benchmark_0")
-
-def kern1():
-    lst = Instructions()
-    lst.load(0, 0, [], 0, 0, 0)
-    lst.write_instruction(Instruction.barrier_send)
-
-    lst.write_instruction(Instruction.short_latency)
-    lst.write_payload(LATENCY_ITERATIONS)
-    lst.write_instruction(Instruction.barrier_send)
+def medium_latency(kern0, kern1, kern2, throughput=False):
+    if throughput:
+        instruction = Instruction.medium_throughput
+        iterations = THROUGHPUT_ITERATIONS
+        time_iterations = 1
+    else:
+        instruction = Instruction.medium_latency
+        iterations = LATENCY_ITERATIONS
+        time_iterations = LATENCY_ITERATIONS
 
     for i in range(PAYLOAD_MIN,PAYLOAD_MAX):
-        lst.load(0, 0, [], (2**i)*8, 0, 0)
-        lst.write_instruction(Instruction.medium_latency)
-        lst.write_payload(LATENCY_ITERATIONS)
-        lst.write_instruction(Instruction.barrier_send)
+        kern0.add_label(instruction, i)
+        kern0.write_instruction(Instruction.recv_time)
+        kern0.write_payload(time_iterations)
+        kern0.write_instruction(Instruction.barrier_wait)
+
+        kern1.recv_pilot()
+        kern1.load(0, 0, [], (2**i)*8, 0, 0)
+        kern1.write_instruction(instruction)
+        kern1.write_payload(iterations)
+        kern1.write_instruction(Instruction.barrier_send)
+
+        kern2.send_pilot(1)
+        kern2.load(0, 0, [], (2**i)*8, 0, 0)
+        kern2.write_instruction(Instruction.recv_medium)
+        kern2.write_payload(iterations)
+        kern2.write_instruction(Instruction.barrier_send)
+
+def medium_fifo_latency(kern0, kern1, kern2, throughput=False):
+    if throughput:
+        instruction = Instruction.medium_fifo_throughput
+        iterations = THROUGHPUT_ITERATIONS
+        time_iterations = 1
+    else:
+        instruction = Instruction.medium_fifo_latency
+        iterations = LATENCY_ITERATIONS
+        time_iterations = LATENCY_ITERATIONS
 
     for i in range(PAYLOAD_MIN,PAYLOAD_MAX):
-        lst.load(0, 0, [], (2**i)*8, 0, 0)
-        lst.write_instruction(Instruction.medium_fifo_latency)
-        lst.write_payload(LATENCY_ITERATIONS)
-        lst.write_instruction(Instruction.barrier_send)
+        kern0.add_label(instruction, i)
+        kern0.write_instruction(Instruction.recv_time)
+        kern0.write_payload(time_iterations)
+        kern0.write_instruction(Instruction.barrier_wait)
+
+        kern1.recv_pilot()
+        kern1.load(0, 0, [], (2**i)*8, 0, 0)
+        kern1.write_instruction(instruction)
+        kern1.write_payload(iterations)
+        kern1.write_instruction(Instruction.barrier_send)
+
+        kern2.send_pilot(1)
+        kern2.load(0, 0, [], (2**i)*8, 0, 0)
+        kern2.write_instruction(Instruction.recv_medium)
+        kern2.write_payload(iterations)
+        kern2.write_instruction(Instruction.barrier_send)
+
+def long_latency(kern0, kern1, kern2, throughput=False):
+    if throughput:
+        instruction = Instruction.long_throughput
+        iterations = THROUGHPUT_ITERATIONS
+        time_iterations = 1
+    else:
+        instruction = Instruction.long_latency
+        iterations = LATENCY_ITERATIONS
+        time_iterations = LATENCY_ITERATIONS
 
     for i in range(PAYLOAD_MIN,PAYLOAD_MAX):
-        lst.load(0, 0, [], (2**i)*8, 0, 0)
-        lst.write_instruction(Instruction.long_latency)
-        lst.write_payload(LATENCY_ITERATIONS)
-        lst.write_instruction(Instruction.barrier_send)
+        kern0.add_label(instruction, i)
+        kern0.write_instruction(Instruction.recv_time)
+        kern0.write_payload(time_iterations)
+        kern0.write_instruction(Instruction.barrier_wait)
+
+        kern1.recv_pilot()
+        kern1.load(0, 0, [], (2**i)*8, 0, 0)
+        kern1.write_instruction(instruction)
+        kern1.write_payload(iterations)
+        kern1.write_instruction(Instruction.barrier_send)
+
+        kern2.send_pilot(1)
+        kern2.load(0, 0, [], 0, 0, 0)
+        kern2.write_instruction(Instruction.barrier_send)
+
+def long_fifo_latency(kern0, kern1, kern2, throughput=False):
+    if throughput:
+        instruction = Instruction.long_fifo_throughput
+        iterations = THROUGHPUT_ITERATIONS
+        time_iterations = 1
+    else:
+        instruction = Instruction.long_fifo_latency
+        iterations = LATENCY_ITERATIONS
+        time_iterations = LATENCY_ITERATIONS
 
     for i in range(PAYLOAD_MIN,PAYLOAD_MAX):
-        lst.load(0, 0, [], (2**i)*8, 0, 0)
-        lst.write_instruction(Instruction.long_fifo_latency)
-        lst.write_payload(LATENCY_ITERATIONS)
-        lst.write_instruction(Instruction.barrier_send)
+        kern0.add_label(instruction, i)
+        kern0.write_instruction(Instruction.recv_time)
+        kern0.write_payload(time_iterations)
+        kern0.write_instruction(Instruction.barrier_wait)
 
-    lst.write_files("benchmark_1")
+        kern1.recv_pilot()
+        kern1.load(0, 0, [], (2**i)*8, 0, 0)
+        kern1.write_instruction(instruction)
+        kern1.write_payload(iterations)
+        kern1.write_instruction(Instruction.barrier_send)
 
-def kern2():
-    lst = Instructions()
-    lst.load(0, 0, [], 0, 0, 0)
-    lst.write_instruction(Instruction.barrier_send)
+        kern2.send_pilot(1)
+        kern2.load(0, 0, [], 0, 0, 0)
+        kern2.write_instruction(Instruction.barrier_send)
 
-    # short latency
-    lst.write_instruction(Instruction.barrier_send)
+def strided_latency(kern0, kern1, kern2, throughput=False):
+    if throughput:
+        instruction = Instruction.strided_throughput
+        iterations = THROUGHPUT_ITERATIONS
+        time_iterations = 1
+    else:
+        instruction = Instruction.strided_latency
+        iterations = LATENCY_ITERATIONS
+        time_iterations = LATENCY_ITERATIONS
 
-    # medium latency
-    for i in range(PAYLOAD_MIN,PAYLOAD_MAX):
-        lst.load(0, 0, [], (2**i)*8, 0, 0)
-        lst.write_instruction(Instruction.recv_medium)
-        lst.write_payload(LATENCY_ITERATIONS)
-        lst.write_instruction(Instruction.barrier_send)
+    # src_stride, src_blk_size, src_blk_num, dst_stride, dst_blk_size, dst_blk_num
+    stride_combos = [
+        # (16, 8, 4, 8, 32, 1) # 0, 2, 4, 6, 0, 0, 0, 0, 0, 0
+        (8, 32, 1, 16, 8, 4) # 0, 0, 1, 0, 2, 0, 3, 0, 0, 0
+    ]
+    for i, stride_combo in enumerate(stride_combos):
+        kern0.add_label(instruction, i)
+        kern0.write_instruction(Instruction.recv_time)
+        kern0.write_payload(time_iterations)
+        kern0.write_instruction(Instruction.barrier_wait)
 
-    # medium fifo latency
-    for i in range(PAYLOAD_MIN,PAYLOAD_MAX):
-        lst.load(0, 0, [], (2**i)*8, 0, 0)
-        lst.write_instruction(Instruction.recv_medium)
-        lst.write_payload(LATENCY_ITERATIONS)
-        lst.write_instruction(Instruction.barrier_send)
+        payload = stride_combo[1] * stride_combo[2]
+        assert stride_combo[1] * stride_combo[2] == stride_combo[4] * stride_combo[5]
+        kern1.recv_pilot()
+        kern1.load(0, 0, [], payload, 0, 0)
+        kern1.load_strided(*stride_combo)
+        kern1.write_instruction(instruction)
+        kern1.write_payload(iterations)
+        kern1.write_instruction(Instruction.barrier_send)
 
-    # long latency
-    for i in range(PAYLOAD_MIN,PAYLOAD_MAX):
-        lst.load(0, 0, [], 0, 0, 0)
-        lst.write_instruction(Instruction.barrier_send)
+        kern2.send_pilot(1)
+        kern2.load(0, 0, [], 0, 0, 0)
+        kern2.write_instruction(Instruction.barrier_send)
 
-    # long fifo latency
-    for i in range(PAYLOAD_MIN,PAYLOAD_MAX):
-        lst.load(0, 0, [], 0, 0, 0)
-        lst.write_instruction(Instruction.barrier_send)
+def vectored_latency(kern0, kern1, kern2, throughput=False):
+    if throughput:
+        instruction = Instruction.vector_throughput
+        iterations = THROUGHPUT_ITERATIONS
+        time_iterations = 1
+    else:
+        instruction = Instruction.vector_latency
+        iterations = LATENCY_ITERATIONS
+        time_iterations = LATENCY_ITERATIONS
 
-    lst.write_files("benchmark_2")
+    # srcVectorCount, dstVectorCount, srcSize, src_addrs, dstSize, dst_addrs
+    vector_combos = [
+        (2, 2, [16, 8], [0, 32], [16, 8], [0, 32]), # 0, 1, 0, 0, 4, 0, 0, 0, 0, 0
+        (2, 1, [16, 8], [0, 32], [24], [0]), # 0, 1, 4, 0, 0, 0, 0, 0, 0, 0
+        (1, 2, [24], [8], [8, 16], [0, 32]), # 1, 0, 0, 0, 2, 3, 0, 0, 0, 0
+    ]
+    for i, vector_combo in enumerate(vector_combos):
+        kern0.add_label(instruction, i)
+        kern0.write_instruction(Instruction.recv_time)
+        kern0.write_payload(time_iterations)
+        kern0.write_instruction(Instruction.barrier_wait)
+
+        payload = sum(vector_combo[2])
+        assert sum(vector_combo[2]) == sum(vector_combo[4])
+        kern1.recv_pilot()
+        kern1.load(0, 0, [], payload, 0, 0)
+        kern1.load_vectored(*vector_combo)
+        kern1.write_instruction(instruction)
+        kern1.write_payload(iterations)
+        kern1.write_instruction(Instruction.barrier_send)
+
+        kern2.send_pilot(1)
+        kern2.load(0, 0, [], 0, 0, 0)
+        kern2.write_instruction(Instruction.barrier_send)
+
 
 def test_kern_0():
     lst = Instructions()
@@ -226,10 +393,38 @@ def test_kern_2():
 
     lst.write_files("benchmark_test_2")
 
+LATENCY_ITERATIONS = 1000
+THROUGHPUT_ITERATIONS = 1000
+PAYLOAD_MIN = 0
+PAYLOAD_MAX = 10 # 2^(10-1) = 512
+
 if __name__ == "__main__":
-    kern0()
-    kern1()
-    kern2()
     test_kern_0()
     test_kern_1()
     test_kern_2()
+
+    kern0 = Instructions()
+    kern1 = Instructions()
+    kern2 = Instructions()
+
+    prologue(kern0, kern1, kern2)
+
+    # short_latency(kern0, kern1, kern2)
+    # medium_latency(kern0, kern1, kern2)
+    # medium_fifo_latency(kern0, kern1, kern2)
+    # long_latency(kern0, kern1, kern2)
+    # long_fifo_latency(kern0, kern1, kern2)
+    # strided_latency(kern0, kern1, kern2)
+    # vectored_latency(kern0, kern1, kern2)
+
+    short_latency(kern0, kern1, kern2, True)
+    medium_latency(kern0, kern1, kern2, True)
+    medium_fifo_latency(kern0, kern1, kern2, True)
+    long_latency(kern0, kern1, kern2, True)
+    long_fifo_latency(kern0, kern1, kern2, True)
+    strided_latency(kern0, kern1, kern2, True)
+    vectored_latency(kern0, kern1, kern2, True)
+
+    kern0.write_files("benchmark_0")
+    kern1.write_files("benchmark_1")
+    kern2.write_files("benchmark_2")

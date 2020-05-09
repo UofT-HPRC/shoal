@@ -52,6 +52,21 @@ galapagos::stream_packet <word_t> createStridedBeat(
     return axis_word;
 }
 
+galapagos::stream_packet <word_t> createVectorBeat(
+    gc_srcVectorNum_t srcVectorCount,
+    gc_dstVectorNum_t dstVectorCount, 
+    gc_vectorSize_t srcSize1,
+    gc_vectorSize_t dstSize1,
+    gc_AMToken_t token
+){
+    galapagos::stream_packet <word_t> axis_word;
+    axis_word.data = createVectorToken(srcVectorCount, dstVectorCount, srcSize1, dstSize1, token);
+    axis_word.last = 0;
+    axis_word.keep = GC_DATA_TKEEP;
+    return axis_word;
+}
+
+
 #if ENABLE_PROFILE == 1
 void profile_write(gc_AMsrc_t src, galapagos::stream_packet <word_t> axis_word){
     if (src == KERNEL_PROFILE ){
@@ -94,7 +109,7 @@ inline void _writeWord(
     galapagos::stream_packet <word_t> axis_word,
     gc_AMsrc_t src
 ){
-    printWord("   Sending - ", axis_word);
+    // printWord("   Sending - ", axis_word);
     axis_out.write(axis_word);
     #if ENABLE_PROFILE == 1
     profile_write(src, axis_word);
@@ -328,7 +343,7 @@ void sendLongAM(
     galapagos::interface <word_t> & out
 ){
     galapagos::stream_packet <word_t> axis_word;
-    axis_word = createHeaderBeat(src, dst, payloadSize, handlerID, AM_LONG, handlerArgCount);
+    axis_word = createHeaderBeat(src, dst, payloadSize, handlerID, type, handlerArgCount);
     // axis_word.dest = dst;
     // out.write(axis_word);
     writeWord(out, axis_word, src, dst);
@@ -351,6 +366,7 @@ void sendLongAM(
 }
 
 void longStridedAM(
+    gc_AMtype_t type,
     gc_AMsrc_t src,
     gc_AMdst_t dst,
     gc_AMToken_t token,
@@ -369,7 +385,7 @@ void longStridedAM(
     galapagos::interface <word_t> & out
 ){
     galapagos::stream_packet <word_t> axis_word;
-    axis_word = createHeaderBeat(src, dst, payloadSize, handlerID, AM_LONG, handlerArgCount);
+    axis_word = createHeaderBeat(src, dst, payloadSize, handlerID, type, handlerArgCount);
     // axis_word.dest = dst;
     // out.write(axis_word);
     writeWord(out, axis_word, src, dst);
@@ -391,7 +407,58 @@ void longStridedAM(
     // axis_word.dest = dst;
     // out.write(axis_word);
     writeWord(out, dst_addr, handlerArgCount == 0, src, dst);
-    if (handlerArgCount == 0){
+    if (handlerArgCount > 0){
+        sendHandlerArgs(out, src, dst, handler_args, handlerArgCount, true);
+    }
+}
+
+void longVectorAM(
+    gc_AMtype_t type,
+    gc_AMsrc_t src,
+    gc_AMdst_t dst,
+    gc_AMToken_t token,
+    gc_AMhandler_t handlerID,
+    gc_AMargs_t handlerArgCount,
+    const word_t * handler_args,
+    gc_payloadSize_t payloadSize,
+    gc_srcVectorNum_t srcVectorCount,
+    gc_dstVectorNum_t dstVectorCount,
+    const gc_vectorSize_t * srcSize,
+    const gc_vectorSize_t * dstSize,
+    const word_t * src_addr,
+    const word_t * dst_addr,
+    galapagos::interface <word_t> & out
+){
+    galapagos::stream_packet <word_t> axis_word;
+    axis_word = createHeaderBeat(src, dst, payloadSize, handlerID, type, handlerArgCount);
+    writeWord(out, axis_word, src, dst);
+    
+    axis_word = createVectorBeat(srcVectorCount, dstVectorCount, srcSize[0], dstSize[0], token);
+    writeWord(out, axis_word, dst);
+
+    writeWord(out, src_addr[0], 0, src, dst);
+    writeWord(out, dst_addr[0], (srcVectorCount == 1) && (dstVectorCount == 1) && (handlerArgCount == 0), src, dst);
+
+    int i;
+    if (srcVectorCount > 1){
+        for(i = 1; i < srcVectorCount-1; i++){
+            writeWord(out, srcSize[i], 0, src, dst);
+            writeWord(out, src_addr[i], 0, src, dst);
+        }
+        writeWord(out, srcSize[i], 0, src, dst);
+        writeWord(out, src_addr[i], (dstVectorCount == 1) && (handlerArgCount == 0), src, dst);
+    }
+
+    if (dstVectorCount > 1){
+        for(i = 1; i < dstVectorCount-1; i++){
+            writeWord(out, dstSize[i], 0, src, dst);
+            writeWord(out, dst_addr[i], 0, src, dst);
+        }
+        writeWord(out, dstSize[i], 0, src, dst);
+        writeWord(out, dst_addr[i], handlerArgCount == 0, src, dst);
+    }
+
+    if (handlerArgCount > 0){
         sendHandlerArgs(out, src, dst, handler_args, handlerArgCount, true);
     }
 }

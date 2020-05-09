@@ -62,6 +62,7 @@ void shoal::kernel::wait_mem(unsigned int value){
     do{
         read_value = *(this->handler_ctrl + XHANDLER_HANDLER_CTRL_BUS_ADDR_MEM_READY_OUT_V_DATA/4);
     } while(read_value < value);
+    // while(*(this->handler_ctrl + XHANDLER_HANDLER_CTRL_BUS_ADDR_MEM_READY_OUT_V_DATA/4) < value){}
     *(this->handler_ctrl + XHANDLER_HANDLER_CTRL_BUS_ADDR_ARG_V_DATA/4) = value;
     *(this->handler_ctrl + XHANDLER_HANDLER_CTRL_BUS_ADDR_CONFIG_V_DATA/4) = H_INCR_MEM | 0x10;
     *(this->handler_ctrl + XHANDLER_HANDLER_CTRL_BUS_ADDR_CONFIG_V_DATA/4) = H_INCR_MEM;
@@ -72,9 +73,21 @@ void shoal::kernel::wait_barrier(unsigned int value){
     do{
         read_value = *(this->handler_ctrl + XHANDLER_HANDLER_CTRL_BUS_ADDR_BARRIER_OUT_V_DATA/4);
     } while(read_value < value);
+    // while(*(this->handler_ctrl + XHANDLER_HANDLER_CTRL_BUS_ADDR_BARRIER_OUT_V_DATA/4) < value){}
     *(this->handler_ctrl + XHANDLER_HANDLER_CTRL_BUS_ADDR_ARG_V_DATA/4) = value;
     *(this->handler_ctrl + XHANDLER_HANDLER_CTRL_BUS_ADDR_CONFIG_V_DATA/4) = H_INCR_BAR | 0x10;
     *(this->handler_ctrl + XHANDLER_HANDLER_CTRL_BUS_ADDR_CONFIG_V_DATA/4) = H_INCR_BAR;
+}
+
+void shoal::kernel::wait_counter(unsigned int value){
+    unsigned int read_value;
+    do{
+        read_value = *(this->handler_ctrl + XHANDLER_HANDLER_CTRL_BUS_ADDR_COUNTER_OUT_V_DATA/4);
+    } while(read_value < value);
+    // while(*(this->handler_ctrl + XHANDLER_HANDLER_CTRL_BUS_ADDR_BARRIER_OUT_V_DATA/4) < value){}
+    *(this->handler_ctrl + XHANDLER_HANDLER_CTRL_BUS_ADDR_ARG_V_DATA/4) = value;
+    *(this->handler_ctrl + XHANDLER_HANDLER_CTRL_BUS_ADDR_CONFIG_V_DATA/4) = H_ADD | 0x10;
+    *(this->handler_ctrl + XHANDLER_HANDLER_CTRL_BUS_ADDR_CONFIG_V_DATA/4) = H_ADD;
 }
 
 void shoal::kernel::sendShortAM_normal(gc_AMdst_t dst, gc_AMToken_t token,
@@ -107,6 +120,7 @@ void shoal::kernel::sendMediumAM_normal(gc_AMdst_t dst, gc_AMToken_t token,
     gc_AMhandler_t handlerID, gc_AMargs_t handlerArgCount, const word_t * handler_args,
     gc_payloadSize_t payloadSize)
 {
+    #pragma HLS INLINE
     // we have to add this here for some reason for the kernel to compile..?
     word_t tmp[16];
     int i = 0;
@@ -151,6 +165,7 @@ void shoal::kernel::sendMediumAM_async(gc_AMdst_t dst, gc_AMToken_t token,
     for(i = 0; i < 16; i++){
         tmp[i] = handler_args[i];
     }
+    #pragma HLS INLINE
     sendMediumAM(AM_MEDIUM|AM_FIFO|AM_ASYNC, this->id, dst, token, handlerID, handlerArgCount,
         tmp, payloadSize, *(this->out));
 }
@@ -183,12 +198,46 @@ void shoal::kernel::sendLongAM_normal(gc_AMdst_t dst, gc_AMToken_t token,
         tmp, payloadSize, src_addr, dst_addr, *(this->out));
 }
 
+void shoal::kernel::sendLongStrideAM_normal(gc_AMdst_t dst, gc_AMToken_t token,
+    gc_AMhandler_t handlerID, gc_AMargs_t handlerArgCount, const word_t * handler_args,
+    gc_payloadSize_t payloadSize, gc_stride_t src_stride, gc_strideBlockSize_t src_blk_size,
+    gc_strideBlockNum_t src_blk_num, word_t src_addr, gc_stride_t dst_stride,
+    gc_strideBlockSize_t dst_blk_size, gc_strideBlockNum_t dst_blk_num, word_t dst_addr)
+{
+    // we have to add this here for some reason for the kernel to compile..?
+    word_t tmp[16];
+    int i = 0;
+    for(i = 0; i < 16; i++){
+        tmp[i] = handler_args[i];
+    }
+    longStridedAM(AM_STRIDE, this->id, dst, token, handlerID, handlerArgCount,
+        tmp, payloadSize, src_stride, src_blk_size, src_blk_num, src_addr, 
+        dst_stride, dst_blk_size, dst_blk_num, dst_addr, *(this->out));
+}
+
+void shoal::kernel::sendLongVectorAM_normal(gc_AMdst_t dst, gc_AMToken_t token,
+    gc_AMhandler_t handlerID, gc_AMargs_t handlerArgCount, const word_t * handler_args,
+    gc_payloadSize_t payloadSize, gc_srcVectorNum_t srcVectorCount, gc_dstVectorNum_t dstVectorCount,
+    const gc_vectorSize_t * srcSize, const gc_vectorSize_t * dstSize, const word_t * src_addr,
+    const word_t * dst_addr)
+{
+    // we have to add this here for some reason for the kernel to compile..?
+    word_t tmp[16];
+    int i = 0;
+    for(i = 0; i < 16; i++){
+        tmp[i] = handler_args[i];
+    }
+    longVectorAM(AM_VECTOR, this->id, dst, token, handlerID, handlerArgCount,
+        tmp, payloadSize, srcVectorCount, dstVectorCount, srcSize, dstSize, 
+        src_addr, dst_addr, *(this->out));
+}
+
 void shoal::kernel::sendMemUpdate(gc_AMdst_t dst){
-    sendShortAM_normal(dst, 0, H_INCR_MEM, 0, nullptr);
+    sendShortAM_normal(dst, 0xcd, H_INCR_MEM, 0, nullptr);
 }
 
 void shoal::kernel::sendBarrierUpdate(gc_AMdst_t dst){
-    sendShortAM_normal(dst, 0, H_INCR_BAR, 0, nullptr);
+    sendShortAM_normal(dst, 0xce, H_INCR_BAR, 0, nullptr);
 }
 
 void shoal::kernel::barrier_wait(){
@@ -198,7 +247,7 @@ void shoal::kernel::barrier_wait(){
             ATOMIC_ACTION(this->sendBarrierUpdate(i));
         }
     }
-    this->wait_reply(kernel_num-1);
+    this->wait_reply(this->kernel_num-1);
 }
 
 void shoal::kernel::barrier_send(int id){

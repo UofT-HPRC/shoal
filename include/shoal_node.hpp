@@ -3,6 +3,7 @@
 
 #include "active_messages.hpp"
 #define CPU
+#define LOG_LEVEL 1
 #include "galapagos_node.hpp"
 #include "galapagos_net_tcp.hpp"
 

@@ -5,6 +5,7 @@
 #include "hls_types.hpp"
 #ifndef __HLS__
 #define CPU
+#define LOG_LEVEL 1
 #endif
 #include "galapagos_packet.h"
 
@@ -53,6 +54,7 @@ namespace shoal{
             void wait_mem(unsigned int value);
             void wait_barrier(unsigned int value);
             void wait_reply(unsigned int value);
+            void wait_counter(unsigned int value);
             // TODO need separate streams for data / replies to prevent HoL blocking
 
             void barrier_send(int id);
@@ -82,6 +84,16 @@ namespace shoal{
                 gc_AMhandler_t handlerID, gc_AMargs_t handlerArgCount,
                 const word_t * handler_args, gc_payloadSize_t payloadSize,
                 word_t src_addr, word_t dst_addr);
+            void sendLongStrideAM_normal(gc_AMdst_t dst, gc_AMToken_t token,
+                gc_AMhandler_t handlerID, gc_AMargs_t handlerArgCount, const word_t * handler_args,
+                gc_payloadSize_t payloadSize, gc_stride_t src_stride, gc_strideBlockSize_t src_blk_size,
+                gc_strideBlockNum_t src_blk_num, word_t src_addr, gc_stride_t dst_stride,
+                gc_strideBlockSize_t dst_blk_size, gc_strideBlockNum_t dst_blk_num, word_t dst_addr);
+            void sendLongVectorAM_normal(gc_AMdst_t dst, gc_AMToken_t token,
+                gc_AMhandler_t handlerID, gc_AMargs_t handlerArgCount, const word_t * handler_args,
+                gc_payloadSize_t payloadSize, gc_srcVectorNum_t srcVectorCount, gc_dstVectorNum_t dstVectorCount,
+                const gc_vectorSize_t * srcSize, const gc_vectorSize_t * dstSize, const word_t * src_addr,
+                const word_t * dst_addr);
     };
 } // namespace shoal
 

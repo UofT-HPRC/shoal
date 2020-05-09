@@ -92,7 +92,7 @@ typedef uint_64_t gc_destination_t;
 typedef gc_payloadSize_t gc_strideBlockSize_t;
 typedef uint_12_t gc_strideBlockNum_t;
 typedef uint_12_t gc_stride_t;
-typedef gc_payloadSize_t gc_vectorSize_t;
+typedef ap_uint<AM_SRC_VECTOR_SIZE_BODY_WIDTH> gc_vectorSize_t;
 typedef uint_4_t gc_srcVectorNum_t;
 
 #else
@@ -122,7 +122,7 @@ typedef long long gc_destination_t;
 typedef gc_payloadSize_t gc_strideBlockSize_t;
 typedef short gc_strideBlockNum_t;
 typedef short gc_stride_t;
-typedef gc_payloadSize_t gc_vectorSize_t;
+typedef short gc_vectorSize_t;
 typedef short gc_srcVectorNum_t;
 
 #endif

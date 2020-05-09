@@ -1,4 +1,5 @@
 #include <iostream>
+#include <sstream>
 #include "shoal_kernel.hpp"
 #include "global_utilities.hpp"
 #include "am_globals.hpp"
@@ -75,6 +76,23 @@ int shoal::kernel::attach(gasnet_handlerentry_t *table, int numentries, int size
 
     // ? no long messages should be sent until all kernels are here
 
+    if(this->id == 1){
+        for(long long i = 0; i < 512; i++){
+            memcpy(&gasnet_shared_mem[i*8], &i, 8);
+        }
+        std::stringstream ss;
+        ss << "Memory in node 1: ";
+        for(int i = 0; i < 10; i++){
+            ss << *((long long *)(&gasnet_shared_mem[i*8])) << ", ";
+        }
+        // ss << "...";
+        // for(int i = 508; i < 512; i++){
+        //     ss << *((long long *)(&gasnet_shared_mem[i*8])) << ", ";
+        // }
+        ss << "\n";
+        std::cout << ss.str();
+    }
+
     return 0;
 }
 
@@ -108,6 +126,17 @@ void shoal::kernel::wait_barrier(unsigned int value){
     // SAFE_COUT("PROFILE:S:interrupt_V:1\n")
     SAFE_COUT(COLOR(Color::FG_BLUE, dec, "Resetting barrier at " << nodedata << " from " << nodedata->barrier_cnt << " to " << nodedata->barrier_cnt - value << "\n"));
     nodedata->barrier_cnt -= value;
+    // SAFE_COUT("PROFILE:S:interrupt_V:0\n")
+}
+
+void shoal::kernel::wait_counter(unsigned int value){
+    while(nodedata->counter < value){
+        sched_yield();
+    };
+    lock_guard_t lck(*mutex_nodedata);
+    // SAFE_COUT("PROFILE:S:interrupt_V:1\n")
+    SAFE_COUT(COLOR(Color::FG_BLUE, dec, "Resetting counter at " << nodedata << " from " << nodedata->counter << " to " << nodedata->counter - value << "\n"));
+    nodedata->counter -= value;
     // SAFE_COUT("PROFILE:S:interrupt_V:0\n")
 }
 
@@ -174,12 +203,34 @@ void shoal::kernel::sendLongAM_normal(gc_AMdst_t dst, gc_AMToken_t token,
         handler_args, payloadSize, src_addr, dst_addr, *(this->out));
 }
 
+void shoal::kernel::sendLongStrideAM_normal(gc_AMdst_t dst, gc_AMToken_t token,
+    gc_AMhandler_t handlerID, gc_AMargs_t handlerArgCount, const word_t * handler_args,
+    gc_payloadSize_t payloadSize, gc_stride_t src_stride, gc_strideBlockSize_t src_blk_size,
+    gc_strideBlockNum_t src_blk_num, word_t src_addr, gc_stride_t dst_stride,
+    gc_strideBlockSize_t dst_blk_size, gc_strideBlockNum_t dst_blk_num, word_t dst_addr)
+{
+    longStridedAM(AM_STRIDE, this->id, dst, token, handlerID, handlerArgCount,
+        handler_args, payloadSize, src_stride, src_blk_size, src_blk_num, src_addr, 
+        dst_stride, dst_blk_size, dst_blk_num, dst_addr, *(this->out));
+}
+
+void shoal::kernel::sendLongVectorAM_normal(gc_AMdst_t dst, gc_AMToken_t token,
+    gc_AMhandler_t handlerID, gc_AMargs_t handlerArgCount, const word_t * handler_args,
+    gc_payloadSize_t payloadSize, gc_srcVectorNum_t srcVectorCount, gc_dstVectorNum_t dstVectorCount,
+    const gc_vectorSize_t * srcSize, const gc_vectorSize_t * dstSize, const word_t * src_addr,
+    const word_t * dst_addr)
+{
+    longVectorAM(AM_VECTOR, this->id, dst, token, handlerID, handlerArgCount,
+        handler_args, payloadSize, srcVectorCount, dstVectorCount, srcSize, dstSize, 
+        src_addr, dst_addr, *(this->out));
+}
+
 void shoal::kernel::sendMemUpdate(gc_AMdst_t dst){
-    sendShortAM_normal(dst, 0, H_INCR_MEM, 0, nullptr);
+    sendShortAM_normal(dst, 0xcd, H_INCR_MEM, 0, nullptr);
 }
 
 void shoal::kernel::sendBarrierUpdate(gc_AMdst_t dst){
-    sendShortAM_normal(dst, 0xABCD, H_INCR_BAR, 0, nullptr);
+    sendShortAM_normal(dst, 0xce, H_INCR_BAR, 0, nullptr);
 }
 
 void shoal::kernel::barrier_wait(){
@@ -189,7 +240,7 @@ void shoal::kernel::barrier_wait(){
             ATOMIC_ACTION(this->sendBarrierUpdate(i));
         }
     }
-    this->wait_reply(kernel_num-1);
+    this->wait_reply(this->kernel_num-1);
 }
 
 void shoal::kernel::barrier_send(int id){
@@ -203,6 +254,20 @@ void shoal::kernel::wait_reply(unsigned int value){
 }
 
 void shoal::kernel::end(){
+    std::stringstream ss;
+    if (this->id == 2){
+        ss << "Memory in node 2 at end: ";
+        for(int i = 0; i < 10; i++){
+            ss << *((long long *)(&gasnet_shared_mem[i*8])) << ", ";
+        }
+        // ss << "...";
+        // for(int i = 508; i < 512; i++){
+        //     ss << *((long long *)(&gasnet_shared_mem[i*8])) << ", ";
+        // }
+        ss << "\n";
+        std::cout << ss.str();
+    }
+
     SAFE_COUT("Leaving kernel " << this->id << "\n");
 
     free(gasnet_shared_mem);

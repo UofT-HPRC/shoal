@@ -5,6 +5,7 @@
 #include "hls_types.hpp"
 
 #define CPU
+#define LOG_LEVEL 1
 #include "galapagos_interface.hpp"
 
 #include "user_config.hpp"
@@ -120,6 +121,7 @@ void sendLongAM(
 );
 
 void longStridedAM(
+    gc_AMtype_t type,
     gc_AMsrc_t src,
     gc_AMdst_t dst,
     gc_AMToken_t token,
@@ -135,6 +137,24 @@ void longStridedAM(
     gc_strideBlockSize_t dst_blk_size,
     gc_strideBlockNum_t dst_blk_num,
     word_t dst_addr,
+    galapagos::interface <word_t> & out
+);
+
+void longVectorAM(
+    gc_AMtype_t type,
+    gc_AMsrc_t src,
+    gc_AMdst_t dst,
+    gc_AMToken_t token,
+    gc_AMhandler_t handlerID,
+    gc_AMargs_t handlerArgCount,
+    const word_t * handler_args,
+    gc_payloadSize_t payloadSize,
+    gc_srcVectorNum_t srcVectorCount,
+    gc_dstVectorNum_t dstVectorCount,
+    const gc_vectorSize_t * srcSize,
+    const gc_vectorSize_t * dstSize,
+    const word_t * src_addr,
+    const word_t * dst_addr,
     galapagos::interface <word_t> & out
 );
 

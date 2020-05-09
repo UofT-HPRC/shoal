@@ -4,6 +4,7 @@
 #include "config.hpp"
 
 #define CPU
+#define LOG_LEVEL 1
 #include "active_messages.hpp"
 
 word_t createKernelHeader(gc_AMtype_t AMtype, gc_AMToken_t token,
@@ -85,11 +86,11 @@ void am_tx(galapagos::interface <word_t> * in, galapagos::interface <word_t> * o
 
     if (isReplyAM(AMtype) && (!isShortAM(AMtype))){
         do{
-            ATOMIC_ACTION(printWord("   Writing to network ", axis_word));
+            // ATOMIC_ACTION(printWord("   Writing to network ", axis_word));
             out->write(axis_word);
             axis_word = in->read();
         } while(axis_word.last != 1);
-        ATOMIC_ACTION(printWord("   Writing to network ", axis_word));
+        // ATOMIC_ACTION(printWord("   Writing to network ", axis_word));
         out->write(axis_word);
     }
     else{
@@ -97,7 +98,7 @@ void am_tx(galapagos::interface <word_t> * in, galapagos::interface <word_t> * o
         axis_word.data = hdencode(axis_word.data, AM_TYPE, AMtype & 0xEF); //mask out FIFO bit
 
         // axis_net.write(axis_word);
-        ATOMIC_ACTION(printWord("   Writing to network ", axis_word));
+        // ATOMIC_ACTION(printWord("   Writing to network ", axis_word));
         out->write(axis_word);
         // if((isLongxAM(AMtype) || isMediumAM(AMtype)) &&
         //     !isDataFromFIFO(AMtype)){
@@ -120,7 +121,7 @@ void am_tx(galapagos::interface <word_t> * in, galapagos::interface <word_t> * o
             // if(!in->empty()){ //get destination metadata
                 axis_word = in->read();
                 // axis_net.write(axis_word);
-                ATOMIC_ACTION(printWord("   Writing to network ", axis_word));
+                // ATOMIC_ACTION(printWord("   Writing to network ", axis_word));
                 out->write(axis_word);
                 #ifdef USE_ABS_PAYLOAD
                 AMpayloadSize -= GC_DATA_BYTES;
@@ -130,7 +131,7 @@ void am_tx(galapagos::interface <word_t> * in, galapagos::interface <word_t> * o
                 axis_word = in->read();
                 axis_word.last = 0;
                 // axis_net.write(axis_word);
-                ATOMIC_ACTION(printWord("   Writing to network ", axis_word));
+                // ATOMIC_ACTION(printWord("   Writing to network ", axis_word));
                 out->write(axis_word);
                 #ifdef USE_ABS_PAYLOAD
                 AMpayloadSize -= GC_DATA_BYTES;
@@ -155,7 +156,7 @@ void am_tx(galapagos::interface <word_t> * in, galapagos::interface <word_t> * o
                 axis_word.data = hdencode(axis_word.data, AM_SRC_VECTOR_NUM, 0);
                 axis_word.data = hdencode(axis_word.data, AM_SRC_VECTOR_SIZE_HEAD, 0);
                 // axis_net.write(axis_word);
-                ATOMIC_ACTION(printWord("   Writing to network ", axis_word));
+                // ATOMIC_ACTION(printWord("   Writing to network ", axis_word));
                 out->write(axis_word);
                 #ifdef USE_ABS_PAYLOAD
                 AMpayloadSize -= GC_DATA_BYTES;
@@ -172,7 +173,7 @@ void am_tx(galapagos::interface <word_t> * in, galapagos::interface <word_t> * o
             // if(!in->empty()){ //read dst address
                 axis_word = in->read();
                 // axis_net.write(axis_word);
-                ATOMIC_ACTION(printWord("   Writing to network ", axis_word));
+                // ATOMIC_ACTION(printWord("   Writing to network ", axis_word));
                 out->write(axis_word);
                 #ifdef USE_ABS_PAYLOAD
                 AMpayloadSize -= GC_DATA_BYTES;
@@ -196,7 +197,7 @@ void am_tx(galapagos::interface <word_t> * in, galapagos::interface <word_t> * o
                 // if(!in->empty()){ //read dst size
                     axis_word = in->read();
                     // axis_net.write(axis_word);
-                    ATOMIC_ACTION(printWord("   Writing to network ", axis_word));
+                    // ATOMIC_ACTION(printWord("   Writing to network ", axis_word));
                     out->write(axis_word);
                     #ifdef USE_ABS_PAYLOAD
                     AMpayloadSize -= GC_DATA_BYTES;
@@ -206,7 +207,7 @@ void am_tx(galapagos::interface <word_t> * in, galapagos::interface <word_t> * o
                     axis_word = in->read();
                     axis_word.last = 0;
                     // axis_net.write(axis_word);
-                    ATOMIC_ACTION(printWord("   Writing to network ", axis_word));
+                    // ATOMIC_ACTION(printWord("   Writing to network ", axis_word));
                     out->write(axis_word);
                     #ifdef USE_ABS_PAYLOAD
                     AMpayloadSize -= GC_DATA_BYTES;
@@ -217,7 +218,7 @@ void am_tx(galapagos::interface <word_t> * in, galapagos::interface <word_t> * o
         else{ // st_AMtoken
             axis_word = in->read();
             // axis_net.write(axis_word);
-            ATOMIC_ACTION(printWord("   Writing to network ", axis_word));
+            // ATOMIC_ACTION(printWord("   Writing to network ", axis_word));
             out->write(axis_word);
             AMToken = hdextract(axis_word.data, AM_TOKEN);
             #ifdef USE_ABS_PAYLOAD
@@ -242,7 +243,7 @@ void am_tx(galapagos::interface <word_t> * in, galapagos::interface <word_t> * o
                 if(!isMediumAM(AMtype)){ // st_AMdestination
                     // read destination
                     axis_word = in->read();
-                    ATOMIC_ACTION(printWord("   Writing to network ", axis_word));
+                    // ATOMIC_ACTION(printWord("   Writing to network ", axis_word));
                     axis_word.last = 0;
                     out->write(axis_word);
                 }
@@ -251,7 +252,7 @@ void am_tx(galapagos::interface <word_t> * in, galapagos::interface <word_t> * o
                 // read destination
                 axis_word = in->read();
                 axis_word.last = 0;
-                ATOMIC_ACTION(printWord("   Writing to network ", axis_word));
+                // ATOMIC_ACTION(printWord("   Writing to network ", axis_word));
                 out->write(axis_word);
             }
         }
@@ -264,7 +265,7 @@ void am_tx(galapagos::interface <word_t> * in, galapagos::interface <word_t> * o
                 axis_word = in->read();
                 // axis_word.last = enableLast;
                 // axis_net.write(axis_word);
-                ATOMIC_ACTION(printWord("   Writing to network ", axis_word));
+                // ATOMIC_ACTION(printWord("   Writing to network ", axis_word));
                 out->write(axis_word);
                 #ifdef USE_ABS_PAYLOAD
                 AMpayloadSize -= GC_DATA_BYTES;
@@ -310,7 +311,7 @@ void am_tx(galapagos::interface <word_t> * in, galapagos::interface <word_t> * o
                 axis_word.last = 0;
                 // i+=GC_DATA_BYTES;
                 // axis_net.write(axis_word);
-                ATOMIC_ACTION(printWord("   Writing to network ", axis_word));
+                // ATOMIC_ACTION(printWord("   Writing to network ", axis_word));
                 out->write(axis_word);
             }
             if(isDataFromFIFO(AMtype))
@@ -341,7 +342,7 @@ void am_tx(galapagos::interface <word_t> * in, galapagos::interface <word_t> * o
             }
             axis_word.last = 1;
             // axis_net.write(axis_word);
-            ATOMIC_ACTION(printWord("   Writing to network ", axis_word));
+            // ATOMIC_ACTION(printWord("   Writing to network ", axis_word));
             out->write(axis_word);
         }
     }
@@ -362,7 +363,7 @@ void xpams_rx(galapagos::interface <word_t> * in,
     galapagos::stream_packet <word_t> axis_word;
 
     axis_word = in->read();
-    ATOMIC_ACTION(printWord("   Reading in xpams 1 - ", axis_word));
+    // ATOMIC_ACTION(printWord("   Reading in xpams 1 - ", axis_word));
     AMsrc = hdextract(axis_word.data, AM_SRC);
     AMdst = hdextract(axis_word.data, AM_DST);
     AMpayloadSize = hdextract(axis_word.data, AM_PAYLOAD_SIZE);
@@ -373,12 +374,12 @@ void xpams_rx(galapagos::interface <word_t> * in,
         axis_word.data = hdencode(axis_word.data, AM_TYPE, (AMtype & (~AM_REPLY)) + AM_ASYNC);
         axis_word.data = hdencode(axis_word.data, AM_SRC, AMdst);
         axis_word.data = hdencode(axis_word.data, AM_DST, AMsrc);
-        ATOMIC_ACTION(printWord("   Writing to loopback 1 - ", axis_word));
+        // ATOMIC_ACTION(printWord("   Writing to loopback 1 - ", axis_word));
         out->write(axis_word);
     }
 
     axis_word = in->read(); //read token
-    ATOMIC_ACTION(printWord("   Reading in xpams 2 - ", axis_word));
+    // ATOMIC_ACTION(printWord("   Reading in xpams 2 - ", axis_word));
     AMToken = hdextract(axis_word.data, AM_TOKEN);
     if(isReplyAM(AMtype) && isShortAM(AMtype)){
         // axis_word.data = 0;
@@ -406,11 +407,11 @@ void xpams_rx(galapagos::interface <word_t> * in,
         // out->write(axis_word);
         // axis_word = in->read();
         do{
-            ATOMIC_ACTION(printWord("   Writing to loopback 3 - ", axis_word));
+            // ATOMIC_ACTION(printWord("   Writing to loopback 3 - ", axis_word));
             out->write(axis_word);
             axis_word = in->read();
         } while(axis_word.last != 1);
-        ATOMIC_ACTION(printWord("   Writing to loopback 4 - ", axis_word));
+        // ATOMIC_ACTION(printWord("   Writing to loopback 4 - ", axis_word));
         out->write(axis_word);
         // currentState = st_AMheader;
     }
@@ -446,13 +447,13 @@ void xpams_rx(galapagos::interface <word_t> * in,
             #endif
             axis_word.data = createKernelHeader(AMtype, AMToken, AMsrc, payloadsize, AMhandler, AMargs);
             axis_word.dest = AMdst;
-            ATOMIC_ACTION(printWord("   Writing to kernel - ", axis_word));
+            // ATOMIC_ACTION(printWord("   Writing to kernel - ", axis_word));
             to_kernel->write(axis_word);
             do{ // st_AMpayload
                 axis_word = in->read();
                 // axis_wordDest = assignWord(axis_word);
                 // axis_wordDest.dest = AMdst;
-                ATOMIC_ACTION(printWord("   Writing to kernel - ", axis_word));
+                // ATOMIC_ACTION(printWord("   Writing to kernel - ", axis_word));
                 to_kernel->write(axis_word);
             } while(!axis_word.last);
             if (!isAsyncAM(AMtype)){
@@ -482,14 +483,14 @@ void xpams_rx(galapagos::interface <word_t> * in,
             axis_word.keep = GC_DATA_TKEEP;
             axis_word.dest = AMsrc;
             axis_word.last = 0;
-            ATOMIC_ACTION(printWord("   Writing to loopback 5 - ", axis_word));
+            // ATOMIC_ACTION(printWord("   Writing to loopback 5 - ", axis_word));
             out->write(axis_word);
             axis_word.data = 0;
             axis_word.data = hdencode(axis_word.data, AM_TOKEN, AMToken);
             // hdextract(axis_word.data, 39,) = 0;
             axis_word.last = 1;
             axis_word.keep = GC_DATA_TKEEP;
-            ATOMIC_ACTION(printWord("   Writing to loopback 6 - ", axis_word));
+            // ATOMIC_ACTION(printWord("   Writing to loopback 6 - ", axis_word));
             out->write(axis_word);
         }
     }
@@ -534,18 +535,19 @@ void am_rx(galapagos::interface <word_t> * in,
     AMhandler = hdextract(axis_word.data, AM_HANDLER);
     AMtype = hdextract(axis_word.data, AM_TYPE);
     AMargs = hdextract(axis_word.data, AM_HANDLER_ARGS);
-    ATOMIC_ACTION(printWord("   Writing ", axis_word));
+    // ATOMIC_ACTION(printWord("   Writing ", axis_word));
     out->write(axis_word);
     if (isReplyAM(AMtype) && (!isShortAM(AMtype))){
         while(axis_word.last != 1){
             axis_word = in->read();
-            ATOMIC_ACTION(printWord("   Writing ", axis_word));
+            // ATOMIC_ACTION(printWord("   Writing ", axis_word));
             out->write(axis_word);
         }
     } else {
         if(isLongStridedAM(AMtype)){
             axis_word = in->read();
-            ATOMIC_ACTION(printWord("   Writing ", axis_word));
+            // ATOMIC_ACTION(printWord("   Writing ", axis_word));
+            axis_word.last = 1;
             out->write(axis_word);
             AMstride = hdextract(axis_word.data, AM_STRIDE_SIZE);
             AMstrideBlockSize = hdextract(axis_word.data, AM_STRIDE_BLK_SIZE);
@@ -557,12 +559,12 @@ void am_rx(galapagos::interface <word_t> * in,
             // st_AMdestination
             axis_word = in->read();
             AMdestination = axis_word.data;
-            #ifdef USE_ABS_PAYLOAD
-            AMpayloadSize-=GC_DATA_BYTES;
-            gc_strideBlockSize_t payload = isLongAM(AMtype) ? (gc_strideBlockSize_t)(AMpayloadSize - AMargs*GC_DATA_BYTES) : (gc_strideBlockSize_t)(AMstrideBlockSize);
-            #else
-            gc_strideBlockSize_t payload = isLongAM(AMtype) ? AMpayloadSize : AMstrideBlockSize;
-            #endif
+            // #ifdef USE_ABS_PAYLOAD
+            // AMpayloadSize-=GC_DATA_BYTES;
+            // gc_strideBlockSize_t payload = isLongAM(AMtype) ? (gc_strideBlockSize_t)(AMpayloadSize - AMargs*GC_DATA_BYTES) : (gc_strideBlockSize_t)(AMstrideBlockSize);
+            // #else
+            // gc_strideBlockSize_t payload = isLongAM(AMtype) ? AMpayloadSize : AMstrideBlockSize;
+            // #endif
             addr_word_t address = AMdestination & (power<2,GC_ADDR_WIDTH>()-1);
             // dataMoverWriteCommand(axis_s2mmCommand, 0, 0, address,
             //     address(1,0) != 0, 1, address(1,0), 1, payload);
@@ -572,7 +574,8 @@ void am_rx(galapagos::interface <word_t> * in,
             AMdstVectorNum = hdextract(axis_word.data, AM_DST_VECTOR_NUM);
             AMvectorSize[0] = hdextract(axis_word.data, AM_DST_VECTOR_SIZE_HEAD);
             AMToken = hdextract(axis_word.data, AM_TOKEN);
-            ATOMIC_ACTION(printWord("   Writing ", axis_word));
+            // ATOMIC_ACTION(printWord("   Writing ", axis_word));
+            axis_word.last = 1;
             out->write(axis_word);
             #ifdef USE_ABS_PAYLOAD
             AMpayloadSize-=GC_DATA_BYTES;
@@ -614,7 +617,7 @@ void am_rx(galapagos::interface <word_t> * in,
             if((isShortAM(AMtype) || isLongxAM(AMtype)) && AMargs == 0){
                 axis_word.last = 1;
             }
-            ATOMIC_ACTION(printWord("   Writing ", axis_word));
+            // ATOMIC_ACTION(printWord("   Writing ", axis_word));
             out->write(axis_word);
             #ifdef USE_ABS_PAYLOAD
             AMpayloadSize-=GC_DATA_BYTES;
@@ -643,8 +646,8 @@ void am_rx(galapagos::interface <word_t> * in,
 
         gc_payloadSize_t i = 0;
         gc_payloadSize_t writeCount = 0;
-        gc_destination_t strideDest = AMdestination + AMstride;
-        gc_strideBlockNum_t strideCount = 1;
+        gc_destination_t strideDest = AMdestination;
+        gc_strideBlockNum_t strideCount = 0;
         gc_dstVectorNum_t vectorCount = 0;
         AMpayloadSize = AMpayloadSize % GC_DATA_BYTES == 0 ? AMpayloadSize / GC_DATA_BYTES : (gc_payloadSize_t)((AMpayloadSize / GC_DATA_BYTES) + 1);
         while(i < AMpayloadSize){
@@ -652,7 +655,7 @@ void am_rx(galapagos::interface <word_t> * in,
             writeCount+=GC_DATA_BYTES;
             i++;
             if(isMediumAM(AMtype)){
-                ATOMIC_ACTION(printWord("   Writing ", axis_word));
+                // ATOMIC_ACTION(printWord("   Writing ", axis_word));
                 out->write(axis_word);
             }
             else{
@@ -661,10 +664,10 @@ void am_rx(galapagos::interface <word_t> * in,
                     // axis_s2mm.write(axis_word);
                 }
                 else if(isLongStridedAM(AMtype)){
-                    if (strideCount < AMstrideBlockNum){
-                        strideDest += AMstride;
-                        strideCount++;
-                    }
+                    // if (strideCount < AMstrideBlockNum){
+                    //     strideDest += AMstride;
+                    //     strideCount++;
+                    // }
                     // if(writeCount < AMstrideBlockSize){
                     //         // axis_word.last = 0;
                     //         // axis_s2mm.write(axis_word);
@@ -676,6 +679,13 @@ void am_rx(galapagos::interface <word_t> * in,
                     // }
                     if (writeCount <= AMstrideBlockSize){
                         *(word_t*)(&(gasnet_shared_mem[strideDest + writeCount - GC_DATA_BYTES])) = axis_word.data;
+                        if (writeCount == AMstrideBlockSize){
+                            if (strideCount < AMstrideBlockNum){
+                                strideDest += AMstride;
+                                strideCount++;
+                                writeCount = 0;
+                            }
+                        }
                     }
                     else{
                         ap_uint<GC_DATA_BYTES> keep = writeCount - AMstrideBlockSize;
@@ -684,10 +694,14 @@ void am_rx(galapagos::interface <word_t> * in,
                         // axis_word.keep = keep;
                         // axis_s2mm.write(axis_word);
                         writeCount = 0;
+                        if (strideCount < AMstrideBlockNum){
+                            strideDest += AMstride;
+                            strideCount++;
+                        }
                     }
                 }
                 else{
-                    if(writeCount <= AMvectorSize[vectorCount]){
+                    if(writeCount < AMvectorSize[vectorCount]){
                         // axis_word.last = 0;
                         // axis_s2mm.write(axis_word);
                         *(word_t*)(&(gasnet_shared_mem[AMvectorDest[vectorCount] + writeCount - GC_DATA_BYTES])) = axis_word.data;
@@ -697,6 +711,7 @@ void am_rx(galapagos::interface <word_t> * in,
                     //     axis_s2mm.write(axis_word);
                     // }
                     else{
+                        *(word_t*)(&(gasnet_shared_mem[AMvectorDest[vectorCount] + writeCount - GC_DATA_BYTES])) = axis_word.data;
                         vectorCount++;
                         // dataMoverWriteCommand(axis_s2mmCommand, 0, 0,
                         //     AMvectorDest[vectorCount], //address
@@ -708,7 +723,7 @@ void am_rx(galapagos::interface <word_t> * in,
                             // axis_word.last = 0;
                             // axis_s2mm.write(axis_word);
                         // }
-                        writeCount = 1;
+                        writeCount = 0;
                     }
                 }
             }
@@ -965,6 +980,7 @@ void handler_thread(void (*fcnPtr)(short id, galapagos::interface <word_t>* ,
             SAFE_COUT("Data arrived in handler " << id << " from kernel\n");
             do{
                 axis_word = kernel_out.read();
+                ATOMIC_ACTION(printWord("   From Kernel: ", axis_word));
                 am_tx_in.write(axis_word);
             } while(!axis_word.last);
             am_tx(&am_tx_in, out);
@@ -974,6 +990,7 @@ void handler_thread(void (*fcnPtr)(short id, galapagos::interface <word_t>* ,
             SAFE_COUT("Data arrived in handler " << id << " from loopback\n");
             do{
                 axis_word = am_xpams_out.read();
+                ATOMIC_ACTION(printWord("   From loopback: ", axis_word));
                 am_tx_in.write(axis_word);
             } while(!axis_word.last);
             am_tx(&am_tx_in, out);

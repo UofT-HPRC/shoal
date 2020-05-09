@@ -13,7 +13,10 @@
 enum instruction_t{
     load, short_latency, medium_latency, long_latency, barrier_send,
     recv_medium, end, barrier_wait, long_fifo_latency, medium_fifo_latency,
-    read_local, recv_time, add_label}
+    read_local, recv_time, add_label, short_throughput, medium_throughput, 
+    long_throughput, medium_fifo_throughput, long_fifo_throughput, strided_latency,
+    strided_throughput, vector_latency, vector_throughput, load_stride, load_vector,
+    wait_counter, busy_loop, send_pilot, recv_pilot}
     current_instruction;
 
 #ifndef __HLS__
@@ -101,6 +104,20 @@ void benchmark(
     const int AMdst = 2;
     word_t loopCount = 1;
 
+    gc_stride_t src_stride;
+    gc_strideBlockSize_t src_blk_size;
+    gc_strideBlockNum_t src_blk_num;
+    gc_stride_t dst_stride;
+    gc_strideBlockSize_t dst_blk_size;
+    gc_strideBlockNum_t dst_blk_num;
+
+    gc_srcVectorNum_t srcVectorCount;
+    gc_dstVectorNum_t dstVectorCount;
+    gc_vectorSize_t srcSize[16];
+    word_t src_addrs[16];
+    gc_vectorSize_t dstSize[16];
+    word_t dst_addrs[16];
+
     while(loop){
     instruction = (instruction_t) *(instr_mem + pc++);
     // pc++;
@@ -117,6 +134,32 @@ void benchmark(
         // pc++;
         break;
     }
+    case load_stride:{
+        src_stride = (gc_stride_t) *(instr_mem + (pc++));
+        src_blk_size = (gc_strideBlockSize_t) *(instr_mem + (pc++));
+        src_blk_num = (gc_strideBlockNum_t) *(instr_mem + (pc++));
+        dst_stride = (gc_stride_t) *(instr_mem + (pc++));
+        dst_blk_size = (gc_strideBlockSize_t) *(instr_mem + (pc++));
+        dst_blk_num = (gc_strideBlockNum_t) *(instr_mem + (pc++));
+        break;
+    }
+    case load_vector:{
+        srcVectorCount = (gc_srcVectorNum_t) *(instr_mem + (pc++));
+        dstVectorCount = (gc_dstVectorNum_t) *(instr_mem + (pc++));
+        for(i = 0; i < srcVectorCount; i++){
+            srcSize[i] = (gc_vectorSize_t) *(instr_mem + (pc++));
+        }
+        for(i = 0; i < srcVectorCount; i++){
+            src_addrs[i] = (word_t) *(instr_mem + (pc++));
+        }
+        for(i = 0; i < dstVectorCount; i++){
+            dstSize[i] = (gc_vectorSize_t) *(instr_mem + (pc++));
+        }
+        for(i = 0; i < dstVectorCount; i++){
+            dst_addrs[i] = (word_t) *(instr_mem + (pc++));
+        }
+        break;
+    }
     case short_latency:{
         loopCount = (word_t) *(instr_mem + (pc++));
         int i;
@@ -127,6 +170,10 @@ void benchmark(
             start_timer(axi_timer);
             #endif
             kernel.sendShortAM_normal(AMdst, 0xff0, AMhandler, AMargs, handler_args);
+            // {
+            //     #pragma HLS INLINE REGION
+            //     kernel.wait_reply(1);
+            // }
             kernel.wait_reply(1);
             #ifndef __HLS__
             stop_timer(&kernel, 0xab0, timer);
@@ -211,6 +258,11 @@ void benchmark(
             for (j = 0; j < payloadSize; j+=GC_DATA_BYTES){
                 kernel.sendPayload(AMdst, j, j == payloadSize - GC_DATA_BYTES);
             }
+            // {
+            //     doesn't work: the write happens all at one address instead of three
+            //     #pragma HLS INLINE REGION
+            //     kernel.wait_reply(1);
+            // }
             kernel.wait_reply(1);
             #ifndef __HLS__
             stop_timer(&kernel, 0xab4, timer);
@@ -283,6 +335,33 @@ void benchmark(
             case medium_fifo_latency:
                 label_string = "medium-fifo_latency_" + std::to_string(test_meta);
                 break;
+            case strided_latency:
+                label_string = "strided_latency_" + std::to_string(test_meta);
+                break;
+            case vector_latency:
+                label_string = "vector_latency_" + std::to_string(test_meta);
+                break;
+            case short_throughput:
+                label_string = "short_throughput_" + std::to_string(test_meta);
+                break;
+            case medium_throughput:
+                label_string = "medium_throughput_" + std::to_string(test_meta);
+                break;
+            case long_throughput:
+                label_string = "long_throughput_" + std::to_string(test_meta);
+                break;
+            case long_fifo_throughput:
+                label_string = "long-fifo_throughput_" + std::to_string(test_meta);
+                break;
+            case medium_fifo_throughput:
+                label_string = "medium-fifo_throughput_" + std::to_string(test_meta);
+                break;
+            case strided_throughput:
+                label_string = "strided_throughput_" + std::to_string(test_meta);
+                break;
+            case vector_throughput:
+                label_string = "vector_throughput_" + std::to_string(test_meta);
+                break;
             default:
                 label_string = "null";
                 break;
@@ -291,11 +370,225 @@ void benchmark(
         #endif
         break;
     }
+    case short_throughput: {
+        loopCount = (word_t) *(instr_mem + (pc++));
+        int i;
+        #ifndef __HLS__
+        auto timer = start_timer();
+        #else
+        start_timer(axi_timer);
+        #endif
+        for(i = 0; i < loopCount; i++){
+            kernel.sendShortAM_normal(AMdst, 0xff0, AMhandler, AMargs, handler_args);
+        }
+        kernel.wait_reply(loopCount);
+        #ifndef __HLS__
+        stop_timer(&kernel, 0xef0, timer);
+        #else
+        stop_timer(&kernel, 0xef0, axi_timer);
+        #endif
+        break;
+    }
+    case medium_throughput:{
+        loopCount = (word_t) *(instr_mem + (pc++));
+        int i;
+        #ifndef __HLS__
+        auto timer = start_timer();
+        #else
+        start_timer(axi_timer);
+        #endif
+        for(i = 0; i < loopCount; i++){
+            kernel.sendMediumAM_normal(AMdst, 0xff1, AMhandler, AMargs, handler_args, payloadSize, src_addr);
+        }
+        kernel.wait_reply(loopCount);
+        #ifndef __HLS__
+        stop_timer(&kernel, 0xef1, timer);
+        #else
+        stop_timer(&kernel, 0xef1, axi_timer);
+        #endif
+        break;
+    }
+    case medium_fifo_throughput:{
+        loopCount = (word_t) *(instr_mem + (pc++));
+        int i;
+        word_t j = 0;
+        #ifndef __HLS__
+        auto timer = start_timer();
+        #else
+        start_timer(axi_timer);
+        #endif
+        for(i = 0; i < loopCount; i++){
+            kernel.sendMediumAM_normal(AMdst, 0xff2, AMhandler, AMargs, handler_args, payloadSize);
+            for (j = 0; j < payloadSize; j+=GC_DATA_BYTES){
+                kernel.sendPayload(AMdst, j, j == payloadSize - GC_DATA_BYTES);
+            }
+        }
+        kernel.wait_reply(loopCount);
+        #ifndef __HLS__
+        stop_timer(&kernel, 0xef2, timer);
+        #else
+        stop_timer(&kernel, 0xef2, axi_timer);
+        #endif
+        break;
+    }
+    case long_throughput:{
+        loopCount = (word_t) *(instr_mem + (pc++));
+        int i;
+        #ifndef __HLS__
+        auto timer = start_timer();
+        #else
+        start_timer(axi_timer);
+        #endif
+        for(i = 0; i < loopCount; i++){
+            kernel.sendLongAM_normal(AMdst, 0xff3, AMhandler, AMargs, handler_args, payloadSize, src_addr, dst_addr);
+        }
+        kernel.wait_reply(loopCount);
+        #ifndef __HLS__
+        stop_timer(&kernel, 0xef3, timer);
+        #else
+        stop_timer(&kernel, 0xef3, axi_timer);
+        #endif
+        break;
+    }
+    case long_fifo_throughput:{
+        loopCount = (word_t) *(instr_mem + (pc++));
+        int i;
+        word_t j = 0;
+        #ifndef __HLS__
+        auto timer = start_timer();
+        #else
+        start_timer(axi_timer);
+        #endif
+        for(i = 0; i < loopCount; i++){
+            kernel.sendLongAM_normal(AMdst, 0xff4, AMhandler, AMargs, handler_args, payloadSize, dst_addr);
+            for (j = 0; j < payloadSize; j+=GC_DATA_BYTES){
+                kernel.sendPayload(AMdst, j, j == payloadSize - GC_DATA_BYTES);
+            }
+        }
+        kernel.wait_reply(loopCount);
+        #ifndef __HLS__
+        stop_timer(&kernel, 0xef4, timer);
+        #else
+        stop_timer(&kernel, 0xef4, axi_timer);
+        #endif
+        break;
+    }
+    case strided_latency:{
+        loopCount = (word_t) *(instr_mem + (pc++));
+        int i;
+        for(i = 0; i < loopCount; i++){
+            #ifndef __HLS__
+            auto timer = start_timer();
+            #else
+            start_timer(axi_timer);
+            #endif
+            kernel.sendLongStrideAM_normal(AMdst, 0xff5, AMhandler, AMargs, handler_args, payloadSize, src_stride, src_blk_size,
+                src_blk_num, src_addr, dst_stride, dst_blk_size, dst_blk_num, dst_addr);
+            kernel.wait_reply(1);
+            #ifndef __HLS__
+            stop_timer(&kernel, 0xab5, timer);
+            #else
+            stop_timer(&kernel, 0xab5, axi_timer);
+            #endif
+        }
+        break;
+    }
+    case strided_throughput:{
+        loopCount = (word_t) *(instr_mem + (pc++));
+        int i;
+        #ifndef __HLS__
+        auto timer = start_timer();
+        #else
+        start_timer(axi_timer);
+        #endif
+        for(i = 0; i < loopCount; i++){
+            kernel.sendLongStrideAM_normal(AMdst, 0xff5, AMhandler, AMargs, handler_args, payloadSize, src_stride, src_blk_size,
+                src_blk_num, src_addr, dst_stride, dst_blk_size, dst_blk_num, dst_addr);
+        }
+        kernel.wait_reply(loopCount);
+        #ifndef __HLS__
+        stop_timer(&kernel, 0xab5, timer);
+        #else
+        stop_timer(&kernel, 0xab5, axi_timer);
+        #endif
+        break;
+    }
+    case vector_latency:{
+        loopCount = (word_t) *(instr_mem + (pc++));
+        int i;
+        for(i = 0; i < loopCount; i++){
+            #ifndef __HLS__
+            auto timer = start_timer();
+            #else
+            start_timer(axi_timer);
+            #endif
+            kernel.sendLongVectorAM_normal(AMdst, 0xff6, AMhandler, AMargs, handler_args, payloadSize, srcVectorCount, dstVectorCount,
+            srcSize, dstSize, src_addrs, dst_addrs);
+            kernel.wait_reply(1);
+            #ifndef __HLS__
+            stop_timer(&kernel, 0xab6, timer);
+            #else
+            stop_timer(&kernel, 0xab6, axi_timer);
+            #endif
+        }
+        break;
+    }
+    case vector_throughput:{
+        loopCount = (word_t) *(instr_mem + (pc++));
+        int i;
+        #ifndef __HLS__
+        auto timer = start_timer();
+        #else
+        start_timer(axi_timer);
+        #endif
+        for(i = 0; i < loopCount; i++){
+            kernel.sendLongVectorAM_normal(AMdst, 0xff6, AMhandler, AMargs, handler_args, payloadSize, srcVectorCount, dstVectorCount,
+            srcSize, dstSize, src_addrs, dst_addrs);
+        }
+        kernel.wait_reply(loopCount);
+        #ifndef __HLS__
+        stop_timer(&kernel, 0xab6, timer);
+        #else
+        stop_timer(&kernel, 0xab6, axi_timer);
+        #endif
+        break;
+    }
+    case wait_counter:{
+        word_t value = (word_t) *(instr_mem + (pc++));
+        kernel.wait_counter(value);
+    }
+    case busy_loop:{
+        loopCount = (word_t) *(instr_mem + (pc++));
+        int i = 0;
+        int value = 0;
+        while(i < loopCount && value != 1){
+            #ifdef __HLS__
+            value = (axi_timer[0]) & 0xFFFFFFFF;
+            #endif
+            i += 1;
+        }
+        break;
+    }
+    case send_pilot:{
+        gc_AMdst_t dest = (word_t) *(instr_mem + (pc++));
+        word_t j = 0;
+        kernel.sendMediumAM_normal(dest, 0xbad, AMhandler, AMargs, handler_args, payloadSize);
+        for (j = 0; j < payloadSize; j+=GC_DATA_BYTES){
+            kernel.sendPayload(AMdst, j, j == payloadSize - GC_DATA_BYTES);
+        }
+        kernel.wait_reply(1);
+        break;
+    }
+    case recv_pilot:{
+        axis_word = in->read(); // read token
+        axis_word = in->read();
+        break;
+    }
     default:
         loop = false;
         break;
-    }
-    }
+    } // switch
+    } // while
     kernel.end();
     #ifdef __HLS__
     while(1){}
@@ -316,7 +609,11 @@ void kern0(
 ){
 
     int numbers[1024];
-    std::ifstream inputFile("/home/savi/Documents/varun/repos/shoal/tests/build/benchmark_0_sw.mem");        // Input file stream object
+    std::string str = "/home/savi/Documents/varun/repos/shoal";
+    // std::string str;
+    // str.append(shoal_path);
+    str.append("/tests/build/benchmark_0_sw.mem");
+    std::ifstream inputFile(str.c_str()); // Input file stream object
 
     // Check if exists and then open the file.
     if (inputFile.good()) {
@@ -355,7 +652,11 @@ void kern1(
 ){
 
     int numbers[1024];
-    std::ifstream inputFile("/home/savi/Documents/varun/repos/shoal/tests/build/benchmark_1_sw.mem");        // Input file stream object
+    std::string str = "/home/savi/Documents/varun/repos/shoal";
+    // std::string str;
+    // str.append(shoal_path);
+    str.append("/tests/build/benchmark_1_sw.mem");
+    std::ifstream inputFile(str.c_str()); // Input file stream object
 
     // Check if exists and then open the file.
     if (inputFile.good()) {
@@ -395,7 +696,11 @@ void kern2(
 ){
 
     int numbers[1024];
-    std::ifstream inputFile("/home/savi/Documents/varun/repos/shoal/tests/build/benchmark_2_sw.mem");        // Input file stream object
+    std::string str = "/home/savi/Documents/varun/repos/shoal";
+    // std::string str;
+    // str.append(shoal_path);
+    str.append("/tests/build/benchmark_2_sw.mem");
+    std::ifstream inputFile(str.c_str()); // Input file stream object
 
     // Check if exists and then open the file.
     if (inputFile.good()) {
