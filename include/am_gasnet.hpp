@@ -3,7 +3,6 @@
 
 #include "hls_types.hpp"
 #define CPU
-#define LOG_LEVEL 1
 #include "galapagos_interface.hpp"
 
 typedef gc_AMargs_t garg;

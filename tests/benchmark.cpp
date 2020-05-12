@@ -577,11 +577,17 @@ void benchmark(
             kernel.sendPayload(AMdst, j, j == payloadSize - GC_DATA_BYTES);
         }
         kernel.wait_reply(1);
+        #ifndef __HLS__
+        sleep(1);
+        #endif
         break;
     }
     case recv_pilot:{
         axis_word = in->read(); // read token
         axis_word = in->read();
+        #ifndef __HLS__
+        sleep(1);
+        #endif
         break;
     }
     default:

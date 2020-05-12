@@ -60,9 +60,9 @@ GAScore_build_dirs := $(shell find $(SHOAL_PATH) -type d -name 'build' -not -pat
 
 DEBUG ?= 1
 ifeq ($(DEBUG), 0)
-OPT = -O2
+OPT = -O2 -DLOG_LEVEL=0
 else
-OPT = -g -O0 -DDEBUG
+OPT = -g -O0 -DDEBUG -DLOG_LEVEL=2 -fsanitize=address
 endif
 
 CC = /usr/bin/g++-7
@@ -98,6 +98,7 @@ lib_modules=$(patsubst %, lib-%, $(lib_files))
 lib: $(lib_modules)
 	rm -f $(SHOAL_PATH)/build/libTHeGASnet.a
 	ar -cr $(SHOAL_PATH)/build/libTHeGASnet.a $(SHOAL_PATH)/build/*.o
+	$(MAKE) -C $(GALAPAGOS_PATH)/middleware/libGalapagos lib DEBUG=$(DEBUG)
 	cp $(GALAPAGOS_PATH)/middleware/libGalapagos/libGalapagos.a $(SHOAL_PATH)/build/
 
 define make-libs

@@ -5,7 +5,6 @@
 #include "hls_types.hpp"
 #ifndef __HLS__
 #define CPU
-#define LOG_LEVEL 1
 #endif
 #include "galapagos_packet.h"
 

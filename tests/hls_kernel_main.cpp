@@ -18,15 +18,27 @@ int main(){
     #else
     kern_info.push_back(address_1);
     #endif
+
+    #if LOG_LEVEL > 0
     std::shared_ptr<spdlog::logger> logger = spdlog::basic_logger_mt("basic_logger", "main.log");
     spdlog::set_level(spdlog::level::debug); // Set global log level to debug
     logger->flush_on(spdlog::level::debug);
+    #endif
 
+    #if LOG_LEVEL > 0
     #if(KERN_BUILD == -1 || KERN_BUILD == 0)
     shoal::node node(kern_info, address_0, logger);
     node.add_kernel(KERN0_ID, kern0);
     #elif(KERN_BUILD == 1)
     shoal::node node(kern_info, address_1, logger);
+    #endif
+    #else
+    #if(KERN_BUILD == -1 || KERN_BUILD == 0)
+    shoal::node node(kern_info, address_0);
+    node.add_kernel(KERN0_ID, kern0);
+    #elif(KERN_BUILD == 1)
+    shoal::node node(kern_info, address_1);
+    #endif
     #endif
     
     #if(KERN_BUILD == -1 || KERN_BUILD == 1)

@@ -12,9 +12,13 @@ int main(){
     std::vector <std::string> kern_info;
     kern_info.push_back(my_address);
     kern_info.push_back(my_address);
-    std::shared_ptr<spdlog::logger> logger = spdlog::basic_logger_mt("basic_logger", "main.log");
 
+    #if LOG_LEVEL > 0
+    std::shared_ptr<spdlog::logger> logger = spdlog::basic_logger_mt("basic_logger", "main.log");
     shoal::node node(kern_info, my_address, logger);
+    #else
+    shoal::node node(kern_info, my_address);
+    #endif
     node.add_kernel(KERN0_ID, kern0);
     node.add_kernel(KERN1_ID, kern1);
 

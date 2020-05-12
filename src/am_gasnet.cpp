@@ -4,7 +4,6 @@
 #include "config.hpp"
 
 #define CPU
-#define LOG_LEVEL 1
 #include "active_messages.hpp"
 
 word_t createKernelHeader(gc_AMtype_t AMtype, gc_AMToken_t token,
@@ -751,27 +750,21 @@ void handler_thread(void (*fcnPtr)(short id, galapagos::interface <word_t>* ,
 	word_t arg[power<2, AM_HANDLER_ARGS_WIDTH>()];
     word_t payload[16];
     int i;
+    #if LOG_LEVEL > 0
     std::shared_ptr<spdlog::logger> logger = spdlog::basic_logger_mt("basic_logger_" + std::to_string(id), "am_gasnet_" + std::to_string(id) + ".log");
 
-    // std::unique_ptr<galapagos::interface <word_t> > kernel_in;
-    // kernel_in = std::make_unique <galapagos::interface <word_t> > ("kernel_in", logger);
-
-    // std::unique_ptr<galapagos::interface <word_t> > kernel_out;
-    // kernel_out = std::make_unique <galapagos::interface <word_t> > ("kernel_out", logger);
-
-    // std::unique_ptr<galapagos::interface <word_t> > am_xpams_rx;
-    // am_xpams_rx = std::make_unique <galapagos::interface <word_t> > ("am_xpams_rx", logger);
-
-    // std::unique_ptr<galapagos::interface <word_t> > am_xpams_out;
-    // am_xpams_out = std::make_unique <galapagos::interface <word_t> > ("am_xpams_out", logger);
-
-    // std::unique_ptr<galapagos::interface <word_t> > am_tx_in;
-    // am_tx_in = std::make_unique <galapagos::interface <word_t> > ("am_tx_in", logger);
     galapagos::interface <word_t> kernel_in(std::string("kernel_in"), logger);
     galapagos::interface <word_t> kernel_out(std::string("kernel_out"), logger);
     galapagos::interface <word_t> am_xpams_rx(std::string("am_xpams_rx"), logger);
     galapagos::interface <word_t> am_xpams_out(std::string("am_xpams_out"), logger);
     galapagos::interface <word_t> am_tx_in(std::string("am_tx_in"), logger);
+    #else
+    galapagos::interface <word_t> kernel_in(std::string("kernel_in"));
+    galapagos::interface <word_t> kernel_out(std::string("kernel_out"));
+    galapagos::interface <word_t> am_xpams_rx(std::string("am_xpams_rx"));
+    galapagos::interface <word_t> am_xpams_out(std::string("am_xpams_out"));
+    galapagos::interface <word_t> am_tx_in(std::string("am_tx_in"));
+    #endif
 
     kernel_done[id] = new std::atomic_bool(false);
     std::atomic_bool* done = kernel_done[id];

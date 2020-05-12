@@ -11,7 +11,7 @@ import matplotlib.pyplot as plt
 
 LATENCY_ITERATION_COUNT = 1000
 THROUGHPUT_ITERATION_COUNT = 1000
-TESTS = ["hw-hw-same"]
+TESTS = ["hw-hw-same", "sw-sw-same", "sw-hw"]
 TRANSPORT = ["tcp"]
 PAYLOAD_MIN = 0
 PAYLOAD_MAX = 10
