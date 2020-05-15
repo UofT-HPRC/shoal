@@ -21,4 +21,6 @@ void handler_thread(void (*fcnPtr)(short id, galapagos::interface <word_t> * in,
     galapagos::interface <word_t> * out), short id, galapagos::interface <word_t> * in,
     galapagos::interface <word_t> * out);
 
+#define PACKET_THRESHOLD 1024
+
 #endif // SHOAL_INCLUDE_AM_GASNET_H_

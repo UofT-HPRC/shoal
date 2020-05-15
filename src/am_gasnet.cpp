@@ -275,48 +275,23 @@ void am_tx(galapagos::interface <word_t> * in, galapagos::interface <word_t> * o
         // check for payload
         if (!isShortAM(AMtype)){
             gc_payloadSize_t i = 0;
-            gc_payloadSize_t payload_1 = AMpayloadSize-GC_DATA_BYTES;
+            // gc_payloadSize_t payload_1 = AMpayloadSize-GC_DATA_BYTES;
             int j = 0;
             int k = 0;
-            for(i = 0; i < payload_1; i+=GC_DATA_BYTES){
-            // while(i < AMpayloadSize){
-                if(isDataFromFIFO(AMtype))
-                    axis_word = in->read();
-                else{
-                    if(isLongStridedAM(AMtype)){
-                        axis_word.data = *((word_t*) &gasnet_shared_mem[address]);
-                        address += GC_DATA_BYTES;
-                        j+= GC_DATA_BYTES;
-                        if(j == srcBlockSize){
-                            k++;
-                            address = AMsrcAddr + (k*srcStride);
-                            j = 0;
-                        }
-                    } else if(isLongVectoredAM(AMtype)){
-                        axis_word.data = *((word_t*) &gasnet_shared_mem[address]);
-                        address += GC_DATA_BYTES;
-                        j += GC_DATA_BYTES;
-                        if (j == AMvectorSize[k]){
-                            k++;
-                            j = 0;
-                            address = AMvectorDest[k];
-                        }
-                    } else {
-                        axis_word.data = *((word_t*) &gasnet_shared_mem[address]);
-                        address += GC_DATA_BYTES;
-                    }
+            char * mem;
+            size_t size; // in bytes
+            if(isDataFromFIFO(AMtype)){
+                if(AMpayloadSize > PACKET_THRESHOLD){
+                    mem = in->packet_read(&size);
+                    out->packet_write_partial(mem, size/GC_DATA_BYTES, true);
+                } else {
+                    for(i = 0; i < AMpayloadSize; i+=GC_DATA_BYTES){
+                        axis_word = in->read();
+                        out->write(axis_word);
+                    }                    
                 }
-                    // axis_mm2s.read(axis_word);
-                axis_word.last = 0;
-                // i+=GC_DATA_BYTES;
-                // axis_net.write(axis_word);
-                // ATOMIC_ACTION(printWord("   Writing to network ", axis_word));
-                out->write(axis_word);
-            }
-            if(isDataFromFIFO(AMtype))
-                axis_word = in->read();
-            else{
-                if(isLongStridedAM(AMtype)){
+            } else if(isLongStridedAM(AMtype)){
+                for(i = 0; i < AMpayloadSize; i+=GC_DATA_BYTES){
                     axis_word.data = *((word_t*) &gasnet_shared_mem[address]);
                     address += GC_DATA_BYTES;
                     j+= GC_DATA_BYTES;
@@ -325,7 +300,11 @@ void am_tx(galapagos::interface <word_t> * in, galapagos::interface <word_t> * o
                         address = AMsrcAddr + (k*srcStride);
                         j = 0;
                     }
-                } else if(isLongVectoredAM(AMtype)){
+                    axis_word.last = i == AMpayloadSize-GC_DATA_BYTES;
+                    out->write(axis_word);
+                }
+            } else if(isLongVectoredAM(AMtype)){
+                for(i = 0; i < AMpayloadSize; i+=GC_DATA_BYTES){
                     axis_word.data = *((word_t*) &gasnet_shared_mem[address]);
                     address += GC_DATA_BYTES;
                     j += GC_DATA_BYTES;
@@ -334,15 +313,86 @@ void am_tx(galapagos::interface <word_t> * in, galapagos::interface <word_t> * o
                         j = 0;
                         address = AMvectorDest[k];
                     }
+                    axis_word.last = i == AMpayloadSize-GC_DATA_BYTES;
+                    out->write(axis_word);
+                }
+            } else {
+                if(AMpayloadSize > PACKET_THRESHOLD){
+                    out->packet_write_partial((char*) &gasnet_shared_mem[address], AMpayloadSize/GC_DATA_BYTES, true);
                 } else {
-                    axis_word.data = *((word_t*) &gasnet_shared_mem[address]);
-                    address += GC_DATA_BYTES;
+                    for(i = 0; i < AMpayloadSize; i+=GC_DATA_BYTES){
+                        axis_word.data = *((word_t*) &gasnet_shared_mem[address]);
+                        address += GC_DATA_BYTES;
+                        axis_word.last = i == AMpayloadSize-GC_DATA_BYTES;
+                        out->write(axis_word);
+                    }                    
                 }
             }
-            axis_word.last = 1;
-            // axis_net.write(axis_word);
-            // ATOMIC_ACTION(printWord("   Writing to network ", axis_word));
-            out->write(axis_word);
+            // for(i = 0; i < AMpayloadSize; i+=GC_DATA_BYTES){
+            // // while(i < AMpayloadSize){
+            //     if(isDataFromFIFO(AMtype))
+            //         axis_word = in->read();
+            //     else{
+            //         if(isLongStridedAM(AMtype)){
+            //             axis_word.data = *((word_t*) &gasnet_shared_mem[address]);
+            //             address += GC_DATA_BYTES;
+            //             j+= GC_DATA_BYTES;
+            //             if(j == srcBlockSize){
+            //                 k++;
+            //                 address = AMsrcAddr + (k*srcStride);
+            //                 j = 0;
+            //             }
+            //         } else if(isLongVectoredAM(AMtype)){
+            //             axis_word.data = *((word_t*) &gasnet_shared_mem[address]);
+            //             address += GC_DATA_BYTES;
+            //             j += GC_DATA_BYTES;
+            //             if (j == AMvectorSize[k]){
+            //                 k++;
+            //                 j = 0;
+            //                 address = AMvectorDest[k];
+            //             }
+            //         } else {
+            //             axis_word.data = *((word_t*) &gasnet_shared_mem[address]);
+            //             address += GC_DATA_BYTES;
+            //         }
+            //     }
+            //         // axis_mm2s.read(axis_word);
+            //     axis_word.last = i == AMpayloadSize-GC_DATA_BYTES;
+            //     // i+=GC_DATA_BYTES;
+            //     // axis_net.write(axis_word);
+            //     // ATOMIC_ACTION(printWord("   Writing to network ", axis_word));
+            //     out->write(axis_word);
+            // }
+            // if(isDataFromFIFO(AMtype))
+            //     axis_word = in->read();
+            // else{
+            //     if(isLongStridedAM(AMtype)){
+            //         axis_word.data = *((word_t*) &gasnet_shared_mem[address]);
+            //         address += GC_DATA_BYTES;
+            //         j+= GC_DATA_BYTES;
+            //         if(j == srcBlockSize){
+            //             k++;
+            //             address = AMsrcAddr + (k*srcStride);
+            //             j = 0;
+            //         }
+            //     } else if(isLongVectoredAM(AMtype)){
+            //         axis_word.data = *((word_t*) &gasnet_shared_mem[address]);
+            //         address += GC_DATA_BYTES;
+            //         j += GC_DATA_BYTES;
+            //         if (j == AMvectorSize[k]){
+            //             k++;
+            //             j = 0;
+            //             address = AMvectorDest[k];
+            //         }
+            //     } else {
+            //         axis_word.data = *((word_t*) &gasnet_shared_mem[address]);
+            //         address += GC_DATA_BYTES;
+            //     }
+            // }
+            // axis_word.last = 1;
+            // // axis_net.write(axis_word);
+            // // ATOMIC_ACTION(printWord("   Writing to network ", axis_word));
+            // out->write(axis_word);
         }
     }
 }
@@ -496,7 +546,7 @@ void xpams_rx(galapagos::interface <word_t> * in,
 }
 
 void am_rx(galapagos::interface <word_t> * in,
-    galapagos::interface <word_t> * out, word_t *arg, gc_AMtype_t* function,
+    galapagos::interface <word_t> * to_net, galapagos::interface <word_t> * to_kernel, word_t *arg, gc_AMtype_t* function,
     gc_AMargs_t* numargs, gc_AMhandler_t* handler, gc_AMToken_t* token,
     gc_payloadSize_t* payload){
 
@@ -535,19 +585,24 @@ void am_rx(galapagos::interface <word_t> * in,
     AMtype = hdextract(axis_word.data, AM_TYPE);
     AMargs = hdextract(axis_word.data, AM_HANDLER_ARGS);
     // ATOMIC_ACTION(printWord("   Writing ", axis_word));
-    out->write(axis_word);
+    // out->write(axis_word);
     if (isReplyAM(AMtype) && (!isShortAM(AMtype))){
+        axis_word.data = hdencode(axis_word.data, AM_TYPE, (AMtype & (~AM_REPLY)) + AM_ASYNC);
+        axis_word.data = hdencode(axis_word.data, AM_SRC, AMdst);
+        axis_word.data = hdencode(axis_word.data, AM_DST, AMsrc);
+        // ATOMIC_ACTION(printWord("   Writing to loopback 1 - ", axis_word));
+        to_net->write(axis_word);
         while(axis_word.last != 1){
             axis_word = in->read();
             // ATOMIC_ACTION(printWord("   Writing ", axis_word));
-            out->write(axis_word);
+            to_net->write(axis_word);
         }
     } else {
         if(isLongStridedAM(AMtype)){
             axis_word = in->read();
             // ATOMIC_ACTION(printWord("   Writing ", axis_word));
             axis_word.last = 1;
-            out->write(axis_word);
+            // out->write(axis_word);
             AMstride = hdextract(axis_word.data, AM_STRIDE_SIZE);
             AMstrideBlockSize = hdextract(axis_word.data, AM_STRIDE_BLK_SIZE);
             AMstrideBlockNum = hdextract(axis_word.data, AM_STRIDE_BLK_NUM);
@@ -575,7 +630,7 @@ void am_rx(galapagos::interface <word_t> * in,
             AMToken = hdextract(axis_word.data, AM_TOKEN);
             // ATOMIC_ACTION(printWord("   Writing ", axis_word));
             axis_word.last = 1;
-            out->write(axis_word);
+            // out->write(axis_word);
             #ifdef USE_ABS_PAYLOAD
             AMpayloadSize-=GC_DATA_BYTES;
             #endif
@@ -617,7 +672,7 @@ void am_rx(galapagos::interface <word_t> * in,
                 axis_word.last = 1;
             }
             // ATOMIC_ACTION(printWord("   Writing ", axis_word));
-            out->write(axis_word);
+            // out->write(axis_word);
             #ifdef USE_ABS_PAYLOAD
             AMpayloadSize-=GC_DATA_BYTES;
             #endif
@@ -648,34 +703,40 @@ void am_rx(galapagos::interface <word_t> * in,
         gc_destination_t strideDest = AMdestination;
         gc_strideBlockNum_t strideCount = 0;
         gc_dstVectorNum_t vectorCount = 0;
-        AMpayloadSize = AMpayloadSize % GC_DATA_BYTES == 0 ? AMpayloadSize / GC_DATA_BYTES : (gc_payloadSize_t)((AMpayloadSize / GC_DATA_BYTES) + 1);
-        while(i < AMpayloadSize){
-            axis_word = in->read();
-            writeCount+=GC_DATA_BYTES;
-            i++;
+        char* mem;
+        size_t size;
+        short id;
+        short dest;
+        // AMpayloadSize = AMpayloadSize % GC_DATA_BYTES == 0 ? AMpayloadSize / GC_DATA_BYTES : (gc_payloadSize_t)((AMpayloadSize / GC_DATA_BYTES) + 1);
+        if(!isShortAM(AMtype)){
             if(isMediumAM(AMtype)){
-                // ATOMIC_ACTION(printWord("   Writing ", axis_word));
-                out->write(axis_word);
-            }
-            else{
-                if(isLongAM(AMtype)){
-                    *(word_t*)(&(gasnet_shared_mem[AMdestination + writeCount - GC_DATA_BYTES])) = axis_word.data;
-                    // axis_s2mm.write(axis_word);
+                axis_word.data = createKernelHeader(AMtype, AMToken, AMsrc, AMpayloadSize, AMhandler, AMargs);
+                axis_word.dest = AMdst;
+                // ATOMIC_ACTION(printWord("   Writing to kernel - ", axis_word));
+                to_kernel->write(axis_word);
+                if(AMpayloadSize > PACKET_THRESHOLD){
+                    mem = in->packet_read(&size);
+                    to_kernel->packet_write_partial(mem, size/GC_DATA_BYTES, true);
+                } else {
+                    for(int i = 0; i < AMpayloadSize; i+=GC_DATA_BYTES){
+                        axis_word = in->read();
+                        to_kernel->write(axis_word);
+                    }
                 }
-                else if(isLongStridedAM(AMtype)){
-                    // if (strideCount < AMstrideBlockNum){
-                    //     strideDest += AMstride;
-                    //     strideCount++;
-                    // }
-                    // if(writeCount < AMstrideBlockSize){
-                    //         // axis_word.last = 0;
-                    //         // axis_s2mm.write(axis_word);
-                    //         *(word_t*)(&(gasnet_shared_mem[strideDest + writeCount - GC_DATA_BYTES])) = axis_word.data;
-                    // }
-                    // else if(writeCount == AMstrideBlockSize){
-                    //         axis_word.last = 1;
-                    //         axis_s2mm.write(axis_word);
-                    // }
+            } else if(isLongAM(AMtype)){
+                if(AMpayloadSize > PACKET_THRESHOLD){
+                    in->packet_read((char*) &(gasnet_shared_mem[AMdestination]), &size, &dest, &id);
+                } else {
+                    for(i = 0; i < AMpayloadSize; i+=GC_DATA_BYTES){
+                        axis_word = in->read();
+                        *(word_t*)(&(gasnet_shared_mem[AMdestination + writeCount])) = axis_word.data;
+                        writeCount += GC_DATA_BYTES;
+                    }                    
+                }
+            } else if(isLongStridedAM(AMtype)){
+                for(i = 0; i < AMpayloadSize; i+=GC_DATA_BYTES){
+                    axis_word = in->read();
+                    writeCount+=GC_DATA_BYTES;
                     if (writeCount <= AMstrideBlockSize){
                         *(word_t*)(&(gasnet_shared_mem[strideDest + writeCount - GC_DATA_BYTES])) = axis_word.data;
                         if (writeCount == AMstrideBlockSize){
@@ -689,9 +750,6 @@ void am_rx(galapagos::interface <word_t> * in,
                     else{
                         ap_uint<GC_DATA_BYTES> keep = writeCount - AMstrideBlockSize;
                         memcpy(&(gasnet_shared_mem[strideDest + writeCount - GC_DATA_BYTES]), &(axis_word.data), keep);
-                        // axis_word.last = 1;
-                        // axis_word.keep = keep;
-                        // axis_s2mm.write(axis_word);
                         writeCount = 0;
                         if (strideCount < AMstrideBlockNum){
                             strideDest += AMstride;
@@ -699,7 +757,10 @@ void am_rx(galapagos::interface <word_t> * in,
                         }
                     }
                 }
-                else{
+            } else {
+                for(i = 0; i < AMpayloadSize; i+=GC_DATA_BYTES){
+                    axis_word = in->read();
+                    writeCount+=GC_DATA_BYTES;
                     if(writeCount < AMvectorSize[vectorCount]){
                         // axis_word.last = 0;
                         // axis_s2mm.write(axis_word);
@@ -727,6 +788,110 @@ void am_rx(galapagos::interface <word_t> * in,
                 }
             }
         }
+
+        if (!(isAsyncAM(AMtype) || isReplyAM(AMtype))){ // st_sendReplyHeader
+            axis_word.data = hdencode(axis_word.data, AM_SRC, AMdst);
+            axis_word.data = hdencode(axis_word.data, AM_DST, AMsrc);
+            #ifdef USE_ABS_PAYLOAD
+            hdextract(axis_word.data, AM_PAYLOAD_SIZE) = GC_DATA_BYTES;
+            #else
+            axis_word.data = hdencode(axis_word.data, AM_PAYLOAD_SIZE, 0);
+            #endif
+            axis_word.data = hdencode(axis_word.data, AM_HANDLER, H_INCR_MEM);
+            axis_word.data = hdencode(axis_word.data, AM_TYPE, AM_SHORT + AM_REPLY);
+            axis_word.data = hdencode(axis_word.data, AM_HANDLER_ARGS, 0);
+            axis_word.keep = GC_DATA_TKEEP;
+            axis_word.dest = AMsrc;
+            axis_word.last = 0;
+            // ATOMIC_ACTION(printWord("   Writing to loopback 5 - ", axis_word));
+            to_net->write(axis_word);
+            axis_word.data = 0;
+            axis_word.data = hdencode(axis_word.data, AM_TOKEN, AMToken);
+            // hdextract(axis_word.data, 39,) = 0;
+            axis_word.last = 1;
+            axis_word.keep = GC_DATA_TKEEP;
+            // ATOMIC_ACTION(printWord("   Writing to loopback 6 - ", axis_word));
+            to_net->write(axis_word);
+        }
+        
+        // while(i < AMpayloadSize){
+        //     axis_word = in->read();
+        //     writeCount+=GC_DATA_BYTES;
+        //     i++;
+        //     if(isMediumAM(AMtype)){
+        //         // ATOMIC_ACTION(printWord("   Writing ", axis_word));
+        //         out->write(axis_word);
+        //     }
+        //     else{
+        //         if(isLongAM(AMtype)){
+        //             *(word_t*)(&(gasnet_shared_mem[AMdestination + writeCount - GC_DATA_BYTES])) = axis_word.data;
+        //             // axis_s2mm.write(axis_word);
+        //         }
+        //         else if(isLongStridedAM(AMtype)){
+        //             // if (strideCount < AMstrideBlockNum){
+        //             //     strideDest += AMstride;
+        //             //     strideCount++;
+        //             // }
+        //             // if(writeCount < AMstrideBlockSize){
+        //             //         // axis_word.last = 0;
+        //             //         // axis_s2mm.write(axis_word);
+        //             //         *(word_t*)(&(gasnet_shared_mem[strideDest + writeCount - GC_DATA_BYTES])) = axis_word.data;
+        //             // }
+        //             // else if(writeCount == AMstrideBlockSize){
+        //             //         axis_word.last = 1;
+        //             //         axis_s2mm.write(axis_word);
+        //             // }
+        //             if (writeCount <= AMstrideBlockSize){
+        //                 *(word_t*)(&(gasnet_shared_mem[strideDest + writeCount - GC_DATA_BYTES])) = axis_word.data;
+        //                 if (writeCount == AMstrideBlockSize){
+        //                     if (strideCount < AMstrideBlockNum){
+        //                         strideDest += AMstride;
+        //                         strideCount++;
+        //                         writeCount = 0;
+        //                     }
+        //                 }
+        //             }
+        //             else{
+        //                 ap_uint<GC_DATA_BYTES> keep = writeCount - AMstrideBlockSize;
+        //                 memcpy(&(gasnet_shared_mem[strideDest + writeCount - GC_DATA_BYTES]), &(axis_word.data), keep);
+        //                 // axis_word.last = 1;
+        //                 // axis_word.keep = keep;
+        //                 // axis_s2mm.write(axis_word);
+        //                 writeCount = 0;
+        //                 if (strideCount < AMstrideBlockNum){
+        //                     strideDest += AMstride;
+        //                     strideCount++;
+        //                 }
+        //             }
+        //         }
+        //         else{
+        //             if(writeCount < AMvectorSize[vectorCount]){
+        //                 // axis_word.last = 0;
+        //                 // axis_s2mm.write(axis_word);
+        //                 *(word_t*)(&(gasnet_shared_mem[AMvectorDest[vectorCount] + writeCount - GC_DATA_BYTES])) = axis_word.data;
+        //             }
+        //             // else if(writeCount == AMvectorSize[vectorCount]){
+        //             //     axis_word.last = 1;
+        //             //     axis_s2mm.write(axis_word);
+        //             // }
+        //             else{
+        //                 *(word_t*)(&(gasnet_shared_mem[AMvectorDest[vectorCount] + writeCount - GC_DATA_BYTES])) = axis_word.data;
+        //                 vectorCount++;
+        //                 // dataMoverWriteCommand(axis_s2mmCommand, 0, 0,
+        //                 //     AMvectorDest[vectorCount], //address
+        //                 //     AMvectorDest[vectorCount](1,0) != 0, //ddr
+        //                 //     1, //eof
+        //                 //     AMvectorDest[vectorCount](1,0), 1, //dsa, type
+        //                 //     AMvectorSize[vectorCount]*GC_DATA_BYTES);
+        //                 // if(!axis_s2mm.full()){
+        //                     // axis_word.last = 0;
+        //                     // axis_s2mm.write(axis_word);
+        //                 // }
+        //                 writeCount = 0;
+        //             }
+        //         }
+        //     }
+        // }
     }
     *function = AMtype;
     *numargs = AMargs;
@@ -795,9 +960,9 @@ void handler_thread(void (*fcnPtr)(short id, galapagos::interface <word_t>* ,
 
         if (!in->empty()){
             SAFE_COUT("Data arrived in handler " << id << " from network\n");
-            am_rx(in, &am_xpams_rx, arg, &function, &numargs, &handler, &token, &payloadSize);
+            am_rx(in, &am_xpams_out, &kernel_in, arg, &function, &numargs, &handler, &token, &payloadSize);
             // SAFE_COUT("   Data arrived in xpams " << id << " from am_rx\n");
-            xpams_rx(&am_xpams_rx, &am_xpams_out, &kernel_in);
+            // xpams_rx(&am_xpams_rx, &am_xpams_out, &kernel_in);
 
             i = payloadSize;
 
@@ -971,22 +1136,22 @@ void handler_thread(void (*fcnPtr)(short id, galapagos::interface <word_t>* ,
 
         if(!kernel_out.empty()){
             SAFE_COUT("Data arrived in handler " << id << " from kernel\n");
-            do{
-                axis_word = kernel_out.read();
-                ATOMIC_ACTION(printWord("   From Kernel: ", axis_word));
-                am_tx_in.write(axis_word);
-            } while(!axis_word.last);
-            am_tx(&am_tx_in, out);
+            // do{
+            //     axis_word = kernel_out.read();
+            //     ATOMIC_ACTION(printWord("   From Kernel: ", axis_word));
+            //     am_tx_in.write(axis_word);
+            // } while(!axis_word.last);
+            am_tx(&kernel_out, out);
         }
 
         if(!am_xpams_out.empty()){
             SAFE_COUT("Data arrived in handler " << id << " from loopback\n");
-            do{
-                axis_word = am_xpams_out.read();
-                ATOMIC_ACTION(printWord("   From loopback: ", axis_word));
-                am_tx_in.write(axis_word);
-            } while(!axis_word.last);
-            am_tx(&am_tx_in, out);
+            // do{
+            //     axis_word = am_xpams_out.read();
+            //     ATOMIC_ACTION(printWord("   From loopback: ", axis_word));
+            //     am_tx_in.write(axis_word);
+            // } while(!axis_word.last);
+            am_tx(&am_xpams_out, out);
         }
     };
 
