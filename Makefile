@@ -60,9 +60,9 @@ GAScore_build_dirs := $(shell find $(SHOAL_PATH) -type d -name 'build' -not -pat
 
 DEBUG ?= 1
 ifeq ($(DEBUG), 0)
-OPT = -O2 -DLOG_LEVEL=0
+OPT = -O3 -DLOG_LEVEL=0
 else
-OPT = -g -O0 -DDEBUG -DLOG_LEVEL=2 -fsanitize=address
+OPT = -g -O0 -DDEBUG -DLOG_LEVEL=2
 endif
 
 CC = /usr/bin/g++-7

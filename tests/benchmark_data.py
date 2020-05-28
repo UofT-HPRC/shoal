@@ -1,5 +1,6 @@
 import enum
 import os
+import argparse
 
 class Instruction(enum.Enum):
     load = 0
@@ -173,7 +174,7 @@ def short_latency(kern0, kern1, kern2, throughput=False):
     if throughput:
         instruction = Instruction.short_throughput
         iterations = THROUGHPUT_ITERATIONS
-        time_iterations = 1
+        time_iterations = THROUGHPUT_TIMES
     else:
         instruction = Instruction.short_latency
         iterations = LATENCY_ITERATIONS
@@ -196,7 +197,7 @@ def medium_latency(kern0, kern1, kern2, throughput=False):
     if throughput:
         instruction = Instruction.medium_throughput
         iterations = THROUGHPUT_ITERATIONS
-        time_iterations = 1
+        time_iterations = THROUGHPUT_TIMES
     else:
         instruction = Instruction.medium_latency
         iterations = LATENCY_ITERATIONS
@@ -224,7 +225,7 @@ def medium_fifo_latency(kern0, kern1, kern2, throughput=False):
     if throughput:
         instruction = Instruction.medium_fifo_throughput
         iterations = THROUGHPUT_ITERATIONS
-        time_iterations = 1
+        time_iterations = THROUGHPUT_TIMES
     else:
         instruction = Instruction.medium_fifo_latency
         iterations = LATENCY_ITERATIONS
@@ -252,7 +253,7 @@ def long_latency(kern0, kern1, kern2, throughput=False):
     if throughput:
         instruction = Instruction.long_throughput
         iterations = THROUGHPUT_ITERATIONS
-        time_iterations = 1
+        time_iterations = THROUGHPUT_TIMES
     else:
         instruction = Instruction.long_latency
         iterations = LATENCY_ITERATIONS
@@ -278,7 +279,7 @@ def long_fifo_latency(kern0, kern1, kern2, throughput=False):
     if throughput:
         instruction = Instruction.long_fifo_throughput
         iterations = THROUGHPUT_ITERATIONS
-        time_iterations = 1
+        time_iterations = THROUGHPUT_TIMES
     else:
         instruction = Instruction.long_fifo_latency
         iterations = LATENCY_ITERATIONS
@@ -304,7 +305,7 @@ def strided_latency(kern0, kern1, kern2, throughput=False):
     if throughput:
         instruction = Instruction.strided_throughput
         iterations = THROUGHPUT_ITERATIONS
-        time_iterations = 1
+        time_iterations = THROUGHPUT_TIMES
     else:
         instruction = Instruction.strided_latency
         iterations = LATENCY_ITERATIONS
@@ -338,7 +339,7 @@ def vectored_latency(kern0, kern1, kern2, throughput=False):
     if throughput:
         instruction = Instruction.vector_throughput
         iterations = THROUGHPUT_ITERATIONS
-        time_iterations = 1
+        time_iterations = THROUGHPUT_TIMES
     else:
         instruction = Instruction.vector_latency
         iterations = LATENCY_ITERATIONS
@@ -393,8 +394,9 @@ def test_kern_2():
 
     lst.write_files("benchmark_test_2")
 
-LATENCY_ITERATIONS = 1000
-THROUGHPUT_ITERATIONS = 1000
+THROUGHPUT_TIMES = 2
+LATENCY_ITERATIONS = 100000
+THROUGHPUT_ITERATIONS = 100000
 PAYLOAD_MIN = 0
 PAYLOAD_MAX = 10 # 2^(10-1) = 512
 
@@ -407,23 +409,52 @@ if __name__ == "__main__":
     kern1 = Instructions()
     kern2 = Instructions()
 
+    parser = argparse.ArgumentParser(description="Generate data for benchmark")
+    parser.add_argument("mode", type=str, help="latency or throughput", default="latency")
+    parser.add_argument("--test", type=str, help="type of tests to run", default="all")
+    parser.add_argument("--iterations", type=int, help="number of times to repeat", default=100000)
+    parser.add_argument("--payload_min", type=int, help="2^x min", default=0)
+    parser.add_argument("--payload_max", type=int, help="2^x max (non-inclusive)", default=10)
+
+    args = parser.parse_args()
+
+    LATENCY_ITERATIONS = args.iterations
+    THROUGHPUT_ITERATIONS = args.iterations
+    PAYLOAD_MIN = args.payload_min
+    PAYLOAD_MAX = args.payload_max
+
     prologue(kern0, kern1, kern2)
 
-    # short_latency(kern0, kern1, kern2)
-    # medium_latency(kern0, kern1, kern2)
-    # medium_fifo_latency(kern0, kern1, kern2)
-    # long_latency(kern0, kern1, kern2)
-    # long_fifo_latency(kern0, kern1, kern2)
-    # strided_latency(kern0, kern1, kern2)
-    # vectored_latency(kern0, kern1, kern2)
-
-    short_latency(kern0, kern1, kern2, True)
-    medium_latency(kern0, kern1, kern2, True)
-    medium_fifo_latency(kern0, kern1, kern2, True)
-    long_latency(kern0, kern1, kern2, True)
-    long_fifo_latency(kern0, kern1, kern2, True)
-    strided_latency(kern0, kern1, kern2, True)
-    vectored_latency(kern0, kern1, kern2, True)
+    if(args.mode == "latency"):
+        if args.test in ["all", "short"]:
+            short_latency(kern0, kern1, kern2)
+        if args.test in ["all", "medium"]:
+            medium_latency(kern0, kern1, kern2)
+        if args.test in ["all", "medium_fifo"]:
+            medium_fifo_latency(kern0, kern1, kern2)
+        if args.test in ["all", "long"]:
+            long_latency(kern0, kern1, kern2)
+        if args.test in ["all", "long_fifo"]:
+            long_fifo_latency(kern0, kern1, kern2)
+        if args.test in ["all", "strided"]:
+            strided_latency(kern0, kern1, kern2)
+        if args.test in ["all", "vector"]:
+            vectored_latency(kern0, kern1, kern2)
+    else:
+        if args.test in ["all", "short"]:
+            short_latency(kern0, kern1, kern2, True)
+        if args.test in ["all", "medium"]:
+            medium_latency(kern0, kern1, kern2, True)
+        if args.test in ["all", "medium_fifo"]:
+            medium_fifo_latency(kern0, kern1, kern2, True)
+        if args.test in ["all", "long"]:
+            long_latency(kern0, kern1, kern2, True)
+        if args.test in ["all", "long_fifo"]:
+            long_fifo_latency(kern0, kern1, kern2, True)
+        if args.test in ["all", "strided"]:
+            strided_latency(kern0, kern1, kern2, True)
+        if args.test in ["all", "vector"]:
+            vectored_latency(kern0, kern1, kern2, True)
 
     kern0.write_files("benchmark_0")
     kern1.write_files("benchmark_1")

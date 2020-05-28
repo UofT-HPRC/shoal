@@ -6,6 +6,8 @@
 #define CPU
 #include "active_messages.hpp"
 
+char* packet_buffer;
+
 word_t createKernelHeader(gc_AMtype_t AMtype, gc_AMToken_t token,
     gc_AMsrc_t src, gc_payloadSize_t payload, gc_AMhandler_t handler,
     gc_AMargs_t handler_args){
@@ -280,16 +282,18 @@ void am_tx(galapagos::interface <word_t> * in, galapagos::interface <word_t> * o
             int k = 0;
             char * mem;
             size_t size; // in bytes
+            short id, dest;
             if(isDataFromFIFO(AMtype)){
-                if(AMpayloadSize > PACKET_THRESHOLD){
-                    mem = in->packet_read(&size);
+                // if(AMpayloadSize > PACKET_THRESHOLD){
+                    mem = in->packet_read(&size, &dest, &id);
                     out->packet_write_partial(mem, size/GC_DATA_BYTES, true);
-                } else {
-                    for(i = 0; i < AMpayloadSize; i+=GC_DATA_BYTES){
-                        axis_word = in->read();
-                        out->write(axis_word);
-                    }                    
-                }
+                    free(mem);
+                // } else {
+                //     for(i = 0; i < AMpayloadSize; i+=GC_DATA_BYTES){
+                //         axis_word = in->read();
+                //         out->write(axis_word);
+                //     }                    
+                // }
             } else if(isLongStridedAM(AMtype)){
                 for(i = 0; i < AMpayloadSize; i+=GC_DATA_BYTES){
                     axis_word.data = *((word_t*) &gasnet_shared_mem[address]);
@@ -300,7 +304,7 @@ void am_tx(galapagos::interface <word_t> * in, galapagos::interface <word_t> * o
                         address = AMsrcAddr + (k*srcStride);
                         j = 0;
                     }
-                    axis_word.last = i == AMpayloadSize-GC_DATA_BYTES;
+                    axis_word.last = i == AMpayloadSize-((gc_payloadSize_t) GC_DATA_BYTES);
                     out->write(axis_word);
                 }
             } else if(isLongVectoredAM(AMtype)){
@@ -313,20 +317,20 @@ void am_tx(galapagos::interface <word_t> * in, galapagos::interface <word_t> * o
                         j = 0;
                         address = AMvectorDest[k];
                     }
-                    axis_word.last = i == AMpayloadSize-GC_DATA_BYTES;
+                    axis_word.last = i == AMpayloadSize-((gc_payloadSize_t) GC_DATA_BYTES);
                     out->write(axis_word);
                 }
             } else {
-                if(AMpayloadSize > PACKET_THRESHOLD){
+                // if(AMpayloadSize > PACKET_THRESHOLD){
                     out->packet_write_partial((char*) &gasnet_shared_mem[address], AMpayloadSize/GC_DATA_BYTES, true);
-                } else {
-                    for(i = 0; i < AMpayloadSize; i+=GC_DATA_BYTES){
-                        axis_word.data = *((word_t*) &gasnet_shared_mem[address]);
-                        address += GC_DATA_BYTES;
-                        axis_word.last = i == AMpayloadSize-GC_DATA_BYTES;
-                        out->write(axis_word);
-                    }                    
-                }
+                // } else {
+                //     for(i = 0; i < AMpayloadSize; i+=GC_DATA_BYTES){
+                //         axis_word.data = *((word_t*) &gasnet_shared_mem[address]);
+                //         address += GC_DATA_BYTES;
+                //         axis_word.last = i == AMpayloadSize-((gc_payloadSize_t) GC_DATA_BYTES);
+                //         out->write(axis_word);
+                //     }                    
+                // }
             }
             // for(i = 0; i < AMpayloadSize; i+=GC_DATA_BYTES){
             // // while(i < AMpayloadSize){
@@ -714,25 +718,26 @@ void am_rx(galapagos::interface <word_t> * in,
                 axis_word.dest = AMdst;
                 // ATOMIC_ACTION(printWord("   Writing to kernel - ", axis_word));
                 to_kernel->write(axis_word);
-                if(AMpayloadSize > PACKET_THRESHOLD){
-                    mem = in->packet_read(&size);
+                // if(AMpayloadSize > PACKET_THRESHOLD){
+                    mem = in->packet_read(&size, &dest, &id);
                     to_kernel->packet_write_partial(mem, size/GC_DATA_BYTES, true);
-                } else {
-                    for(int i = 0; i < AMpayloadSize; i+=GC_DATA_BYTES){
-                        axis_word = in->read();
-                        to_kernel->write(axis_word);
-                    }
-                }
+                    free(mem);
+                // } else {
+                //     for(int i = 0; i < AMpayloadSize; i+=GC_DATA_BYTES){
+                //         axis_word = in->read();
+                //         to_kernel->write(axis_word);
+                //     }
+                // }
             } else if(isLongAM(AMtype)){
-                if(AMpayloadSize > PACKET_THRESHOLD){
+                // if(AMpayloadSize > PACKET_THRESHOLD){
                     in->packet_read((char*) &(gasnet_shared_mem[AMdestination]), &size, &dest, &id);
-                } else {
-                    for(i = 0; i < AMpayloadSize; i+=GC_DATA_BYTES){
-                        axis_word = in->read();
-                        *(word_t*)(&(gasnet_shared_mem[AMdestination + writeCount])) = axis_word.data;
-                        writeCount += GC_DATA_BYTES;
-                    }                    
-                }
+                // } else {
+                //     for(i = 0; i < AMpayloadSize; i+=GC_DATA_BYTES){
+                //         axis_word = in->read();
+                //         *(word_t*)(&(gasnet_shared_mem[AMdestination + writeCount])) = axis_word.data;
+                //         writeCount += GC_DATA_BYTES;
+                //     }                    
+                // }
             } else if(isLongStridedAM(AMtype)){
                 for(i = 0; i < AMpayloadSize; i+=GC_DATA_BYTES){
                     axis_word = in->read();
@@ -940,11 +945,16 @@ void handler_thread(void (*fcnPtr)(short id, galapagos::interface <word_t>* ,
 
     thread_t kernel_thread = std::thread(fcnPtr, id, &kernel_in, &kernel_out);
 
+    packet_buffer = (char*)(malloc(PACKET_BUFFER*sizeof(char)));
+
     SAFE_COUT("Handler " << id << " starting with nodedata at " << nodedata << "\n");
 
     while(1){
 
         while((in->empty() && kernel_out.empty() && am_xpams_out.empty()) && !(*done)){
+            if (gasnet_shared_mem == nullptr){
+                gasnet_shared_mem = gasnet_shared_mem_global[id];
+            }
             sched_yield();
         };
         if (*(done) && (in->empty() && kernel_out.empty() && am_xpams_out.empty())){
@@ -954,9 +964,7 @@ void handler_thread(void (*fcnPtr)(short id, galapagos::interface <word_t>* ,
         }
 
         galapagos::stream_packet <word_t> axis_word;
-        if (gasnet_shared_mem == nullptr){
-            gasnet_shared_mem = gasnet_shared_mem_global[id];
-        }
+        
 
         if (!in->empty()){
             SAFE_COUT("Data arrived in handler " << id << " from network\n");

@@ -27,7 +27,8 @@ auto start_timer(){
 void stop_timer(shoal::kernel* kernel, gc_AMToken_t token, std::chrono::high_resolution_clock::time_point timer){
     auto now = std::chrono::high_resolution_clock::now();
     std::chrono::duration<double> elapsed = now - timer;
-    word_t time = (word_t)(elapsed.count() * 1E9 / 6.4); // convert to 156.25 MHz (6.4ns) cycles
+    auto elapsed_ns = std::chrono::duration_cast<std::chrono::nanoseconds>(elapsed).count();
+    word_t time = (word_t)(elapsed_ns / 6.4); // convert to 156.25 MHz (6.4ns) cycles
     kernel->sendMediumAM_async(0, token, H_EMPTY, 0, NULL, 8);
     kernel->sendPayload(0, time, true); // assume always send to kernel 0
 }
@@ -49,6 +50,13 @@ void stop_timer(shoal::kernel* kernel, gc_AMToken_t token, volatile int* axi_tim
     kernel->sendPayload(0, time, true); // assume always send to kernel 0
 }
 #endif
+
+void print_time(std::chrono::high_resolution_clock::time_point timer, std::string label){
+    auto now = std::chrono::high_resolution_clock::now();
+    std::chrono::duration<double> elapsed = now - timer;
+    auto elapsed_ns = std::chrono::duration_cast<std::chrono::nanoseconds>(elapsed).count();
+    std::cout << label << ":" << elapsed_ns << std::endl;
+}
 
 extern "C"{
 void benchmark(
@@ -104,15 +112,15 @@ void benchmark(
     const int AMdst = 2;
     word_t loopCount = 1;
 
-    gc_stride_t src_stride;
-    gc_strideBlockSize_t src_blk_size;
-    gc_strideBlockNum_t src_blk_num;
-    gc_stride_t dst_stride;
-    gc_strideBlockSize_t dst_blk_size;
-    gc_strideBlockNum_t dst_blk_num;
+    gc_stride_t src_stride = -1;
+    gc_strideBlockSize_t src_blk_size = -1;
+    gc_strideBlockNum_t src_blk_num = -1;
+    gc_stride_t dst_stride = -1;
+    gc_strideBlockSize_t dst_blk_size = -1;
+    gc_strideBlockNum_t dst_blk_num = -1;
 
-    gc_srcVectorNum_t srcVectorCount;
-    gc_dstVectorNum_t dstVectorCount;
+    gc_srcVectorNum_t srcVectorCount = -1;
+    gc_dstVectorNum_t dstVectorCount = -1;
     gc_vectorSize_t srcSize[16];
     word_t src_addrs[16];
     gc_vectorSize_t dstSize[16];
@@ -214,7 +222,7 @@ void benchmark(
             #endif
             kernel.sendMediumAM_normal(AMdst, 0xff2, AMhandler, AMargs, handler_args, payloadSize);
             for (j = 0; j < payloadSize; j+=GC_DATA_BYTES){
-                kernel.sendPayload(AMdst, j, j == payloadSize - GC_DATA_BYTES);
+                kernel.sendPayload(AMdst, j, j == payloadSize - ((gc_payloadSize_t)GC_DATA_BYTES));
             }
             kernel.wait_reply(1);
             #ifndef __HLS__
@@ -235,6 +243,11 @@ void benchmark(
             start_timer(axi_timer);
             #endif
             kernel.sendLongAM_normal(AMdst, 0xff3, AMhandler, AMargs, handler_args, payloadSize, src_addr, dst_addr);
+            // auto tmp2 = std::chrono::high_resolution_clock::now();
+            // std::chrono::duration<double> elapsed = tmp2 - timer;
+            // auto elapsed_ns = std::chrono::duration_cast<std::chrono::nanoseconds>(elapsed).count();
+            // word_t time = (word_t)(elapsed_ns / 6.4); // convert to 156.25 MHz (6.4ns) cycles
+            // std::cout << "loop1: " << time << std::endl;
             kernel.wait_reply(1);
             #ifndef __HLS__
             stop_timer(&kernel, 0xab3, timer);
@@ -256,7 +269,7 @@ void benchmark(
             #endif
             kernel.sendLongAM_normal(AMdst, 0xff4, AMhandler, AMargs, handler_args, payloadSize, dst_addr);
             for (j = 0; j < payloadSize; j+=GC_DATA_BYTES){
-                kernel.sendPayload(AMdst, j, j == payloadSize - GC_DATA_BYTES);
+                kernel.sendPayload(AMdst, j, j == payloadSize - ((gc_payloadSize_t)GC_DATA_BYTES));
             }
             // {
             //     doesn't work: the write happens all at one address instead of three
@@ -387,6 +400,21 @@ void benchmark(
         #else
         stop_timer(&kernel, 0xef0, axi_timer);
         #endif
+
+        #ifndef __HLS__
+        timer = start_timer();
+        #else
+        start_timer(axi_timer);
+        #endif
+        for(i = 0; i < loopCount; i++){
+            kernel.sendShortAM_normal(AMdst, 0xff0, AMhandler, AMargs, handler_args);
+            kernel.wait_reply(1);
+        }        
+        #ifndef __HLS__
+        stop_timer(&kernel, 0xef0, timer);
+        #else
+        stop_timer(&kernel, 0xef0, axi_timer);
+        #endif
         break;
     }
     case medium_throughput:{
@@ -406,6 +434,21 @@ void benchmark(
         #else
         stop_timer(&kernel, 0xef1, axi_timer);
         #endif
+
+        #ifndef __HLS__
+        timer = start_timer();
+        #else
+        start_timer(axi_timer);
+        #endif
+        for(i = 0; i < loopCount; i++){
+            kernel.sendMediumAM_normal(AMdst, 0xff1, AMhandler, AMargs, handler_args, payloadSize, src_addr);
+            kernel.wait_reply(1);
+        }
+        #ifndef __HLS__
+        stop_timer(&kernel, 0xef1, timer);
+        #else
+        stop_timer(&kernel, 0xef1, axi_timer);
+        #endif
         break;
     }
     case medium_fifo_throughput:{
@@ -420,10 +463,28 @@ void benchmark(
         for(i = 0; i < loopCount; i++){
             kernel.sendMediumAM_normal(AMdst, 0xff2, AMhandler, AMargs, handler_args, payloadSize);
             for (j = 0; j < payloadSize; j+=GC_DATA_BYTES){
-                kernel.sendPayload(AMdst, j, j == payloadSize - GC_DATA_BYTES);
+                kernel.sendPayload(AMdst, j, j == payloadSize - ((gc_payloadSize_t)GC_DATA_BYTES));
             }
         }
         kernel.wait_reply(loopCount);
+        #ifndef __HLS__
+        stop_timer(&kernel, 0xef2, timer);
+        #else
+        stop_timer(&kernel, 0xef2, axi_timer);
+        #endif
+
+        #ifndef __HLS__
+        timer = start_timer();
+        #else
+        start_timer(axi_timer);
+        #endif
+        for(i = 0; i < loopCount; i++){
+            kernel.sendMediumAM_normal(AMdst, 0xff2, AMhandler, AMargs, handler_args, payloadSize);
+            for (j = 0; j < payloadSize; j+=GC_DATA_BYTES){
+                kernel.sendPayload(AMdst, j, j == payloadSize - ((gc_payloadSize_t)GC_DATA_BYTES));
+            }
+            kernel.wait_reply(1);
+        }
         #ifndef __HLS__
         stop_timer(&kernel, 0xef2, timer);
         #else
@@ -440,9 +501,36 @@ void benchmark(
         start_timer(axi_timer);
         #endif
         for(i = 0; i < loopCount; i++){
+            auto timer2 = start_timer();
             kernel.sendLongAM_normal(AMdst, 0xff3, AMhandler, AMargs, handler_args, payloadSize, src_addr, dst_addr);
+            print_time(timer2, "kernel_send_0");
+            for(int z = 0; z < 10000; z++){
+                __asm__ __volatile__ ("" : "+g" (z) : : );
+            }
         }
+        std::cout << "mem:" << nodedata->mem_ready_barrier_cnt << std::endl;
+        auto timer2 = start_timer();
         kernel.wait_reply(loopCount);
+        print_time(timer2, "kernel_wait_0");
+        #ifndef __HLS__
+        stop_timer(&kernel, 0xef3, timer);
+        #else
+        stop_timer(&kernel, 0xef3, axi_timer);
+        #endif
+
+        #ifndef __HLS__
+        timer = start_timer();
+        #else
+        start_timer(axi_timer);
+        #endif
+        for(i = 0; i < loopCount; i++){
+            auto timer2 = start_timer();
+            kernel.sendLongAM_normal(AMdst, 0xff3, AMhandler, AMargs, handler_args, payloadSize, src_addr, dst_addr);
+            print_time(timer2, "kernel_send_1");
+            timer2 = start_timer();
+            kernel.wait_reply(1);
+            print_time(timer2, "kernel_wait_1");
+        }
         #ifndef __HLS__
         stop_timer(&kernel, 0xef3, timer);
         #else
@@ -460,12 +548,43 @@ void benchmark(
         start_timer(axi_timer);
         #endif
         for(i = 0; i < loopCount; i++){
+            auto timer2 = start_timer();
             kernel.sendLongAM_normal(AMdst, 0xff4, AMhandler, AMargs, handler_args, payloadSize, dst_addr);
+            print_time(timer2, "kernel_send_2_0");
+            timer2 = start_timer();
             for (j = 0; j < payloadSize; j+=GC_DATA_BYTES){
-                kernel.sendPayload(AMdst, j, j == payloadSize - GC_DATA_BYTES);
+                kernel.sendPayload(AMdst, j, j == payloadSize - ((gc_payloadSize_t)GC_DATA_BYTES));
             }
+            print_time(timer2, "kernel_send_2_1");
         }
+        std::cout << "mem:" << nodedata->mem_ready_barrier_cnt << std::endl;
+        auto timer2 = start_timer();
         kernel.wait_reply(loopCount);
+        print_time(timer2, "kernel_wait_2");
+        #ifndef __HLS__
+        stop_timer(&kernel, 0xef4, timer);
+        #else
+        stop_timer(&kernel, 0xef4, axi_timer);
+        #endif
+
+        #ifndef __HLS__
+        timer = start_timer();
+        #else
+        start_timer(axi_timer);
+        #endif
+        for(i = 0; i < loopCount; i++){
+            auto timer2 = start_timer();
+            kernel.sendLongAM_normal(AMdst, 0xff4, AMhandler, AMargs, handler_args, payloadSize, dst_addr);
+            print_time(timer2, "kernel_send_3_0");
+            timer2 = start_timer();
+            for (j = 0; j < payloadSize; j+=GC_DATA_BYTES){
+                kernel.sendPayload(AMdst, j, j == payloadSize - ((gc_payloadSize_t)GC_DATA_BYTES));
+            }
+            print_time(timer2, "kernel_send_3_1");
+            timer2 = start_timer();
+            kernel.wait_reply(1);
+            print_time(timer2, "kernel_wait_3");
+        }
         #ifndef __HLS__
         stop_timer(&kernel, 0xef4, timer);
         #else
@@ -511,6 +630,22 @@ void benchmark(
         #else
         stop_timer(&kernel, 0xab5, axi_timer);
         #endif
+
+        #ifndef __HLS__
+        timer = start_timer();
+        #else
+        start_timer(axi_timer);
+        #endif
+        for(i = 0; i < loopCount; i++){
+            kernel.sendLongStrideAM_normal(AMdst, 0xff5, AMhandler, AMargs, handler_args, payloadSize, src_stride, src_blk_size,
+                src_blk_num, src_addr, dst_stride, dst_blk_size, dst_blk_num, dst_addr);
+            kernel.wait_reply(1);
+        }
+        #ifndef __HLS__
+        stop_timer(&kernel, 0xab5, timer);
+        #else
+        stop_timer(&kernel, 0xab5, axi_timer);
+        #endif
         break;
     }
     case vector_latency:{
@@ -551,6 +686,22 @@ void benchmark(
         #else
         stop_timer(&kernel, 0xab6, axi_timer);
         #endif
+
+        #ifndef __HLS__
+        timer = start_timer();
+        #else
+        start_timer(axi_timer);
+        #endif
+        for(i = 0; i < loopCount; i++){
+            kernel.sendLongVectorAM_normal(AMdst, 0xff6, AMhandler, AMargs, handler_args, payloadSize, srcVectorCount, dstVectorCount,
+            srcSize, dstSize, src_addrs, dst_addrs);
+            kernel.wait_reply(1);
+        }
+        #ifndef __HLS__
+        stop_timer(&kernel, 0xab6, timer);
+        #else
+        stop_timer(&kernel, 0xab6, axi_timer);
+        #endif
         break;
     }
     case wait_counter:{
@@ -574,7 +725,7 @@ void benchmark(
         word_t j = 0;
         kernel.sendMediumAM_normal(dest, 0xbad, AMhandler, AMargs, handler_args, payloadSize);
         for (j = 0; j < payloadSize; j+=GC_DATA_BYTES){
-            kernel.sendPayload(AMdst, j, j == payloadSize - GC_DATA_BYTES);
+            kernel.sendPayload(AMdst, j, j == payloadSize - ((gc_payloadSize_t)GC_DATA_BYTES));
         }
         kernel.wait_reply(1);
         #ifndef __HLS__

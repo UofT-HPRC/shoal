@@ -9,12 +9,14 @@ import matplotlib
 matplotlib.use('Agg')
 import matplotlib.pyplot as plt
 
-LATENCY_ITERATION_COUNT = 1000
-THROUGHPUT_ITERATION_COUNT = 1000
-TESTS = ["hw-hw-same", "sw-sw-same", "sw-hw"]
+LATENCY_ITERATION_COUNT = 10000
+THROUGHPUT_ITERATION_COUNT = 10000
+# TESTS = ["hw-hw-same", "sw-sw-same", "sw-hw"]
+TESTS = ["sw-sw-same-tmp-2"]
 TRANSPORT = ["tcp"]
 PAYLOAD_MIN = 0
 PAYLOAD_MAX = 10
+THROUGHPUT_TIMES = 2
 
 # payload, label
 STRIDED_METADATA = [
@@ -46,9 +48,10 @@ def get_data(path, transport, test_type):
                     data[test_id].extend(test_to_cols(test_id))
                     data[test_id].append(transport)
                 test_id = line.split(":")[1].strip()
-                data[test_id] = []
+                if test_id not in data:
+                    data[test_id] = []
             elif line.startswith("timing: "):
-                cycles = int(line.split(":")[1].strip())
+                cycles = int(line.split(":")[1].strip())                  
                 # convert cycles (156.25 MHz, 6.4 ns cycles) to ms
                 time_ms = cycles * 6.4 / 1E6
                 data[test_id].append(time_ms)
@@ -58,7 +61,7 @@ def get_data(path, transport, test_type):
     if test_type == "latency":
         last_col = LATENCY_ITERATION_COUNT
     else:
-        last_col = 1
+        last_col = THROUGHPUT_TIMES
     df = df.rename(columns={last_col: "Test", (last_col+1): "Test_Type", (last_col+2): "Payload", (last_col+3): "Transport"})
     cols = list(df)
     cols.insert(0, cols.pop(cols.index("Transport")))
@@ -147,6 +150,64 @@ def analyze_latency_medians(df, path):
         plt.savefig(os.path.join(path, "medians_%s.png" % test))
         plt.close()
 
+def analyze_latency_throughput(df, path):
+    def get_throughput(row):
+        test_id = row["Test"]
+        payload = row["Payload"]
+
+        # time is in ms, throughput in Gb/s
+        test_time = row["mean"]
+        if test_id == "Short":
+            return 0
+        elif test_id == "Strided":
+            return STRIDED_METADATA[row["Payload"]][0]/test_time*1000*8/1E9
+        elif test_id == "Vector":
+            return VECTOR_METADATA[row["Payload"]][0]/test_time*1000*8/1E9
+        else:
+            return payload/test_time*1000*8/1E9
+
+    df["payload_throughput"] = df.apply(get_throughput, axis=1)
+
+    labels = [2**x * 8 for x in range(PAYLOAD_MIN, PAYLOAD_MAX)]
+
+    x = np.arange(len(labels))
+    width = 0.20
+
+    fig, ax = plt.subplots()
+    df_sorted = df.sort_values(["Payload", "Test"])
+    df_subset = df_sorted[(df_sorted["Test"] == "Medium FIFO")]
+    ax.bar(x - (3*width)/2, df_subset["payload_throughput"], width, label="Medium FIFO")
+    df_subset = df_sorted[(df_sorted["Test"] == "Medium")]
+    ax.bar(x - width/2, df_subset["payload_throughput"], width, label="Medium")
+    df_subset = df_sorted[(df_sorted["Test"] == "Long FIFO")]
+    ax.bar(x + width/2, df_subset["payload_throughput"], width, label="Long FIFO")
+    df_subset = df_sorted[(df_sorted["Test"] == "Long")]
+    ax.bar(x + (3*width/2), df_subset["payload_throughput"], width, label="Long")
+    ax.set_ylabel("Throughput (Gb/s)")
+    ax.set_xlabel("Payload Size (bytes)")
+    ax.set_xticks(x)
+    ax.set_xticklabels(labels)
+    ax.legend()
+    # plt.xticks(rotation=90)
+    ax.set_title("Payload Throughput (latency mode) by Message Types")
+
+    fig.tight_layout()
+    plt.savefig(os.path.join(path, "payload_throughput_all.png"))
+    plt.close()
+
+    for test in ["Medium", "Medium FIFO", "Long", "Long FIFO"]:
+        fig, ax = plt.subplots()
+        df_subset = df_sorted[df_sorted["Test"] == test]
+        ax.plot(df_subset["Payload"], df_subset["payload_throughput"], ".")
+        ax.set_ylabel("Throughput (Gb/s)")
+        ax.set_xlabel("Payload (bytes)")
+        ax.set_xscale("log", basex=2)
+        ax.set_title("Payload Throughput (latency mode) of %s Messages" % test)
+
+        fig.tight_layout()
+        plt.savefig(os.path.join(path, "payload_throughput_%s.png" % test))
+        plt.close()
+
 
 def analyze_one(df, path, test_type):
     def add_label(row):
@@ -164,6 +225,8 @@ def analyze_one(df, path, test_type):
 
     def shorten_label(row):
         test_id = row["Test"]
+        if not isinstance(test_id, str):
+            print(test_id)
         if test_id == "Short":
             test_initial = "S"
         elif test_id.startswith("Medium"):
@@ -186,6 +249,8 @@ def analyze_one(df, path, test_type):
             test_payload = " (%dB)" % payload
         return test_initial + test_payload
 
+    # print(df)
+
     df["Label"] = df.apply(add_label, axis=1)
     df["Label_short"] = df.apply(shorten_label, axis=1)
 
@@ -201,7 +266,7 @@ def analyze_latency(df, path):
     df["95th %tile"] = col.apply(np.percentile, args=[95], axis=1)
     df["median"] = col.apply(np.percentile, args=[50], axis=1)
     
-    print(df)
+    # print(df)
     
     df_rows = []
     df_rows.append({"label": "short_latency_0", "title": "Short Message Latency"})
@@ -227,7 +292,12 @@ def analyze_latency(df, path):
         os.makedirs(figure_dir)
     analyze_latency_medians(df, figure_dir)
 
-def analyze_throughput_efficiency(df, path):
+    figure_dir = os.path.join(path, "throughput")
+    if not os.path.exists(figure_dir):
+        os.makedirs(figure_dir)
+    analyze_latency_throughput(df, figure_dir)
+
+def analyze_throughput_efficiency(df, path, payload_label):
     labels = [2**x * 8 for x in range(PAYLOAD_MIN, PAYLOAD_MAX)]
 
     x = np.arange(len(labels))
@@ -236,13 +306,13 @@ def analyze_throughput_efficiency(df, path):
     fig, ax = plt.subplots()
     df_sorted = df.sort_values(["Payload", "Test"])
     df_subset = df_sorted[(df_sorted["Test"] == "Medium FIFO")]
-    ax.bar(x - (3*width)/2, df_subset["payload_throughput"], width, label="Medium FIFO")
+    ax.bar(x - (3*width)/2, df_subset[payload_label], width, label="Medium FIFO")
     df_subset = df_sorted[(df_sorted["Test"] == "Medium")]
-    ax.bar(x - width/2, df_subset["payload_throughput"], width, label="Medium")
+    ax.bar(x - width/2, df_subset[payload_label], width, label="Medium")
     df_subset = df_sorted[(df_sorted["Test"] == "Long FIFO")]
-    ax.bar(x + width/2, df_subset["payload_throughput"], width, label="Long FIFO")
+    ax.bar(x + width/2, df_subset[payload_label], width, label="Long FIFO")
     df_subset = df_sorted[(df_sorted["Test"] == "Long")]
-    ax.bar(x + (3*width/2), df_subset["payload_throughput"], width, label="Long")
+    ax.bar(x + (3*width/2), df_subset[payload_label], width, label="Long")
     ax.set_ylabel("Throughput (Gb/s)")
     ax.set_xlabel("Payload Size (bytes)")
     ax.set_xticks(x)
@@ -252,29 +322,79 @@ def analyze_throughput_efficiency(df, path):
     ax.set_title("Payload Throughput by Message Types")
 
     fig.tight_layout()
-    plt.savefig(os.path.join(path, "payload_throughput_all.png"))
+    plt.savefig(os.path.join(path, payload_label + "_all.png"))
     plt.close()
 
     for test in ["Medium", "Medium FIFO", "Long", "Long FIFO"]:
         fig, ax = plt.subplots()
         df_subset = df_sorted[df_sorted["Test"] == test]
-        ax.plot(df_subset["Payload"], df_subset["payload_throughput"], ".")
+        ax.plot(df_subset["Payload"], df_subset[payload_label], ".")
         ax.set_ylabel("Throughput (Gb/s)")
         ax.set_xlabel("Payload (bytes)")
         ax.set_xscale("log", basex=2)
         ax.set_title("Payload Throughput of %s Messages" % test)
 
         fig.tight_layout()
-        plt.savefig(os.path.join(path, "payload_throughput_%s.png" % test))
+        plt.savefig(os.path.join(path, payload_label + "_%s.png" % test))
+        plt.close()
+
+def analyze_throughput_latency(df, path):
+    def get_latency(row):
+        test_id = row["Test"]
+        payload = row["Payload"]
+
+        # test time is in ms
+        test_time = row["0"]
+        return row["0"]/THROUGHPUT_ITERATION_COUNT
+
+    df["payload_latency"] = df.apply(get_latency, axis=1)
+    labels = [2**x * 8 for x in range(PAYLOAD_MIN, PAYLOAD_MAX)]
+
+    x = np.arange(len(labels))
+    width = 0.20
+
+    fig, ax = plt.subplots()
+    df_sorted = df.sort_values(["Payload", "Test"])
+    df_subset = df_sorted[(df_sorted["Test"] == "Medium FIFO")]
+    ax.bar(x - (3*width)/2, df_subset["payload_latency"], width, label="Medium FIFO")
+    df_subset = df_sorted[(df_sorted["Test"] == "Medium")]
+    ax.bar(x - width/2, df_subset["payload_latency"], width, label="Medium")
+    df_subset = df_sorted[(df_sorted["Test"] == "Long FIFO")]
+    ax.bar(x + width/2, df_subset["payload_latency"], width, label="Long FIFO")
+    df_subset = df_sorted[(df_sorted["Test"] == "Long")]
+    ax.bar(x + (3*width/2), df_subset["payload_latency"], width, label="Long")
+    ax.set_ylabel("Time (ms)")
+    ax.set_xlabel("Payload Size (bytes)")
+    ax.set_xticks(x)
+    ax.set_xticklabels(labels)
+    ax.legend()
+    # plt.xticks(rotation=90)
+    ax.set_title("Average Latency (throughput mode) by Message Types")
+
+    fig.tight_layout()
+    plt.savefig(os.path.join(path, "average_all.png"))
+    plt.close()
+
+    for test in ["Medium", "Medium FIFO", "Long", "Long FIFO"]:
+        fig, ax = plt.subplots()
+        df_subset = df_sorted[df_sorted["Test"] == test]
+        ax.plot(df_subset["Payload"], df_subset["payload_latency"], ".")
+        ax.set_ylabel("Time (ms)")
+        ax.set_xlabel("Payload (bytes)")
+        ax.set_xscale("log", basex=2)
+        ax.set_title("Average Latency (throughput mode) Time of %s Messages" % test)
+
+        fig.tight_layout()
+        plt.savefig(os.path.join(path, "averages_%s.png" % test))
         plt.close()
 
 def analyze_throughput(df, path):
-    def get_throughput(row):
+    def get_throughput(row, label):
         test_id = row["Test"]
         payload = row["Payload"]
 
         # time is in ms
-        test_time = row["0"]
+        test_time = row[label]
         if test_id == "Short":
             return 0
         elif test_id == "Strided":
@@ -283,16 +403,24 @@ def analyze_throughput(df, path):
             return VECTOR_METADATA[row["Payload"]][0]*THROUGHPUT_ITERATION_COUNT/test_time*1000*8/1E9
         else:
             return payload*THROUGHPUT_ITERATION_COUNT/test_time*1000*8/1E9
-        return title
 
-    df["payload_throughput"] = df.apply(get_throughput, axis=1)
+    df["payload_throughput_0"] = df.apply(get_throughput, args=("0",), axis=1)
+    if THROUGHPUT_TIMES > 1:
+        df["payload_throughput_1"] = df.apply(get_throughput, args=("1",), axis=1)
 
-    print(df)
+    # print(df)
 
     figure_dir = os.path.join(path, "efficiency")
     if not os.path.exists(figure_dir):
         os.makedirs(figure_dir)
-    analyze_throughput_efficiency(df, figure_dir)
+    for throughput_instance in range(THROUGHPUT_TIMES):
+        label = "payload_throughput_" + str(throughput_instance)
+        analyze_throughput_efficiency(df, figure_dir, label)
+
+    # figure_dir = os.path.join(path, "latency")
+    # if not os.path.exists(figure_dir):
+    #     os.makedirs(figure_dir)
+    # analyze_throughput_latency(df, figure_dir)
 
 def summarize(data_dir):
     data = {}

@@ -110,6 +110,7 @@ inline void _writeWord(
     gc_AMsrc_t src
 ){
     // printWord("   Sending - ", axis_word);
+    axis_word.id = 0;
     axis_out.write(axis_word);
     #if ENABLE_PROFILE == 1
     profile_write(src, axis_word);
@@ -343,23 +344,33 @@ void sendLongAM(
     galapagos::interface <word_t> & out
 ){
     galapagos::stream_packet <word_t> axis_word;
+    // unsigned long long ns_times[5];
+    // ns_times[0] = std::chrono::duration_cast<std::chrono::nanoseconds> (std::chrono::system_clock::now().time_since_epoch()).count();
     axis_word = createHeaderBeat(src, dst, payloadSize, handlerID, type, handlerArgCount);
     // axis_word.dest = dst;
     // out.write(axis_word);
     writeWord(out, axis_word, src, dst);
+    // ns_times[1] = std::chrono::duration_cast<std::chrono::nanoseconds> (std::chrono::system_clock::now().time_since_epoch()).count();
+    // std::cout << "long1: " << (ns_times[1]-ns_times[0])/6.4 << std::endl;
     axis_word = createTokenBeat(token, false);
     // axis_word.dest = dst;
     // out.write(axis_word);
     writeWord(out, axis_word, src, dst);
+    // ns_times[2] = std::chrono::duration_cast<std::chrono::nanoseconds> (std::chrono::system_clock::now().time_since_epoch()).count();
+    // std::cout << "long2: " << (ns_times[2]-ns_times[1])/6.4 << std::endl;
     // axis_word.data = src_addr;
     // axis_word.dest = dst;
     // out.write(axis_word);
     writeWord(out, src_addr, 0, src, dst);
+    // ns_times[3] = std::chrono::duration_cast<std::chrono::nanoseconds> (std::chrono::system_clock::now().time_since_epoch()).count();
+    // std::cout << "long3: " << (ns_times[3]-ns_times[2])/6.4 << std::endl;
     // axis_word.data = dst_addr;
     // axis_word.last = handlerArgCount == 0;
     // axis_word.dest = dst;
     // out.write(axis_word);
     writeWord(out, dst_addr, handlerArgCount == 0, src, dst);
+    // ns_times[4] = std::chrono::duration_cast<std::chrono::nanoseconds> (std::chrono::system_clock::now().time_since_epoch()).count();
+    // std::cout << "long4: " << (ns_times[4]-ns_times[3])/6.4 << std::endl;
     if (handlerArgCount > 0){
         sendHandlerArgs(out, src, dst, handler_args, handlerArgCount, true);
     }

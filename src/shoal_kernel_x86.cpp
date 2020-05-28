@@ -168,6 +168,7 @@ void shoal::kernel::sendPayload(gc_AMdst_t dst, word_t payload, bool assertLast)
     axis_word.data = payload;
     axis_word.last = assertLast;
     axis_word.keep = GC_DATA_TKEEP;
+    axis_word.id = 0;
     this->out->write(axis_word);
 }
 
