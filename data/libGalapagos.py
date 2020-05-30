@@ -111,7 +111,32 @@ def analyze(df, path, figure_dir):
             plt.savefig(os.path.join(test_path, "throughput_1_%s.png" % test))
         plt.close()
 
+def cross_analyze(data, path):
+    figure_path = os.path.join(path, "build", "libGalapagos", "cross")
+    if not os.path.exists(figure_path):
+        os.makedirs(figure_path)
+    
+    colors = ["blue", "red", "olive", "green", "cyan"]
+    for test_mode in ["throughput_0", "throughput_1"]:
+        fig, ax = plt.subplots()
+        for index, test in enumerate(["no_busy", "no_busy_1core", "no_busy_affinity", "busy", "busy_1core"]):
+            df = data[test]
+            # all of them have similar numbers so packet_malloc-packet_mem is arbitrarily chosen as the representative
+            df_subset = df[(df["test_id"] == "reply") & (df["wr_mode"] == "packet_malloc-packet_mem")]
+            # print(df_subset)
+            color = colors[index]
+            df_payloads = df_subset[df_subset["test_mode"] == test_mode]
+            ax.plot(df_payloads["payload"], df_payloads["time"], ".-", color=color, label=test + "_" + test_mode)
+        
+        ax.set_ylabel("Throughput (Mb/s)")
+        ax.set_xlabel("Payload (bytes)")
+        ax.set_xscale("log", basex=2)
+        ax.legend()
+        ax.set_title("Throughput vs Payload Size")
 
+        fig.tight_layout()
+        plt.savefig(os.path.join(figure_path, "cross_%s.png" % test_mode))
+        plt.close()
 
 
 if __name__ == "__main__":
@@ -120,11 +145,15 @@ if __name__ == "__main__":
 
     args = parser.parse_args()
     full_path = os.path.abspath(args.dir)
+    data = {}
     if os.path.exists(full_path):
         for index, test in enumerate(TESTS):
             data_path = os.path.join(full_path, test + ".txt")
             df = get_data(data_path)
             figure_dir = test.replace("libGalapagos_", "")
-            analyze(df, full_path, figure_dir)
+            data[figure_dir] = df
+            # analyze(df, full_path, figure_dir)
+
+        cross_analyze(data, full_path)
     else:
         print("%s does not exist" % args.dir)

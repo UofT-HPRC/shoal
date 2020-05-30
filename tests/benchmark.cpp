@@ -501,17 +501,17 @@ void benchmark(
         start_timer(axi_timer);
         #endif
         for(i = 0; i < loopCount; i++){
-            auto timer2 = start_timer();
+            // auto timer2 = start_timer();
             kernel.sendLongAM_normal(AMdst, 0xff3, AMhandler, AMargs, handler_args, payloadSize, src_addr, dst_addr);
-            print_time(timer2, "kernel_send_0");
-            for(int z = 0; z < 10000; z++){
-                __asm__ __volatile__ ("" : "+g" (z) : : );
-            }
+            // print_time(timer2, "kernel_send_0");
+            // for(int z = 0; z < 10000; z++){
+            //     __asm__ __volatile__ ("" : "+g" (z) : : );
+            // }
         }
-        std::cout << "mem:" << nodedata->mem_ready_barrier_cnt << std::endl;
-        auto timer2 = start_timer();
+        // std::cout << "mem:" << nodedata->mem_ready_barrier_cnt << std::endl;
+        // auto timer2 = start_timer();
         kernel.wait_reply(loopCount);
-        print_time(timer2, "kernel_wait_0");
+        // print_time(timer2, "kernel_wait_0");
         #ifndef __HLS__
         stop_timer(&kernel, 0xef3, timer);
         #else
@@ -524,12 +524,12 @@ void benchmark(
         start_timer(axi_timer);
         #endif
         for(i = 0; i < loopCount; i++){
-            auto timer2 = start_timer();
+            // auto timer2 = start_timer();
             kernel.sendLongAM_normal(AMdst, 0xff3, AMhandler, AMargs, handler_args, payloadSize, src_addr, dst_addr);
-            print_time(timer2, "kernel_send_1");
-            timer2 = start_timer();
+            // print_time(timer2, "kernel_send_1");
+            // timer2 = start_timer();
             kernel.wait_reply(1);
-            print_time(timer2, "kernel_wait_1");
+            // print_time(timer2, "kernel_wait_1");
         }
         #ifndef __HLS__
         stop_timer(&kernel, 0xef3, timer);
@@ -548,19 +548,19 @@ void benchmark(
         start_timer(axi_timer);
         #endif
         for(i = 0; i < loopCount; i++){
-            auto timer2 = start_timer();
+            // auto timer2 = start_timer();
             kernel.sendLongAM_normal(AMdst, 0xff4, AMhandler, AMargs, handler_args, payloadSize, dst_addr);
-            print_time(timer2, "kernel_send_2_0");
-            timer2 = start_timer();
+            // print_time(timer2, "kernel_send_2_0");
+            // timer2 = start_timer();
             for (j = 0; j < payloadSize; j+=GC_DATA_BYTES){
                 kernel.sendPayload(AMdst, j, j == payloadSize - ((gc_payloadSize_t)GC_DATA_BYTES));
             }
-            print_time(timer2, "kernel_send_2_1");
+            // print_time(timer2, "kernel_send_2_1");
         }
-        std::cout << "mem:" << nodedata->mem_ready_barrier_cnt << std::endl;
-        auto timer2 = start_timer();
+        // std::cout << "mem:" << nodedata->mem_ready_barrier_cnt << std::endl;
+        // auto timer2 = start_timer();
         kernel.wait_reply(loopCount);
-        print_time(timer2, "kernel_wait_2");
+        // print_time(timer2, "kernel_wait_2");
         #ifndef __HLS__
         stop_timer(&kernel, 0xef4, timer);
         #else
@@ -573,17 +573,17 @@ void benchmark(
         start_timer(axi_timer);
         #endif
         for(i = 0; i < loopCount; i++){
-            auto timer2 = start_timer();
+            // auto timer2 = start_timer();
             kernel.sendLongAM_normal(AMdst, 0xff4, AMhandler, AMargs, handler_args, payloadSize, dst_addr);
-            print_time(timer2, "kernel_send_3_0");
-            timer2 = start_timer();
+            // print_time(timer2, "kernel_send_3_0");
+            // timer2 = start_timer();
             for (j = 0; j < payloadSize; j+=GC_DATA_BYTES){
                 kernel.sendPayload(AMdst, j, j == payloadSize - ((gc_payloadSize_t)GC_DATA_BYTES));
             }
-            print_time(timer2, "kernel_send_3_1");
-            timer2 = start_timer();
+            // print_time(timer2, "kernel_send_3_1");
+            // timer2 = start_timer();
             kernel.wait_reply(1);
-            print_time(timer2, "kernel_wait_3");
+            // print_time(timer2, "kernel_wait_3");
         }
         #ifndef __HLS__
         stop_timer(&kernel, 0xef4, timer);
