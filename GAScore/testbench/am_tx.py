@@ -421,3 +421,47 @@ am_tx.add_test_vector(long_message_C)
 am_tx.add_test_vector(long_message_D)
 
 am_tx.generateTB(filepath, 'all')
+
+# original
+# Short_Message_A: 0.270 us
+# Test vector 0 complete
+# short_message_B: 0.140 us
+# Test vector 1 complete
+# Medium_Message_A: 0.240 us
+# Test vector 2 complete
+# Medium_Message_A: 0.240 us
+# Test vector 2 complete
+# medium_message_B: 15.820 us
+# Test vector 3 complete
+# medium_message_C: 0.320 us
+# Test vector 4 complete
+# Long_Message_A: 15.600 us
+# Test vector 5 complete
+# long_message_B: 15.680 us
+# Test vector 6 complete
+# long_message_C: 1.140 us
+# Test vector 7 complete
+# long_message_D: 16.500 us
+# Test vector 8 complete
+
+# final
+# Short_Message_A: 0.190 us
+# Test vector 0 complete
+# short_message_B: 0.100 us
+# Test vector 1 complete
+# Medium_Message_A: 0.140 us
+# Test vector 2 complete
+# Medium_Message_A: 0.140 us
+# Test vector 2 complete
+# medium_message_B: 10.580 us
+# Test vector 3 complete
+# medium_message_C: 0.200 us
+# Test vector 4 complete
+# Long_Message_A: 10.380 us
+# Test vector 5 complete
+# long_message_B: 10.420 us
+# Test vector 6 complete
+# long_message_C: 0.780 us
+# Test vector 7 complete
+# long_message_D: 11.060 us
+# Test vector 8 complete

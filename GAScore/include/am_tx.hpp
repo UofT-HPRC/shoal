@@ -11,7 +11,11 @@
 
 enum state_t{st_header, st_AMHandlerArgs,
     st_AMLongVector, st_AMdestination, st_AMToken,
-    st_AMpayload, st_AMLongStride, st_done, st_AMsource};
+    st_AMpayload, st_AMLongStride, st_done, st_AMsource, 
+    st_AMforward, st_AMLongStride_1, st_AMLongStride_2, st_AMLongStride_3,
+    st_AMLongVector_1, st_AMLongVector_2, st_AMLongVectorSrcRead,
+    st_AMLongVectorSrcRead_1, st_AMLongVectorDstRead, st_AMLongVectorDstRead_1,
+    };
 
 #define DECLARE_VARIABLES\
     axis_t axis_kernel("kernel");\
@@ -64,6 +68,7 @@ void am_tx(
 );
 
 inline void write(axis_dest_t &axis_net, axis_word_t axis_word, gc_AMdst_t dest){
+    #pragma HLS INLINE
     axis_wordDest_t axis_word_dest;
     axis_word_dest.data = axis_word.data;
     axis_word_dest.last = axis_word.last;

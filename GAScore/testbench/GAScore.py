@@ -62,7 +62,7 @@ GAScore.add_module(dut)
 
 # Initialization thread (added to each test vector to reset everything)
 initT = Thread()
-initT.init_timer()
+# initT.init_timer()
 initT.init_signals()
 initT.wait_negedge('clock')
 initT.add_delay('40ns')
@@ -86,10 +86,11 @@ short_message_A.add_thread(initT)
 smA_t2 = Thread()
 smA_t2.wait_negedge('clock')
 smA_t2.add_delay('300ns')
+smA_t2.init_timer()
 
-smA_t2.print_elapsed_time('STAT_sma_2_0')
+# smA_t2.print_elapsed_time('STAT_sma_2_0')
 # ctrl_bus_1.write(smA_t2, 'counter_threshold', 4)
-smA_t2.print_elapsed_time('STAT_sma_2_1')
+# smA_t2.print_elapsed_time('STAT_sma_2_1')
 # ctrl_bus_1.write(smA_t2, 'config_handler', 2)
 
 
@@ -152,6 +153,7 @@ smA_t3.disable_timestamps()
 
 # smA_t3.wait_level('interrupt_0 == $value', 0)
 # smA_t3.wait_level('interrupt_1 == $value', 0)
+smA_t3.print_elapsed_time('Short_Message_A')
 smA_t3.end_vector()
 
 short_message_A.add_thread(smA_t3)
@@ -172,6 +174,7 @@ short_message_B.add_thread(initT)
 smB_t2 = Thread()
 smB_t2.wait_negedge('clock')
 smB_t2.add_delay('300ns')
+smB_t2.init_timer()
 # ctrl_bus_1.write(smB_t2, 'counter_threshold', 4),
 # ctrl_bus_1.write(smB_t2, 'config_handler', 2),
 axis_kernel_in.write(smB_t2, strToInt("{AMHeader,0x0,0x01,0,2,1,1}"))
@@ -231,6 +234,7 @@ smB_t3.set_flag(0)
 # axis_kernel_out.read(smB_t3, strToInt("{KernelHeader,0x41,0x10,0,7}"), tdest=1, tlast=1)
 smB_t3.wait_flag(1)
 smB_t3.disable_timestamps()
+smB_t3.print_elapsed_time('Short_Message_B')
 smB_t3.end_vector()
 short_message_B.add_thread(smB_t3)
 
@@ -249,6 +253,7 @@ medium_message_A.add_thread(initT)
 mmA_t1 = Thread()
 mmA_t1.wait_negedge('clock')
 mmA_t1.add_delay('300ns')
+mmA_t1.init_timer()
 # mmA_t1.enable_timestamps('STAT_mma_1_', 0)
 axis_kernel_in.write(mmA_t1, strToInt("{AMHeader,0x0,0x01,16,0,0x12,0}")),
 axis_kernel_in.write(mmA_t1, strToInt("{AMToken,0x0}")),
@@ -280,6 +285,7 @@ axis_net_out.read(mmA_t3, strToInt("{AMToken,0x0}"))
 axis_net_out.read(mmA_t3, 5) # payload argument of 5
 axis_net_out.read(mmA_t3, 4, tlast=1) # payload argument of 4
 mmA_t3.disable_timestamps()
+mmA_t3.print_elapsed_time('Medium_Message_A')
 mmA_t3.end_vector()
 medium_message_A.add_thread(mmA_t3)
 
@@ -296,6 +302,7 @@ medium_message_B.add_thread(initT)
 mmB_t1 = Thread()
 mmB_t1.wait_negedge('clock')
 mmB_t1.add_delay('300ns')
+mmB_t1.init_timer()
 # mmB_t1.enable_timestamps('STAT_mmb_1_', 0)
 axis_kernel_in.write(mmB_t1, strToInt("{AMHeader,0x0,0x10,32,0,0x02,0}")),
 axis_kernel_in.write(mmB_t1, strToInt("{AMToken,0x0}")),
@@ -329,6 +336,7 @@ medium_message_C.add_thread(initT)
 mmC_t1 = Thread()
 mmC_t1.wait_negedge('clock')
 mmC_t1.add_delay('300ns')
+mmC_t1.init_timer()
 # mmC_t1.enable_timestamps('STAT_mmc_1_', 0)
 axis_net_in.write(mmC_t1, strToInt("{AMHeader,0x10,0,32,0,0x42,0}")),
 axis_net_in.write(mmC_t1, strToInt("{AMToken,0x0}")),
@@ -362,6 +370,7 @@ long_message_A.add_thread(initT)
 lmA_t1 = Thread()
 lmA_t1.wait_negedge('clock')
 lmA_t1.add_delay('300ns')
+lmA_t1.init_timer()
 axis_kernel_in.writes(lmA_t1, [
     {"tdata": strToInt("{AMHeader,0x0,0x10,32,2,0x04,1}")},
     {"tdata": strToInt("{AMToken,0x0}")},
@@ -399,6 +408,7 @@ long_message_B.add_thread(initT)
 lmB_t1 = Thread()
 lmB_t1.wait_negedge('clock')
 lmB_t1.add_delay('300ns')
+lmB_t1.init_timer()
 axis_kernel_in.writes(lmB_t1, [
     {"tdata": strToInt("{AMHeader,0x0,0x10,32,0,0x05,0}")},
     {"tdata": strToInt("{AMLongStride,0x100,8,4}")},
@@ -434,6 +444,7 @@ long_message_C.add_thread(initT)
 lmC_t1 = Thread()
 lmC_t1.wait_negedge('clock')
 lmC_t1.add_delay('300ns')
+lmC_t1.init_timer()
 axis_kernel_in.writes(lmC_t1, [
     {"tdata": strToInt("{AMHeader,0x0,0x10,80,0,0x06,0}")},
     {"tdata": strToInt("{AMLongVector,2,2,32,32,0}")},
@@ -481,6 +492,7 @@ message_recv.add_thread(initT)
 message_t1 = message_recv.add_thread()
 message_t1.wait_negedge('clock')
 message_t1.add_delay('300ns')
+message_t1.init_timer()
 axis_net_in.writes(message_t1, [
     # sends an empty short message doing nothing
     {"tdata": strToInt("{AMHeader,0x11,0x1,0,0,1,0}")},
@@ -583,6 +595,7 @@ message_get.add_thread(initT)
 message_get_t1 = message_get.add_thread()
 message_get_t1.wait_negedge('clock')
 message_get_t1.add_delay('300ns')
+message_get_t1.init_timer()
 axis_net_in.writes(message_get_t1, [
     # GET two words from address 0x10 as a medium message
     {"tdata": strToInt("{AMHeader,0x10,0x1,16,0,0x42,0}")},
@@ -679,6 +692,7 @@ message_kernel_get.add_thread(initT)
 message_get_kernel_t1 = message_kernel_get.add_thread()
 message_get_kernel_t1.wait_negedge('clock')
 message_get_kernel_t1.add_delay('300ns')
+message_get_kernel_t1.init_timer()
 axis_kernel_in.writes(message_get_kernel_t1, [
     # GET two words from address 0x10 as a medium message
     {"tdata": strToInt("{AMHeader,0x1,0x10,16,0,0x42,0}")},
@@ -758,3 +772,28 @@ GAScore.add_test_vector(message_get)
 GAScore.add_test_vector(message_kernel_get)
 
 GAScore.generateTB(filepath, 'sv')
+
+# Original
+# Short_Message_A: 1.930 us
+# Test vector 0 complete
+# Short_Message_B: 3.150 us
+# Test vector 1 complete
+# Medium_Message_A: 1.090 us
+# Test vector 2 complete
+# Medium_Message_B: 1.130 us
+# Test vector 3 complete
+# Medium_Message_C: 1.170 us
+# Test vector 4 complete
+# Long_Message_A: 1.210 us
+# Test vector 5 complete
+# long_message_B: 1.450 us
+# Test vector 6 complete
+# long_message_C: 1.750 us
+# Test vector 7 complete
+# message_recv: 5.270 us
+# Test vector 8 complete
+# message_get: 4.510 us
+# Test vector 9 complete
+# message_get_kernel: 1.610 us
+# Test vector 10 complete
+
