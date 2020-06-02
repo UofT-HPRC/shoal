@@ -31,8 +31,8 @@ dut.add_interface(axis_net_in)
 axis_net_out = AXIS('axis_net_out', 'master', 'clock')
 axis_net_out.port.init_channels('tkeep', 64, False)
 axis_net_out.port.add_channel("tdest", "tdest", 16)
-axis_net_out.port.add_channel("tid", "tid", 16)
-axis_net_out.port.add_channel("tuser", "tuser", 16)
+# axis_net_out.port.add_channel("tid", "tid", 16)
+# axis_net_out.port.add_channel("tuser", "tuser", 16)
 dut.add_interface(axis_net_out)
 
 ctrl_bus_0 = SAXILite('s_axi_ctrl_bus_00', 'clock', 'reset_n')
@@ -84,7 +84,8 @@ short_message_A = TestVector()
 short_message_A.add_thread(initT)
 
 smA_t2 = Thread()
-smA_t2.add_delay('100ns')
+smA_t2.wait_negedge('clock')
+smA_t2.add_delay('300ns')
 
 smA_t2.print_elapsed_time('STAT_sma_2_0')
 # ctrl_bus_1.write(smA_t2, 'counter_threshold', 4)
@@ -169,7 +170,8 @@ short_message_B = TestVector()
 short_message_B.add_thread(initT)
 
 smB_t2 = Thread()
-smB_t2.add_delay('100ns')
+smB_t2.wait_negedge('clock')
+smB_t2.add_delay('300ns')
 # ctrl_bus_1.write(smB_t2, 'counter_threshold', 4),
 # ctrl_bus_1.write(smB_t2, 'config_handler', 2),
 axis_kernel_in.write(smB_t2, strToInt("{AMHeader,0x0,0x01,0,2,1,1}"))
@@ -245,7 +247,8 @@ medium_message_A = TestVector()
 medium_message_A.add_thread(initT)
 
 mmA_t1 = Thread()
-mmA_t1.add_delay('100ns')
+mmA_t1.wait_negedge('clock')
+mmA_t1.add_delay('300ns')
 # mmA_t1.enable_timestamps('STAT_mma_1_', 0)
 axis_kernel_in.write(mmA_t1, strToInt("{AMHeader,0x0,0x01,16,0,0x12,0}")),
 axis_kernel_in.write(mmA_t1, strToInt("{AMToken,0x0}")),
@@ -291,7 +294,8 @@ medium_message_B = TestVector()
 medium_message_B.add_thread(initT)
 
 mmB_t1 = Thread()
-mmB_t1.add_delay('100ns')
+mmB_t1.wait_negedge('clock')
+mmB_t1.add_delay('300ns')
 # mmB_t1.enable_timestamps('STAT_mmb_1_', 0)
 axis_kernel_in.write(mmB_t1, strToInt("{AMHeader,0x0,0x10,32,0,0x02,0}")),
 axis_kernel_in.write(mmB_t1, strToInt("{AMToken,0x0}")),
@@ -323,7 +327,8 @@ medium_message_C = TestVector()
 medium_message_C.add_thread(initT)
 
 mmC_t1 = Thread()
-mmC_t1.add_delay('100ns')
+mmC_t1.wait_negedge('clock')
+mmC_t1.add_delay('300ns')
 # mmC_t1.enable_timestamps('STAT_mmc_1_', 0)
 axis_net_in.write(mmC_t1, strToInt("{AMHeader,0x10,0,32,0,0x42,0}")),
 axis_net_in.write(mmC_t1, strToInt("{AMToken,0x0}")),
@@ -355,7 +360,8 @@ long_message_A = TestVector()
 long_message_A.add_thread(initT)
 
 lmA_t1 = Thread()
-lmA_t1.add_delay('100ns')
+lmA_t1.wait_negedge('clock')
+lmA_t1.add_delay('300ns')
 axis_kernel_in.writes(lmA_t1, [
     {"tdata": strToInt("{AMHeader,0x0,0x10,32,2,0x04,1}")},
     {"tdata": strToInt("{AMToken,0x0}")},
@@ -391,7 +397,8 @@ long_message_B = TestVector()
 long_message_B.add_thread(initT)
 
 lmB_t1 = Thread()
-lmB_t1.add_delay('100ns')
+lmB_t1.wait_negedge('clock')
+lmB_t1.add_delay('300ns')
 axis_kernel_in.writes(lmB_t1, [
     {"tdata": strToInt("{AMHeader,0x0,0x10,32,0,0x05,0}")},
     {"tdata": strToInt("{AMLongStride,0x100,8,4}")},
@@ -425,7 +432,8 @@ long_message_C = TestVector()
 long_message_C.add_thread(initT)
 
 lmC_t1 = Thread()
-lmC_t1.add_delay('100ns')
+lmC_t1.wait_negedge('clock')
+lmC_t1.add_delay('300ns')
 axis_kernel_in.writes(lmC_t1, [
     {"tdata": strToInt("{AMHeader,0x0,0x10,80,0,0x06,0}")},
     {"tdata": strToInt("{AMLongVector,2,2,32,32,0}")},
@@ -471,7 +479,8 @@ long_message_C.add_thread(lmC_t2)
 message_recv = TestVector()
 message_recv.add_thread(initT)
 message_t1 = message_recv.add_thread()
-message_t1.add_delay('100ns')
+message_t1.wait_negedge('clock')
+message_t1.add_delay('300ns')
 axis_net_in.writes(message_t1, [
     # sends an empty short message doing nothing
     {"tdata": strToInt("{AMHeader,0x11,0x1,0,0,1,0}")},
@@ -572,7 +581,8 @@ message_get = TestVector()
 message_get.add_thread(initT)
 
 message_get_t1 = message_get.add_thread()
-message_get_t1.add_delay('100ns')
+message_get_t1.wait_negedge('clock')
+message_get_t1.add_delay('300ns')
 axis_net_in.writes(message_get_t1, [
     # GET two words from address 0x10 as a medium message
     {"tdata": strToInt("{AMHeader,0x10,0x1,16,0,0x42,0}")},
@@ -605,7 +615,7 @@ axis_net_in.writes(message_get_t1, [
 ])
 
 message_get_t2 = message_get.add_thread()
-# message_get_t2.add_delay('100ns')
+# message_get_t2.add_delay('300ns')
 axis_net_out.reads(message_get_t2, [
     # reply to medium message
     {"tdata": strToInt("{AMHeader,0x1,0x10,16,0,0x22,0}")},
@@ -667,7 +677,8 @@ message_kernel_get = TestVector()
 message_kernel_get.add_thread(initT)
 
 message_get_kernel_t1 = message_kernel_get.add_thread()
-message_get_kernel_t1.add_delay('100ns')
+message_get_kernel_t1.wait_negedge('clock')
+message_get_kernel_t1.add_delay('300ns')
 axis_kernel_in.writes(message_get_kernel_t1, [
     # GET two words from address 0x10 as a medium message
     {"tdata": strToInt("{AMHeader,0x1,0x10,16,0,0x42,0}")},

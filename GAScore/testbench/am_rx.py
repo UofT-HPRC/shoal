@@ -63,7 +63,7 @@ short_message_A = TestVector()
 short_message_A.add_thread(initT)
 
 smA_t1 = short_message_A.add_thread()
-smA_t1.add_delay('100ns')
+smA_t1.add_delay('300ns')
 smA_t1.init_timer()
 axis_net.writes(smA_t1, [
     # USE_ABS_PAYLOAD {"tdata": strToInt("{AMHeader,0x01,0x02,48,0xE,1,2}"), "callTB": 1},
@@ -93,7 +93,7 @@ short_message_B = TestVector()
 short_message_B.add_thread(initT)
 
 smB_t1 = short_message_B.add_thread()
-smB_t1.add_delay('100ns')
+smB_t1.add_delay('300ns')
 smB_t1.init_timer()
 axis_net.writes(smB_t1, [
     # USE_ABS_PAYLOAD {"tdata": strToInt("{AMHeader,0x01,0x02,24,0xE,1,0}"), "callTB": 1},
@@ -119,7 +119,7 @@ medium_message_A = TestVector()
 medium_message_A.add_thread(initT)
 
 mmA_t1 = medium_message_A.add_thread()
-mmA_t1.add_delay('100ns')
+mmA_t1.add_delay('300ns')
 mmA_t1.init_timer()
 axis_net.writes(mmA_t1, [
     # USE_ABS_PAYLOAD {"tdata": strToInt("{AMHeader,0x01,0x02,36,0xE,2,0}"), "callTB": 1},
@@ -149,7 +149,7 @@ medium_message_B = TestVector()
 medium_message_B.add_thread(initT)
 
 mmB_t1 = medium_message_B.add_thread()
-mmB_t1.add_delay('100ns')
+mmB_t1.add_delay('300ns')
 mmB_t1.init_timer()
 axis_net.writes(mmB_t1, [
     # USE_ABS_PAYLOAD {"tdata": strToInt("{AMHeader,0x01,0x02,0x818,0xE,2,6}"), "callTB": 1},
@@ -186,7 +186,7 @@ long_message_A = TestVector()
 long_message_A.add_thread(initT)
 
 lmA_t1 = long_message_A.add_thread()
-lmA_t1.add_delay('100ns')
+lmA_t1.add_delay('300ns')
 lmA_t1.init_timer()
 axis_net.writes(lmA_t1, [
     # USE_ABS_PAYLOAD {"tdata": strToInt("{AMHeader,0x01,0x02,0x818,0xE,4,0}"), "callTB": 1},
@@ -228,7 +228,7 @@ long_message_B = TestVector()
 long_message_B.add_thread(initT)
 
 lmB_t1 = long_message_B.add_thread()
-lmB_t1.add_delay('100ns')
+lmB_t1.add_delay('300ns')
 lmB_t1.init_timer()
 axis_net.writes(lmB_t1, [
     # USE_ABS_PAYLOAD {"tdata": strToInt("{AMHeader,0x01,0x02,0x88,0xD,0x5,2}"), "callTB": 1},
@@ -281,7 +281,7 @@ long_message_C = TestVector()
 long_message_C.add_thread(initT)
 
 lmC_t1 = long_message_C.add_thread()
-lmC_t1.add_delay('100ns')
+lmC_t1.add_delay('300ns')
 lmC_t1.init_timer()
 axis_net.writes(lmC_t1, [
     # USE_ABS_PAYLOAD {"tdata": strToInt("{AMHeader,type:0x6,src:0x01,dst:0x02,payload:0x888,handler:0xF,args:0}"), "callTB": 1},
@@ -322,6 +322,7 @@ axis_s2mm.read(lmC_t2, 0xDDDDDDDD, tlast=1)
 
 lmC_t4 = long_message_C.add_thread()
 lmC_t4.wait_level('axis_s2mm_tlast == $value', value=1)
+lmC_t4.wait_level('axis_s2mm_tlast == $value', value=0)
 lmC_t4.wait_level('axis_s2mm_tlast == $value', value=1)
 lmC_t4.add_delay('50ns')
 axis_s2mmStatus.write(lmC_t4, 0x80)
@@ -336,5 +337,59 @@ am_rx.add_test_vector(medium_message_B)
 am_rx.add_test_vector(long_message_A)
 am_rx.add_test_vector(long_message_B)
 am_rx.add_test_vector(long_message_C)
+
+# original
+# Short_Message_A: 0.370 us
+# Test vector 0 complete
+# short_message_B: 0.180 us
+# Test vector 1 complete
+# Medium_Message_A: 0.280 us
+# Test vector 2 complete
+# Medium_Message_A: 0.280 us
+# Test vector 2 complete
+# medium_message_B: 21.100 us
+# Test vector 3 complete
+# Long_Message_A: 20.890 us
+# Test vector 4 complete
+# long_message_B: 1.550 us
+# Test vector 5 complete
+# long_message_C: 21.870 us
+# Test vector 6 complete
+
+# copy statics, pipeline
+# Short_Message_A: 0.310 us
+# Test vector 0 complete
+# short_message_B: 0.140 us
+# Test vector 1 complete
+# Medium_Message_A: 0.240 us
+# Test vector 2 complete
+# Medium_Message_A: 0.240 us
+# Test vector 2 complete
+# medium_message_B: 21.040 us
+# Test vector 3 complete
+# Long_Message_A: 20.830 us
+# Test vector 4 complete
+# long_message_B: 1.510 us
+# Test vector 5 complete
+# long_message_C: 21.850 us
+# Test vector 6 complete
+
+# Final: II = 2
+# Short_Message_A: 0.190 us
+# Test vector 0 complete
+# short_message_B: 0.100 us
+# Test vector 1 complete
+# Medium_Message_A: 0.120 us
+# Test vector 2 complete
+# Medium_Message_A: 0.120 us
+# Test vector 2 complete
+# medium_message_B: 10.560 us
+# Test vector 3 complete
+# Long_Message_A: 10.410 us
+# Test vector 4 complete
+# long_message_B: 0.810 us
+# Test vector 5 complete
+# long_message_C: 10.930 us
+# Test vector 6 complete
 
 am_rx.generateTB(filepath, 'all')

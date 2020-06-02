@@ -37,7 +37,7 @@ helper_obj_dir = $(helper_dir)/build
 helper_bin_dir = $(helper_dir)/build/bin
 helper_include_dir = $(helper_dir)/include
 
-c_modules := am_rx am_tx xpams_rx hold_buffer xpams_tx handler hold_buffer_dest
+c_modules := am_rx am_tx xpams_rx hold_buffer xpams_tx handler hold_buffer_dest test
 hdl_modules := memory add_id
 custom_modules := handler_wrapper GAScore
 test_projects := MB_GAScore_0 MB_GAScore_1

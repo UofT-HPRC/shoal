@@ -27,7 +27,7 @@ set src_dir ${::env(SHOAL_PATH)}/GAScore/src
 set test_dir ${::env(SHOAL_PATH)}/GAScore/testbench/build
 set local_include -I${::env(SHOAL_PATH)}/GAScore/include
 set global_include -I${::env(SHOAL_PATH)}/include
-append include $local_include " " $global_include
+append include $local_include " " $global_include " -std=c++11"
 
 ################################################################################
 # Body
