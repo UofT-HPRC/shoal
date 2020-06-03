@@ -19,13 +19,13 @@
       </db_ref>
    </db_ref_list>
    <zoom_setting>
-      <ZoomStartTime time="4077647517fs"></ZoomStartTime>
-      <ZoomEndTime time="4836470497fs"></ZoomEndTime>
-      <Cursor1Time time="4710000000fs"></Cursor1Time>
+      <ZoomStartTime time="0fs"></ZoomStartTime>
+      <ZoomEndTime time="3000000000fs"></ZoomEndTime>
+      <Cursor1Time time="889676000fs"></Cursor1Time>
    </zoom_setting>
    <column_width_setting>
       <NameColumnWidth column_width="399"></NameColumnWidth>
-      <ValueColumnWidth column_width="185"></ValueColumnWidth>
+      <ValueColumnWidth column_width="177"></ValueColumnWidth>
    </column_width_setting>
    <WVObjectSize size="10" />
    <wvobject type="logic" fp_name="/GAScore_tb/clock">
@@ -315,9 +315,26 @@
          <obj_property name="ElementShortName">axis_handler_tready</obj_property>
          <obj_property name="ObjectShortName">axis_handler_tready</obj_property>
       </wvobject>
+      <wvobject type="array" fp_name="/GAScore_tb/GAScore_i/handler_wrapper_i/address">
+         <obj_property name="ElementShortName">address[0:0]</obj_property>
+         <obj_property name="ObjectShortName">address[0:0]</obj_property>
+      </wvobject>
+      <wvobject type="logic" fp_name="/GAScore_tb/GAScore_i/handler_wrapper_i/axis_handler_tready_addressed">
+         <obj_property name="ElementShortName">axis_handler_tready_addressed</obj_property>
+         <obj_property name="ObjectShortName">axis_handler_tready_addressed</obj_property>
+      </wvobject>
+      <wvobject type="array" fp_name="/GAScore_tb/GAScore_i/handler_wrapper_i/address_wire">
+         <obj_property name="ElementShortName">address_wire[15:0]</obj_property>
+         <obj_property name="ObjectShortName">address_wire[15:0]</obj_property>
+      </wvobject>
+      <wvobject type="array" fp_name="/GAScore_tb/GAScore_i/handler_wrapper_i/currentState">
+         <obj_property name="ElementShortName">currentState[1:0]</obj_property>
+         <obj_property name="ObjectShortName">currentState[1:0]</obj_property>
+      </wvobject>
       <wvobject type="group" fp_name="group267">
          <obj_property name="label">handler_1</obj_property>
          <obj_property name="DisplayName">label</obj_property>
+         <obj_property name="isExpanded"></obj_property>
          <wvobject type="array" fp_name="/GAScore_tb/GAScore_i/handler_wrapper_i/\genblk1[1].handler_inst /counter_V">
             <obj_property name="ElementShortName">counter_V[31:0]</obj_property>
             <obj_property name="ObjectShortName">counter_V[31:0]</obj_property>
@@ -334,6 +351,7 @@
       <wvobject type="group" fp_name="group263">
          <obj_property name="label">handler_0</obj_property>
          <obj_property name="DisplayName">label</obj_property>
+         <obj_property name="isExpanded"></obj_property>
          <wvobject type="array" fp_name="/GAScore_tb/GAScore_i/handler_wrapper_i/\genblk1[0].handler_inst /counter_V">
             <obj_property name="ElementShortName">counter_V[31:0]</obj_property>
             <obj_property name="ObjectShortName">counter_V[31:0]</obj_property>
@@ -355,6 +373,7 @@
       <wvobject type="group" fp_name="group92">
          <obj_property name="label">am_tx</obj_property>
          <obj_property name="DisplayName">label</obj_property>
+         <obj_property name="isExpanded"></obj_property>
          <wvobject type="logic" fp_name="/GAScore_tb/GAScore_i/GAScore_bd_i/GAScore_bd_i/am_tx_0/axis_kernel_TVALID">
             <obj_property name="ElementShortName">axis_kernel_TVALID</obj_property>
             <obj_property name="ObjectShortName">axis_kernel_TVALID</obj_property>
@@ -455,11 +474,14 @@
             <obj_property name="ElementShortName">release_V[0:0]</obj_property>
             <obj_property name="ObjectShortName">release_V[0:0]</obj_property>
          </wvobject>
+         <wvobject type="array" fp_name="/GAScore_tb/GAScore_i/GAScore_bd_i/GAScore_bd_i/am_tx_0/inst/currentState">
+            <obj_property name="ElementShortName">currentState[4:0]</obj_property>
+            <obj_property name="ObjectShortName">currentState[4:0]</obj_property>
+         </wvobject>
       </wvobject>
       <wvobject type="group" fp_name="group68">
          <obj_property name="label">xpams_tx</obj_property>
          <obj_property name="DisplayName">label</obj_property>
-         <obj_property name="isExpanded"></obj_property>
          <wvobject type="logic" fp_name="/GAScore_tb/GAScore_i/GAScore_bd_i/GAScore_bd_i/xpams_tx_0/axis_kernel_in_TVALID">
             <obj_property name="ElementShortName">axis_kernel_in_TVALID</obj_property>
             <obj_property name="ObjectShortName">axis_kernel_in_TVALID</obj_property>

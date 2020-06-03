@@ -9,8 +9,9 @@
 
 #define FSM_EXISTS // allows printing FSM states in debug
 
-static enum state_rx_t{st_AMheader, st_sendReplyHeader, st_AMToken,
-    st_AMpayload} currentState;
+enum state_t{st_AMheader, st_sendReplyHeader, st_AMToken,
+    st_AMpayload, st_AMforward, st_AMtoken_2, st_AMhandlerArgs,
+    st_sendReplyHeader_2};
 
 #define DECLARE_VARIABLES\
     axis_t axis_rx("rx");\

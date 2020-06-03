@@ -79,6 +79,13 @@ void am_rx(
             AMhandler = axis_word.data(AM_HANDLER);
             AMtype = axis_word.data(AM_TYPE);
             AMargs = axis_word.data(AM_HANDLER_ARGS);
+
+            status_counter = 0;
+            strideCount = 1;
+            writeCount = 0;
+            vectorCount = 0;
+            argCounter = 1;
+            dstVectorNum_counter = 1;
             if (isReplyAM(AMtype) && (!isShortAM(AMtype))){
                 // // forward all read words straight to xpams_rx for data requests
                 // do {

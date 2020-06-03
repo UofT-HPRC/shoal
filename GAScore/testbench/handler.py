@@ -77,3 +77,11 @@ short_message_A.add_thread(smA_t1)
 handler.add_test_vector(short_message_A)
 
 handler.generateTB(filepath, 'all')
+
+# original
+# short_message_A: 0.810 us
+# Test vector 0 complete
+
+# Final 
+# short_message_A: 0.770 us
+# Test vector 0 complete

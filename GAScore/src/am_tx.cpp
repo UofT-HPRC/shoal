@@ -66,7 +66,7 @@ void am_tx(
     static gc_strideBlockSize_t srcBlockSize = 0;
     static gc_srcVectorNum_t srcVectorNum_counter = 1;
     static gc_srcVectorNum_t dstVectorNum_counter = 1;
-    static gc_payloadSize_t payload_counter = 1;
+    static gc_payloadSize_t payload_counter = GC_DATA_BYTES;
     static gc_strideBlockNum_t status_count = 0;
     static gc_strideBlockNum_t status_counter = 0;
     static gc_destination_t src_addr_counter = 0;
@@ -89,7 +89,7 @@ void am_tx(
                 argCounter = 1;
                 srcVectorNum_counter = 1;
                 dstVectorNum_counter = 1;
-                payload_counter = 1;
+                payload_counter = GC_DATA_BYTES;
                 status_counter = 0;
                 stride_counter = 0;
 
@@ -143,6 +143,7 @@ void am_tx(
             } else {
                 currentState = st_AMforward;
             }
+            break;
         }
         case st_AMToken:{
             // if(!axis_kernel.empty()){
@@ -154,7 +155,7 @@ void am_tx(
                 AMpayloadSize -= GC_DATA_BYTES;
                 #endif
                 if(isShortAM(AMtype)){
-                    currentState = AMargs == 0 ? st_done : st_AMHandlerArgs;
+                    currentState = AMargs == 0 ? st_header : st_AMHandlerArgs;
                 }
                 else if(isLongAM(AMtype)){
                     currentState = isDataFromFIFO(AMtype) ? st_AMdestination : st_AMsource;
@@ -181,7 +182,7 @@ void am_tx(
             write(axis_net, axis_word, AMdst);
             argCounter++;
             if(last_write){
-                currentState = isShortAM(AMtype) ? st_done : st_AMpayload;
+                currentState = isShortAM(AMtype) ? st_header : st_AMpayload;
             }
 
             // // uint_1_t enableLast = AMpayloadSize == 0;
@@ -361,7 +362,7 @@ void am_tx(
         }
         case st_AMLongStride_3:{
             gc_strideBlockNum_t i;
-            word_t address = AMsrcAddr(GC_ADDR_WIDTH-1,0);
+            word_t address = src_addr_counter(GC_ADDR_WIDTH-1,0);
             // for(i = 0; i < srcBlockNum; i++){
             //     #pragma HLS loop_tripcount min=1 max=4095 avg=2
                 dataMoverWriteCommand(axis_mm2sCommand, 0, 0, address,
@@ -521,6 +522,7 @@ void am_tx(
             // i+=GC_DATA_BYTES;
             // axis_net.write(axis_word);
             write(axis_net, axis_word, AMdst);
+            payload_counter += GC_DATA_BYTES;
             if (last_write){
                 currentState = status_count > 0 ? st_done : st_header;
             }

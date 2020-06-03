@@ -65,7 +65,7 @@ short_message_A.add_thread(smA_t1)
 smA_t2 = Thread()
 # # USE_ABS_PAYLOAD axis_kernel_out.read(smA_t2, strToInt("{KernelHeader,0x41,0xCC,8,1}"), tdest=2)
 # axis_kernel_out.read(smA_t2, strToInt("{KernelHeader,0x41,0xCC,0,1}"), tdest=2)
-smA_t1.wait_flag(0)
+smA_t2.wait_flag(0)
 smA_t2.print_elapsed_time("Short_Message_A")
 smA_t2.end_vector()
 short_message_A.add_thread(smA_t2)
@@ -246,3 +246,15 @@ xpams_rx.add_test_vector(medium_message_C)
 xpams_rx.add_test_vector(long_message_A)
 
 xpams_rx.generateTB(filepath, 'all')
+
+# original
+
+# Short_Message_A: 0.000 us
+# Test vector 0 complete
+# Test vector 1 complete
+# Medium_Message_A: 10.500 us
+# Test vector 2 complete
+# Medium_Message_C: 0.160 us
+# Test vector 3 complete
+# Long_Message_A: 0.320 us
+# Test vector 4 complete

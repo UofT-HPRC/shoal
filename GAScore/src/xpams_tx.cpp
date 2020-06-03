@@ -25,7 +25,7 @@ void xpams_tx(
     // #pragma HLS INTERFACE bram port=network_table
     // #pragma HLS INTERFACE ap_stable port=network_addr
 
-    #pragma HLS DATAFLOW
+    #pragma HLS PIPELINE
     #ifdef DEBUG
     #pragma HLS INTERFACE ap_none port=dbg_currentState
     #endif
@@ -44,6 +44,8 @@ void xpams_tx(
     static gc_AMtype_t AMtype;
     static gc_AMhandler_t AMhandler;
 
+    gc_AMargs_t arg_counter = 1;
+
     bool loopback;
     ap_uint <NETWORK_HEADER_LENGTH> network_addr_in;
 
@@ -58,6 +60,7 @@ void xpams_tx(
             AMpayloadSize = axis_word.data(AM_PAYLOAD_SIZE);
             loopback = AMdst <= address_offset_high && AMdst >= address_offset_low && 
                 !isLongxAM(AMtype) && !(isMediumAM(AMtype) && !isDataFromFIFO(AMtype));
+            arg_counter = 1;
             // network_addr_in = network_table[AMdst];
             // loopback = (network_addr == network_addr_in);
             if (loopback){
@@ -116,32 +119,49 @@ void xpams_tx(
             break;
         }
         case st_AMargs:{
-            gc_AMargs_t i;
-            for(i = 0; i < AMargs - 1; i++){
-                #pragma HLS loop_tripcount min=1 max=255 avg=2
-                #pragma HLS PIPELINE
-                axis_kernel_in.read(axis_word);
-                axis_wordNoKeep = assignWordtoNoKeep(axis_word);
-                axis_handler.write(axis_wordNoKeep);
-            }
+            // gc_AMargs_t i;
+            // for(i = 0; i < AMargs - 1; i++){
+            //     #pragma HLS loop_tripcount min=1 max=255 avg=2
+            //     #pragma HLS PIPELINE
+            //     axis_kernel_in.read(axis_word);
+            //     axis_wordNoKeep = assignWordtoNoKeep(axis_word);
+            //     axis_handler.write(axis_wordNoKeep);
+            // }
+            // axis_kernel_in.read(axis_word);
+            // axis_wordNoKeep = assignWordtoNoKeep(axis_word);
+            // axis_wordNoKeep.last = 1;
+            // axis_handler.write(axis_wordNoKeep);
+            // currentState = isMediumAM(AMtype) ? st_AMpayload : st_AMreply;
+            bool last_write = arg_counter == AMargs;
             axis_kernel_in.read(axis_word);
             axis_wordNoKeep = assignWordtoNoKeep(axis_word);
-            axis_wordNoKeep.last = 1;
+            axis_wordNoKeep.last = last_write;
             axis_handler.write(axis_wordNoKeep);
-            currentState = isMediumAM(AMtype) ? st_AMpayload : st_AMreply;
+            arg_counter++;
+            if(last_write){
+                currentState = isMediumAM(AMtype) ? st_AMpayload : st_AMreply;
+            }
             break;
         }
         case st_AMpayload:{
-            gc_payloadSize_t i;
-            do{
-                #pragma HLS loop_tripcount min=1 max=65536 avg=10
-                #pragma HLS PIPELINE
-                axis_kernel_in.read(axis_word);
-                axis_wordDest = assignWord(axis_word);
-                axis_wordDest.dest = AMdst;
-                axis_kernel_out.write(axis_wordDest);
-            } while(!axis_word.last);
-            currentState = st_AMreply;
+            // gc_payloadSize_t i;
+            // do{
+            //     #pragma HLS loop_tripcount min=1 max=65536 avg=10
+            //     #pragma HLS PIPELINE
+            //     axis_kernel_in.read(axis_word);
+            //     axis_wordDest = assignWord(axis_word);
+            //     axis_wordDest.dest = AMdst;
+            //     axis_kernel_out.write(axis_wordDest);
+            // } while(!axis_word.last);
+            // currentState = st_AMreply;
+            axis_kernel_in.read(axis_word);
+            bool last_write = axis_word.last;
+            axis_wordDest = assignWord(axis_word);
+            axis_wordDest.dest = AMdst;
+            axis_kernel_out.write(axis_wordDest);
+            if(last_write){
+                currentState = st_AMreply;
+            }
             break;
         }
         case st_AMreply:{
@@ -155,13 +175,18 @@ void xpams_tx(
             break;
         }
         case st_AMsend:{
-            do {
-                #pragma HLS loop_tripcount min=1 max=65536 avg=10
-                #pragma HLS PIPELINE
-                axis_kernel_in.read(axis_word);
-                axis_tx.write(axis_word);
-            } while(axis_word.last != 1);
-            currentState = st_AMheader;
+            // do {
+            //     #pragma HLS loop_tripcount min=1 max=65536 avg=10
+            //     #pragma HLS PIPELINE
+            //     axis_kernel_in.read(axis_word);
+            //     axis_tx.write(axis_word);
+            // } while(axis_word.last != 1);
+            // currentState = st_AMheader;
+            axis_kernel_in.read(axis_word);
+            axis_tx.write(axis_word);
+            if(axis_word.last){
+                currentState = st_AMheader;
+            }
             break;
         }
     }

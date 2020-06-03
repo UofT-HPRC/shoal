@@ -15,7 +15,7 @@ void xpams_rx(
     #pragma HLS INTERFACE axis port=axis_kernel_out
 	#pragma HLS INTERFACE ap_ctrl_none port=return
 
-    #pragma HLS DATAFLOW
+    #pragma HLS PIPELINE
 
     #ifdef DEBUG
     #pragma HLS INTERFACE ap_none port=dbg_currentState
@@ -35,6 +35,9 @@ void xpams_rx(
     static gc_AMtype_t AMtype;
     static gc_AMhandler_t AMhandler;
 
+    static gc_AMargs_t args_counter = 0;
+    static state_t currentState = st_AMheader;
+
     // std::cout << "state: " << currentState << "\n";
 
     switch(currentState){
@@ -47,6 +50,7 @@ void xpams_rx(
                 AMhandler = axis_word.data(AM_HANDLER);
                 AMtype = axis_word.data(AM_TYPE);
                 AMargs = axis_word.data(AM_HANDLER_ARGS);
+                args_counter = 0;
                 if (isReplyAM(AMtype) && !isShortAM(AMtype)){
                     axis_word.data(AM_TYPE) = (AMtype & (~AM_REPLY)) + AM_ASYNC;
                     axis_word.data(AM_SRC) = AMdst;
@@ -89,13 +93,14 @@ void xpams_rx(
                     currentState = st_AMheader;
                 }
                 else if(isReplyAM(AMtype)){
-                    do{
-                        #pragma HLS loop_tripcount min=2 max=289 avg=10
-                        axis_tx.write(axis_word);
-                        axis_rx.read(axis_word);
-                    } while(axis_word.last != 1);
+                    // do{
+                    //     #pragma HLS loop_tripcount min=2 max=289 avg=10
+                    //     axis_tx.write(axis_word);
+                    //     axis_rx.read(axis_word);
+                    // } while(axis_word.last != 1);
+                    // axis_tx.write(axis_word);
                     axis_tx.write(axis_word);
-                    currentState = st_AMheader;
+                    currentState = st_AMforward;
                 }
                 else{
                     if (AMhandler != H_EMPTY){
@@ -105,65 +110,114 @@ void xpams_rx(
                         axis_handler.write(axis_wordNoKeep);
                     }
                     if (AMargs != 0){
-                        gc_AMargs_t i;
-                        for(i = 0; i < AMargs - 1; i++){
-                            #pragma HLS loop_tripcount min=1 max=255 avg=2
-                            axis_rx.read(axis_word);
-                            axis_wordNoKeep = assignWordtoNoKeep(axis_word);
-                            axis_handler.write(axis_wordNoKeep);
-                        }
-                        axis_rx.read(axis_word);
-                        axis_wordNoKeep = assignWordtoNoKeep(axis_word);
-                        axis_wordNoKeep.last = 1;
-                        axis_handler.write(axis_wordNoKeep);
+                        currentState = st_AMhandlerArgs;
+                    } else {
+                        currentState = st_AMtoken_2;
                     }
-                    if(isMediumAM(AMtype)){
-                        // axis_word.data = 0;
-                        // axis_word.data(AM_TYPE) = AMtype;
-                        // axis_word.data(AM_SRC) = AMsrc;
-                        // #ifdef USE_ABS_PAYLOAD
-                        // axis_word.data(AM_DST) = AMpayloadSize - AMargs - GC_DATA_BYTES;
-                        // #else
-                        // axis_word.data(AM_DST) = AMpayloadSize;
-                        // #endif
-                        // axis_word.data(AM_TOKEN) = AMToken;
-                        // axis_wordDest = assignWord(axis_word);
-                        // axis_wordDest.dest = AMdst;
-                        #ifdef USE_ABS_PAYLOAD
-                        gc_payloadSize_t payloadsize = AMpayloadSize - AMargs - GC_DATA_BYTES;
-                        #else
-                        gc_payloadSize_t payloadsize =  AMpayloadSize;
-                        #endif
+                    // if (AMargs != 0){
+                    //     gc_AMargs_t i;
+                    //     for(i = 0; i < AMargs - 1; i++){
+                    //         #pragma HLS loop_tripcount min=1 max=255 avg=2
+                    //         axis_rx.read(axis_word);
+                    //         axis_wordNoKeep = assignWordtoNoKeep(axis_word);
+                    //         axis_handler.write(axis_wordNoKeep);
+                    //     }
+                    //     axis_rx.read(axis_word);
+                    //     axis_wordNoKeep = assignWordtoNoKeep(axis_word);
+                    //     axis_wordNoKeep.last = 1;
+                    //     axis_handler.write(axis_wordNoKeep);
+                    // }
+                    // if(isMediumAM(AMtype)){
+                    //     // axis_word.data = 0;
+                    //     // axis_word.data(AM_TYPE) = AMtype;
+                    //     // axis_word.data(AM_SRC) = AMsrc;
+                    //     // #ifdef USE_ABS_PAYLOAD
+                    //     // axis_word.data(AM_DST) = AMpayloadSize - AMargs - GC_DATA_BYTES;
+                    //     // #else
+                    //     // axis_word.data(AM_DST) = AMpayloadSize;
+                    //     // #endif
+                    //     // axis_word.data(AM_TOKEN) = AMToken;
+                    //     // axis_wordDest = assignWord(axis_word);
+                    //     // axis_wordDest.dest = AMdst;
+                    //     #ifdef USE_ABS_PAYLOAD
+                    //     gc_payloadSize_t payloadsize = AMpayloadSize - AMargs - GC_DATA_BYTES;
+                    //     #else
+                    //     gc_payloadSize_t payloadsize =  AMpayloadSize;
+                    //     #endif
 
-                        axis_wordDest = createKernelHeader(AMtype, AMToken, AMsrc,
-                            AMdst, payloadsize, AMhandler, AMargs);
-                        axis_kernel_out.write(axis_wordDest);
-                        currentState = st_AMpayload;
-                    }
-                    else{
-                        if (isAsyncAM(AMtype) || isReplyAM(AMtype))
-                            currentState = st_AMheader;
-                        else
-                            currentState = st_sendReplyHeader;
-                    }
+                    //     axis_wordDest = createKernelHeader(AMtype, AMToken, AMsrc,
+                    //         AMdst, payloadsize, AMhandler, AMargs);
+                    //     axis_kernel_out.write(axis_wordDest);
+                    //     currentState = st_AMpayload;
+                    // }
+                    // else{
+                    //     if (isAsyncAM(AMtype) || isReplyAM(AMtype))
+                    //         currentState = st_AMheader;
+                    //     else
+                    //         currentState = st_sendReplyHeader;
+                    // }
                 }
             // }
             break;
         }
-        case st_AMpayload:{
-            gc_payloadSize_t i;
-            // for(i = 0; i < AMpayloadSize; i++){
-            do{
-                #pragma HLS loop_tripcount min=1 max=65535 avg=2
-                axis_rx.read(axis_word);
-                axis_wordDest = assignWord(axis_word);
-                axis_wordDest.dest = AMdst;
-                axis_kernel_out.write(axis_wordDest);
-            } while(!axis_word.last);
-            if (isAsyncAM(AMtype))
+        case st_AMforward:{
+            axis_rx.read(axis_word);
+            axis_tx.write(axis_word);
+            if(axis_word.last){
                 currentState = st_AMheader;
-            else
-                currentState = st_sendReplyHeader;
+            }
+            break;   
+        }
+        case st_AMhandlerArgs:{
+            bool last_write = args_counter == AMargs - 1;
+            axis_rx.read(axis_word);
+            axis_wordNoKeep = assignWordtoNoKeep(axis_word);
+            axis_word.last = last_write;
+            axis_handler.write(axis_wordNoKeep);
+            args_counter++;
+            if(last_write){
+                currentState = st_AMtoken_2;
+            }
+            break;
+        }
+        case st_AMtoken_2:{
+            if(isMediumAM(AMtype)){
+                #ifdef USE_ABS_PAYLOAD
+                gc_payloadSize_t payloadsize = AMpayloadSize - AMargs - GC_DATA_BYTES;
+                #else
+                gc_payloadSize_t payloadsize =  AMpayloadSize;
+                #endif
+
+                axis_wordDest = createKernelHeader(AMtype, AMToken, AMsrc,
+                    AMdst, payloadsize, AMhandler, AMargs);
+                axis_kernel_out.write(axis_wordDest);
+                currentState = st_AMpayload;
+            } else {
+                if (isAsyncAM(AMtype) || isReplyAM(AMtype))
+                    currentState = st_AMheader;
+                else
+                    currentState = st_sendReplyHeader;
+            }
+            break;
+        }
+        case st_AMpayload:{
+            // gc_payloadSize_t i;
+            // // for(i = 0; i < AMpayloadSize; i++){
+            // do{
+            //     #pragma HLS loop_tripcount min=1 max=65535 avg=2
+            //     axis_rx.read(axis_word);
+            //     axis_wordDest = assignWord(axis_word);
+            //     axis_wordDest.dest = AMdst;
+            //     axis_kernel_out.write(axis_wordDest);
+            // } while(!axis_word.last);
+            axis_rx.read(axis_word);
+            bool last_write = axis_word.last;
+            axis_wordDest = assignWord(axis_word);
+            axis_wordDest.dest = AMdst;
+            axis_kernel_out.write(axis_wordDest);
+            if(last_write){
+                currentState = isAsyncAM(AMtype) ? st_AMheader : st_sendReplyHeader;
+            }
             break;
         }
         case st_sendReplyHeader:{
@@ -179,6 +233,10 @@ void xpams_rx(
             axis_word.data(AM_HANDLER_ARGS) = 0;
             axis_word.keep = GC_DATA_TKEEP;
             axis_tx.write(axis_word);
+            currentState = st_sendReplyHeader_2;
+            break;
+        }
+        case st_sendReplyHeader_2:{
             axis_word.data(AM_TOKEN_LOWER-1,0) = 0;
             axis_word.data(AM_TOKEN) = AMToken;
             // axis_word.data(39,) = 0;
