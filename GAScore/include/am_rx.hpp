@@ -8,10 +8,11 @@
 
 #define FSM_EXISTS // allows printing FSM states in debug
 
-enum state_t{st_header, st_AMHandlerArgs, st_AMLongVector,
+enum state_t{st_reset, st_header, st_AMHandlerArgs, st_AMLongVector,
     st_AMdestination, st_AMToken, st_AMpayloadLong, st_AMLongStride, st_done,
     st_AMforward, st_AMpayloadMedium, st_AMpayloadVector, st_AMpayloadStride,
-    st_AMLongVectorRead, st_AMLongVector_2, st_AMLongVectorRead_2};
+    st_AMLongVectorRead, st_AMLongVector_2, st_AMLongVectorRead_2, st_AMLongVector_3,
+    st_AMLongVectorRead_3, st_AMLongVectorRead_1, st_AMpayloadVector_1};
 
 #define DECLARE_VARIABLES\
     axis_t axis_xpams_rx("xpams_rx");\

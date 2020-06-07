@@ -12,7 +12,7 @@
 enum state_t{st_header, st_AMHandlerArgs,
     st_AMLongVector, st_AMdestination, st_AMToken,
     st_AMpayload, st_AMLongStride, st_done, st_AMsource, 
-    st_AMforward, st_AMLongStride_1, st_AMLongStride_2, st_AMLongStride_3,
+    st_AMforward, st_AMLongStride_0, st_AMLongStride_1, st_AMLongStride_2, st_AMLongStride_3,
     st_AMLongVector_1, st_AMLongVector_2, st_AMLongVectorSrcRead,
     st_AMLongVectorSrcRead_1, st_AMLongVectorDstRead, st_AMLongVectorDstRead_1,
     };
@@ -40,6 +40,14 @@ enum state_t{st_header, st_AMHandlerArgs,
 #define CALL_TB am_tx(axis_kernel, axis_net,axis_mm2sCommand, \
     axis_mm2s, axis_mm2sStatus, release);
 #endif
+
+// enum state_t{st_header, st_AMHandlerArgs,
+//     st_AMLongVector, st_AMdestination, st_AMToken,
+//     st_AMpayload, st_AMLongStride, st_done, st_AMsource, 
+//     st_AMforward, st_AMLongStride_0, st_AMLongStride_1, st_AMLongStride_2, st_AMLongStride_3,
+//     st_AMLongVector_1, st_AMLongVector_2, st_AMLongVectorSrcRead,
+//     st_AMLongVectorSrcRead_1, st_AMLongVectorDstRead, st_AMLongVectorDstRead_1
+//     };
 
 #define PRINT_INTERFACES std::cout << "Stream statuses:\n"; \
     PRINT_AXIS_SIZE("Kernel", axis_kernel) \

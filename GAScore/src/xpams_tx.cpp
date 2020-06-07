@@ -25,7 +25,7 @@ void xpams_tx(
     // #pragma HLS INTERFACE bram port=network_table
     // #pragma HLS INTERFACE ap_stable port=network_addr
 
-    #pragma HLS PIPELINE
+    // #pragma HLS PIPELINE
     #ifdef DEBUG
     #pragma HLS INTERFACE ap_none port=dbg_currentState
     #endif
@@ -51,6 +51,7 @@ void xpams_tx(
 
     switch(currentState){
         case st_AMheader:{
+            if(!axis_kernel_in.empty() && !axis_tx.full()){
             axis_kernel_in.read(axis_word);
             AMsrc = axis_word.data(AM_SRC);
             AMhandler = axis_word.data(AM_HANDLER);
@@ -75,6 +76,7 @@ void xpams_tx(
                 axis_tx.write(axis_word);
                 currentState = st_AMsend;
             }
+            }
             break;
         }
         // case st_AMtoken:{
@@ -85,6 +87,7 @@ void xpams_tx(
         //     break;
         // }
         case st_AMloopback:{
+            if(!axis_kernel_in.empty() && !axis_kernel_out.full() && !axis_handler.full()){
             axis_kernel_in.read(axis_word); //read token
             AMToken = axis_word.data(AM_TOKEN);
             if (AMhandler != H_EMPTY){
@@ -116,9 +119,11 @@ void xpams_tx(
             else {
                 currentState = AMargs != 0 ? st_AMargs : st_AMreply;
             }
+            }
             break;
         }
         case st_AMargs:{
+            if(!axis_kernel_in.empty() && !axis_handler.full()){
             // gc_AMargs_t i;
             // for(i = 0; i < AMargs - 1; i++){
             //     #pragma HLS loop_tripcount min=1 max=255 avg=2
@@ -141,6 +146,7 @@ void xpams_tx(
             if(last_write){
                 currentState = isMediumAM(AMtype) ? st_AMpayload : st_AMreply;
             }
+            }
             break;
         }
         case st_AMpayload:{
@@ -154,6 +160,7 @@ void xpams_tx(
             //     axis_kernel_out.write(axis_wordDest);
             // } while(!axis_word.last);
             // currentState = st_AMreply;
+            if(!axis_kernel_in.empty() && !axis_kernel_out.full()){
             axis_kernel_in.read(axis_word);
             bool last_write = axis_word.last;
             axis_wordDest = assignWord(axis_word);
@@ -162,9 +169,11 @@ void xpams_tx(
             if(last_write){
                 currentState = st_AMreply;
             }
+            }
             break;
         }
         case st_AMreply:{
+            if(!axis_handler.full()){
             if (!isAsyncAM(AMtype)){
                 axis_wordNoKeep = createHandlerHeader(AMtype, AMToken, AMsrc,
                     0, H_INCR_MEM, 0);
@@ -172,6 +181,7 @@ void xpams_tx(
                 axis_handler.write(axis_wordNoKeep);
             }
             currentState = st_AMheader;
+            }
             break;
         }
         case st_AMsend:{
@@ -182,10 +192,12 @@ void xpams_tx(
             //     axis_tx.write(axis_word);
             // } while(axis_word.last != 1);
             // currentState = st_AMheader;
+            if(!axis_kernel_in.empty() && !axis_tx.full()){
             axis_kernel_in.read(axis_word);
             axis_tx.write(axis_word);
             if(axis_word.last){
                 currentState = st_AMheader;
+            }
             }
             break;
         }
