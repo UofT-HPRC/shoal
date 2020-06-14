@@ -33,6 +33,7 @@ logic m_axis_tready;
 logic [TDEST_WIDTH-1:0] m_axis_tdest;
 logic m_axis_tlast;
 logic [TKEEP_WIDTH-1:0] m_axis_tkeep;
+logic s_axis_tready;
 
 localparam FIFO_WIDTH = $clog2(FIFO_DEPTH);
 
@@ -48,6 +49,12 @@ function integer roundToEight;
     end    
 endfunction
 localparam FIFO_WIDTH_ROUNDED = roundToEight(FIFO_WIDTH);
+
+localparam STATE_WAIT = 2'd0;
+localparam STATE_LAST = 2'd1;
+localparam STATE_COUNT = 2'd2;
+localparam STATE_ERROR = 2'd3;
+logic [1:0] currentState, nextState;
 
 // https://www.xilinx.com/support/documentation/sw_manuals/xilinx2018_1/ug974-vivado-ultrascale-libraries.pdf
 // pg 48
@@ -80,8 +87,8 @@ xpm_fifo_axis #(
     .s_axis_tlast(in_TLAST), // 1-bit input: TLAST
     .s_axis_tstrb('1), // TDATA_WIDTH-bit input: TSTRB
     .s_axis_tuser('0), // TUSER_WIDTH-bit input: TUSER
-    .s_axis_tvalid(in_TVALID), // 1-bit input: TVALID
-    .s_axis_tready(in_TREADY), // 1-bit output: TREADY
+    .s_axis_tvalid(in_TVALID & (currentState != STATE_LAST)), // 1-bit input: TVALID
+    .s_axis_tready(s_axis_tready), // 1-bit output: TREADY
     
     .m_axis_tdata(m_axis_tdata), // TDATA_WIDTH-bit output: TDATA
     .m_axis_tdest(m_axis_tdest), // TDEST_WIDTH-bit output: TDEST
@@ -105,12 +112,6 @@ xpm_fifo_axis #(
     .injectdbiterr_axis(), // 1-bit input: Double Bit Error Injection
     .injectsbiterr_axis() // 1-bit input: Single Bit Error Injection
 );
-
-localparam STATE_WAIT = 2'd0;
-localparam STATE_LAST = 2'd1;
-localparam STATE_COUNT = 2'd2;
-localparam STATE_ERROR = 2'd3;
-logic [1:0] currentState, nextState;
 
 logic increment_counter;
 
@@ -245,5 +246,6 @@ assign m_axis_tready = out_TREADY & counter_valid;
 assign out_TDEST = m_axis_tdest;
 assign out_TLAST = m_axis_tlast;
 assign out_TKEEP = m_axis_tkeep;
+assign in_TREADY = s_axis_tready & (currentState != STATE_LAST);
     
 endmodule

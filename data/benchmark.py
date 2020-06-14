@@ -3,16 +3,17 @@ import os
 # import statistics
 import numpy as np
 import pandas as pd
+import seaborn as sns
 
 import matplotlib
 # Force matplotlib to not use any Xwindows backend.
 matplotlib.use('Agg')
 import matplotlib.pyplot as plt
 
-LATENCY_ITERATION_COUNT = 10000
-THROUGHPUT_ITERATION_COUNT = 10000
+LATENCY_ITERATION_COUNT = 1000
+THROUGHPUT_ITERATION_COUNT = 1000
 # TESTS = ["hw-hw-same", "sw-sw-same", "sw-hw"]
-TESTS = ["sw-sw-same-optimized"]
+TESTS = ["hw-hw-same-optimized"]
 TRANSPORT = ["tcp"]
 PAYLOAD_MIN = 0
 PAYLOAD_MAX = 10
@@ -115,16 +116,41 @@ def analyze_latency_medians(df, path):
     x = np.arange(len(labels))
     width = 0.20
 
+    # fig, ax = plt.subplots()
+    # df_sorted = df.sort_values(["Payload", "Test"])
+    # df_subset = df_sorted[(df_sorted["Test"] == "Medium FIFO")]
+    # ax.bar(x - (3*width)/2, df_subset["median"], width, label="Medium FIFO")
+    # df_subset = df_sorted[(df_sorted["Test"] == "Medium")]
+    # ax.bar(x - width/2, df_subset["median"], width, label="Medium")
+    # df_subset = df_sorted[(df_sorted["Test"] == "Long FIFO")]
+    # ax.bar(x + width/2, df_subset["median"], width, label="Long FIFO")
+    # df_subset = df_sorted[(df_sorted["Test"] == "Long")]
+    # ax.bar(x + (3*width/2), df_subset["median"], width, label="Long")
+    # ax.set_ylabel("Time (ms)")
+    # ax.set_xlabel("Payload Size (bytes)")
+    # ax.set_xticks(x)
+    # ax.set_xticklabels(labels)
+    # ax.legend()
+    # # plt.xticks(rotation=90)
+    # ax.set_title("Median Latency by Message Types")
+
     fig, ax = plt.subplots()
     df_sorted = df.sort_values(["Payload", "Test"])
-    df_subset = df_sorted[(df_sorted["Test"] == "Medium FIFO")]
-    ax.bar(x - (3*width)/2, df_subset["median"], width, label="Medium FIFO")
-    df_subset = df_sorted[(df_sorted["Test"] == "Medium")]
-    ax.bar(x - width/2, df_subset["median"], width, label="Medium")
-    df_subset = df_sorted[(df_sorted["Test"] == "Long FIFO")]
-    ax.bar(x + width/2, df_subset["median"], width, label="Long FIFO")
-    df_subset = df_sorted[(df_sorted["Test"] == "Long")]
-    ax.bar(x + (3*width/2), df_subset["median"], width, label="Long")
+    df_subset = df_sorted[
+        (df_sorted["Test"] == "Medium FIFO") | 
+        (df_sorted["Test"] == "Medium") |
+        (df_sorted["Test"] == "Long FIFO") |
+        (df_sorted["Test"] == "Long")
+    ]
+    # print(df_subset)
+    sns.barplot(x="Payload", y='median', hue='Test', data=df_subset, ax=ax, hue_order=["Medium FIFO", "Medium", "Long FIFO", "Long"])
+    # ax.bar(x - (3*width)/2, df_subset["median"], width, label="Medium FIFO")
+    # df_subset = df_sorted[(df_sorted["Test"] == "Medium")]
+    # ax.bar(x - width/2, df_subset["median"], width, label="Medium")
+    # df_subset = df_sorted[(df_sorted["Test"] == "Long FIFO")]
+    # ax.bar(x + width/2, df_subset["median"], width, label="Long FIFO")
+    # df_subset = df_sorted[(df_sorted["Test"] == "Long")]
+    # ax.bar(x + (3*width/2), df_subset["median"], width, label="Long")
     ax.set_ylabel("Time (ms)")
     ax.set_xlabel("Payload Size (bytes)")
     ax.set_xticks(x)
@@ -344,7 +370,7 @@ def analyze_throughput_latency(df, path):
         payload = row["Payload"]
 
         # test time is in ms
-        test_time = row["0"]
+        test_time = row["1"]
         return row["0"]/THROUGHPUT_ITERATION_COUNT
 
     df["payload_latency"] = df.apply(get_latency, axis=1)
@@ -417,10 +443,10 @@ def analyze_throughput(df, path):
         label = "payload_throughput_" + str(throughput_instance)
         analyze_throughput_efficiency(df, figure_dir, label)
 
-    # figure_dir = os.path.join(path, "latency")
-    # if not os.path.exists(figure_dir):
-    #     os.makedirs(figure_dir)
-    # analyze_throughput_latency(df, figure_dir)
+    figure_dir = os.path.join(path, "latency")
+    if not os.path.exists(figure_dir):
+        os.makedirs(figure_dir)
+    analyze_throughput_latency(df, figure_dir)
 
 def summarize(data_dir):
     data = {}

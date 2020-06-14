@@ -218,7 +218,10 @@ def medium_latency(kern0, kern1, kern2, throughput=False):
         kern2.send_pilot(1)
         kern2.load(0, 0, [], (2**i)*8, 0, 0)
         kern2.write_instruction(Instruction.recv_medium)
-        kern2.write_payload(iterations)
+        if throughput:
+            kern2.write_payload(iterations * THROUGHPUT_TIMES)
+        else:
+            kern2.write_payload(iterations)
         kern2.write_instruction(Instruction.barrier_send)
 
 def medium_fifo_latency(kern0, kern1, kern2, throughput=False):
@@ -246,7 +249,10 @@ def medium_fifo_latency(kern0, kern1, kern2, throughput=False):
         kern2.send_pilot(1)
         kern2.load(0, 0, [], (2**i)*8, 0, 0)
         kern2.write_instruction(Instruction.recv_medium)
-        kern2.write_payload(iterations)
+        if throughput:
+            kern2.write_payload(iterations * THROUGHPUT_TIMES)
+        else:
+            kern2.write_payload(iterations)
         kern2.write_instruction(Instruction.barrier_send)
 
 def long_latency(kern0, kern1, kern2, throughput=False):
@@ -410,8 +416,8 @@ if __name__ == "__main__":
     kern2 = Instructions()
 
     parser = argparse.ArgumentParser(description="Generate data for benchmark")
-    parser.add_argument("mode", type=str, help="latency or throughput", default="latency")
-    parser.add_argument("--test", type=str, help="type of tests to run", default="all")
+    parser.add_argument("mode", type=str, help="latency, throughput, or all", default="latency")
+    parser.add_argument("--test", type=str, help="type of tests to run", default=["all"], nargs="+")
     parser.add_argument("--iterations", type=int, help="number of times to repeat", default=100000)
     parser.add_argument("--payload_min", type=int, help="2^x min", default=0)
     parser.add_argument("--payload_max", type=int, help="2^x max (non-inclusive)", default=10)
@@ -425,35 +431,35 @@ if __name__ == "__main__":
 
     prologue(kern0, kern1, kern2)
 
-    if(args.mode == "latency"):
-        if args.test in ["all", "short"]:
+    if(args.mode in ["all", "latency"]):
+        if bool(set(args.test) & set(["all", "short"])):
             short_latency(kern0, kern1, kern2)
-        if args.test in ["all", "medium"]:
+        if bool(set(args.test) & set(["all", "medium"])):
             medium_latency(kern0, kern1, kern2)
-        if args.test in ["all", "medium_fifo"]:
+        if bool(set(args.test) & set(["all", "medium_fifo"])):
             medium_fifo_latency(kern0, kern1, kern2)
-        if args.test in ["all", "long"]:
+        if bool(set(args.test) & set(["all", "long"])):
             long_latency(kern0, kern1, kern2)
-        if args.test in ["all", "long_fifo"]:
+        if bool(set(args.test) & set(["all", "long_fifo"])):
             long_fifo_latency(kern0, kern1, kern2)
-        if args.test in ["all", "strided"]:
+        if bool(set(args.test) & set(["all", "strided"])):
             strided_latency(kern0, kern1, kern2)
-        if args.test in ["all", "vector"]:
+        if bool(set(args.test) & set(["all", "vector"])):
             vectored_latency(kern0, kern1, kern2)
-    else:
-        if args.test in ["all", "short"]:
+    if(args.mode in ["all", "throughput"]):
+        if bool(set(args.test) & set(["all", "short"])):
             short_latency(kern0, kern1, kern2, True)
-        if args.test in ["all", "medium"]:
+        if bool(set(args.test) & set(["all", "medium"])):
             medium_latency(kern0, kern1, kern2, True)
-        if args.test in ["all", "medium_fifo"]:
+        if bool(set(args.test) & set(["all", "medium_fifo"])):
             medium_fifo_latency(kern0, kern1, kern2, True)
-        if args.test in ["all", "long"]:
+        if bool(set(args.test) & set(["all", "long"])):
             long_latency(kern0, kern1, kern2, True)
-        if args.test in ["all", "long_fifo"]:
+        if bool(set(args.test) & set(["all", "long_fifo"])):
             long_fifo_latency(kern0, kern1, kern2, True)
-        if args.test in ["all", "strided"]:
+        if bool(set(args.test) & set(["all", "strided"])):
             strided_latency(kern0, kern1, kern2, True)
-        if args.test in ["all", "vector"]:
+        if bool(set(args.test) & set(["all", "vector"])):
             vectored_latency(kern0, kern1, kern2, True)
 
     kern0.write_files("benchmark_0")

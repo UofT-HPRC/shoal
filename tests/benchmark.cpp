@@ -51,12 +51,14 @@ void stop_timer(shoal::kernel* kernel, gc_AMToken_t token, volatile int* axi_tim
 }
 #endif
 
+#ifndef __HLS__
 void print_time(std::chrono::high_resolution_clock::time_point timer, std::string label){
     auto now = std::chrono::high_resolution_clock::now();
     std::chrono::duration<double> elapsed = now - timer;
     auto elapsed_ns = std::chrono::duration_cast<std::chrono::nanoseconds>(elapsed).count();
     std::cout << label << ":" << elapsed_ns << std::endl;
 }
+#endif
 
 extern "C"{
 void benchmark(
@@ -182,10 +184,12 @@ void benchmark(
             //     #pragma HLS INLINE REGION
             //     kernel.wait_reply(1);
             // }
-            kernel.wait_reply(1);
+            // kernel.wait_reply(1);
             #ifndef __HLS__
+            kernel.wait_reply(1);
             stop_timer(&kernel, 0xab0, timer);
             #else
+            kernel.wait_reply(1, axi_timer);
             stop_timer(&kernel, 0xab0, axi_timer);
             #endif
         }
@@ -201,10 +205,12 @@ void benchmark(
             start_timer(axi_timer);
             #endif
             kernel.sendMediumAM_normal(AMdst, 0xff1, AMhandler, AMargs, handler_args, payloadSize, src_addr);
-            kernel.wait_reply(1);
+            // kernel.wait_reply(1);
             #ifndef __HLS__
+            kernel.wait_reply(1);
             stop_timer(&kernel, 0xab1, timer);
             #else
+            kernel.wait_reply(1, axi_timer);
             stop_timer(&kernel, 0xab1, axi_timer);
             #endif
         }
@@ -224,10 +230,12 @@ void benchmark(
             for (j = 0; j < payloadSize; j+=GC_DATA_BYTES){
                 kernel.sendPayload(AMdst, j, j == payloadSize - ((gc_payloadSize_t)GC_DATA_BYTES));
             }
-            kernel.wait_reply(1);
+            // kernel.wait_reply(1);
             #ifndef __HLS__
+            kernel.wait_reply(1);
             stop_timer(&kernel, 0xab2, timer);
             #else
+            kernel.wait_reply(1, axi_timer);
             stop_timer(&kernel, 0xab2, axi_timer);
             #endif
         }
@@ -248,10 +256,12 @@ void benchmark(
             // auto elapsed_ns = std::chrono::duration_cast<std::chrono::nanoseconds>(elapsed).count();
             // word_t time = (word_t)(elapsed_ns / 6.4); // convert to 156.25 MHz (6.4ns) cycles
             // std::cout << "loop1: " << time << std::endl;
-            kernel.wait_reply(1);
+            // kernel.wait_reply(1);
             #ifndef __HLS__
+            kernel.wait_reply(1);
             stop_timer(&kernel, 0xab3, timer);
             #else
+            kernel.wait_reply(1, axi_timer);
             stop_timer(&kernel, 0xab3, axi_timer);
             #endif
         }
@@ -276,10 +286,12 @@ void benchmark(
             //     #pragma HLS INLINE REGION
             //     kernel.wait_reply(1);
             // }
-            kernel.wait_reply(1);
+            // kernel.wait_reply(1);
             #ifndef __HLS__
+            kernel.wait_reply(1);
             stop_timer(&kernel, 0xab4, timer);
             #else
+            kernel.wait_reply(1, axi_timer);
             stop_timer(&kernel, 0xab4, axi_timer);
             #endif
         }
@@ -394,10 +406,12 @@ void benchmark(
         for(i = 0; i < loopCount; i++){
             kernel.sendShortAM_normal(AMdst, 0xff0, AMhandler, AMargs, handler_args);
         }
-        kernel.wait_reply(loopCount);
+        // kernel.wait_reply(loopCount);
         #ifndef __HLS__
+        kernel.wait_reply(loopCount);
         stop_timer(&kernel, 0xef0, timer);
         #else
+        kernel.wait_reply(loopCount, axi_timer);
         stop_timer(&kernel, 0xef0, axi_timer);
         #endif
 
@@ -428,10 +442,12 @@ void benchmark(
         for(i = 0; i < loopCount; i++){
             kernel.sendMediumAM_normal(AMdst, 0xff1, AMhandler, AMargs, handler_args, payloadSize, src_addr);
         }
-        kernel.wait_reply(loopCount);
+        // kernel.wait_reply(loopCount);
         #ifndef __HLS__
+        kernel.wait_reply(loopCount);
         stop_timer(&kernel, 0xef1, timer);
         #else
+        kernel.wait_reply(loopCount, axi_timer);
         stop_timer(&kernel, 0xef1, axi_timer);
         #endif
 
@@ -466,10 +482,12 @@ void benchmark(
                 kernel.sendPayload(AMdst, j, j == payloadSize - ((gc_payloadSize_t)GC_DATA_BYTES));
             }
         }
-        kernel.wait_reply(loopCount);
+        // kernel.wait_reply(loopCount);
         #ifndef __HLS__
+        kernel.wait_reply(loopCount);
         stop_timer(&kernel, 0xef2, timer);
         #else
+        kernel.wait_reply(loopCount, axi_timer);
         stop_timer(&kernel, 0xef2, axi_timer);
         #endif
 
@@ -510,11 +528,12 @@ void benchmark(
         }
         // std::cout << "mem:" << nodedata->mem_ready_barrier_cnt << std::endl;
         // auto timer2 = start_timer();
-        kernel.wait_reply(loopCount);
-        // print_time(timer2, "kernel_wait_0");
+        // kernel.wait_reply(loopCount);
         #ifndef __HLS__
+        kernel.wait_reply(loopCount);
         stop_timer(&kernel, 0xef3, timer);
         #else
+        kernel.wait_reply(loopCount, axi_timer);
         stop_timer(&kernel, 0xef3, axi_timer);
         #endif
 
@@ -559,11 +578,12 @@ void benchmark(
         }
         // std::cout << "mem:" << nodedata->mem_ready_barrier_cnt << std::endl;
         // auto timer2 = start_timer();
-        kernel.wait_reply(loopCount);
-        // print_time(timer2, "kernel_wait_2");
+        // kernel.wait_reply(loopCount);
         #ifndef __HLS__
+        kernel.wait_reply(loopCount);
         stop_timer(&kernel, 0xef4, timer);
         #else
+        kernel.wait_reply(loopCount, axi_timer);
         stop_timer(&kernel, 0xef4, axi_timer);
         #endif
 
@@ -603,10 +623,12 @@ void benchmark(
             #endif
             kernel.sendLongStrideAM_normal(AMdst, 0xff5, AMhandler, AMargs, handler_args, payloadSize, src_stride, src_blk_size,
                 src_blk_num, src_addr, dst_stride, dst_blk_size, dst_blk_num, dst_addr);
-            kernel.wait_reply(1);
+            // kernel.wait_reply(1);
             #ifndef __HLS__
+            kernel.wait_reply(1);
             stop_timer(&kernel, 0xab5, timer);
             #else
+            kernel.wait_reply(1, axi_timer);
             stop_timer(&kernel, 0xab5, axi_timer);
             #endif
         }
@@ -624,10 +646,12 @@ void benchmark(
             kernel.sendLongStrideAM_normal(AMdst, 0xff5, AMhandler, AMargs, handler_args, payloadSize, src_stride, src_blk_size,
                 src_blk_num, src_addr, dst_stride, dst_blk_size, dst_blk_num, dst_addr);
         }
-        kernel.wait_reply(loopCount);
+        // kernel.wait_reply(loopCount);
         #ifndef __HLS__
+        kernel.wait_reply(loopCount);
         stop_timer(&kernel, 0xab5, timer);
         #else
+        kernel.wait_reply(loopCount, axi_timer);
         stop_timer(&kernel, 0xab5, axi_timer);
         #endif
 
@@ -659,10 +683,12 @@ void benchmark(
             #endif
             kernel.sendLongVectorAM_normal(AMdst, 0xff6, AMhandler, AMargs, handler_args, payloadSize, srcVectorCount, dstVectorCount,
             srcSize, dstSize, src_addrs, dst_addrs);
-            kernel.wait_reply(1);
+            // kernel.wait_reply(1);
             #ifndef __HLS__
+            kernel.wait_reply(1);
             stop_timer(&kernel, 0xab6, timer);
             #else
+            kernel.wait_reply(1, axi_timer);
             stop_timer(&kernel, 0xab6, axi_timer);
             #endif
         }
@@ -680,10 +706,12 @@ void benchmark(
             kernel.sendLongVectorAM_normal(AMdst, 0xff6, AMhandler, AMargs, handler_args, payloadSize, srcVectorCount, dstVectorCount,
             srcSize, dstSize, src_addrs, dst_addrs);
         }
-        kernel.wait_reply(loopCount);
+        // kernel.wait_reply(loopCount);
         #ifndef __HLS__
+        kernel.wait_reply(loopCount);
         stop_timer(&kernel, 0xab6, timer);
         #else
+        kernel.wait_reply(loopCount, axi_timer);
         stop_timer(&kernel, 0xab6, axi_timer);
         #endif
 

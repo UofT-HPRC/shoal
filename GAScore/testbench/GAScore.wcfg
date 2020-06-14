@@ -19,13 +19,13 @@
       </db_ref>
    </db_ref_list>
    <zoom_setting>
-      <ZoomStartTime time="0fs"></ZoomStartTime>
-      <ZoomEndTime time="3000000000fs"></ZoomEndTime>
-      <Cursor1Time time="889676000fs"></Cursor1Time>
+      <ZoomStartTime time="14091050000fs"></ZoomStartTime>
+      <ZoomEndTime time="14229050000fs"></ZoomEndTime>
+      <Cursor1Time time="14178478000fs"></Cursor1Time>
    </zoom_setting>
    <column_width_setting>
       <NameColumnWidth column_width="399"></NameColumnWidth>
-      <ValueColumnWidth column_width="177"></ValueColumnWidth>
+      <ValueColumnWidth column_width="169"></ValueColumnWidth>
    </column_width_setting>
    <WVObjectSize size="10" />
    <wvobject type="logic" fp_name="/GAScore_tb/clock">
@@ -39,7 +39,6 @@
    <wvobject type="group" fp_name="group60">
       <obj_property name="label">Kernel_In</obj_property>
       <obj_property name="DisplayName">label</obj_property>
-      <obj_property name="isExpanded"></obj_property>
       <wvobject type="array" fp_name="/GAScore_tb/axis_kernel_in_tdata">
          <obj_property name="ElementShortName">axis_kernel_in_tdata[63:0]</obj_property>
          <obj_property name="ObjectShortName">axis_kernel_in_tdata[63:0]</obj_property>
@@ -298,7 +297,6 @@
    <wvobject type="group" fp_name="group120">
       <obj_property name="label">Handler</obj_property>
       <obj_property name="DisplayName">label</obj_property>
-      <obj_property name="isExpanded"></obj_property>
       <wvobject type="array" fp_name="/GAScore_tb/GAScore_i/axis_handler_tdata">
          <obj_property name="ElementShortName">axis_handler_tdata[63:0]</obj_property>
          <obj_property name="ObjectShortName">axis_handler_tdata[63:0]</obj_property>
@@ -373,7 +371,6 @@
       <wvobject type="group" fp_name="group92">
          <obj_property name="label">am_tx</obj_property>
          <obj_property name="DisplayName">label</obj_property>
-         <obj_property name="isExpanded"></obj_property>
          <wvobject type="logic" fp_name="/GAScore_tb/GAScore_i/GAScore_bd_i/GAScore_bd_i/am_tx_0/axis_kernel_TVALID">
             <obj_property name="ElementShortName">axis_kernel_TVALID</obj_property>
             <obj_property name="ObjectShortName">axis_kernel_TVALID</obj_property>
@@ -934,26 +931,7 @@
       <wvobject type="group" fp_name="group617">
          <obj_property name="label">am_rx</obj_property>
          <obj_property name="DisplayName">label</obj_property>
-         <wvobject type="logic" fp_name="/GAScore_tb/GAScore_i/GAScore_bd_i/GAScore_bd_i/am_rx_0/axis_xpams_rx_TVALID">
-            <obj_property name="ElementShortName">axis_xpams_rx_TVALID</obj_property>
-            <obj_property name="ObjectShortName">axis_xpams_rx_TVALID</obj_property>
-         </wvobject>
-         <wvobject type="logic" fp_name="/GAScore_tb/GAScore_i/GAScore_bd_i/GAScore_bd_i/am_rx_0/axis_xpams_rx_TREADY">
-            <obj_property name="ElementShortName">axis_xpams_rx_TREADY</obj_property>
-            <obj_property name="ObjectShortName">axis_xpams_rx_TREADY</obj_property>
-         </wvobject>
-         <wvobject type="array" fp_name="/GAScore_tb/GAScore_i/GAScore_bd_i/GAScore_bd_i/am_rx_0/axis_xpams_rx_TDATA">
-            <obj_property name="ElementShortName">axis_xpams_rx_TDATA[63:0]</obj_property>
-            <obj_property name="ObjectShortName">axis_xpams_rx_TDATA[63:0]</obj_property>
-         </wvobject>
-         <wvobject type="array" fp_name="/GAScore_tb/GAScore_i/GAScore_bd_i/GAScore_bd_i/am_rx_0/axis_xpams_rx_TKEEP">
-            <obj_property name="ElementShortName">axis_xpams_rx_TKEEP[7:0]</obj_property>
-            <obj_property name="ObjectShortName">axis_xpams_rx_TKEEP[7:0]</obj_property>
-         </wvobject>
-         <wvobject type="array" fp_name="/GAScore_tb/GAScore_i/GAScore_bd_i/GAScore_bd_i/am_rx_0/axis_xpams_rx_TLAST">
-            <obj_property name="ElementShortName">axis_xpams_rx_TLAST[0:0]</obj_property>
-            <obj_property name="ObjectShortName">axis_xpams_rx_TLAST[0:0]</obj_property>
-         </wvobject>
+         <obj_property name="isExpanded"></obj_property>
          <wvobject type="logic" fp_name="/GAScore_tb/GAScore_i/GAScore_bd_i/GAScore_bd_i/am_rx_0/axis_net_TVALID">
             <obj_property name="ElementShortName">axis_net_TVALID</obj_property>
             <obj_property name="ObjectShortName">axis_net_TVALID</obj_property>
@@ -973,6 +951,26 @@
          <wvobject type="array" fp_name="/GAScore_tb/GAScore_i/GAScore_bd_i/GAScore_bd_i/am_rx_0/axis_net_TLAST">
             <obj_property name="ElementShortName">axis_net_TLAST[0:0]</obj_property>
             <obj_property name="ObjectShortName">axis_net_TLAST[0:0]</obj_property>
+         </wvobject>
+         <wvobject type="logic" fp_name="/GAScore_tb/GAScore_i/GAScore_bd_i/GAScore_bd_i/am_rx_0/axis_xpams_rx_TVALID">
+            <obj_property name="ElementShortName">axis_xpams_rx_TVALID</obj_property>
+            <obj_property name="ObjectShortName">axis_xpams_rx_TVALID</obj_property>
+         </wvobject>
+         <wvobject type="logic" fp_name="/GAScore_tb/GAScore_i/GAScore_bd_i/GAScore_bd_i/am_rx_0/axis_xpams_rx_TREADY">
+            <obj_property name="ElementShortName">axis_xpams_rx_TREADY</obj_property>
+            <obj_property name="ObjectShortName">axis_xpams_rx_TREADY</obj_property>
+         </wvobject>
+         <wvobject type="array" fp_name="/GAScore_tb/GAScore_i/GAScore_bd_i/GAScore_bd_i/am_rx_0/axis_xpams_rx_TDATA">
+            <obj_property name="ElementShortName">axis_xpams_rx_TDATA[63:0]</obj_property>
+            <obj_property name="ObjectShortName">axis_xpams_rx_TDATA[63:0]</obj_property>
+         </wvobject>
+         <wvobject type="array" fp_name="/GAScore_tb/GAScore_i/GAScore_bd_i/GAScore_bd_i/am_rx_0/axis_xpams_rx_TKEEP">
+            <obj_property name="ElementShortName">axis_xpams_rx_TKEEP[7:0]</obj_property>
+            <obj_property name="ObjectShortName">axis_xpams_rx_TKEEP[7:0]</obj_property>
+         </wvobject>
+         <wvobject type="array" fp_name="/GAScore_tb/GAScore_i/GAScore_bd_i/GAScore_bd_i/am_rx_0/axis_xpams_rx_TLAST">
+            <obj_property name="ElementShortName">axis_xpams_rx_TLAST[0:0]</obj_property>
+            <obj_property name="ObjectShortName">axis_xpams_rx_TLAST[0:0]</obj_property>
          </wvobject>
          <wvobject type="logic" fp_name="/GAScore_tb/GAScore_i/GAScore_bd_i/GAScore_bd_i/am_rx_0/axis_s2mmCommand_V_data_V_TVALID">
             <obj_property name="ElementShortName">axis_s2mmCommand_V_data_V_TVALID</obj_property>
@@ -1029,6 +1027,10 @@
          <wvobject type="array" fp_name="/GAScore_tb/GAScore_i/GAScore_bd_i/GAScore_bd_i/am_rx_0/release_V">
             <obj_property name="ElementShortName">release_V[0:0]</obj_property>
             <obj_property name="ObjectShortName">release_V[0:0]</obj_property>
+         </wvobject>
+         <wvobject type="array" fp_name="/GAScore_tb/GAScore_i/GAScore_bd_i/GAScore_bd_i/am_rx_0/inst/currentState">
+            <obj_property name="ElementShortName">currentState[4:0]</obj_property>
+            <obj_property name="ObjectShortName">currentState[4:0]</obj_property>
          </wvobject>
       </wvobject>
       <wvobject type="group" fp_name="group638">

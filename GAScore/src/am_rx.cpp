@@ -125,7 +125,10 @@ void am_rx(
                     currentState = st_AMToken;
                 }
             
-            bufferRelease = !isLongxAM(AMtype_tmp) && currentState != st_AMforward;
+            // bufferRelease = !isLongxAM(AMtype_tmp) && currentState != st_AMforward;
+            if (!(isReplyAM(AMtype_tmp) && (!isShortAM(AMtype_tmp)))){
+                bufferRelease = !isLongxAM(AMtype_tmp);
+            }
             }
             break;
         }
@@ -455,46 +458,47 @@ void am_rx(
                 axis_s2mm.write(axis_word);
                 writeCount += GC_DATA_BYTES;
             }
-            else if(writeCount_tmp == AMstrideBlockSize){
+            // else if(writeCount_tmp == AMstrideBlockSize){
+            else{
                 axis_word.last = 1;
                 axis_s2mm.write(axis_word);
-                writeCount += GC_DATA_BYTES;
+                writeCount = GC_DATA_BYTES;
             }
-            else{
-                // ap_uint<GC_DATA_BYTES> keep = writeCount - AMstrideBlockSize;
-                // switch (keep){
-                // case 1:
-                //     keep = power<2, 1>()-1;
-                //     break;
-                // case 2:
-                //     keep = power<2, 2>()-1;
-                //     break;
-                // case 3:
-                //     keep = power<2, 3>()-1;
-                //     break;
-                // case 4:
-                //     keep = power<2, 4>()-1;
-                //     break;
-                // case 5:
-                //     keep = power<2, 5>()-1;
-                //     break;
-                // case 6:
-                //     keep = power<2, 6>()-1;
-                //     break;
-                // case 7:
-                //     keep = power<2, 7>()-1;
-                //     break;
-                // default:
-                //     keep = GC_DATA_TKEEP;
-                //     break;
-                // }
-                    axis_word.last = 1;
-                    axis_word.keep = GC_DATA_TKEEP;
-                    axis_s2mm.write(axis_word);
-                // }
-                // writeCount = 1;
-                writeCount = 0;
-            }
+            // else{
+            //     // ap_uint<GC_DATA_BYTES> keep = writeCount - AMstrideBlockSize;
+            //     // switch (keep){
+            //     // case 1:
+            //     //     keep = power<2, 1>()-1;
+            //     //     break;
+            //     // case 2:
+            //     //     keep = power<2, 2>()-1;
+            //     //     break;
+            //     // case 3:
+            //     //     keep = power<2, 3>()-1;
+            //     //     break;
+            //     // case 4:
+            //     //     keep = power<2, 4>()-1;
+            //     //     break;
+            //     // case 5:
+            //     //     keep = power<2, 5>()-1;
+            //     //     break;
+            //     // case 6:
+            //     //     keep = power<2, 6>()-1;
+            //     //     break;
+            //     // case 7:
+            //     //     keep = power<2, 7>()-1;
+            //     //     break;
+            //     // default:
+            //     //     keep = GC_DATA_TKEEP;
+            //     //     break;
+            //     // }
+            //         axis_word.last = 1;
+            //         axis_word.keep = GC_DATA_TKEEP;
+            //         axis_s2mm.write(axis_word);
+            //     // }
+            //     // writeCount = 1;
+            //     writeCount = GC_DATA_BYTES;
+            // }
             status_count = AMstrideBlockNum;
             // if(is_last){
             //     currentState = st_done;

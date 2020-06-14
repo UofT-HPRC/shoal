@@ -53,6 +53,7 @@ namespace shoal{
             void wait_mem(unsigned int value);
             void wait_barrier(unsigned int value);
             void wait_reply(unsigned int value);
+            void wait_reply(unsigned int value, volatile int* axi_timer);
             void wait_counter(unsigned int value);
             // TODO need separate streams for data / replies to prevent HoL blocking
 

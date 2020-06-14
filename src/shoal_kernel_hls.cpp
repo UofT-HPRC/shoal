@@ -93,6 +93,7 @@ void shoal::kernel::wait_counter(unsigned int value){
 void shoal::kernel::sendShortAM_normal(gc_AMdst_t dst, gc_AMToken_t token,
     gc_AMhandler_t handlerID, gc_AMargs_t handlerArgCount, const word_t * handler_args)
 {
+    #pragma HLS INLINE
     // we have to add this here for some reason for the kernel to compile..?
     word_t tmp[16];
     int i = 0;
@@ -106,6 +107,7 @@ void shoal::kernel::sendShortAM_normal(gc_AMdst_t dst, gc_AMToken_t token,
 void shoal::kernel::sendShortAM_async(gc_AMdst_t dst, gc_AMToken_t token,
     gc_AMhandler_t handlerID, gc_AMargs_t handlerArgCount, const word_t * handler_args)
 {
+    #pragma HLS INLINE
     // we have to add this here for some reason for the kernel to compile..?
     word_t tmp[16];
     int i = 0;
@@ -145,6 +147,7 @@ void shoal::kernel::sendMediumAM_normal(gc_AMdst_t dst, gc_AMToken_t token,
     gc_AMhandler_t handlerID, gc_AMargs_t handlerArgCount, const word_t * handler_args,
     gc_payloadSize_t payloadSize, word_t src_addr)
 {
+    #pragma HLS INLINE
     // we have to add this here for some reason for the kernel to compile..?
     word_t tmp[16];
     int i = 0;
@@ -174,6 +177,7 @@ void shoal::kernel::sendLongAM_normal(gc_AMdst_t dst, gc_AMToken_t token,
     gc_AMhandler_t handlerID, gc_AMargs_t handlerArgCount, const word_t * handler_args,
     gc_payloadSize_t payloadSize, word_t dst_addr)
 {
+    #pragma HLS INLINE
     // we have to add this here for some reason for the kernel to compile..?
     word_t tmp[16];
     int i = 0;
@@ -188,6 +192,7 @@ void shoal::kernel::sendLongAM_normal(gc_AMdst_t dst, gc_AMToken_t token,
     gc_AMhandler_t handlerID, gc_AMargs_t handlerArgCount, const word_t * handler_args,
     gc_payloadSize_t payloadSize, word_t src_addr, word_t dst_addr)
 {
+    #pragma HLS INLINE
     // we have to add this here for some reason for the kernel to compile..?
     word_t tmp[16];
     int i = 0;
@@ -204,6 +209,7 @@ void shoal::kernel::sendLongStrideAM_normal(gc_AMdst_t dst, gc_AMToken_t token,
     gc_strideBlockNum_t src_blk_num, word_t src_addr, gc_stride_t dst_stride,
     gc_strideBlockSize_t dst_blk_size, gc_strideBlockNum_t dst_blk_num, word_t dst_addr)
 {
+    #pragma HLS INLINE
     // we have to add this here for some reason for the kernel to compile..?
     word_t tmp[16];
     int i = 0;
@@ -221,6 +227,7 @@ void shoal::kernel::sendLongVectorAM_normal(gc_AMdst_t dst, gc_AMToken_t token,
     const gc_vectorSize_t * srcSize, const gc_vectorSize_t * dstSize, const word_t * src_addr,
     const word_t * dst_addr)
 {
+    #pragma HLS INLINE
     // we have to add this here for some reason for the kernel to compile..?
     word_t tmp[16];
     int i = 0;
@@ -259,6 +266,11 @@ void shoal::kernel::barrier_send(int id){
 
 void shoal::kernel::wait_reply(unsigned int value){
     this->wait_mem(value);
+}
+
+void shoal::kernel::wait_reply(unsigned int value, volatile int* axi_timer){
+    this->wait_mem(value);
+    axi_timer[0] = 0x80; // start timer
 }
 
 void shoal::kernel::end(){

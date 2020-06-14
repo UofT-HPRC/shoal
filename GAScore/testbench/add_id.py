@@ -52,11 +52,17 @@ rA_t1.init_timer()
 axis_input.writes(rA_t1, [
     {"tdata": strToInt("{AMHeader,0x1,0x10,0,1,0x41,0}")},
     {"tdata": strToInt("{AMToken,0xabcd}"), "tlast": 1},
+    {"tdata": strToInt("{AMHeader,0x1,0x10,0,1,0x41,0}")},
+    {"tdata": 0xdead},
+    {"tdata": strToInt("{AMToken,0xabcd}"), "tlast": 1},
 ])
 Release_A.add_thread(rA_t1)
 
 rA_t2 = Thread()
 axis_output.read(rA_t2, strToInt("{AMHeader,0x1,0x10,0,1,0x41,0}"))
+axis_output.read(rA_t2, strToInt("{AMToken,0xabcd}"))
+axis_output.read(rA_t2, strToInt("{AMHeader,0x1,0x10,0,1,0x41,0}"))
+axis_output.read(rA_t2, 0xdead)
 axis_output.read(rA_t2, strToInt("{AMToken,0xabcd}"))
 rA_t2.print_elapsed_time("Release_A")
 rA_t2.end_vector()
