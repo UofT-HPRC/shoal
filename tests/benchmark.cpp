@@ -395,7 +395,7 @@ void benchmark(
         #endif
         break;
     }
-    case short_throughput: {
+    case short_throughput:{
         loopCount = (word_t) *(instr_mem + (pc++));
         int i;
         #ifndef __HLS__
@@ -405,6 +405,7 @@ void benchmark(
         #endif
         for(i = 0; i < loopCount; i++){
             kernel.sendShortAM_normal(AMdst, 0xff0, AMhandler, AMargs, handler_args);
+            // sleep(0.001);
         }
         // kernel.wait_reply(loopCount);
         #ifndef __HLS__
@@ -441,6 +442,7 @@ void benchmark(
         #endif
         for(i = 0; i < loopCount; i++){
             kernel.sendMediumAM_normal(AMdst, 0xff1, AMhandler, AMargs, handler_args, payloadSize, src_addr);
+            // sleep(0.001);
         }
         // kernel.wait_reply(loopCount);
         #ifndef __HLS__
@@ -481,6 +483,7 @@ void benchmark(
             for (j = 0; j < payloadSize; j+=GC_DATA_BYTES){
                 kernel.sendPayload(AMdst, j, j == payloadSize - ((gc_payloadSize_t)GC_DATA_BYTES));
             }
+            // sleep(0.001);
         }
         // kernel.wait_reply(loopCount);
         #ifndef __HLS__
@@ -525,6 +528,7 @@ void benchmark(
             // for(int z = 0; z < 10000; z++){
             //     __asm__ __volatile__ ("" : "+g" (z) : : );
             // }
+            // sleep(0.001);
         }
         // std::cout << "mem:" << nodedata->mem_ready_barrier_cnt << std::endl;
         // auto timer2 = start_timer();
@@ -574,6 +578,7 @@ void benchmark(
             for (j = 0; j < payloadSize; j+=GC_DATA_BYTES){
                 kernel.sendPayload(AMdst, j, j == payloadSize - ((gc_payloadSize_t)GC_DATA_BYTES));
             }
+            // sleep(0.001);
             // print_time(timer2, "kernel_send_2_1");
         }
         // std::cout << "mem:" << nodedata->mem_ready_barrier_cnt << std::endl;
@@ -645,6 +650,7 @@ void benchmark(
         for(i = 0; i < loopCount; i++){
             kernel.sendLongStrideAM_normal(AMdst, 0xff5, AMhandler, AMargs, handler_args, payloadSize, src_stride, src_blk_size,
                 src_blk_num, src_addr, dst_stride, dst_blk_size, dst_blk_num, dst_addr);
+            // sleep(0.001);
         }
         // kernel.wait_reply(loopCount);
         #ifndef __HLS__
@@ -705,6 +711,7 @@ void benchmark(
         for(i = 0; i < loopCount; i++){
             kernel.sendLongVectorAM_normal(AMdst, 0xff6, AMhandler, AMargs, handler_args, payloadSize, srcVectorCount, dstVectorCount,
             srcSize, dstSize, src_addrs, dst_addrs);
+            // sleep(0.001);
         }
         // kernel.wait_reply(loopCount);
         #ifndef __HLS__
@@ -794,7 +801,8 @@ void kern0(
 ){
 
     int numbers[1024];
-    std::string str = "/home/savi/Documents/varun/repos/shoal";
+    // std::string str = "/home/savi/Documents/varun/repos/shoal";
+    std::string str = ".";
     // std::string str;
     // str.append(shoal_path);
     str.append("/tests/build/benchmark_0_sw.mem");
@@ -837,7 +845,8 @@ void kern1(
 ){
 
     int numbers[1024];
-    std::string str = "/home/savi/Documents/varun/repos/shoal";
+    // std::string str = "/home/savi/Documents/varun/repos/shoal";
+    std::string str = ".";
     // std::string str;
     // str.append(shoal_path);
     str.append("/tests/build/benchmark_1_sw.mem");
@@ -881,7 +890,8 @@ void kern2(
 ){
 
     int numbers[1024];
-    std::string str = "/home/savi/Documents/varun/repos/shoal";
+    // std::string str = "/home/savi/Documents/varun/repos/shoal";
+    std::string str = ".";
     // std::string str;
     // str.append(shoal_path);
     str.append("/tests/build/benchmark_2_sw.mem");
