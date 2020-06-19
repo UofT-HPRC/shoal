@@ -1,3 +1,4 @@
+Iterations: 1000
 test: short_latency_0
 timing: 120
 timing: 120
