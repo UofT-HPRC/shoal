@@ -3,7 +3,7 @@
   <Processor Endianness="Little" InstPath="dummy">
   <AddressSpace Name="instr_blk_mem" Begin="0" End="4095">
       <BusBlock>
-        <BitLane MemType="RAMB36" Placement="X17Y22">
+        <BitLane MemType="RAMB36" Placement="X11Y58">
           <DataWidth MSB="31" LSB="0"/>
           <AddressRange Begin="0" End="4095"/>
           <Parity ON="false" NumBits="0"/>

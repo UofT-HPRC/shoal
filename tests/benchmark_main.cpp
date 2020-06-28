@@ -22,9 +22,9 @@ int main(){
     spdlog::set_level(spdlog::level::debug); // Set global log level to debug
     logger->flush_on(spdlog::level::debug);
 
-    shoal::node node(kern_info, address_0, logger);
+    shoal::node node(kern_info, address_0, logger, true);
     #else
-    shoal::node node(kern_info, address_0);
+    shoal::node node(kern_info, address_0, true);
     #endif
     
     node.add_kernel(KERN0_ID, kern0);

@@ -2,8 +2,9 @@
 
 print_to_terminal=0
 run_separate=0
-file_name=hw-sw-optimized
-modes=("latency")
+file_name=hw-hw-diff
+protocol=tcp
+modes=("throughput")
 payloads=( 0 1 2 3 4 5 6 7 8 9 )
 # payloads=( 9 )
 test_nonpayload=( "short" "strided" "vector" )
@@ -20,11 +21,8 @@ cd $SHOAL_PATH
 
 if [[ $run_separate == 1 ]]; then
     for mode in ${modes[@]}; do
-        rm -f data/microbenchmarks_${file_name}_${mode}_tcp_raw.txt
-
-        if [[ $print_to_terminal != 1 ]]; then
-            echo "Iterations: $iterations" >> data/microbenchmarks_${file_name}_${mode}_tcp_raw.txt
-        fi
+        data_file=data/ubench_${file_name}_${mode}_${protocol}_${iterations}.txt
+        rm -f $data_file
 
         for test in "${tests_payload[@]}"; do
             for payload in "${payloads[@]}"; do
@@ -32,7 +30,7 @@ if [[ $run_separate == 1 ]]; then
                 if [[ $print_to_terminal == 1 ]]; then
                     $exe
                 else
-                    $exe >> data/microbenchmarks_${file_name}_${mode}_tcp_raw.txt
+                    $exe >> $data_file
                 fi
             done
         done
@@ -42,7 +40,7 @@ if [[ $run_separate == 1 ]]; then
             if [[ $print_to_terminal == 1 ]]; then
                 $exe
             else
-                $exe >> data/microbenchmarks_${file_name}_${mode}_tcp_raw.txt
+                $exe >> $data_file
             fi
         done
     done
@@ -50,13 +48,13 @@ else
     for mode in ${modes[@]}; do
         # python tests/benchmark_data.py ${mode} --iterations ${iterations}
         # python tests/benchmark_data.py --test long --payload_min 9 --payload_max 10 --iterations ${iterations} throughput
+        data_file=data/ubench_${file_name}_${mode}_${protocol}_${iterations}.txt
         rm -f *.log
         if [[ $print_to_terminal == 1 ]]; then
             $exe
         else
-            rm -f data/microbenchmarks_${file_name}_${mode}_tcp_raw.txt
-            echo "Iterations: $iterations" >> data/microbenchmarks_${file_name}_${mode}_tcp_raw.txt
-            $exe >> data/microbenchmarks_${file_name}_${mode}_tcp_raw.txt
+            rm -f $data_file
+            $exe >> $data_file
         fi
     done
 fi
