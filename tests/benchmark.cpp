@@ -4,6 +4,7 @@
 #include <cstddef> // needed to resolve ::max_align_t errors
 #include <cstring>
 #include "benchmark.hpp"
+#include "ap_utils.h"
 
 #ifndef __HLS__
 #include <iostream>
@@ -29,14 +30,16 @@ void stop_timer(shoal::kernel* kernel, gc_AMToken_t token, std::chrono::high_res
     std::chrono::duration<double> elapsed = now - timer;
     auto elapsed_ns = std::chrono::duration_cast<std::chrono::nanoseconds>(elapsed).count();
     word_t time = (word_t)(elapsed_ns / 6.4); // convert to 156.25 MHz (6.4ns) cycles
-    kernel->sendMediumAM_async(0, token, H_EMPTY, 0, NULL, 8);
+    kernel->sendMediumAM_normal(0, token, H_EMPTY, 0, NULL, 8);
     kernel->sendPayload(0, time, true); // assume always send to kernel 0
+    kernel->wait_reply(1);
 }
 #else
 // this function, if inlined, or placed in code, behaves badly in Verilog. In
 // simulation, it does do three writes but they appear as burst writes to the wrong
 // addresses. Doing it this way seems to work properly. Tested in HLS 2018.1
 void start_timer(volatile int* axi_timer){
+    axi_timer[0] = 0x0; // stop timer
     axi_timer[1] = 0; // set load register to 0
     axi_timer[0] = 0x20; // load timer with load register
     axi_timer[0] = 0x80; // start timer
@@ -46,8 +49,13 @@ void stop_timer(shoal::kernel* kernel, gc_AMToken_t token, volatile int* axi_tim
     #pragma HLS INLINE
     axi_timer[0] = 0x0; // stop timer
     word_t time = *(axi_timer + 0x2); // read timer count
-    kernel->sendMediumAM_async(0, token, H_EMPTY, 0, NULL, 8);
+    word_t dumb = *(axi_timer);
+    if(dumb != 0xFF){
+    kernel->sendMediumAM_normal(0, token, H_EMPTY, 0, NULL, 8);
     kernel->sendPayload(0, time, true); // assume always send to kernel 0
+    }
+    // axi_timer[0] = 0x0; // stop timer
+    kernel->wait_reply(1, axi_timer);
 }
 #endif
 

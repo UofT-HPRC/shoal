@@ -4,11 +4,14 @@ import re
 # import statistics
 import numpy as np
 import pandas as pd
+import seaborn as sns
+import pickle
 
 import matplotlib
 # Force matplotlib to not use any Xwindows backend.
 matplotlib.use('Agg')
 import matplotlib.pyplot as plt
+from matplotlib.ticker import ScalarFormatter
 
 LATENCY_ITERATION_COUNT = 100000
 THROUGHPUT_ITERATION_COUNT = 100000
@@ -16,6 +19,7 @@ TESTS = [
     "libGalapagos_busy",
     "libGalapagos_busy_1core",
     "libGalapagos_no_busy", 
+    "libGalapagos_no_busy_diff", 
     "libGalapagos_no_busy_10k",
     "libGalapagos_no_busy_1core",
     "libGalapagos_no_busy_affinity"
@@ -73,7 +77,7 @@ def analyze(df, path, figure_dir):
             ax.set_xlabel("Payload (bytes)")
             ax.set_xscale("log", basex=2)
             ax.legend()
-            ax.set_title("Average Latency vs Payload Size")
+            # ax.set_title("Average Latency vs Payload Size")
 
             fig.tight_layout()
             plt.savefig(os.path.join(test_path, "latency_%s.png" % test))
@@ -89,7 +93,7 @@ def analyze(df, path, figure_dir):
             ax.set_xlabel("Payload (bytes)")
             ax.set_xscale("log", basex=2)
             ax.legend()
-            ax.set_title("Throughput 0 vs Payload Size")
+            # ax.set_title("Throughput 0 vs Payload Size")
 
             fig.tight_layout()
             plt.savefig(os.path.join(test_path, "throughput_0_%s.png" % test))
@@ -105,7 +109,7 @@ def analyze(df, path, figure_dir):
             ax.set_xlabel("Payload (bytes)")
             ax.set_xscale("log", basex=2)
             ax.legend()
-            ax.set_title("Throughput 1 vs Payload Size")
+            # ax.set_title("Throughput 1 vs Payload Size")
 
             fig.tight_layout()
             plt.savefig(os.path.join(test_path, "throughput_1_%s.png" % test))
@@ -115,24 +119,35 @@ def cross_analyze(data, path):
     figure_path = os.path.join(path, "build", "libGalapagos", "cross")
     if not os.path.exists(figure_path):
         os.makedirs(figure_path)
-    
-    colors = ["blue", "red", "olive", "green", "cyan"]
+
     for test_mode in ["throughput_0", "throughput_1"]:
+        labels = [x * 8 for x in PAYLOADS]
+        hue_order = ["no_busy_1core", "busy_1core", "no_busy_affinity", "no_busy", "busy"]
+        legend_labels = ["No busy loop (1 core)", "With busy loop (1 core)", "No busy loop (with core affinity)", "No busy loop", "With busy loop"]
+
+        # x = np.arange(len(labels))
+        # width = 0.20
+
         fig, ax = plt.subplots()
-        for index, test in enumerate(["no_busy", "no_busy_1core", "no_busy_affinity", "busy", "busy_1core"]):
-            df = data[test]
-            # all of them have similar numbers so packet_malloc-packet_mem is arbitrarily chosen as the representative
-            df_subset = df[(df["test_id"] == "reply") & (df["wr_mode"] == "packet_malloc-packet_mem")]
-            # print(df_subset)
-            color = colors[index]
-            df_payloads = df_subset[df_subset["test_mode"] == test_mode]
-            ax.plot(df_payloads["payload"], df_payloads["time"], ".-", color=color, label=test + "_" + test_mode)
-        
+        df_sorted = data.sort_values(["test", "payload"])
+        df_subset = df_sorted[
+            (df_sorted["test_id"] == "reply") & 
+            (df_sorted["wr_mode"] == "packet_malloc-packet_mem") &
+            (df_sorted["test_mode"] == test_mode) &
+            (df_sorted["test"] != "no_busy_10k") 
+        ]
+        sns.lineplot(x="payload", y="time", hue="test", data=df_subset, marker="o", ax=ax, hue_order=hue_order)
         ax.set_ylabel("Throughput (Mb/s)")
-        ax.set_xlabel("Payload (bytes)")
+        ax.set_xlabel("Payload Size (bytes)")
+        # ax.set_xticks(x)
+        ax.set_xticklabels(labels)
         ax.set_xscale("log", basex=2)
-        ax.legend()
-        ax.set_title("Throughput vs Payload Size")
+        ax.xaxis.set_major_formatter(ScalarFormatter())
+        handles, _labels = ax.get_legend_handles_labels()
+        ax.legend(handles[1:], legend_labels)
+        # ax.legend()
+        # plt.xticks(rotation=90)
+        # ax.set_title("Throughput vs Payload Size")
 
         fig.tight_layout()
         plt.savefig(os.path.join(figure_path, "cross_%s.png" % test_mode))
@@ -145,14 +160,22 @@ if __name__ == "__main__":
 
     args = parser.parse_args()
     full_path = os.path.abspath(args.dir)
-    data = {}
+    data = None
     if os.path.exists(full_path):
         for index, test in enumerate(TESTS):
             data_path = os.path.join(full_path, test + ".txt")
             df = get_data(data_path)
             figure_dir = test.replace("libGalapagos_", "")
-            data[figure_dir] = df
-            # analyze(df, full_path, figure_dir)
+            df["test"] = figure_dir
+            # data[figure_dir] = df
+            if data is None:
+                data = df
+            else:
+                data = pd.concat([data, df], ignore_index=True)
+            analyze(df, full_path, figure_dir)
+
+        with open("libGalapagos.pickle", "wb") as f:
+            pickle.dump(data, f)
 
         cross_analyze(data, full_path)
     else:

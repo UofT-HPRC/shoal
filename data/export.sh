@@ -18,5 +18,77 @@ cp $source_dir/libGalapagos/cross/cross_throughput_1.png $curr_dir/
 curr_dir=$export_image_dir/sw_sw_same_optimized
 mkdir -p $curr_dir
 
-cp $source_dir/sw-sw-same-optimized/tcp/throughput/efficiency/payload_throughput_0_all.png $curr_dir/
-cp $source_dir/sw-sw-same-optimized/tcp/throughput/efficiency/payload_throughput_1_all.png $curr_dir/
+cp $source_dir/sw-sw-same-optimized/tcp/throughput/10000/efficiency/payload_throughput_0_all.png $curr_dir/
+cp $source_dir/sw-sw-same-optimized/tcp/throughput/10000/efficiency/payload_throughput_1_all.png $curr_dir/
+cp $source_dir/sw-sw-same-optimized/tcp/latency/10000/medians/medians_all.png $curr_dir/
+
+curr_dir=$export_image_dir/sw_sw_diff_optimized/tcp
+mkdir -p $curr_dir
+
+cp $source_dir/sw-sw-diff-optimized/tcp/throughput/10000/efficiency/payload_throughput_0_all.png $curr_dir/
+cp $source_dir/sw-sw-diff-optimized/tcp/throughput/10000/efficiency/payload_throughput_1_all.png $curr_dir/
+cp $source_dir/sw-sw-diff-optimized/tcp/latency/10000/medians/medians_all.png $curr_dir/
+
+curr_dir=$export_image_dir/sw_sw_diff_optimized/udp
+mkdir -p $curr_dir
+
+cp $source_dir/sw-sw-diff/udp/latency/1000/medians/medians_all.png $curr_dir/
+
+curr_dir=$export_image_dir/sw_hw_optimized/tcp
+mkdir -p $curr_dir
+
+cp $source_dir/sw-hw-optimized/tcp/throughput/1000/efficiency/payload_throughput_0_all.png $curr_dir/
+cp $source_dir/sw-hw-optimized/tcp/throughput/1000/efficiency/payload_throughput_1_all.png $curr_dir/
+cp $source_dir/sw-hw-optimized/tcp/latency/1000/medians/medians_all.png $curr_dir/
+
+curr_dir=$export_image_dir/sw_hw_optimized/udp
+mkdir -p $curr_dir
+
+cp $source_dir/sw-hw-optimized/udp/throughput/1000/efficiency/payload_throughput_0_all.png $curr_dir/
+cp $source_dir/sw-hw-optimized/udp/throughput/1000/efficiency/payload_throughput_1_all.png $curr_dir/
+cp $source_dir/sw-hw-optimized/udp/latency/1000/medians/medians_all.png $curr_dir/
+
+curr_dir=$export_image_dir/hw_sw_optimized/tcp
+mkdir -p $curr_dir
+
+cp $source_dir/hw-sw-optimized/tcp/throughput/1000/efficiency/payload_throughput_0_all.png $curr_dir/
+cp $source_dir/hw-sw-optimized/tcp/throughput/1000/efficiency/payload_throughput_1_all.png $curr_dir/
+cp $source_dir/hw-sw-optimized/tcp/latency/1000/medians/medians_all.png $curr_dir/
+
+curr_dir=$export_image_dir/hw_sw_optimized/udp
+mkdir -p $curr_dir
+
+cp $source_dir/hw-sw-optimized/udp/latency/1000/medians/medians_all.png $curr_dir/
+
+curr_dir=$export_image_dir/hw_hw_same_optimized
+mkdir -p $curr_dir
+
+cp $source_dir/hw-hw-same-optimized/tcp/throughput/1000/efficiency/payload_throughput_0_all.png $curr_dir/
+cp $source_dir/hw-hw-same-optimized/tcp/throughput/1000/efficiency/payload_throughput_1_all.png $curr_dir/
+cp $source_dir/hw-hw-same-optimized/tcp/latency/1000/medians/medians_all.png $curr_dir/
+
+curr_dir=$export_image_dir/hw_hw_diff_optimized/tcp
+mkdir -p $curr_dir
+
+cp $source_dir/hw-hw-diff/tcp/throughput/1000/efficiency/payload_throughput_0_all.png $curr_dir/
+cp $source_dir/hw-hw-diff/tcp/throughput/1000/efficiency/payload_throughput_1_all.png $curr_dir/
+cp $source_dir/hw-hw-diff/tcp/latency/1000/medians/medians_all.png $curr_dir/
+
+curr_dir=$export_image_dir/hw_hw_diff_optimized/udp
+mkdir -p $curr_dir
+
+cp $source_dir/hw-hw-diff/udp/throughput/1000/efficiency/payload_throughput_0_all.png $curr_dir/
+cp $source_dir/hw-hw-diff/udp/throughput/1000/efficiency/payload_throughput_1_all.png $curr_dir/
+cp $source_dir/hw-hw-diff/udp/latency/1000/medians/medians_all.png $curr_dir/
+
+curr_dir=$export_image_dir/cross/same
+mkdir -p $curr_dir
+
+cp $source_dir/cross/libGal_vs_shoal/same/payload_throughput_0.png $curr_dir/
+cp $source_dir/cross/libGal_vs_shoal/same/payload_throughput_1.png $curr_dir/
+
+curr_dir=$export_image_dir/cross/diff
+mkdir -p $curr_dir
+
+cp $source_dir/cross/libGal_vs_shoal/diff/payload_throughput_0.png $curr_dir/
+cp $source_dir/cross/libGal_vs_shoal/diff/payload_throughput_1.png $curr_dir/
