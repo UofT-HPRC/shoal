@@ -29,6 +29,7 @@ TRANSPORT = ["tcp", "udp"]
 PAYLOAD_MIN = 0
 PAYLOAD_MAX = 10
 THROUGHPUT_TIMES = 2
+IMAGE_TYPES = ["png", "pdf"]
 
 # payload, label
 STRIDED_METADATA = [
@@ -264,7 +265,7 @@ def analyze_data(df):
             "payload_throughput_0",
             "payload_throughput_1",
         ]].copy()
-        print(df_new)
+        # print(df_new)
 
     df_new["old_index"] = df_new.index
 
@@ -297,7 +298,8 @@ def analyze_latency_iterations(df, path, row_label):
     ax.legend()
 
     fig.tight_layout()
-    plt.savefig(os.path.join(path, row_label + ".png"))
+    for image_type in IMAGE_TYPES:
+        plt.savefig(os.path.join(path, f"{row_label}.{image_type}"))
     plt.close()
 
 def plot_against_payloads(df, y_axis, y_label, title, filepath, include_short=True):
@@ -339,11 +341,12 @@ def plot_against_payloads(df, y_axis, y_label, title, filepath, include_short=Tr
     # ax.set_title(title)
 
     fig.tight_layout()
-    plt.savefig(filepath)
+    for image_type in IMAGE_TYPES:
+        plt.savefig(filepath + "." + image_type)
     plt.close()
 
 def analyze_latency_medians(df, path):
-    plot_against_payloads(df, "median", "Time (ms)", "Median Latency by Message Types", os.path.join(path, "medians_all.png"))
+    plot_against_payloads(df, "median", "Time (ms)", "Median Latency by Message Types", os.path.join(path, f"medians_all"))
 
     df_sorted = df.sort_values(["Payload", "Test"])
     for test in ["Medium", "Medium FIFO", "Long", "Long FIFO"]:
@@ -356,11 +359,12 @@ def analyze_latency_medians(df, path):
         # ax.set_title("Median Latency Time of %s Messages" % test)
 
         fig.tight_layout()
-        plt.savefig(os.path.join(path, "medians_%s.png" % test))
+        for image_type in IMAGE_TYPES:
+            plt.savefig(os.path.join(path, f"medians_{test}.{image_type}"))
         plt.close()
 
 def analyze_latency_throughput(df, path):
-    plot_against_payloads(df, "payload_throughput", "Throughput (Gb/s)", "Payload Throughput (latency mode) by Message Types", os.path.join(path, "payload_throughput_all.png"), False)
+    plot_against_payloads(df, "payload_throughput", "Throughput (Gb/s)", "Payload Throughput (latency mode) by Message Types", os.path.join(path, f"payload_throughput_all"), False)
 
     df_sorted = df.sort_values(["Payload", "Test"])
     for test in ["Medium", "Medium FIFO", "Long", "Long FIFO"]:
@@ -373,7 +377,8 @@ def analyze_latency_throughput(df, path):
         # ax.set_title("Payload Throughput (latency mode) of %s Messages" % test)
 
         fig.tight_layout()
-        plt.savefig(os.path.join(path, "payload_throughput_%s.png" % test))
+        for image_type in IMAGE_TYPES:
+            plt.savefig(os.path.join(path, f"payload_throughput_{test}.{image_type}"))
         plt.close()
 
 
@@ -416,7 +421,7 @@ def analyze_latency(df, path):
     analyze_latency_throughput(df, figure_dir)
 
 def analyze_throughput_efficiency(df, path, payload_label):
-    plot_against_payloads(df, payload_label, "Throughput (Gb/s)", "Payload Throughput by Message Types", os.path.join(path, payload_label + "_all.png"), False)
+    plot_against_payloads(df, payload_label, "Throughput (Gb/s)", "Payload Throughput by Message Types", os.path.join(path, f"{payload_label}_all"), False)
 
     df_sorted = df.sort_values(["Payload", "Test"])
     for test in ["Medium", "Medium FIFO", "Long", "Long FIFO"]:
@@ -429,11 +434,12 @@ def analyze_throughput_efficiency(df, path, payload_label):
         # ax.set_title("Payload Throughput of %s Messages" % test)
 
         fig.tight_layout()
-        plt.savefig(os.path.join(path, payload_label + "_%s.png" % test))
+        for image_type in IMAGE_TYPES:
+            plt.savefig(os.path.join(path, f"{payload_label}_{test}.{image_type}"))
         plt.close()
 
 def analyze_throughput_latency(df, path):
-    plot_against_payloads(df, "payload_latency", "Time (ms)", "Average Latency (throughput mode) by Message Types", os.path.join(path, "average_all.png"))
+    plot_against_payloads(df, "payload_latency", "Time (ms)", "Average Latency (throughput mode) by Message Types", os.path.join(path, f"average_all"))
 
     df_sorted = df.sort_values(["Payload", "Test"])
     for test in ["Medium", "Medium FIFO", "Long", "Long FIFO"]:
@@ -446,7 +452,8 @@ def analyze_throughput_latency(df, path):
         # ax.set_title("Average Latency (throughput mode) Time of %s Messages" % test)
 
         fig.tight_layout()
-        plt.savefig(os.path.join(path, "averages_%s.png" % test))
+        for image_type in IMAGE_TYPES:
+            plt.savefig(os.path.join(path, f"averages_{test}.{image_type}"))
         plt.close()
 
 def analyze_throughput(df, path):
@@ -532,8 +539,8 @@ if __name__ == "__main__":
     parser.add_argument("--analyze-group-data", dest="analyze_group_data", action="store_true", help="Load the pickled data instead of reparsing")
     parser.set_defaults(
         save_data=False,
-        load_data=False,
-        analyze_single_data=False,
+        load_data=True,
+        analyze_single_data=True,
         analyze_group_data=False
     )
 

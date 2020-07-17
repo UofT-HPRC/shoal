@@ -7,6 +7,8 @@ import matplotlib
 matplotlib.use('Agg')
 import matplotlib.pyplot as plt
 
+from benchmark import IMAGE_TYPES
+
 # FILE_NAME = "microbenchmarks_sw-sw-same-tmp-2_throughput_tcp_raw.txt"
 FILE_NAMES = [
     "libGalapagos_detail_busy.txt",
@@ -65,7 +67,8 @@ def analyze_iterations(data, path):
         ax.legend()
 
         fig.tight_layout()
-        plt.savefig(os.path.join(path, key + ".png"))
+        for image_type in IMAGE_TYPES:
+            plt.savefig(os.path.join(path, key + "." + image_type))
         plt.close()
 
 def get_data(path):

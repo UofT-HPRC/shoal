@@ -6,12 +6,15 @@ import numpy as np
 import pandas as pd
 import seaborn as sns
 import pickle
+import statistics
 
 import matplotlib
 # Force matplotlib to not use any Xwindows backend.
 matplotlib.use('Agg')
 import matplotlib.pyplot as plt
 from matplotlib.ticker import ScalarFormatter
+
+from benchmark import IMAGE_TYPES
 
 LATENCY_ITERATION_COUNT = 100000
 THROUGHPUT_ITERATION_COUNT = 100000
@@ -28,8 +31,9 @@ FIGURE_DIRS = ["no_busy_affinity"]
 PAYLOADS = [1, 2, 4, 8, 16, 32, 64, 128, 256, 512, 1124]
 
 def get_data(path):
-    data = {"test_id": [], "wr_mode": [], "test_mode": [], "payload": [], "time": []}
+    data = {"unique": {}, "test_id": [], "wr_mode": [], "test_mode": [], "payload": [], "time": {}}
     test_id = "null"
+    index = 0
     with open(path, "r") as f:
         for line in f:
             if line.startswith(" ..."):
@@ -42,16 +46,35 @@ def get_data(path):
                 time_sec = float(timing_data[4].strip()) # sec or Mb/s
                 if test_mode == "latency":
                     time_sec = time_sec * 1E6 # convert to us
-                data["test_id"].append(test_id)
-                data["wr_mode"].append(wr_mode)
-                data["test_mode"].append(test_mode)
-                data["payload"].append(payload)
-                data["time"].append(time_sec)
+                unique_id = test_id + wr_mode + test_mode + str(payload)
+                if unique_id not in data["unique"]:
+                    data["unique"][unique_id] = index
+                    data["test_id"].append(test_id)
+                    data["wr_mode"].append(wr_mode)
+                    data["test_mode"].append(test_mode)
+                    data["payload"].append(payload)
+                    data["time"][unique_id] = [time_sec]
+                    index += 1
+                else:
+                    data["time"][unique_id].append(time_sec)
+    
+    times = [0]*index
+    for key, value in data["time"].items():
+        avg = statistics.mean(value)
+        idx = data["unique"][key]
+        times[idx] = avg
+    del data["unique"]
+    data["time"] = times
+    # print(data)
     df = pd.DataFrame.from_dict(data).sort_index()
 
     return df
 
 def analyze(df, path, figure_dir):
+    labels = [2**x * 8 for x in range(0, 10)]
+    labels.append(8992)
+    x = np.arange(len(labels))
+    
 
     libGalapagos_path = os.path.join(path, "build", "libGalapagos")
     if not os.path.exists(libGalapagos_path):
@@ -65,55 +88,57 @@ def analyze(df, path, figure_dir):
             os.makedirs(test_path)
 
         df_subset = df[(df["test_id"] == test)]
-        wr_modes = df_subset.wr_mode.unique()
+        # wr_modes = df_subset.wr_mode.unique()
+        # hue_order = ["packet-packet", "packet-packet_mem", "packet_malloc-packet", "packet_malloc-packet_mem"]
+        # legend_labels = ["packet (R), packet (W)", "packet (R), packet_mem (W)", "packet_malloc (R), packet (W)", "packet_malloc (R), packet_mem (W)"]
 
         fig, ax = plt.subplots()
         df_latency = df_subset[df_subset["test_mode"] == "latency"]
         if not df_latency.empty:
-            for wr_mode in wr_modes:
-                df_payloads = df_latency[df_latency["wr_mode"] == wr_mode]
-                ax.plot(df_payloads["payload"], df_payloads["time"], ".-", label=wr_mode)
+            sns.lineplot(x="payload", y="time", hue='wr_mode', data=df_latency, ax=ax, marker=".")
             ax.set_ylabel("Time (us)")
-            ax.set_xlabel("Payload (bytes)")
+            ax.set_xlabel("Payload Size (bytes)")
+            ax.set_xticks(x)
+            ax.set_xticklabels(labels)
             ax.set_xscale("log", basex=2)
-            ax.legend()
-            # ax.set_title("Average Latency vs Payload Size")
+            ax.xaxis.set_major_formatter(ScalarFormatter())
+            handles, _labels = ax.get_legend_handles_labels()
+            ax.legend(handles[1:], _labels[1:])
+            # ax.legend()
+            # # ax.set_title("Average Latency vs Payload Size")
 
             fig.tight_layout()
-            plt.savefig(os.path.join(test_path, "latency_%s.png" % test))
+            for image_type in IMAGE_TYPES:
+                plt.savefig(os.path.join(test_path, f"latency_{test}.{image_type}"))
         plt.close()
 
-        fig, ax = plt.subplots()
-        df_throughput = df_subset[df_subset["test_mode"] == "throughput_0"]
-        if not df_throughput.empty:
-            for wr_mode in wr_modes:
-                df_payloads = df_throughput[df_throughput["wr_mode"] == wr_mode]
-                ax.plot(df_payloads["payload"], df_payloads["time"], ".-", label=wr_mode)
-            ax.set_ylabel("Throughput (Mb/s)")
-            ax.set_xlabel("Payload (bytes)")
-            ax.set_xscale("log", basex=2)
-            ax.legend()
-            # ax.set_title("Throughput 0 vs Payload Size")
+        hue_order = ["packet-packet", "packet-packet_mem", "packet_malloc-packet", "packet_malloc-packet_mem"]
+        legend_labels = ["packet (R), packet (W)", "packet (R), packet_mem (W)", "packet_malloc (R), packet (W)", "packet_malloc (R), packet_mem (W)"]
 
-            fig.tight_layout()
-            plt.savefig(os.path.join(test_path, "throughput_0_%s.png" % test))
-        plt.close()
+        for test_mode in ["throughput_0", "throughput_1"]:
+            fig, ax = plt.subplots()
+            df_throughput = df_subset[df_subset["test_mode"] == test_mode]
+            if not df_throughput.empty:
+                # for wr_mode in wr_modes:
+                #     df_payloads = df_throughput[df_throughput["wr_mode"] == wr_mode]
+                #     ax.plot(df_payloads["payload"], df_payloads["time"], ".-", label=wr_mode)
+                sns.lineplot(x="payload", y="time", hue='wr_mode', data=df_throughput, hue_order=hue_order, ax=ax, marker=".")
+                ax.set_ylabel("Throughput (Mb/s)")
+                ax.set_xlabel("Payload (bytes)")
+                # ax.set_xscale("log", basex=2)
+                # ax.set_xticks(x)
+                ax.set_xticklabels(labels)
+                # ax.legend()
+                ax.set_xscale("log", basex=2)
+                ax.xaxis.set_major_formatter(ScalarFormatter())
+                handles, _labels = ax.get_legend_handles_labels()
+                ax.legend(handles[1:], legend_labels)
+                # ax.set_title("Throughput 0 vs Payload Size")
 
-        fig, ax = plt.subplots()
-        df_throughput = df_subset[df_subset["test_mode"] == "throughput_1"]
-        if not df_throughput.empty:
-            for wr_mode in wr_modes:
-                df_payloads = df_throughput[df_throughput["wr_mode"] == wr_mode]
-                ax.plot(df_payloads["payload"], df_payloads["time"], ".-", label=wr_mode)
-            ax.set_ylabel("Throughput (Mb/s)")
-            ax.set_xlabel("Payload (bytes)")
-            ax.set_xscale("log", basex=2)
-            ax.legend()
-            # ax.set_title("Throughput 1 vs Payload Size")
-
-            fig.tight_layout()
-            plt.savefig(os.path.join(test_path, "throughput_1_%s.png" % test))
-        plt.close()
+                fig.tight_layout()
+                for image_type in IMAGE_TYPES:
+                    plt.savefig(os.path.join(test_path, f"{test_mode}_{test}.{image_type}"))
+            plt.close()
 
 def cross_analyze(data, path):
     figure_path = os.path.join(path, "build", "libGalapagos", "cross")
@@ -150,7 +175,8 @@ def cross_analyze(data, path):
         # ax.set_title("Throughput vs Payload Size")
 
         fig.tight_layout()
-        plt.savefig(os.path.join(figure_path, "cross_%s.png" % test_mode))
+        for image_type in IMAGE_TYPES:
+            plt.savefig(os.path.join(figure_path, f"cross_{test_mode}.{image_type}"))
         plt.close()
 
 

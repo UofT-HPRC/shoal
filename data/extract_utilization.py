@@ -1,20 +1,42 @@
+# Usage:
+#   In Vivado, open implementation, and run 
+#     "report_utilization -file utilization.txt -format xml -hierarchical" 
+#   The filename/path can be whatever, just remember it
+#   
+#   Then, edit the global options below (variables in all CAPS) as needed
+#   and run this script.
+#
+#   It prints the body of the table to stdout (add the headings etc. yourself)
+#   This script prunes any ILAs that are found in the hierarchy and updates the
+#   resource usage accordingly. For now, it's only exporting LUT, FF, BRAM and 
+#   DSP counts though I'm sure it could be improved to make this more configurable.
+#
+#   Tested with Vivado 2018.1 and Python 3.7
+
 from functools import reduce
 import xml.etree.ElementTree as ET
 import operator
-import json
+
+# file containing utilization data
+FILENAME = "utilization.txt"
 
 # some string that will not appear in the project hierarchy
 RESERVED_NAME = "varun"
 
 # list of the hierarchy to extract from
-# HIER_TO_EXTRACT = ["shellTop", "pr_i", "applicationRegion", "GAScore_0"]
-HIER_TO_EXTRACT = ["shellTop", "pr_i", "network"]
+HIER_TO_EXTRACT = ["shellTop", "pr_i", "applicationRegion"]
+# HIER_TO_EXTRACT = ["shellTop", "shell_i"]
 
 # how far in the above hiearchy to extract
 HIER_DEPTH = 1
 
-# the LUT, FF, BRAM, and DSP counts in the overall FPGA
+# the LUT, FF, BRAM, and DSP counts in the overall FPGA.
+# Leave the first two values alone
 FPGA_COUNTS = [-1, "dummy", 663360, 1326720, 2160, 5520]
+
+# calculate percent usage of a block relative to its parent.
+# The top level is compared against FPGA_COUNTS
+ADD_PERCENTAGES = True
 
 def get_hier(name):
     space_per_hier = 2
@@ -33,6 +55,7 @@ def append_in_dict(data_dict, keys, value):
     get_from_dict(data_dict, keys[:-1])[keys[-1]].append(value)
 
 def should_skip(hier_name):
+    # not sure why these entities exist in the XML. For now, just remove them
     if hier_name.startswith("("):
         return True
     return False
@@ -43,7 +66,7 @@ def extract(root):
     skip = False
     prune = (False, 0)
 
-    for qwerty, tablerow in enumerate(root[0][0].findall("tablerow")):
+    for tablerow in root[0][0].findall("tablerow"):
         for index, subelem in enumerate(tablerow):
             if index == 0:
                 hier_name, hier_level = get_hier(subelem.get("contents"))
@@ -65,13 +88,9 @@ def extract(root):
                 tmp.append(RESERVED_NAME)
                 append_in_dict(util, tmp, subelem.get("contents"))
 
-    with open("util.json", "w") as f:
-        json.dump(util, f)
-
     return util
 
 def traverse_hier(util, curr_util, curr_hier, max_hier):
-    # print(util)
     hier_name = util[RESERVED_NAME][0].lstrip()
     hier_name = "  " * curr_hier + hier_name
     row = [curr_hier, hier_name]
@@ -134,22 +153,13 @@ def trim_cols(rows, labels):
                     break
             to_subtract.append((save, new_row))
 
-    print(new_rows)
-
     for pruned_row in to_subtract:
-        # print(pruned_row)
         for parent_row in pruned_row[0]:
-            # print(parent_row)
             differences = new_rows[parent_row][:2].copy()
-            # print(differences)
             for a,b in zip(new_rows[parent_row][2:], pruned_row[1][2:]):
                 difference = float(a) - float(b)
                 differences.append(difference)
-            # print(differences)
             new_rows[parent_row] = differences
-
-    print(new_rows)
-    # print(to_subtract)
 
     return new_rows, new_labels
 
@@ -159,9 +169,6 @@ def add_percentages(rows):
     curr_parents = []
     for row in rows:
         if row[0] == 0:
-            # curr_parents.append(row)
-            # new_rows.append(row)
-            # continue
             curr_parent = FPGA_COUNTS
         else:
             parent_i = curr_parents[-1][0]
@@ -206,27 +213,17 @@ def print_table(util, keys, hier_depth=1000):
     labels = util["Instance"][RESERVED_NAME]
     hier = get_from_dict(util, HIER_TO_EXTRACT)
 
-    # print(keys[-1])
-
-    # for value in dict_generator(hier):
-    #     print(value)
-
     rows = traverse_hier(hier, [], 0, hier_depth)
     rows_trimmed, new_labels = trim_cols(rows, labels)
-    # print(rows_trimmed)
-    new_rows = add_percentages(rows_trimmed)
-    # print(new_labels)
+    if ADD_PERCENTAGES:
+        new_rows = add_percentages(rows_trimmed)
+    else:
+        new_rows = rows_trimmed
     write_latex(new_rows)
-    # print(new_rows)
-
 
 
 if __name__ == "__main__":
-    filename = "utilization.txt"
-    
-    tree = ET.parse(filename)
+    tree = ET.parse(FILENAME)
     root = tree.getroot()
     util = extract(root)
-    # with open("util.json", "w") as f:
-    #     json.dump(get_from_dict(util, HIER_TO_EXTRACT), f)
     print_table(util, HIER_TO_EXTRACT, hier_depth=HIER_DEPTH)

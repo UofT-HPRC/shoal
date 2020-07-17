@@ -14,6 +14,8 @@ cp $source_dir/libGalapagos/no_busy/throughput_0_reply.png $curr_dir/
 cp $source_dir/libGalapagos/no_busy/throughput_1_reply.png $curr_dir/
 cp $source_dir/libGalapagos/cross/cross_throughput_0.png $curr_dir/
 cp $source_dir/libGalapagos/cross/cross_throughput_1.png $curr_dir/
+cp $source_dir/libGalapagos/no_busy_diff/throughput_0_reply.png $curr_dir/throughput_0_reply_diff.png
+cp $source_dir/libGalapagos/no_busy_diff/throughput_1_reply.png $curr_dir/throughput_1_reply_diff.png
 
 curr_dir=$export_image_dir/sw_sw_same_optimized
 mkdir -p $curr_dir
@@ -21,6 +23,9 @@ mkdir -p $curr_dir
 cp $source_dir/sw-sw-same-optimized/tcp/throughput/10000/efficiency/payload_throughput_0_all.png $curr_dir/
 cp $source_dir/sw-sw-same-optimized/tcp/throughput/10000/efficiency/payload_throughput_1_all.png $curr_dir/
 cp $source_dir/sw-sw-same-optimized/tcp/latency/10000/medians/medians_all.png $curr_dir/
+cp $source_dir/sw-sw-same-optimized/tcp/throughput/10000/efficiency/payload_throughput_0_all.pdf $curr_dir/
+cp $source_dir/sw-sw-same-optimized/tcp/throughput/10000/efficiency/payload_throughput_1_all.pdf $curr_dir/
+cp $source_dir/sw-sw-same-optimized/tcp/latency/10000/medians/medians_all.pdf $curr_dir/
 
 curr_dir=$export_image_dir/sw_sw_diff_optimized/tcp
 mkdir -p $curr_dir

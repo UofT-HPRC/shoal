@@ -1,0 +1,393 @@
+Memory in node 1: 0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 
+test: medium_throughput_0
+timing: 19343519
+timing: 8024816
+
+Memory in node 2 at end: 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 
+
+
+Node finished
+Memory in node 1: 0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 
+test: medium_throughput_1
+timing: 18230558
+timing: 8111264
+
+
+Memory in node 2 at end: 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 
+
+Node finished
+Memory in node 1: 0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 
+test: medium_throughput_2
+timing: 20181451
+timing: 8834693
+
+Memory in node 2 at end: 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 
+
+
+Node finished
+Memory in node 1: 0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 
+test: medium_throughput_3
+timing: 19025389
+timing: 8014427
+
+Memory in node 2 at end: 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 
+
+
+Node finished
+Memory in node 1: 0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 
+test: medium_throughput_4
+timing: 16387903
+timing: 7039277
+
+Memory in node 2 at end: 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 
+
+
+Node finished
+Memory in node 1: 0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 
+test: medium_throughput_5
+timing: 18686870
+timing: 7104622
+
+Memory in node 2 at end: 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 
+
+
+Node finished
+Memory in node 1: 0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 
+test: medium_throughput_6
+timing: 20704168
+timing: 8868130
+
+Memory in node 2 at end: 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 
+
+
+Node finished
+Memory in node 1: 0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 
+test: medium_throughput_7
+timing: 19429019
+timing: 7558854
+
+Memory in node 2 at end: 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 
+
+
+Node finished
+Memory in node 1: 0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 
+test: medium_throughput_8
+timing: 15611846
+timing: 7238539
+
+
+Memory in node 2 at end: 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 
+
+Node finished
+Memory in node 1: 0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 
+test: medium_throughput_9
+timing: 16778522
+timing: 7270204
+
+Memory in node 2 at end: 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 
+
+
+Node finished
+Memory in node 1: 0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 
+test: medium-fifo_throughput_0
+timing: 20471143
+timing: 7358810
+
+
+Memory in node 2 at end: 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 
+
+Node finished
+Memory in node 1: 0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 
+test: medium-fifo_throughput_1
+timing: 19336694
+timing: 7235779
+
+Memory in node 2 at end: 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 
+
+
+Node finished
+Memory in node 1: 0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 
+test: medium-fifo_throughput_2
+timing: 19450940
+timing: 7779636
+
+Memory in node 2 at end: 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 
+
+
+Node finished
+Memory in node 1: 0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 
+test: medium-fifo_throughput_3
+timing: 13806922
+timing: 8008902
+
+Memory in node 2 at end: 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 
+
+
+Node finished
+Memory in node 1: 0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 
+test: medium-fifo_throughput_4
+timing: 16142617
+timing: 7056899
+
+Memory in node 2 at end: 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 
+
+
+Node finished
+Memory in node 1: 0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 
+test: medium-fifo_throughput_5
+timing: 16831999
+timing: 7779216
+
+
+Memory in node 2 at end: 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 
+
+Node finished
+Memory in node 1: 0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 
+test: medium-fifo_throughput_6
+timing: 7500615
+timing: 8009713
+
+Memory in node 2 at end: 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 
+
+
+Node finished
+Memory in node 1: 0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 
+test: medium-fifo_throughput_7
+timing: 7020804
+timing: 8550446
+
+Memory in node 2 at end: 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 
+
+
+Node finished
+Memory in node 1: 0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 
+test: medium-fifo_throughput_8
+timing: 5936531
+timing: 10526117
+
+Memory in node 2 at end: 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 
+
+
+Node finished
+Memory in node 1: 0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 
+test: medium-fifo_throughput_9
+timing: 6754471
+timing: 11303663
+
+Memory in node 2 at end: 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 
+
+
+Node finished
+Memory in node 1: 0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 
+test: long_throughput_0
+timing: 15726202
+timing: 4511155
+
+
+Memory in node 2 at end: 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 
+
+Node finished
+Memory in node 1: 0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 
+test: long_throughput_1
+timing: 15550842
+timing: 5428569
+
+Memory in node 2 at end: 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 
+
+
+Node finished
+Memory in node 1: 0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 
+test: long_throughput_2
+timing: 14010724
+timing: 4900082
+
+Memory in node 2 at end: 0, 1, 2, 3, 0, 0, 0, 0, 0, 0, 
+
+
+Node finished
+Memory in node 1: 0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 
+test: long_throughput_3
+timing: 17133538
+timing: 5234322
+
+
+Memory in node 2 at end: 0, 1, 2, 3, 4, 5, 6, 7, 0, 0, 
+
+Node finished
+Memory in node 1: 0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 
+test: long_throughput_4
+timing: 17496737
+timing: 5868017
+
+Memory in node 2 at end: 0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 
+
+
+Node finished
+Memory in node 1: 0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 
+test: long_throughput_5
+timing: 11077100
+timing: 5413584
+
+Memory in node 2 at end: 0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 
+
+
+Node finished
+Memory in node 1: 0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 
+test: long_throughput_6
+timing: 17787230
+timing: 5760315
+Memory in node 2 at end: 0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 
+
+
+
+Node finished
+Memory in node 1: 0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 
+test: long_throughput_7
+timing: 12410875
+timing: 5657752
+
+Memory in node 2 at end: 0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 
+
+
+Node finished
+Memory in node 1: 0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 
+test: long_throughput_8
+timing: 18279459
+timing: 5440448
+Memory in node 2 at end: 0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 
+
+
+
+Node finished
+Memory in node 1: 0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 
+test: long_throughput_9
+timing: 10280018
+timing: 5438590
+
+
+Memory in node 2 at end: 0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 
+
+Node finished
+Memory in node 1: 0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 
+test: long-fifo_throughput_0
+timing: 18054298
+timing: 4871395
+
+Memory in node 2 at end: 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 
+
+
+Node finished
+Memory in node 1: 0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 
+test: long-fifo_throughput_1
+timing: 11271627
+timing: 5284893
+
+Memory in node 2 at end: 0, 8, 0, 0, 0, 0, 0, 0, 0, 0, 
+
+
+Node finished
+Memory in node 1: 0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 
+test: long-fifo_throughput_2
+timing: 12869435
+timing: 5832486
+
+Memory in node 2 at end: 0, 8, 16, 24, 0, 0, 0, 0, 0, 0, 
+
+
+Node finished
+Memory in node 1: 0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 
+test: long-fifo_throughput_3
+timing: 14720948
+timing: 5436954
+
+
+Memory in node 2 at end: 0, 8, 16, 24, 32, 40, 48, 56, 0, 0, 
+
+Node finished
+Memory in node 1: 0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 
+test: long-fifo_throughput_4
+timing: 12694728
+timing: 6093837
+
+Memory in node 2 at end: 0, 8, 16, 24, 32, 40, 48, 56, 64, 72, 
+
+
+Node finished
+Memory in node 1: 0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 
+test: long-fifo_throughput_5
+timing: 8429821
+timing: 6137896
+
+Memory in node 2 at end: 0, 8, 16, 24, 32, 40, 48, 56, 64, 72, 
+
+
+Node finished
+Memory in node 1: 0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 
+test: long-fifo_throughput_6
+timing: 2723940
+timing: 6193618
+
+
+Memory in node 2 at end: 0, 8, 16, 24, 32, 40, 48, 56, 64, 72, 
+
+Node finished
+Memory in node 1: 0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 
+test: long-fifo_throughput_7
+timing: 2838587
+timing: 6817014
+
+Memory in node 2 at end: 0, 8, 16, 24, 32, 40, 48, 56, 64, 72, 
+
+
+Node finished
+Memory in node 1: 0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 
+test: long-fifo_throughput_8
+timing: 3607978
+timing: 7152915
+
+Memory in node 2 at end: 0, 8, 16, 24, 32, 40, 48, 56, 64, 72, 
+
+
+Node finished
+Memory in node 1: 0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 
+test: long-fifo_throughput_9
+timing: 6662886
+timing: 9607214
+Memory in node 2 at end: 0, 8, 16, 24, 32, 40, 48, 56, 64, 72, 
+
+
+
+Node finished
+Memory in node 1: 0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 
+test: short_throughput_0
+timing: 14755380
+timing: 5082994
+
+Memory in node 2 at end: 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 
+
+
+Node finished
+Memory in node 1: 0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 
+test: strided_throughput_0
+timing: 15401588
+timing: 5792128
+
+Memory in node 2 at end: 0, 0, 1, 0, 2, 0, 3, 0, 0, 0, 
+
+
+Node finished
+Memory in node 1: 0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 
+test: vector_throughput_0
+timing: 17908739
+timing: 5500178
+test: vector_throughput_1
+timing: 10907167
+timing: 5712358
+test: vector_throughput_2
+timing: 11577362
+timing: 5767899
+Memory in node 2 at end: 1, 1, 4, 0, 2, 3, 0, 0, 0, 0, 
+
+
+
+Node finished
