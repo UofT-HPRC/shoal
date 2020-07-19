@@ -699,6 +699,7 @@ void am_rx(galapagos::interface <word_t> * in,
             for(int i = 0; i < AMargs; i++){
                 axis_word = in->read();
                 arg[i] = axis_word.data;
+                // SAFE_COUT("arg received is: " << axis_word.data << "\n")
             }
         }
 
@@ -945,7 +946,7 @@ void handler_thread(void (*fcnPtr)(short id, galapagos::interface <word_t>* ,
 
     thread_t kernel_thread = std::thread(fcnPtr, id, &kernel_in, &kernel_out);
 
-    packet_buffer = (char*)(malloc(PACKET_BUFFER*sizeof(char)));
+    // packet_buffer = (char*)(malloc(PACKET_BUFFER*sizeof(char)));
 
     SAFE_COUT("Handler " << id << " starting with nodedata at " << nodedata << "\n");
 

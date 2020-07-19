@@ -50,7 +50,7 @@ app_files := commtest_gascorev2
 
 test_files := queue_test
 
-galapagos_files := node_1_kern_2 node_2_kern_2 hls_kernel benchmark
+galapagos_files := node_1_kern_2 node_2_kern_2 hls_kernel benchmark jacobi
 
 obj = $(shell find $(test_build_dir) -name '*.o' -printf '%f\n' | \
 sort -k 1nr | cut -f2-)

@@ -29,6 +29,7 @@ namespace shoal{
             int kernel_num;
             galapagos::interface<word_t> * in;
             galapagos::interface<word_t> * out;
+            int segment_size;
 
             #ifdef __HLS__
             volatile int* handler_ctrl;
@@ -39,6 +40,7 @@ namespace shoal{
             void sendBarrierUpdate(gc_AMdst_t dst);
         public:
             int get_id();
+            int get_segment_addr(gc_AMdst_t id);
             int init();
             #ifdef __HLS__
             kernel(int id, int kernel_num, galapagos::interface<word_t> * in,
@@ -94,6 +96,15 @@ namespace shoal{
                 gc_payloadSize_t payloadSize, gc_srcVectorNum_t srcVectorCount, gc_dstVectorNum_t dstVectorCount,
                 const gc_vectorSize_t * srcSize, const gc_vectorSize_t * dstSize, const word_t * src_addr,
                 const word_t * dst_addr);
+            void getLongAM_normal(gc_AMdst_t dst, gc_AMToken_t token,
+                gc_AMhandler_t handlerID, gc_AMargs_t handlerArgCount,
+                const word_t * handler_args, gc_payloadSize_t payloadSize,
+                word_t src_addr, word_t dst_addr);
+            void getLongStrideAM_normal(gc_AMdst_t dst, gc_AMToken_t token,
+                gc_AMhandler_t handlerID, gc_AMargs_t handlerArgCount, const word_t * handler_args,
+                gc_payloadSize_t payloadSize, gc_stride_t src_stride, gc_strideBlockSize_t src_blk_size,
+                gc_strideBlockNum_t src_blk_num, word_t src_addr, gc_stride_t dst_stride,
+                gc_strideBlockSize_t dst_blk_size, gc_strideBlockNum_t dst_blk_num, word_t dst_addr);
     };
 } // namespace shoal
 

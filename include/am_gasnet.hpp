@@ -11,7 +11,7 @@ typedef gc_AMargs_t garg;
     void __real_##name(short id, galapagos::interface <word_t> *in, galapagos::interface <word_t> *out);\
 	void __wrap_##name (short id, galapagos::interface <word_t> *in, galapagos::interface <word_t> *out){\
 		void (*fcnPtr)(short id, galapagos::interface <word_t> *, galapagos::interface <word_t> *) = __real_##name;\
-        handler_thread(fcnPtr, index, in, out);\
+        handler_thread(fcnPtr, id, in, out);\
 	}
 
 #define DECLARE_METHOD(name)\

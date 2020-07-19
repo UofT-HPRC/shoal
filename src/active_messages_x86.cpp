@@ -178,7 +178,7 @@ void sendHandlerArgs(
     for (i = 0; i < handlerArgCount-1; i++){
         writeWord(axis_out, *(handler_args+i), 0, src, dst);
     }
-    i++;
+    // i++;
     writeWord(axis_out, *(handler_args+i), assertLast, src, dst);
 }
 

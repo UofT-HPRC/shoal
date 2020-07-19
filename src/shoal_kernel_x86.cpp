@@ -25,28 +25,28 @@ int shoal::kernel::init(){
     return 0;
 }
 
-void InternalBarrierUpdate(){
+void InternalBarrierUpdate(gc_AMToken_t token){
     lock_guard_t lck(*mutex_nodedata);
 	SAFE_COUT(COLOR(Color::FG_BLUE, dec, "Updating barrier_cnt at " << nodedata << " to " << nodedata->barrier_cnt+1 << "\n"));
     nodedata->barrier_cnt++;
 	return;
 }
 
-void MemReadyBarrierUpdate(){
+void MemReadyBarrierUpdate(gc_AMToken_t token){
     lock_guard_t lck(*mutex_nodedata);
 	SAFE_COUT(COLOR(Color::FG_BLUE, dec, "Updating mem_ready_barrier_cnt at " << nodedata << " to " << nodedata->mem_ready_barrier_cnt + 1 << "\n"));
     nodedata->mem_ready_barrier_cnt++;
 	return;
 }
 
-void counterUpdate(word_t arg){
+void counterUpdate(gc_AMToken_t token, word_t arg){
     lock_guard_t lck(*mutex_nodedata);
-	SAFE_COUT("Updating counter at " << nodedata << " to " << nodedata->counter + arg << "\n");
+	SAFE_COUT("Updating counter at " << nodedata << "from " << nodedata->counter << " to " << nodedata->counter + arg << "\n");
     nodedata->counter += arg;
 	return;
 }
 
-void emptyHandler(){
+void emptyHandler(gc_AMToken_t token){
 	SAFE_COUT("Empty handler\n");
 	return;
 }
@@ -71,6 +71,7 @@ int shoal::kernel::attach(gasnet_handlerentry_t *table, int numentries, int size
 		abort();
     }
     gasnet_shared_mem_global[this->id] = gasnet_shared_mem;
+    this->segment_size = size;
 
     nodedata = &(gasnet_nodedata_all[this->id]);
 
@@ -105,6 +106,10 @@ void shoal::kernel::allocate_handlerTable(){
 			exit(1);
 		}
 	}
+}
+
+int shoal::kernel::get_segment_addr(gc_AMdst_t id){
+    return id * this->segment_size;
 }
 
 void shoal::kernel::wait_mem(unsigned int value){
@@ -204,6 +209,14 @@ void shoal::kernel::sendLongAM_normal(gc_AMdst_t dst, gc_AMToken_t token,
         handler_args, payloadSize, src_addr, dst_addr, *(this->out));
 }
 
+void shoal::kernel::getLongAM_normal(gc_AMdst_t dst, gc_AMToken_t token,
+    gc_AMhandler_t handlerID, gc_AMargs_t handlerArgCount, const word_t * handler_args,
+    gc_payloadSize_t payloadSize, word_t src_addr, word_t dst_addr)
+{
+    sendLongAM(AM_LONG | AM_REPLY, this->id, dst, token, handlerID, handlerArgCount,
+        handler_args, payloadSize, src_addr, dst_addr, *(this->out));
+}
+
 void shoal::kernel::sendLongStrideAM_normal(gc_AMdst_t dst, gc_AMToken_t token,
     gc_AMhandler_t handlerID, gc_AMargs_t handlerArgCount, const word_t * handler_args,
     gc_payloadSize_t payloadSize, gc_stride_t src_stride, gc_strideBlockSize_t src_blk_size,
@@ -211,6 +224,17 @@ void shoal::kernel::sendLongStrideAM_normal(gc_AMdst_t dst, gc_AMToken_t token,
     gc_strideBlockSize_t dst_blk_size, gc_strideBlockNum_t dst_blk_num, word_t dst_addr)
 {
     longStridedAM(AM_STRIDE, this->id, dst, token, handlerID, handlerArgCount,
+        handler_args, payloadSize, src_stride, src_blk_size, src_blk_num, src_addr, 
+        dst_stride, dst_blk_size, dst_blk_num, dst_addr, *(this->out));
+}
+
+void shoal::kernel::getLongStrideAM_normal(gc_AMdst_t dst, gc_AMToken_t token,
+    gc_AMhandler_t handlerID, gc_AMargs_t handlerArgCount, const word_t * handler_args,
+    gc_payloadSize_t payloadSize, gc_stride_t src_stride, gc_strideBlockSize_t src_blk_size,
+    gc_strideBlockNum_t src_blk_num, word_t src_addr, gc_stride_t dst_stride,
+    gc_strideBlockSize_t dst_blk_size, gc_strideBlockNum_t dst_blk_num, word_t dst_addr)
+{
+    longStridedAM(AM_STRIDE | AM_REPLY, this->id, dst, token, handlerID, handlerArgCount,
         handler_args, payloadSize, src_stride, src_blk_size, src_blk_num, src_addr, 
         dst_stride, dst_blk_size, dst_blk_num, dst_addr, *(this->out));
 }
