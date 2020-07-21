@@ -78,6 +78,9 @@ namespace shoal{
             void sendMediumAM_async(gc_AMdst_t dst, gc_AMToken_t token,
                 gc_AMhandler_t handlerID, gc_AMargs_t handlerArgCount,
                 const word_t * handler_args, gc_payloadSize_t payloadSize);
+            void sendMediumAM_async(gc_AMdst_t dst, gc_AMToken_t token,
+                gc_AMhandler_t handlerID, gc_AMargs_t handlerArgCount,
+                gc_payloadSize_t payloadSize);
             void sendLongAM_normal(gc_AMdst_t dst, gc_AMToken_t token,
                 gc_AMhandler_t handlerID, gc_AMargs_t handlerArgCount,
                 const word_t * handler_args, gc_payloadSize_t payloadSize,

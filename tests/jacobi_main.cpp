@@ -2,10 +2,10 @@
 #include "user_config.hpp"
 
 DECLARE_METHOD(kern0);
-DECLARE_METHOD(kern1);
-DECLARE_METHOD(kern2);
-DECLARE_METHOD(kern3);
-DECLARE_METHOD(kern4);
+// DECLARE_METHOD(kern1);
+// DECLARE_METHOD(kern2);
+// DECLARE_METHOD(kern3);
+// DECLARE_METHOD(kern4);
 // #if(KERN_BUILD == 1)
 // DECLARE_METHOD(kern1);
 // #endif
@@ -18,11 +18,9 @@ int main(){
     std::string address_1 = STRINGIFY(SHOAL_SW_1_IP_ADDR);
     std::string address_2 = STRINGIFY(SHOAL_SW_2_IP_ADDR);
     std::vector <std::string> kern_info;
-    kern_info.push_back(address_0);
-    kern_info.push_back(address_1);
-    kern_info.push_back(address_2);
-    kern_info.push_back(address_2);
-    kern_info.push_back(address_2);
+    for(int i = 0; i < KERNEL_NUM_TOTAL; i++){
+        kern_info.push_back(address_0);
+    }
     #if LOG_LEVEL > 0
     std::shared_ptr<spdlog::logger> logger = spdlog::basic_logger_mt("basic_logger", "main.log");
     spdlog::set_level(spdlog::level::debug); // Set global log level to debug
@@ -33,11 +31,9 @@ int main(){
     shoal::node node(kern_info, address_0, true);
     #endif
     
-    node.add_kernel(KERN0_ID, kern0);
-    node.add_kernel(KERN1_ID, kern1);
-    node.add_kernel(KERN2_ID, kern2);
-    node.add_kernel(KERN3_ID, kern3);
-    node.add_kernel(KERN4_ID, kern4);
+    for(int i = 0; i < KERNEL_NUM_TOTAL; i++){
+        node.add_kernel(i, kern0);
+    }
 
     // #if(KERN_BUILD == -1 || KERN_BUILD == 1)
     // node.add_kernel(KERN1_ID, kern1);

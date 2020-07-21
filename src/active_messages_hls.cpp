@@ -231,6 +231,34 @@ void sendMediumAM(
     gc_AMToken_t token,
     gc_AMhandler_t handlerID,
     gc_AMargs_t handlerArgCount,
+    // const word_t * handler_args,
+    gc_payloadSize_t payloadSize,
+    // const word_t * payload,
+    galapagos::interface <word_t> & out
+){
+    // std::cout << "AM Medium message\n";
+    galapagos::stream_packet <word_t> axis_word;
+    axis_word = createHeaderBeat(src, dst, payloadSize, handlerID, type, handlerArgCount);
+    axis_word.dest = dst;
+    // printWord("   Sending - ", axis_word);
+    out.write(axis_word);
+    axis_word = createTokenBeat(token, false);
+    axis_word.dest = dst;
+    // printWord("   Sending - ", axis_word);
+    out.write(axis_word);
+    // if (handlerArgCount > 0){
+    //     sendHandlerArgs(out, dst, handler_args, handlerArgCount, false);
+    // }
+    // sendPayloadArgs(out, dst, (char*) payload, payloadSize, true);
+}
+
+void sendMediumAM(
+    gc_AMtype_t type,
+    gc_AMsrc_t src,
+    gc_AMdst_t dst,
+    gc_AMToken_t token,
+    gc_AMhandler_t handlerID,
+    gc_AMargs_t handlerArgCount,
     const word_t * handler_args,
     gc_payloadSize_t payloadSize,
     word_t src_addr,

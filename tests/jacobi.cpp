@@ -11,7 +11,7 @@
 #include "jacobi.hpp"
 
 #define PRINTCOND (myid==ctrlnode)
-#define TIMECOND (myid==1)
+#define TIMECOND (myid==0)
 
 #undef  INTERMEDIATE_TIMES
 
@@ -59,7 +59,39 @@ void S1_stats_reply(gasnet_token_t token, gasnet_handlerarg_t arg0);
 // 	}
 // };
 
-#ifndef __HLS__
+#ifdef __HLS__
+// this function, if inlined, or placed in code, behaves badly in Verilog. In
+// simulation, it does do three writes but they appear as burst writes to the wrong
+// addresses. Doing it this way seems to work properly. Tested in HLS 2018.1
+void start_timer(volatile int* axi_timer){
+    axi_timer[0] = 0x0; // stop timer
+    axi_timer[1] = 0; // set load register to 0
+    axi_timer[0] = 0x20; // load timer with load register
+    axi_timer[0] = 0x80; // start timer
+}
+
+word_t get_time(volatile int* axi_timer){
+    // #pragma HLS INLINE
+    // axi_timer[0] = 0x0; // stop timer
+    word_t time = *(axi_timer + 0x2); // read timer count
+	return time;
+}
+
+word_t accum_time(word_t old_time, volatile int* axi_timer){
+	word_t time = get_time(axi_timer);
+	return old_time + time;
+}
+
+void send_time(shoal::kernel* kernel, gc_AMToken_t token, word_t time, volatile int* axi_timer){
+    word_t dumb = *(axi_timer);
+    if(dumb != 0xFF){
+    kernel->sendMediumAM_async(KERNEL_NUM_TOTAL-1, token, H_EMPTY, 0, NULL, 8);
+    kernel->sendPayload(0, time, true); // assume always send to kernel 0
+    }
+    // axi_timer[0] = 0x0; // stop timer
+    // kernel->wait_reply(1, axi_timer);
+}
+#else
 auto get_time(){
     return std::chrono::high_resolution_clock::now();
 }
@@ -177,6 +209,7 @@ void jacobi(
     #ifdef __HLS__
 	galapagos::interface<word_t> * out,
     volatile int * handler_ctrl,
+	volatile int * axi_timer,
     word_t * local_mem
 	#else
 	galapagos::interface<word_t> * out
@@ -187,7 +220,7 @@ void jacobi(
     #pragma HLS INTERFACE ap_ctrl_none port=return
     #pragma HLS INTERFACE ap_stable port=id
     #pragma HLS INTERFACE m_axi port=handler_ctrl depth=4096 offset=0
-    // #pragma HLS INTERFACE m_axi port=axi_timer depth=4096 offset=0
+    #pragma HLS INTERFACE m_axi port=axi_timer depth=4096 offset=0
     // #pragma HLS INTERFACE m_axi port=instr_mem depth=4096 offset=0
     #pragma HLS INTERFACE m_axi port=local_mem depth=4096 offset=0
 	// GLOBALS SHARED WITH HANDLER FUNCTIONS
@@ -228,10 +261,17 @@ void jacobi(
 	unsigned int bar1secs = 0, bar1usecs = 0;
 	unsigned int bar2secs = 0, bar2usecs = 0;
 
+	#ifdef __HLS__
+	word_t commtime = 0;
+	word_t comptime = 0;
+	word_t bar1time = 0;
+	word_t bar2time = 0;
+	#else
 	double commtime = 0;
 	double comptime = 0;
 	double bar1time = 0;
 	double bar2time = 0;
+	#endif
 	
 	// LOCAL VARIABLES
 	char* mysharedmem = NULL;
@@ -341,7 +381,11 @@ void jacobi(
 
 	// determine shared block addresses
 	// mysharedmem = (void*)(uint64_t)segment_table_app[myid].addr;
+	#ifdef __HLS__
+	mysharedmem = (char*) local_mem;
+	#else
 	mysharedmem = (char*) gasnet_shared_mem;
+	#endif
 
 	
 	///////////////////////////////////
@@ -367,7 +411,7 @@ void jacobi(
 
 	// get neighbour memory localities
 	voidp64 remoteMemN,remoteMemE,remoteMemS,remoteMemW;
-	char*    localMemN,*localMemE,*localMemS,*localMemW;
+	voidp64    localMemN,localMemE,localMemS,localMemW;
 	
 	node_jacobidata_str *njdata;
 	
@@ -377,22 +421,34 @@ void jacobi(
 	///////////////////////////////////
 
 	// clear data fields
-	#ifndef __HLS__
+	#ifdef __HLS__
+	start_timer(axi_timer);
+	#else
 	auto timer = get_time();
 	time_point_t timer_init = timer;
-	#endif
+
 	if (!(myid == ctrlnode))
 		memset(mysharedmem,0,mem_available);
+	#endif
 	
+	node_jacobidata_str njdata_master[KERNEL_NUM_TOTAL-1] __attribute__((aligned(64)));
 	uint64_t *stats_squarederror;
+	uint64_t stats_squarederror_master[KERNEL_NUM_TOTAL-1] __attribute__((aligned(64)));
 	uint64_t *stats_gradient;
+	uint64_t stats_gradient_master[KERNEL_NUM_TOTAL-1] __attribute__((aligned(64)));
 	if (myid == ctrlnode)
 	{
-		njdata = (node_jacobidata_str*) aligned_alloc(sizeof(word_t), (KERNEL_NUM_TOTAL-1)*sizeof(node_jacobidata_str));
+		
+		njdata = njdata_master;
+		// njdata = (node_jacobidata_str*) aligned_alloc(sizeof(word_t), (KERNEL_NUM_TOTAL-1)*sizeof(node_jacobidata_str));
 		// std::cout << "njdata at " << std::hex << njdata << std::dec << "\n";
 		
-		stats_squarederror = (uint64_t *)aligned_alloc(sizeof(word_t), (KERNEL_NUM_TOTAL-1)*sizeof(uint64_t));
-		stats_gradient = (uint64_t *)aligned_alloc(sizeof(word_t), (KERNEL_NUM_TOTAL-1)*sizeof(uint64_t));
+		// stats_squarederror = (uint64_t *)aligned_alloc(sizeof(word_t), (KERNEL_NUM_TOTAL-1)*sizeof(uint64_t));
+		// stats_gradient = (uint64_t *)aligned_alloc(sizeof(word_t), (KERNEL_NUM_TOTAL-1)*sizeof(uint64_t));
+		// uint64_t stats_squarederror_master[KERNEL_NUM_TOTAL-1] __attribute__((aligned(64)));
+		// uint64_t stats_gradient_master[KERNEL_NUM_TOTAL-1] __attribute__((aligned(64)));
+		stats_squarederror = stats_squarederror_master;
+		stats_gradient = stats_gradient_master;
 		COMPILER_BARRIER
 
 		for(u=0 ; u<(KERNEL_NUM_TOTAL-1) ; u++)
@@ -427,16 +483,16 @@ void jacobi(
 				}
 			}
 
-			PRINT("xsize: %d\n", njdata[u].xsize);
-			PRINT("ysize: %d\n", njdata[u].ysize);
-			PRINT("pole1xy: %d\n", njdata[u].pole1xy);
-			PRINT("pole1value: %d\n", njdata[u].pole1value);
-			PRINT("pole2xy: %d\n", njdata[u].pole2xy);
-			PRINT("pole2value: %d\n", njdata[u].pole2value);
-			PRINT("pole3xy: %d\n", njdata[u].pole3xy);
-			PRINT("pole3value: %d\n", njdata[u].pole3value);
-			PRINT("pole4xy: %d\n", njdata[u].pole4xy);
-			PRINT("pole4value: %d\n", njdata[u].pole4value);
+			// PRINT("xsize: %d\n", njdata[u].xsize);
+			// PRINT("ysize: %d\n", njdata[u].ysize);
+			// PRINT("pole1xy: %d\n", njdata[u].pole1xy);
+			// PRINT("pole1value: %d\n", njdata[u].pole1value);
+			// PRINT("pole2xy: %d\n", njdata[u].pole2xy);
+			// PRINT("pole2value: %d\n", njdata[u].pole2value);
+			// PRINT("pole3xy: %d\n", njdata[u].pole3xy);
+			// PRINT("pole3value: %d\n", njdata[u].pole3value);
+			// PRINT("pole4xy: %d\n", njdata[u].pole4xy);
+			// PRINT("pole4value: %d\n", njdata[u].pole4value);
 		}
 	}
 	else // compnodes
@@ -481,10 +537,10 @@ void jacobi(
 		remoteMemS  = ((1     ) + (    +1)*yoffset) * sizeof(CELLTYPE);
 		remoteMemW  = ((0+xdiv) + (    +1)*yoffset) * sizeof(CELLTYPE);
 
-		localMemN  = (char*)(((1     ) + (    +0)*yoffset) * sizeof(CELLTYPE));
-		localMemE  = (char*)(((1+xdiv) + (    +1)*yoffset) * sizeof(CELLTYPE));
-		localMemS  = (char*)(((1     ) + (ydiv+1)*yoffset) * sizeof(CELLTYPE));
-		localMemW  = (char*)(((0     ) + (    +1)*yoffset) * sizeof(CELLTYPE));
+		localMemN  = (voidp64)(((1     ) + (    +0)*yoffset) * sizeof(CELLTYPE));
+		localMemE  = (voidp64)(((1+xdiv) + (    +1)*yoffset) * sizeof(CELLTYPE));
+		localMemS  = (voidp64)(((1     ) + (ydiv+1)*yoffset) * sizeof(CELLTYPE));
+		localMemW  = (voidp64)(((0     ) + (    +1)*yoffset) * sizeof(CELLTYPE));
 		
 		// determine expected neighbour bytes
 		// shared->expected_neighbour_bytes = (xdiv*sendN + xdiv*sendS + ydiv*sendW + ydiv*sendE) * sizeof(CELLTYPE);
@@ -495,17 +551,27 @@ void jacobi(
 	// barrier so that memory is cleared before messages start coming in; collecting node is 0
 	// thegasnet_sharedMemoryReady(ctrlnode);
 	if(myid == ctrlnode){
+		#pragma HLS INLINE
 		kernel.barrier_wait();
 	} else {
+		#pragma HLS INLINE
 		kernel.barrier_send(ctrlnode);
 	}
 	
 	// Init time
 	// Timer_TakeTime();
+	#ifdef __HLS__
+	word_t time;
+	if(PRINTCOND){
+		time = get_time(axi_timer);
+		send_time(&kernel, 0x0, time, axi_timer);
+	}
+	#else
 	auto memory_time = get_time_diff(timer_init);
 	if(PRINTCOND){
 		std::cout << "Memory init time: " << memory_time << " s\n";
 	}
+	#endif
 	// PRINTTIME(PRINTCOND,"Memory init time:");
 
 	PRINT("Node %d ready.\r\n",myid);
@@ -520,7 +586,11 @@ void jacobi(
 		PRINT("Node\tIteration\tSum of sqdiffs\tLargest gradient\r\n");
 	}	
 	// Timer_Start();
+	#ifdef __HLS__
+	start_timer(axi_timer);
+	#else
 	timer = get_time();
+	#endif
 
 #define ITERATIONS 3
 	
@@ -535,13 +605,28 @@ void jacobi(
 		for(u=0 ; u<(KERNEL_NUM_TOTAL-1) ; u++){
 			// gasnet_AMRequestMedium0(u,hc_M0_compnode_parameters,&(njdata[u]),sizeof(node_jacobidata_str));
 			kernel.sendMediumAM_async(u, 0xabc, 0, 0, nullptr, sizeof(node_jacobidata_str));
-			for(int i = 0; i < 5; i++){
-				kernel.sendPayload(u, (((word_t*)(&(njdata[u])))[i]), i == 4);
+			#ifdef __HLS__
+			word_t payload;
+			payload = ((word_t)(njdata_master[u].ysize) << 32) | njdata_master[u].xsize;
+			kernel.sendPayload(u, payload, false);
+			payload = ((word_t)(njdata_master[u].pole1value) << 32) | njdata_master[u].pole1xy;
+			kernel.sendPayload(u, payload, false);
+			payload = ((word_t)(njdata_master[u].pole2value) << 32) | njdata_master[u].pole2xy;
+			kernel.sendPayload(u, payload, false);
+			payload = ((word_t)(njdata_master[u].pole3value) << 32) | njdata_master[u].pole3xy;
+			kernel.sendPayload(u, payload, false);
+			payload = ((word_t)(njdata_master[u].pole4value) << 32) | njdata_master[u].pole4xy;
+			kernel.sendPayload(u, payload, true);		
+			#else
+			for(int i = 0; i < sizeof(node_jacobidata_str)/GC_DATA_BYTES; i++){
+				kernel.sendPayload(u, (((word_t*)(&(njdata[u])))[i]), i == (sizeof(node_jacobidata_str)/GC_DATA_BYTES-1));
 				// std::cout << i << ": " << std::hex << &(((word_t*)(&(njdata[u])))[i]) << std::dec << "\n";
 				// std::cout << "data: " << std::hex << (((word_t*)(&(njdata[u])))[i]) << std::dec << "\n";
 			}
+			#endif
+			
 		}
-		free(njdata);
+		// free(njdata);
 		
 	}
 	else // compnodes
@@ -555,11 +640,30 @@ void jacobi(
 		size_t _size;
 		short _dest, _id;
 		// in->packet_read((((char*)(&(njdata_local)))), &_size, &_dest, &_id);
+		#ifdef __HLS__
+			galapagos::stream_packet <word_t> axis_word[sizeof(node_jacobidata_str)/GC_DATA_BYTES];
+			// word_t* njdata_local_ptr = (word_t*)(&njdata_local);
+			in->read(); // read token
+			for(int q = 0; q < sizeof(node_jacobidata_str)/GC_DATA_BYTES; q++){
+				in->read(axis_word[q]);
+			}
+			njdata_local.xsize = axis_word[0].data & 0xFFFFFFFF;
+			njdata_local.ysize = ((axis_word[0].data) >> 32) & 0xFFFFFFFF;
+			njdata_local.pole1xy = axis_word[1].data & 0xFFFFFFFF;
+			njdata_local.pole1value = ((axis_word[1].data) >> 32) & 0xFFFFFFFF;
+			njdata_local.pole2xy = axis_word[2].data & 0xFFFFFFFF;
+			njdata_local.pole2value = ((axis_word[2].data) >> 32) & 0xFFFFFFFF;
+			njdata_local.pole3xy = axis_word[3].data & 0xFFFFFFFF;
+			njdata_local.pole3value = ((axis_word[3].data) >> 32) & 0xFFFFFFFF;
+			njdata_local.pole4xy = axis_word[4].data & 0xFFFFFFFF;
+			njdata_local.pole4value = ((axis_word[4].data) >> 32) & 0xFFFFFFFF;
+		#else
 		word_t* njdata_local_ptr = (word_t*)(in->packet_read(&_size, &_dest, &_id));
 		// skip one for the header
 		memcpy(&njdata_local, &(njdata_local_ptr[1]), sizeof(node_jacobidata_str));
 
 		free(njdata_local_ptr);
+		#endif
 		
 		//PRINT("Node %d\tXsize %d\tYsize %d\tPole1X %d\tPole1Y %d\tValue1 %d\tPole2X %d\tPole2Y %d\tValue2 %d\r\n",myid,shared->njdata_local.xsize,shared->njdata_local.ysize,(shared->njdata_local.pole1xy>>16),(shared->njdata_local.pole1xy&0xFFFF),shared->njdata_local.pole1value,(shared->njdata_local.pole2xy>>16),(shared->njdata_local.pole2xy&0xFFFF),shared->njdata_local.pole2value);
 	}
@@ -588,9 +692,19 @@ void jacobi(
 			// COMPILER_BARRIER
 
 			for(int q = 0; q < (KERNEL_NUM_TOTAL-1); q++){
+				#ifdef __HLS__
+				galapagos::stream_packet <word_t> axis_word;
+				axis_word = in->read();
+				word_t token = hdextract(axis_word.data, AM_SRC);
+				axis_word = in->read();
+				stats_squarederror_master[token] = axis_word.data;
+				axis_word = in->read();
+				stats_gradient_master[token] = axis_word.data;
+				#else
 				word_t token = hdextract(in->read().data, AM_SRC);
 				stats_squarederror[token] = in->read().data;
 				stats_gradient[token] = in->read().data;
+				#endif
 				
 			}
 			COMPILER_BARRIER
@@ -600,10 +714,17 @@ void jacobi(
 			if (t % print_thr==0)  
 			{
 				// PRINTTIME(PRINTCOND,"Time:");
+				#ifdef __HLS__
+				if(PRINTCOND){
+					time = get_time(axi_timer);
+					send_time(&kernel, 0x1, time, axi_timer);
+				}
+				#else
 				auto memory_time = get_time_diff(timer_init);
 				if(PRINTCOND){
 					std::cout << "Time: " << memory_time << " s\n";
 				}
+				#endif
 				for(u=0 ; u<(KERNEL_NUM_TOTAL-1) ; u++)
 				{
 					//if ((stats_squarederror[u]) || (stats_gradient[u]))
@@ -642,7 +763,7 @@ void jacobi(
 			
 			ptrdiff_t yoffset = njdata_local.xsize + 2;
 
-			sleep(1);
+			// sleep(1);
 
 		    // if (sendN) gasnet_get_nbi(localMemN +(odd*ABoffset), nodeN, remoteMemN +(odd*ABoffset), njdata_local.xsize*sizeof(CELLTYPE));
 			if (sendN){
@@ -683,7 +804,7 @@ void jacobi(
 				// }
 			}
 
-			sleep(1);
+			// sleep(1);
 
 			///////////////////////////////////////////
 			// SPINLOCK FOR COMPLETE MESSAGE RECEIVE //
@@ -706,17 +827,31 @@ void jacobi(
 			PRINTACCTIME(TIMECOND,"Communication time:",commsecs,commusecs);
 	#else
 			// ACCTIME(TIMECOND,commsecs,commusecs);
-			commtime = accum_time(timer, commtime);
-			timer = get_time();
+			if(TIMECOND){
+				#ifdef __HLS__
+				commtime = accum_time(commtime, axi_timer);
+				start_timer(axi_timer);
+				#else
+				commtime = accum_time(timer, commtime);
+				timer = get_time();
+				#endif
+			}
 	#endif
 			// barrier(ctrlnode);///
 			kernel.barrier_send(ctrlnode);
 	#ifdef INTERMEDIATE_TIMES
 			PRINTACCTIME(TIMECOND,"Barrier time:",bar1secs,bar1usecs);
 	#else
+		if(TIMECOND){
+			#ifdef __HLS__
+			bar1time = accum_time(bar1time, axi_timer);
+			start_timer(axi_timer);
+			#else
 			// ACCTIME(TIMECOND,bar1secs,bar1usecs);
 			bar1time = accum_time(timer, bar1time);
 			timer = get_time();
+			#endif
+		}
 	#endif
 			int32_t diff = 0;
 			uint64_t diffsum = 0;
@@ -778,9 +913,9 @@ void jacobi(
 
 					diff = *srcBlock-*dstBlock; // used for average later
 
-					if(diff != 0){
-						PRINT("diff is %lld at (%d, %d)\n", diff, x, y);
-					}
+					// if(diff != 0){
+					// 	PRINT("diff is %lld at (%d, %d)\n", diff, x, y);
+					// }
 					
 					//diffsqare = ;
 					diffsquaresum += (int64_t)diff*(int64_t)diff;
@@ -810,16 +945,28 @@ void jacobi(
 			#ifdef INTERMEDIATE_TIMES
 					PRINTACCTIME(TIMECOND,"Computation time:",compsecs,compusecs);
 			#else
+				if(TIMECOND){
+					#ifdef __HLS__
+					comptime = accum_time(comptime, axi_timer);
+					start_timer(axi_timer);
+					#else
 					// ACCTIME(TIMECOND,compsecs,compusecs)
 					comptime = accum_time(timer, comptime);
 					timer = get_time();
+					#endif
+				}
 					
 			#endif
 	    
 			// gasnet_AMRequestShort4(ctrlnode, hc_S4_send_stats, myid, (uint32_t)(diffsquaresum & 0xFFFFFFFF), (uint32_t)(diffsquaresum>>32), maxgrad);
 			// while(READ_SHARED(shared->continue_running)==0) sched_yield();
 			const word_t increment = 1;
+			#ifdef __HLS__
+			kernel.sendMediumAM_async(ctrlnode, myid, H_ADD, 1, 2);
+			kernel.sendPayload(ctrlnode, increment, false);
+			#else
 			kernel.sendMediumAM_async(ctrlnode, myid, H_ADD, 1, &increment, 2);
+			#endif
 			// std::cout << "diffsquaresum is " << diffsquaresum << "\n";
 			kernel.sendPayload(ctrlnode, diffsquaresum, false);
 			// std::cout << "maxgrad is " << maxgrad << "\n";
@@ -832,9 +979,16 @@ void jacobi(
 			#ifdef INTERMEDIATE_TIMES
 					PRINTACCTIME(TIMECOND,"Barrier time:",bar2secs,bar2usecs);
 			#else
+				if(TIMECOND){
+					#ifdef __HLS__
+					bar2time = accum_time(bar2time, axi_timer);
+					start_timer(axi_timer);
+					#else
 					// ACCTIME(TIMECOND,bar2secs,bar2usecs)
 					bar2time = accum_time(timer, bar2time);
 					timer = get_time();
+					#endif
+				}
 			#endif
 		
 			// if (shared->continue_running==-1) break; // leave iteration loop
@@ -844,8 +998,13 @@ void jacobi(
 	} // ITERATION LOOP
 	
 	
-	if (TIMECOND)
-    {
+	if (TIMECOND){
+		#ifdef __HLS__
+		send_time(&kernel, 0x2, commtime, axi_timer);
+		send_time(&kernel, 0x3, bar1time, axi_timer);
+		send_time(&kernel, 0x4, comptime, axi_timer);
+		send_time(&kernel, 0x5, bar2time, axi_timer);
+		#else
 		// char TIMEOUTPUT[100];
 		// sprintf(TIMEOUTPUT,"Cumulative communication time: %d.%06ds\r\n",commsecs,commusecs); PRINT("%s",TIMEOUTPUT);
 		// sprintf(TIMEOUTPUT,"Cumulative barrier 1 time    : %d.%06ds\r\n",bar1secs,bar1usecs); PRINT("%s",TIMEOUTPUT);
@@ -856,11 +1015,18 @@ void jacobi(
 		std::cout << "Cumulative computation time: " << comptime << "\n";
 		std::cout << "Cumulative barrier time: " << bar2time << "\n";
 		//	sprintf(TIMEOUTPUT,"Cumulative printout time: %d.%06ds\r\n",dispsecs,dispusecs); PRINT("%s",TIMEOUTPUT);
+		#endif
 	}
 
 	/// TEMPORARY EXIT SOLUTION
 	// barrier(ctrlnode);
 	if(myid == ctrlnode){
+		#ifdef __HLS__
+		// read sent times out but do nothing
+		for(int i = 0; i < 8; i++){
+			in->read();
+		}
+		#endif
 		kernel.barrier_wait();
 	} else {
 		kernel.barrier_send(ctrlnode);
@@ -869,13 +1035,20 @@ void jacobi(
 	
 	// exit cleanly
 	//gasnet_exit(42);
-	free(stats_squarederror);
-	free(stats_gradient);
+	// free(stats_squarederror);
+	// free(stats_gradient);
 
 	kernel.end();
+
+	#ifdef __HLS__
+	// dummy write to convey that we got to this point
+	local_mem[0xab] = 0xcd;
+	#endif
 	
 	// return 0;
 }
+
+#ifndef __HLS__
 
 void kern0(
     short id,
@@ -885,43 +1058,12 @@ void kern0(
     jacobi(id, in, out);
 }
 
-void kern1(
-    short id,
-    galapagos::interface <word_t> * in,
-    galapagos::interface<word_t> * out
-){
-    jacobi(id, in, out);
-}
-
-void kern2(
-    short id,
-    galapagos::interface <word_t> * in,
-    galapagos::interface<word_t> * out
-){
-    jacobi(id, in, out);
-}
-
-void kern3(
-    short id,
-    galapagos::interface <word_t> * in,
-    galapagos::interface<word_t> * out
-){
-    jacobi(id, in, out);
-}
-
-void kern4(
-    short id,
-    galapagos::interface <word_t> * in,
-    galapagos::interface<word_t> * out
-){
-    jacobi(id, in, out);
-}
-
-PGAS_METHOD(kern0, KERN0_ID);
-PGAS_METHOD(kern1, KERN1_ID);
-PGAS_METHOD(kern2, KERN2_ID);
-PGAS_METHOD(kern3, KERN3_ID);
-PGAS_METHOD(kern4, KERN4_ID);
+PGAS_METHOD(kern0, 0);
+#endif
+// PGAS_METHOD(kern1, KERN1_ID);
+// PGAS_METHOD(kern2, KERN2_ID);
+// PGAS_METHOD(kern3, KERN3_ID);
+// PGAS_METHOD(kern4, KERN4_ID);
 // void __real_kern0(short id, galapagos::interface <word_t> *in, galapagos::interface <word_t> *out);
 // void __wrap_kern0 (short id, galapagos::interface <word_t> *in, galapagos::interface <word_t> *out){
 // 	void (*fcnPtr)(short id, galapagos::interface <word_t> *, galapagos::interface <word_t> *) = __real_kern0;

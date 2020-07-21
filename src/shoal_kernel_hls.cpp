@@ -15,7 +15,7 @@ shoal::kernel::kernel(int id, int kernel_num, galapagos::interface<word_t> * in,
 {
     this->id = id;
     this->kernel_num = kernel_num;
-    this->in = in;
+    // this->in = in; // this doesn't synthesize in HLS if the .data is used of the read word
     this->out = out;
     this->handler_ctrl = handler_ctrl;
 }
@@ -173,6 +173,14 @@ void shoal::kernel::sendMediumAM_async(gc_AMdst_t dst, gc_AMToken_t token,
         tmp, payloadSize, *(this->out));
 }
 
+void shoal::kernel::sendMediumAM_async(gc_AMdst_t dst, gc_AMToken_t token,
+    gc_AMhandler_t handlerID, gc_AMargs_t handlerArgCount, gc_payloadSize_t payloadSize)
+{
+    #pragma HLS INLINE
+    sendMediumAM(AM_MEDIUM|AM_FIFO|AM_ASYNC, this->id, dst, token, handlerID,
+        handlerArgCount, payloadSize, *(this->out));
+}
+
 void shoal::kernel::sendLongAM_normal(gc_AMdst_t dst, gc_AMToken_t token,
     gc_AMhandler_t handlerID, gc_AMargs_t handlerArgCount, const word_t * handler_args,
     gc_payloadSize_t payloadSize, word_t dst_addr)
@@ -203,6 +211,21 @@ void shoal::kernel::sendLongAM_normal(gc_AMdst_t dst, gc_AMToken_t token,
         tmp, payloadSize, src_addr, dst_addr, *(this->out));
 }
 
+void shoal::kernel::getLongAM_normal(gc_AMdst_t dst, gc_AMToken_t token,
+    gc_AMhandler_t handlerID, gc_AMargs_t handlerArgCount, const word_t * handler_args,
+    gc_payloadSize_t payloadSize, word_t src_addr, word_t dst_addr)
+{
+    #pragma HLS INLINE
+    // we have to add this here for some reason for the kernel to compile..?
+    word_t tmp[16];
+    int i = 0;
+    for(i = 0; i < 16; i++){
+        tmp[i] = handler_args[i];
+    }
+    sendLongAM(AM_LONG | AM_REPLY, this->id, dst, token, handlerID, handlerArgCount,
+        handler_args, payloadSize, src_addr, dst_addr, *(this->out));
+}
+
 void shoal::kernel::sendLongStrideAM_normal(gc_AMdst_t dst, gc_AMToken_t token,
     gc_AMhandler_t handlerID, gc_AMargs_t handlerArgCount, const word_t * handler_args,
     gc_payloadSize_t payloadSize, gc_stride_t src_stride, gc_strideBlockSize_t src_blk_size,
@@ -218,6 +241,24 @@ void shoal::kernel::sendLongStrideAM_normal(gc_AMdst_t dst, gc_AMToken_t token,
     }
     longStridedAM(AM_STRIDE, this->id, dst, token, handlerID, handlerArgCount,
         tmp, payloadSize, src_stride, src_blk_size, src_blk_num, src_addr, 
+        dst_stride, dst_blk_size, dst_blk_num, dst_addr, *(this->out));
+}
+
+void shoal::kernel::getLongStrideAM_normal(gc_AMdst_t dst, gc_AMToken_t token,
+    gc_AMhandler_t handlerID, gc_AMargs_t handlerArgCount, const word_t * handler_args,
+    gc_payloadSize_t payloadSize, gc_stride_t src_stride, gc_strideBlockSize_t src_blk_size,
+    gc_strideBlockNum_t src_blk_num, word_t src_addr, gc_stride_t dst_stride,
+    gc_strideBlockSize_t dst_blk_size, gc_strideBlockNum_t dst_blk_num, word_t dst_addr)
+{
+    #pragma HLS INLINE
+    // we have to add this here for some reason for the kernel to compile..?
+    word_t tmp[16];
+    int i = 0;
+    for(i = 0; i < 16; i++){
+        tmp[i] = handler_args[i];
+    }
+    longStridedAM(AM_STRIDE | AM_REPLY, this->id, dst, token, handlerID, handlerArgCount,
+        handler_args, payloadSize, src_stride, src_blk_size, src_blk_num, src_addr, 
         dst_stride, dst_blk_size, dst_blk_num, dst_addr, *(this->out));
 }
 

@@ -106,6 +106,19 @@ void sendMediumAM(
     gc_AMToken_t token,
     gc_AMhandler_t handlerID,
     gc_AMargs_t handlerArgCount,
+    // const word_t * handler_args,
+    gc_payloadSize_t payloadSize,
+    // const word_t * payload,
+    galapagos::interface <word_t> & out
+);
+
+void sendMediumAM(
+    gc_AMtype_t type,
+    gc_AMsrc_t src,
+    gc_AMdst_t dst,
+    gc_AMToken_t token,
+    gc_AMhandler_t handlerID,
+    gc_AMargs_t handlerArgCount,
     const word_t * handler_args,
     gc_payloadSize_t payloadSize,
     word_t src_addr,
