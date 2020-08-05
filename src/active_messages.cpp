@@ -9,11 +9,11 @@ word_t createHeader(
     gc_AMtype_t type,
     gc_AMargs_t handlerArgCount
 ){
-    word_t header = ((word_t)src << AM_SRC_LOWER) + 
-        ((word_t)dst << AM_DST_LOWER) + 
-        ((word_t)payloadSize << AM_PAYLOAD_SIZE_LOWER) + 
-        ((word_t)handlerID << AM_HANDLER_LOWER) +
-        ((word_t)type << AM_TYPE_LOWER) + 
+    word_t header = ((word_t)src << AM_SRC_LOWER) | 
+        ((word_t)dst << AM_DST_LOWER) |
+        ((word_t)payloadSize << AM_PAYLOAD_SIZE_LOWER) | 
+        ((word_t)handlerID << AM_HANDLER_LOWER) |
+        ((word_t)type << AM_TYPE_LOWER) | 
         ((word_t)handlerArgCount << AM_HANDLER_ARGS_LOWER);
     return header;
 }
@@ -32,10 +32,10 @@ word_t createVectorToken(
     gc_vectorSize_t dstSize1,
     gc_AMToken_t token
 ){
-    word_t word = ((word_t)srcVectorCount << AM_SRC_VECTOR_NUM_LOWER) +
-        ((word_t)dstVectorCount << AM_DST_VECTOR_NUM_LOWER) +
-        ((word_t)srcSize1 << AM_SRC_VECTOR_SIZE_HEAD_LOWER) +
-        ((word_t)dstSize1 << AM_DST_VECTOR_SIZE_HEAD_LOWER) +
+    word_t word = ((word_t)srcVectorCount << AM_SRC_VECTOR_NUM_LOWER) |
+        ((word_t)dstVectorCount << AM_DST_VECTOR_NUM_LOWER) |
+        ((word_t)srcSize1 << AM_SRC_VECTOR_SIZE_HEAD_LOWER) |
+        ((word_t)dstSize1 << AM_DST_VECTOR_SIZE_HEAD_LOWER) |
         ((word_t)token << AM_TOKEN_LOWER);
     return word;
 }
@@ -46,9 +46,9 @@ word_t createStrided(
     gc_strideBlockNum_t blockNum,
     gc_AMToken_t token
 ){
-    word_t word = ((word_t)stride << AM_STRIDE_SIZE_LOWER) +
-        ((word_t)blockSize << AM_STRIDE_BLK_SIZE_LOWER) +
-        ((word_t)blockNum << AM_STRIDE_BLK_NUM_LOWER) +
+    word_t word = ((word_t)stride << AM_STRIDE_SIZE_LOWER) |
+        ((word_t)blockSize << AM_STRIDE_BLK_SIZE_LOWER) |
+        ((word_t)blockNum << AM_STRIDE_BLK_NUM_LOWER) |
         ((word_t)token << AM_TOKEN_LOWER);
     return word;
 }
@@ -58,8 +58,8 @@ word_t createStrided(
     gc_strideBlockSize_t blockSize,
     gc_strideBlockNum_t blockNum
 ){
-    word_t word = ((word_t)stride << AM_STRIDE_SIZE_LOWER) +
-        ((word_t)blockSize << AM_STRIDE_BLK_SIZE_LOWER) +
+    word_t word = ((word_t)stride << AM_STRIDE_SIZE_LOWER) |
+        ((word_t)blockSize << AM_STRIDE_BLK_SIZE_LOWER) |
         ((word_t)blockNum << AM_STRIDE_BLK_NUM_LOWER);
     return word;
 }

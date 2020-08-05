@@ -285,10 +285,14 @@ void shoal::kernel::sendMemUpdate(gc_AMdst_t dst){
 }
 
 void shoal::kernel::sendBarrierUpdate(gc_AMdst_t dst){
+    // added for jacobi
+    #pragma HLS INLINE
     sendShortAM_normal(dst, 0xce, H_INCR_BAR, 0, nullptr);
 }
 
 void shoal::kernel::barrier_wait(){
+    // added for Jacobi
+    #pragma HLS INLINE
     this->wait_barrier(this->kernel_num-1);
     for(int i = 0; i < this->kernel_num; i++){
         if (i != this->id){
@@ -299,7 +303,9 @@ void shoal::kernel::barrier_wait(){
 }
 
 void shoal::kernel::barrier_send(int id){
-    #pragma HLS INLINE OFF
+    // #pragma HLS INLINE OFF
+    // added for Jacobi
+    #pragma HLS INLINE
     ATOMIC_ACTION(this->sendBarrierUpdate(id));
     this->wait_barrier(1);
     this->wait_reply(1);

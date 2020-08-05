@@ -3,7 +3,7 @@ module add_id #(
     parameter TDEST_WIDTH = 16,
     parameter TID_WIDTH = 16,
     parameter TUSER_WIDTH = 16,
-    parameter FIFO_DEPTH = 2048,
+    parameter FIFO_DEPTH = 4096,
 
     parameter TKEEP_WIDTH = TDATA_WIDTH/8
 ) (

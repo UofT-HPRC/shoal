@@ -248,7 +248,8 @@ void am_rx(
             #else
             gc_strideBlockSize_t payload = isLongAM(AMtype) ? AMpayloadSize : AMstrideBlockSize;
             #endif
-            addr_word_t address = axis_word.data(GC_ADDR_WIDTH-1,0);
+            // arbitrarily assign 256M for each kernel. Note: this only supports 2^4 kernels per node
+            addr_word_t address = axis_word.data(GC_ADDR_WIDTH-1,0) | ((addr_word_t)(AMdst & 0xF) << 28);
             dataMoverWriteCommand(axis_s2mmCommand, 0, 0, address,
                 address(1,0) != 0, 1, address(1,0), 1, payload);
             // currentState = AMargs == 0 ? st_AMpayload : st_AMHandlerArgs;
@@ -314,10 +315,11 @@ void am_rx(
             #ifdef USE_ABS_PAYLOAD
             AMpayloadSize-=GC_DATA_BYTES;
             #endif
+            addr_word_t address = AMvectorDest(GC_ADDR_WIDTH-1,0) | ((addr_word_t)(AMdst & 0xF) << 28);
             dataMoverWriteCommand(axis_s2mmCommand, 0, 0,
-                AMvectorDest(GC_ADDR_WIDTH-1,0),
-                AMvectorDest(1,0) != 0, 1,
-                AMvectorDest(1,0), 1, currVectorSize);
+                address,
+                address(1,0) != 0, 1,
+                address(1,0), 1, currVectorSize);
 
             // gc_dstVectorNum_t i;
             // for(i = 1; i < AMdstVectorNum; i++){
@@ -383,11 +385,11 @@ void am_rx(
             #ifdef USE_ABS_PAYLOAD
             AMpayloadSize-=GC_DATA_BYTES;
             #endif
-
+            addr_word_t address = AMvectorDest(GC_ADDR_WIDTH-1,0) | ((addr_word_t)(AMdst & 0xF) << 28);
             dataMoverWriteCommand(axis_s2mmCommand, 0, 0,
-                AMvectorDest(GC_ADDR_WIDTH-1,0),
-                AMvectorDest(1,0) != 0, 1,
-                AMvectorDest(1,0), 1, currVectorSize);
+                address,
+                address(1,0) != 0, 1,
+                address(1,0), 1, currVectorSize);
             
             bool last_write = dstVectorNum_counter == AMdstVectorNum - 1;
             if(last_write){
@@ -439,9 +441,10 @@ void am_rx(
             stride_is_last = axis_word.last;
             // writeCount += GC_DATA_BYTES;
             if (strideCount < AMstrideBlockNum){
+                addr_word_t address = strideDest | ((addr_word_t)(AMdst & 0xF) << 28);
                 dataMoverWriteCommand(axis_s2mmCommand, 0, 0,
-                    strideDest, strideDest(1,0) != 0, 1,
-                    strideDest(1,0), 1, AMstrideBlockSize);
+                    address, address(1,0) != 0, 1,
+                    address(1,0), 1, AMstrideBlockSize);
                 strideDest += AMstride;
                 strideCount++;
             }
@@ -504,6 +507,11 @@ void am_rx(
             //     currentState = st_done;
             // }
             currentState = stride_is_last ? st_done : st_AMpayloadStride;
+            }
+            if(!axis_s2mmStatus.empty()){
+                axis_word_8a_t axis_word_s2mmStatus;
+                axis_s2mmStatus.read(axis_word_s2mmStatus);
+                status_counter++;
             }
             break;
         }

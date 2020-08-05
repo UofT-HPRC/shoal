@@ -95,7 +95,9 @@ def analyze(df, path, figure_dir):
         fig, ax = plt.subplots()
         df_latency = df_subset[df_subset["test_mode"] == "latency"]
         if not df_latency.empty:
-            sns.lineplot(x="payload", y="time", hue='wr_mode', data=df_latency, ax=ax, marker=".")
+            markers = ["o","s","^","v"]*3
+            dashes = [(5, 1)]*4 + [(5, 0)]*4 + [(5, 5)]*4
+            sns.lineplot(x="payload", y="time", hue='wr_mode', data=df_latency, ax=ax, markers=markers, dashes=dashes, style="wr_mode")
             ax.set_ylabel("Time (us)")
             ax.set_xlabel("Payload Size (bytes)")
             ax.set_xticks(x)
@@ -103,7 +105,11 @@ def analyze(df, path, figure_dir):
             ax.set_xscale("log", basex=2)
             ax.xaxis.set_major_formatter(ScalarFormatter())
             handles, _labels = ax.get_legend_handles_labels()
-            ax.legend(handles[1:], _labels[1:])
+            custom_labels = []
+            for label in _labels[1:]:
+                label_split = label.split("-")
+                custom_labels.append(label_split[0] + " (R) | " + label_split[1] + " (W)")
+            ax.legend(handles[1:], custom_labels)
             # ax.legend()
             # # ax.set_title("Average Latency vs Payload Size")
 
@@ -113,7 +119,7 @@ def analyze(df, path, figure_dir):
         plt.close()
 
         hue_order = ["packet-packet", "packet-packet_mem", "packet_malloc-packet", "packet_malloc-packet_mem"]
-        legend_labels = ["packet (R), packet (W)", "packet (R), packet_mem (W)", "packet_malloc (R), packet (W)", "packet_malloc (R), packet_mem (W)"]
+        legend_labels = ["packet (R) | packet (W)", "packet (R) | packet_mem (W)", "packet_malloc (R) | packet (W)", "packet_malloc (R) | packet_mem (W)"]
 
         for test_mode in ["throughput_0", "throughput_1"]:
             fig, ax = plt.subplots()
@@ -179,6 +185,38 @@ def cross_analyze(data, path):
             plt.savefig(os.path.join(figure_path, f"cross_{test_mode}.{image_type}"))
         plt.close()
 
+    labels = [2**x * 8 for x in range(0, 10)]
+    labels.append(8992)
+    x = np.arange(len(labels))
+    hue_order = ["throughput_0-no_busy", "throughput_1-no_busy", "throughput_0-no_busy_diff", "throughput_1-no_busy_diff"]
+    legend_labels = ["Non-Blocking (one node)", "Blocking (one node)", "Non-Blocking (two nodes)", "Blocking (two nodes)"]
+
+    fig, ax = plt.subplots()
+    df_sorted = data.sort_values(["test", "payload"])
+    df_subset = df_sorted[
+        (df_sorted["test_id"] == "reply") & 
+        (df_sorted["wr_mode"] == "packet_malloc-packet_mem") &
+        (df_sorted["test_mode"] != "latency") &
+        ((df_sorted["test"] == "no_busy") |
+        (df_sorted["test"] == "no_busy_diff"))
+    ]
+    df_subset["id"] = df_subset["test_mode"] + "-" + df_subset["test"]
+    # print(df_subset)
+    sns.lineplot(x="payload", y="time", hue='id', data=df_subset, ax=ax, hue_order=hue_order, marker=".")
+    ax.set_ylabel("Throughput (Mb/s)")
+    ax.set_xlabel("Payload (bytes)")
+    ax.set_xticklabels(labels)
+    ax.set_xscale("log", basex=2)
+    ax.xaxis.set_major_formatter(ScalarFormatter())
+    handles, _labels = ax.get_legend_handles_labels()
+    ax.legend(handles[1:], legend_labels)
+    # ax.set_title("Throughput 0 vs Payload Size")
+
+    fig.tight_layout()
+    for image_type in IMAGE_TYPES:
+        plt.savefig(os.path.join(figure_path, f"cross_throughput_reply.{image_type}"))
+    plt.close()
+
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(description="Extract timing from the libGalapagos benchmark tests")
@@ -198,7 +236,7 @@ if __name__ == "__main__":
                 data = df
             else:
                 data = pd.concat([data, df], ignore_index=True)
-            analyze(df, full_path, figure_dir)
+            # analyze(df, full_path, figure_dir)
 
         with open("libGalapagos.pickle", "wb") as f:
             pickle.dump(data, f)

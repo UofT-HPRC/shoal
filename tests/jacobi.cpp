@@ -349,16 +349,16 @@ void jacobi(
 	//size_t mem_available = 0x2000000 / (KERNEL_NUM_TOTAL-1); // 2GB split among compnodes
 	// size_t mem_available = 0x2000000 / (KERNEL_NUM_TOTAL-1); // 2GB split among compnodes
 	
-	// size_t bsize_with_aura = ((X/xnodes)+2) * ((Y/ynodes)+2) * sizeof(unsigned int);
-	// size_t bsize_pow2_aligned;
+	size_t bsize_with_aura = ((X/xnodes)+2) * ((Y/ynodes)+2) * sizeof(CELLTYPE);
+	size_t bsize_pow2_aligned;
 
-	// if (ispowerof2(bsize_with_aura))
-	// 	bsize_pow2_aligned = bsize_with_aura;
-	// else
-	// 	bsize_pow2_aligned = powerof2(log2floor(bsize_with_aura)+1);
+	if (ispowerof2(bsize_with_aura))
+		bsize_pow2_aligned = bsize_with_aura;
+	else
+		bsize_pow2_aligned = powerof2(log2floor(bsize_with_aura)+1);
 
-    // mem_available=bsize_pow2_aligned*2;
-	size_t mem_available = SEGMENT_SIZE;
+    PRINT("Memory required: %zu\n", bsize_pow2_aligned*2);
+	size_t mem_available = bsize_pow2_aligned*2;
 	size_t ABoffset = mem_available/2;
     PRINT("Allocating %zu bytes\n", mem_available);
 	// GASNET SHARED MEM ALLOCATION AND ATTACH
@@ -367,7 +367,7 @@ void jacobi(
 	// else
 	// 	gasnet_attach(handlers, sizeof(handlers)/sizeof(gasnet_handlerentry_t), (uintptr_t)(uint64_t)(mem_available), (uintptr_t)0);
 	#ifndef __HLS__
-    kernel.attach(nullptr, 0, SEGMENT_SIZE);
+    kernel.attach(nullptr, 0, mem_available);
     #endif
 	
 	// GET GASNET SEGMENT INFO
@@ -569,18 +569,28 @@ void jacobi(
 	#else
 	auto memory_time = get_time_diff(timer_init);
 	if(PRINTCOND){
-		std::cout << "Memory init time: " << memory_time << " s\n";
+		std::cout << "Grid_size: " << GRID_SIZE << "\n";
+		std::cout << "Node_count: " << KERNEL_NUM_TOTAL << "\n";
+		std::cout << "Iteration_count: " << ITERATIONS << "\n";
+		std::cout << "Cumulative memory_init time: " << memory_time << "\n";
 	}
 	#endif
 	// PRINTTIME(PRINTCOND,"Memory init time:");
 
 	PRINT("Node %d ready.\r\n",myid);
 	// barrier(ctrlnode);
+	#ifdef __HLS__
+	word_t dumb = *(axi_timer);
+    if(dumb != 0xFF){
+	#endif
 	if(myid == ctrlnode){
 		kernel.barrier_wait();
 	} else {
 		kernel.barrier_send(ctrlnode);
 	}
+	#ifdef __HLS__
+	}
+	#endif
 	if (PRINTCOND)
 	{
 		PRINT("Node\tIteration\tSum of sqdiffs\tLargest gradient\r\n");
@@ -592,8 +602,6 @@ void jacobi(
 	timer = get_time();
 	#endif
 
-#define ITERATIONS 3
-	
 	CELLTYPE *dstBlock,*srcBlock;
 	CELLTYPE cellsum;
 	int print_thr = 1;
@@ -1011,9 +1019,9 @@ void jacobi(
 		// sprintf(TIMEOUTPUT,"Cumulative computation time  : %d.%06ds\r\n",compsecs,compusecs); PRINT("%s",TIMEOUTPUT);
 		// sprintf(TIMEOUTPUT,"Cumulative barrier 2 time    : %d.%06ds\r\n",bar2secs,bar2usecs); PRINT("%s",TIMEOUTPUT);
 		std::cout << "Cumulative communication time: " << commtime << "\n";
-		std::cout << "Cumulative barrier 1 time: " << bar1time << "\n";
+		std::cout << "Cumulative barrier_1 time: " << bar1time << "\n";
 		std::cout << "Cumulative computation time: " << comptime << "\n";
-		std::cout << "Cumulative barrier time: " << bar2time << "\n";
+		std::cout << "Cumulative barrier_2 time: " << bar2time << "\n";
 		//	sprintf(TIMEOUTPUT,"Cumulative printout time: %d.%06ds\r\n",dispsecs,dispusecs); PRINT("%s",TIMEOUTPUT);
 		#endif
 	}

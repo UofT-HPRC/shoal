@@ -250,7 +250,7 @@ def analyze_data(df):
         if "1" in df:
             df["payload_throughput_1"] = df.apply(get_throughput, args=("1",), axis=1)
         else:
-            df["payload_throughput_1"] = "N/A"
+            df["payload_throughput_1"] = 0
 
         df_new = df[[
             "configuration",
@@ -337,6 +337,43 @@ def plot_against_payloads(df, y_axis, y_label, title, filepath, include_short=Tr
     ax.set_xticks(x)
     ax.set_xticklabels(labels)
     ax.legend()
+    # plt.xticks(rotation=90)
+    # ax.set_title(title)
+
+    fig.tight_layout()
+    for image_type in IMAGE_TYPES:
+        plt.savefig(filepath + "." + image_type)
+    plt.close()
+
+def plot_topo_against_payloads(df, y_axis, y_label, title, filepath, include_same=True):
+    labels = [0]
+    labels.extend([2**x * 8 for x in range(PAYLOAD_MIN, PAYLOAD_MAX)])
+    if include_same:
+        hue_order = ["sw-sw-same-optimized", "sw-sw-diff-optimized", "sw-hw-optimized", 
+            "hw-sw-optimized", "hw-hw-same-optimized", "hw-hw-diff"]
+        legend_labels = ["SW-SW (same)", "SW-SW (diff)", "SW-HW", 
+            "HW-SW", "HW-HW (same)", "HW-HW (diff)"]
+    else:
+        hue_order = ["sw-sw-diff-optimized", "sw-hw-optimized", 
+            "hw-sw-optimized", "hw-hw-diff"]
+        legend_labels = ["SW-SW (diff)", "SW-HW", 
+            "HW-SW", "HW-HW (diff)"]
+
+    x = np.arange(len(labels))
+    width = 0.20
+
+    fig, ax = plt.subplots()
+    df_sorted = df.sort_values(["Payload", "configuration"])
+    sns.barplot(x="Payload", y=y_axis, hue='configuration', data=df_sorted, ax=ax, hue_order=hue_order)
+    ax.set_ylabel(y_label)
+    ax.set_xlabel("Payload Size (bytes)")
+    ax.set_xticks(x)
+    ax.set_xticklabels(labels)
+    handles, _labels = ax.get_legend_handles_labels()
+    ax.legend(handles, legend_labels)
+    if not include_same:
+        ax.axhline(0, label=None, linestyle="-", color="k")
+    # ax.legend()
     # plt.xticks(rotation=90)
     # ax.set_title(title)
 
@@ -473,6 +510,98 @@ def analyze_throughput(df, path):
             os.makedirs(figure_dir)
         analyze_throughput_latency(df, figure_dir)
 
+def latency_summary(df, path):
+    for test_type in ["latency", "throughput_0", "throughput_1"]:
+    # for test_type in ["throughput_0"]:
+        if test_type == "latency":
+            test_id = "Latency"
+        else:
+            test_id = "Throughput"
+        df_subset_tcp = df[
+            (df["Test_Type"] == test_id) & 
+            (df["Transport"] == "tcp") &
+            ((
+                (df["iterations"] == 10000) &
+                (
+                    (df["configuration"] == "sw-sw-same-optimized") |
+                    (df["configuration"] == "hw-sw-optimized") |
+                    (df["configuration"] == "sw-sw-diff-optimized")
+                )
+            ) |
+            (
+                (df["iterations"] == 1000) &
+                (
+                    (df["configuration"] == "sw-hw-optimized") |
+                    (df["configuration"] == "hw-hw-same-optimized") |
+                    (df["configuration"] == "hw-hw-diff")
+                )
+            )) &
+            (df["Test"] != "Vector") &
+            (df["Test"] != "Strided")
+        ]
+        if test_type == "latency":
+            df_subset_tcp = df_subset_tcp.drop(columns=["payload_latency", "payload_throughput_0", "payload_throughput_1"])
+            df_subset_tcp["median"].replace(0, np.nan, inplace=True)
+        else:
+            df_subset_tcp = df_subset_tcp.drop(columns=["mean", "5th %tile", "95th %tile", "median", "payload_throughput"])
+            df_subset_tcp["payload_throughput_0"].replace(0, np.nan, inplace=True)
+            df_subset_tcp["payload_throughput_1"].replace(0, np.nan, inplace=True)
+        df_subset_tcp["key"] = df_subset_tcp["configuration"] + df_subset_tcp["Test"].astype(str) + df_subset_tcp["Payload"].astype(str)
+        grouped_df = df_subset_tcp.groupby(["configuration", "Payload"], as_index=False).agg(np.nanmean) #["median"].transform("mean")
+        # print(grouped_df)
+        if test_type == "latency":
+            plot_topo_against_payloads(grouped_df, "median", "Time (ms)", "Average Median Latency by Topology", os.path.join(path, f"tcp_summary_latency"))
+        else:
+            plot_topo_against_payloads(grouped_df, f"payload_{test_type}", "Throughput (Gb/s)", "Average Non-Blocking THroughput by Topology", os.path.join(path, f"tcp_summary_{test_type}"))
+
+        df_subset_udp = df[
+            (df["Test_Type"] == test_id) & 
+            (df["Transport"] == "udp") &
+            ((
+                (df["iterations"] == 10000) &
+                (df["configuration"] == "sw-sw-same-optimized")
+            ) |
+            (
+                (df["iterations"] == 1000) &
+                (
+                    (df["configuration"] == "sw-hw-optimized") |
+                    (df["configuration"] == "hw-sw-optimized") |
+                    (df["configuration"] == "sw-sw-diff") |
+                    (df["configuration"] == "hw-hw-same-optimized") |
+                    (df["configuration"] == "hw-hw-diff")
+                )
+            )) &
+            (df["Test"] != "Vector") &
+            (df["Test"] != "Strided")
+        ]
+        if test_type == "latency":
+            df_subset_udp = df_subset_udp.drop(columns=["payload_latency", "payload_throughput_0", "payload_throughput_1"])
+        else:
+            df_subset_udp = df_subset_udp.drop(columns=["mean", "5th %tile", "95th %tile", "median", "payload_throughput"])
+        # if test_type == "latency":
+        #     print(df_subset_udp[(df_subset_udp["configuration"] == "sw-hw-optimized") & (df_subset_udp["Payload"] == 0)]["median"])
+        #     print(df_subset_tcp[(df_subset_tcp["configuration"] == "sw-hw-optimized") & (df_subset_tcp["Payload"] == 0)]["median"])
+        df_subset_udp["key"] = df_subset_udp["configuration"] + df_subset_udp["Test"].astype(str) + df_subset_udp["Payload"].astype(str)
+        df_subset_udp["configuration"].replace({"sw-sw-diff": "sw-sw-diff-optimized"}, inplace=True)
+        
+        if test_type == "latency":
+            # tmp = (df_subset_tcp.set_index("key")["median"] - df_subset_udp.set_index("key")["median"]) / df_subset_tcp.set_index("key")["median"] * 100
+            # tmp.replace(100.0, np.nan, inplace=True)
+            tmp = 1.0 / (df_subset_udp.set_index("key")["median"] / df_subset_tcp.set_index("key")["median"])
+        else:
+            # diff = df_subset_udp.set_index("key")[f"payload_{test_type}"] - df_subset_tcp.set_index("key")[f"payload_{test_type}"]
+            # tmp = (diff) / df_subset_tcp.set_index("key")[f"payload_{test_type}"] * 100
+            # tmp.replace(100.0, np.nan, inplace=True)
+            tmp = df_subset_udp.set_index("key")[f"payload_{test_type}"] / df_subset_tcp.set_index("key")[f"payload_{test_type}"]
+        tmp = tmp.rename("udp_diff")
+        if test_type == "throughput_0":
+            print(df_subset_udp[(df_subset_udp["configuration"] == "sw-hw-optimized") & (df_subset_udp["Payload"] == 64)])#[f"payload_{test_type}"])
+            print(df_subset_tcp[(df_subset_tcp["configuration"] == "sw-hw-optimized") & (df_subset_tcp["Payload"] == 64)])#[f"payload_{test_type}"])
+        df_subset_udp = df_subset_udp.merge(tmp, on="key")
+        grouped_df = df_subset_udp.groupby(["configuration", "Payload"], as_index=False).agg(np.nanmean) #["median"].transform("mean")
+        plot_topo_against_payloads(grouped_df, "udp_diff", "Speedup", "Average Median Improvement in UDP vs TCP", os.path.join(path, f"udp_vs_tcp_{test_type}"), False)    # print(grouped_df)
+    
+
 def summarize(data_dir, args):
     if not args.load_data:
         data = {}
@@ -522,7 +651,13 @@ def summarize(data_dir, args):
                             analyze_one(df, figure_dir, test_type)
 
     if args.analyze_group_data:
-        print(data_stats)
+        figure_dir = os.path.join(data_dir, "build", "group")
+        if not os.path.exists(figure_dir):
+            os.makedirs(figure_dir)
+        
+        latency_summary(data_stats, figure_dir)
+        # group_udp_comparison(data_stats, figure_dir)
+        # print(data_stats)
     
     if args.save_data:
         with open("data.pickle", "wb") as f:
@@ -540,7 +675,7 @@ if __name__ == "__main__":
     parser.set_defaults(
         save_data=False,
         load_data=True,
-        analyze_single_data=True,
+        analyze_single_data=False,
         analyze_group_data=False
     )
 

@@ -183,11 +183,14 @@ void am_tx(
             if(!axis_kernel.empty() && !axis_net.full()){
                 gc_AMargs_t argCount;
                 bool last_write = argCounter == AMargs;
-                bool deassert_last = ((isLongxAM(AMtype) || isMediumAM(AMtype)) && !isDataFromFIFO(AMtype));
+                // this fails on medium from fifo. We only need to deassert last for non-shorts
+                // bool deassert_last = ((isLongxAM(AMtype) || isMediumAM(AMtype)) && !isDataFromFIFO(AMtype));
 
                 axis_kernel.read(axis_word);
-                if(last_write)
-                    axis_word.last = !deassert_last; // if deassert_last is true, set last to 0
+                if(last_write && !isShortAM(AMtype)){
+                    // axis_word.last = !deassert_last; // if deassert_last is true, set last to 0
+                    axis_word.last = 0;
+                }
                 write(axis_net, axis_word, AMdst);
                 argCounter++;
                 if(last_write){
@@ -202,7 +205,7 @@ void am_tx(
                 AMsrcAddr = axis_word.data;
                 // }
                 // AMpayloadSize -= GC_DATA_BYTES; // ? this word isn't part of the final
-                word_t address = AMsrcAddr(GC_ADDR_WIDTH-1,0);
+                word_t address = AMsrcAddr(GC_ADDR_WIDTH-1,0) | ((addr_word_t)(AMsrc & 0xF) << 28);
                 #ifdef USE_ABS_PAYLOAD
                 gc_payloadSize_t payload_size = AMpayloadSize - (AMargs*GC_DATA_BYTES);
                 payload_size = payload_size - (isLongAM(AMtype) ? GC_DATA_BYTES : 0);
@@ -318,7 +321,7 @@ void am_tx(
         case st_AMLongStride_3:{
             if(!axis_mm2sCommand.full()){
                 // gc_strideBlockNum_t i;
-                word_t address = src_addr_counter(GC_ADDR_WIDTH-1,0);
+                word_t address = src_addr_counter(GC_ADDR_WIDTH-1,0) | ((addr_word_t)(AMsrc & 0xF) << 28);
                 bool last_write = stride_counter == srcBlockNum - 1;
                 // for(i = 0; i < srcBlockNum; i++){
                 //     #pragma HLS loop_tripcount min=1 max=4095 avg=2
@@ -332,6 +335,10 @@ void am_tx(
                 if (last_write){
                     currentState = AMargs == 0 ? st_AMpayload : st_AMHandlerArgs;
                 }
+            }
+            if(!axis_mm2sStatus.empty()){
+            axis_mm2sStatus.read(axis_word_mm2sStatus);
+            status_counter++;
             }
             break;
         }
@@ -362,7 +369,7 @@ void am_tx(
                 axis_kernel.read(axis_word);
                 AMvectorDest[0] = axis_word.data;
             // }
-                word_t address = AMvectorDest[0](GC_ADDR_WIDTH-1,0);
+                word_t address = AMvectorDest[0](GC_ADDR_WIDTH-1,0) | ((addr_word_t)(AMsrc & 0xF) << 28);
                 dataMoverWriteCommand(axis_mm2sCommand, 0, 0, address,
                     address(1,0) != 0, AMsrcVectorNum == 1,
                     address(1,0), 1, AMvectorSize[0]);
@@ -403,7 +410,7 @@ void am_tx(
                 axis_kernel.read(axis_word);
                 AMvectorDest[srcVectorNum_counter] = axis_word.data;
                 bool last_write = srcVectorNum_counter == AMsrcVectorNum - 1;
-                word_t address = axis_word.data(GC_ADDR_WIDTH-1,0);
+                word_t address = axis_word.data(GC_ADDR_WIDTH-1,0) | ((addr_word_t)(AMsrc & 0xF) << 28);
                 dataMoverWriteCommand(axis_mm2sCommand, 0, 0, address,
                     address(1,0) != 0, last_write,
                     address(1,0), 1, AMvectorSize[srcVectorNum_counter]);
@@ -505,6 +512,10 @@ void am_tx(
                 currentState = status_count > 0 ? st_done : st_header;
             }
             }
+            if(!axis_mm2sStatus.empty()){
+            axis_mm2sStatus.read(axis_word_mm2sStatus);
+            status_counter++;
+            }
             break;
             // gc_payloadSize_t i = 0;
             // for(i = 0; i < AMpayloadSize-GC_DATA_BYTES; i+=GC_DATA_BYTES){
@@ -533,10 +544,10 @@ void am_tx(
             if(!axis_mm2sStatus.empty()){
             axis_mm2sStatus.read(axis_word_mm2sStatus);
             status_counter++;
+            }
             if(status_counter == status_count){
                 bufferRelease = 1;
                 currentState = st_header;
-            }
             }
             // if(isLongStridedAM(AMtype)){
             //     for(int i = 0; i < srcBlockNum; i++){

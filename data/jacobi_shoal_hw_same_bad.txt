@@ -1,0 +1,229 @@
+Here we go...
+Memory required: 8192
+Allocating 8192 bytes
+Grid_size: 32
+Node_count: 5
+Iteration_count: 5
+Cumulative memory_init time: 6.73e-07
+Node 4 ready.
+Node	Iteration	Sum of sqdiffs	Largest gradient
+Time: 18.4692 s
+Node 00 stats: 	Iteration 0000	22500000000000000	0
+Node 01 stats: 	Iteration 0000	0	0
+Node 02 stats: 	Iteration 0000	0	0
+Node 03 stats: 	Iteration 0000	0	0
+7777	------------------------------------------------------------------------------------------
+Time: 18.4709 s
+Node 00 stats: 	Iteration 0002	22500000000000000	0
+Node 01 stats: 	Iteration 0002	0	0
+Node 02 stats: 	Iteration 0002	0	0
+Node 03 stats: 	Iteration 0002	0	0
+7777	------------------------------------------------------------------------------------------
+Time: 18.4727 s
+Node 00 stats: 	Iteration 0004	22500000000000000	0
+Node 01 stats: 	Iteration 0004	0	0
+Node 02 stats: 	Iteration 0004	0	0
+Node 03 stats: 	Iteration 0004	0	0
+7777	------------------------------------------------------------------------------------------
+communication time: 33599
+Cumulative Communication time (s): 0.000215034
+barrier_1 time: 150
+Cumulative barrier_1 time (s): 9.6e-07
+computation time: 158302
+Cumulative computation time (s): 0.00101313
+barrier_2 time: 150
+Cumulative barrier_2 time (s): 9.6e-07
+Node 4 done.
+Node finished
+Here we go...
+Memory required: 8192
+Allocating 8192 bytes
+Grid_size: 32
+Node_count: 5
+Iteration_count: 5
+Cumulative memory_init time: 6.07e-07
+Node 4 ready.
+Node	Iteration	Sum of sqdiffs	Largest gradient
+Time: 50.9182 s
+Node 00 stats: 	Iteration 0000	22500000000000000	0
+Node 01 stats: 	Iteration 0000	0	0
+Node 02 stats: 	Iteration 0000	0	0
+Node 03 stats: 	Iteration 0000	0	0
+7777	------------------------------------------------------------------------------------------
+Time: 50.9198 s
+Node 00 stats: 	Iteration 0002	22500000000000000	0
+Node 01 stats: 	Iteration 0002	0	0
+Node 02 stats: 	Iteration 0002	0	0
+Node 03 stats: 	Iteration 0002	0	0
+7777	------------------------------------------------------------------------------------------
+Time: 50.9215 s
+Node 00 stats: 	Iteration 0004	22500000000000000	0
+Node 01 stats: 	Iteration 0004	0	0
+Node 02 stats: 	Iteration 0004	0	0
+Node 03 stats: 	Iteration 0004	0	0
+7777	------------------------------------------------------------------------------------------
+Communication time: 28903
+Cumulative communication time (s): 0.000184979
+barrier_1 time: 150
+Cumulative barrier_1 time (s): 9.6e-07
+computation time: 148886
+Cumulative computation time (s): 0.00095287
+barrier_2 time: 150
+Cumulative barrier_2 time (s): 9.6e-07
+Node 4 done.
+Node finished
+Here we go...
+Memory required: 8192
+Allocating 8192 bytes
+Grid_size: 32
+Node_count: 5
+Iteration_count: 5
+Cumulative memory_init time: 5.92e-07
+Node 4 ready.
+Node	Iteration	Sum of sqdiffs	Largest gradient
+Time: 38.1615 s
+Node 00 stats: 	Iteration 0000	22500000000000000	0
+Node 01 stats: 	Iteration 0000	0	0
+Node 02 stats: 	Iteration 0000	0	0
+Node 03 stats: 	Iteration 0000	0	0
+7777	------------------------------------------------------------------------------------------
+Time: 38.1632 s
+Node 00 stats: 	Iteration 0002	22500000000000000	0
+Node 01 stats: 	Iteration 0002	0	0
+Node 02 stats: 	Iteration 0002	0	0
+Node 03 stats: 	Iteration 0002	0	0
+7777	------------------------------------------------------------------------------------------
+Time: 38.1648 s
+Node 00 stats: 	Iteration 0004	22500000000000000	0
+Node 01 stats: 	Iteration 0004	0	0
+Node 02 stats: 	Iteration 0004	0	0
+Node 03 stats: 	Iteration 0004	0	0
+7777	------------------------------------------------------------------------------------------
+communication time: 29873
+Cumulative Communication time (s): 0.000191187
+barrier_1 time: 150
+Cumulative barrier_1 time (s): 9.6e-07
+computation time: 154412
+Cumulative computation time (s): 0.000988237
+barrier_2 time: 150
+Cumulative barrier_2 time (s): 9.6e-07
+Node 4 done.
+Node finished
+
+
+--------------------------------------------------------------------------------
+Using Reudi's computation core
+--------------------------------------------------------------------------------
+Here we go...
+Memory required: 8192
+Allocating 8192 bytes
+Grid_size: 32
+Node_count: 5
+Iteration_count: 5
+Cumulative memory_init time: 5.86e-07
+Node 4 ready.
+Node	Iteration	Sum of sqdiffs	Largest gradient
+Time: 0.000642862 s
+Node 00 stats: 	Iteration 0000	22500000000000000	0
+Node 01 stats: 	Iteration 0000	0	0
+Node 02 stats: 	Iteration 0000	0	0
+Node 03 stats: 	Iteration 0000	0	0
+7777	------------------------------------------------------------------------------------------
+Time: 0.0020226 s
+Node 00 stats: 	Iteration 0002	22500000000000000	0
+Node 01 stats: 	Iteration 0002	0	0
+Node 02 stats: 	Iteration 0002	0	0
+Node 03 stats: 	Iteration 0002	0	0
+7777	------------------------------------------------------------------------------------------
+Time: 0.00346902 s
+Node 00 stats: 	Iteration 0004	22500000000000000	0
+Node 01 stats: 	Iteration 0004	0	0
+Node 02 stats: 	Iteration 0004	0	0
+Node 03 stats: 	Iteration 0004	0	0
+7777	------------------------------------------------------------------------------------------
+Communication time: 8034
+Cumulative communication time (s): 5.14176e-05
+barrier_1 time: 150
+Cumulative barrier_1 time (s): 9.6e-07
+computation time: 3285
+Cumulative computation time (s): 2.1024e-05
+barrier_2 time: 333671
+Cumulative barrier_2 time (s): 0.00213549
+Node 4 done.
+Node finished
+
+Here we go...
+Memory required: 8192
+Allocating 8192 bytes
+Grid_size: 32
+Node_count: 5
+Iteration_count: 5
+Cumulative memory_init time: 6.36e-07
+Node 4 ready.
+Node	Iteration	Sum of sqdiffs	Largest gradient
+Time: 0.000650307 s
+Node 00 stats: 	Iteration 0000	22500000000000000	0
+Node 01 stats: 	Iteration 0000	0	0
+Node 02 stats: 	Iteration 0000	0	0
+Node 03 stats: 	Iteration 0000	0	0
+7777	------------------------------------------------------------------------------------------
+Time: 0.00209348 s
+Node 00 stats: 	Iteration 0002	22500000000000000	0
+Node 01 stats: 	Iteration 0002	0	0
+Node 02 stats: 	Iteration 0002	0	0
+Node 03 stats: 	Iteration 0002	0	0
+7777	------------------------------------------------------------------------------------------
+Time: 0.00375986 s
+Node 00 stats: 	Iteration 0004	22500000000000000	0
+Node 01 stats: 	Iteration 0004	0	0
+Node 02 stats: 	Iteration 0004	0	0
+Node 03 stats: 	Iteration 0004	0	0
+7777	------------------------------------------------------------------------------------------
+Communication time: 7116
+Cumulative communication time (s): 4.55424e-05
+barrier_1 time: 150
+Cumulative barrier_1 time (s): 9.6e-07
+computation time: 3005
+Cumulative computation time (s): 1.9232e-05
+barrier_2 time: 352337
+Cumulative barrier_2 time (s): 0.00225496
+Node 4 done.
+Node finished
+
+Here we go...
+Memory required: 8192
+Allocating 8192 bytes
+Grid_size: 32
+Node_count: 5
+Iteration_count: 5
+Cumulative memory_init time: 9.94e-07
+Node 4 ready.
+Node	Iteration	Sum of sqdiffs	Largest gradient
+Time: 0.000647592 s
+Node 00 stats: 	Iteration 0000	22500000000000000	0
+Node 01 stats: 	Iteration 0000	0	0
+Node 02 stats: 	Iteration 0000	0	0
+Node 03 stats: 	Iteration 0000	0	0
+7777	------------------------------------------------------------------------------------------
+Time: 0.00207869 s
+Node 00 stats: 	Iteration 0002	22500000000000000	0
+Node 01 stats: 	Iteration 0002	0	0
+Node 02 stats: 	Iteration 0002	0	0
+Node 03 stats: 	Iteration 0002	0	0
+7777	------------------------------------------------------------------------------------------
+Time: 0.00367986 s
+Node 00 stats: 	Iteration 0004	22500000000000000	0
+Node 01 stats: 	Iteration 0004	0	0
+Node 02 stats: 	Iteration 0004	0	0
+Node 03 stats: 	Iteration 0004	0	0
+7777	------------------------------------------------------------------------------------------
+Communication time: 5658
+Cumulative communication time (s): 3.62112e-05
+barrier_1 time: 150
+Cumulative barrier_1 time (s): 9.6e-07
+computation time: 4259
+Cumulative computation time (s): 2.72576e-05
+barrier_2 time: 328685
+Cumulative barrier_2 time (s): 0.00210358
+Node 4 done.
+Node finished
