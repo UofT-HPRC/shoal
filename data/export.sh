@@ -108,4 +108,10 @@ cp $source_dir/group/udp_vs_tcp_latency.${ending} $curr_dir/
 cp $source_dir/group/udp_vs_tcp_throughput_0.${ending} $curr_dir/
 cp $source_dir/group/udp_vs_tcp_throughput_1.${ending} $curr_dir/
 
+curr_dir=$export_image_dir/jacobi
+mkdir -p $curr_dir
+
+cp $source_dir/jacobi/hw.${ending} $curr_dir/
+cp $source_dir/jacobi/sw.${ending} $curr_dir/
+
 done

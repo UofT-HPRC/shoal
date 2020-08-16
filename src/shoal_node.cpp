@@ -11,6 +11,28 @@ void shoal::node::init(int kernel_num){
 
 }
 
+// void shoal::node::add_kernel(
+//     short id, 
+//     void (*func)(short , galapagos::interface <word_t> *, galapagos::interface <word_t> *)
+// ){
+
+//     void __real_kern0(short id, galapagos::interface <word_t> *in, galapagos::interface <word_t> *out);
+//     void __wrap_kern0 (short id, galapagos::interface <word_t> *in, galapagos::interface <word_t> *out){
+//         void (*fcnPtr)(short id, galapagos::interface <word_t> *, galapagos::interface <word_t> *) = __real_kern0;
+//         handler_thread(fcnPtr, id, in, out);
+//     }
+
+//     thread_t handler_thread = std::thread(func, id, &kernel_in, &kernel_out);
+
+//     galapagos::node<word_t>::end();
+//     free(gasnet_shared_mem_global);
+//     free(kernel_done);
+//     free(mutex_nodedata_global);
+//     free(gasnet_nodedata_all);
+//     std::cout << "Node finished\n";
+
+// }
+
 void shoal::node::end(){
 
     galapagos::node<word_t>::end();

@@ -17,12 +17,20 @@ int main(){
     std::string address_0 = STRINGIFY(SHOAL_SW_0_IP_ADDR);
     std::string address_1 = STRINGIFY(SHOAL_SW_1_IP_ADDR);
     std::string address_2 = STRINGIFY(SHOAL_SW_2_IP_ADDR);
+    std::string address_3 = STRINGIFY(10.1.2.6);
+    std::string address_4 = STRINGIFY(10.1.2.7);
     std::vector <std::string> kern_info;
     for(int i = 0; i < (KERNEL_NUM_TOTAL-1) / NODES; i++){
         kern_info.push_back(address_1);
     }
     for(int i = 0; i < (KERNEL_NUM_TOTAL-1) / NODES; i++){
         kern_info.push_back(address_2);
+    }
+    for(int i = 0; i < (KERNEL_NUM_TOTAL-1) / NODES; i++){
+        kern_info.push_back(address_3);
+    }
+    for(int i = 0; i < (KERNEL_NUM_TOTAL-1) / NODES; i++){
+        kern_info.push_back(address_4);
     }
     kern_info.push_back(address_0);
     #if LOG_LEVEL > 0

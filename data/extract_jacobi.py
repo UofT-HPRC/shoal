@@ -7,10 +7,15 @@ import matplotlib
 # Force matplotlib to not use any Xwindows backend.
 matplotlib.use('Agg')
 import matplotlib.pyplot as plt
+import matplotlib.ticker as ticker
+
+# plt.rc("font", family="serif", serif="cmr10")
+from benchmark import fonts
+plt.rc("font", **fonts)
 
 from benchmark import IMAGE_TYPES
 
-def get_data(path):
+def get_data(path, suffix):
     data = {}
     test_id = ""
     with open(path, "r") as f:
@@ -47,9 +52,10 @@ def get_data(path):
     for test_id, _data in data.items():
         data_avg[test_id] = {}
         test_id_split = test_id.split("-")
-        data_avg[test_id]["grid_size"] = test_id_split[0]
-        data_avg[test_id]["node_count"] = test_id_split[1]
-        data_avg[test_id]["iterations"] = test_id_split[2]
+        data_avg[test_id]["grid_size"] = int(test_id_split[0])
+        data_avg[test_id]["node_count"] = int(test_id_split[1]) - 1
+        data_avg[test_id]["iterations"] = int(test_id_split[2])
+        data_avg[test_id]["mode"] = suffix
         try:
             data_avg[test_id]["nodes"] = test_id_split[3]
         except IndexError:
@@ -71,37 +77,134 @@ def get_data(path):
     return df_sorted
 
 
-def analyze(df, path, suffix):
-    # labels = [0]
-    # labels.extend([2**x * 8 for x in range(PAYLOAD_MIN, PAYLOAD_MAX)])
-    # if include_same:
-    #     hue_order = ["sw-sw-same-optimized", "sw-sw-diff-optimized", "sw-hw-optimized", 
-    #         "hw-sw-optimized", "hw-hw-same-optimized", "hw-hw-diff"]
-    #     legend_labels = ["SW-SW (same)", "SW-SW (diff)", "SW-HW", 
-    #         "HW-SW", "HW-HW (same)", "HW-HW (diff)"]
-    # else:
-    #     hue_order = ["sw-sw-diff-optimized", "sw-hw-optimized", 
-    #         "hw-sw-optimized", "hw-hw-diff"]
-    #     legend_labels = ["SW-SW (diff)", "SW-HW", 
-    #         "HW-SW", "HW-HW (diff)"]
-    df_subset = df[df["grid_size"] == 4096]
+def mk_groups(data):
+    try:
+        newdata = data.items()
+    except:
+        return
 
-    # x = np.arange(len(labels))
+    thisgroup = []
+    groups = []
+    for key, value in newdata:
+        newgroups = mk_groups(value)
+        if newgroups is None:
+            thisgroup.append((key, value))
+        else:
+            thisgroup.append((key, len(newgroups[-1])))
+            if groups:
+                groups = [g + n for n, g in zip(newgroups, groups)]
+            else:
+                groups = newgroups
+    return [thisgroup] + groups
+
+def add_line(ax, xpos, ypos):
+    line = plt.Line2D([xpos, xpos], [ypos + .1, ypos],
+                      transform=ax.transAxes, color='black', linewidth=1)
+    line.set_clip_on(False)
+    ax.add_line(line)
+
+def label_group_bar(ax, data):
+    groups = mk_groups(data)
+    print(groups)
+    xy = groups.pop()
+    x, y = zip(*xy)
+    ly = len(y)
+    xticks = range(1, ly + 1)
+
+    # ax.bar(xticks, y, align='center')
+    ax.set_xticks(xticks)
+    ax.set_xticklabels(x)
+    ax.set_xlim(.5, ly + .5)
+    ax.yaxis.grid(False)
+
+    scale = 1. / ly
+    for pos in range(ly + 1):
+        add_line(ax, pos * scale, -.1)
+    ypos = -.2
+    while groups:
+        group = groups.pop()
+        pos = 0
+        for label, rpos in group:
+            lxpos = (pos + .5 * rpos) * scale
+            ax.text(lxpos, ypos, label, ha='center', transform=ax.transAxes)
+            add_line(ax, pos * scale, ypos)
+            pos += rpos
+        add_line(ax, pos * scale, ypos)
+        ypos -= .1
+
+def analyze(df, path):
+    def add_label(row):
+        return str(row["mode"]).upper() + " - " + str(row["nodes"]) + " Nodes (" + str(row["node_count"]) + " kernels)"
+
+    df_subset = df[df["mode"] == "sw"]
+
     fig, ax = plt.subplots()
-    sns.barplot(x="nodes", y="total_time", hue='node_count', data=df_subset, ax=ax)
+    sns.barplot(x="grid_size", y="total_time", hue='node_count', data=df_subset, ax=ax)
     ax.set_ylabel("Time (s)")
     ax.set_xlabel("Grid Size")
-    # ax.set_xticks(x)
-    # ax.set_xticklabels(labels)
-    # handles, _labels = ax.get_legend_handles_labels()
-    # ax.legend(handles, legend_labels)
-    
-    # ax.legend()
-    # plt.xticks(rotation=90)
-    # ax.set_title(title)
+    ax.set_yscale("log")
+    ax.legend(title="Kernels")
 
     fig.tight_layout()
-    figure_path = os.path.join(figure_dir, suffix)
+    figure_path = os.path.join(figure_dir, "sw")
+    for image_type in IMAGE_TYPES:
+        plt.savefig(figure_path + "." + image_type)
+    plt.close()
+
+    df_subset = df[
+        (df["node_count"] != 1) & 
+        (df["grid_size"] == 4096)
+    ]
+    df_subset["label"] = df_subset.apply(add_label, axis=1)
+
+    print(df_subset)
+
+    fig, ax = plt.subplots()
+
+    labels = {
+        "HW": {
+            '1 Node': {
+                '8': 0,
+            },
+            '2 Nodes': {
+                '8': 0,
+                '16': 0
+            },
+            '4 Nodes': {
+                '16': 0
+            }
+        },
+        "SW": {
+            '1 Node': {
+                '8': 0,
+                '16': 0
+            }
+        },
+    }
+
+    label_group_bar(ax, labels)
+
+    sns.barplot(x="label", y="total_time", data=df_subset, ax=ax)
+    ax.set_ylabel("Time (s)")
+    ax.set_xlabel("")
+    ax.set_xticklabels(["8", "8", "16", "16", "8", "16"])
+
+    # ax2 = ax.twiny()
+    # offset = 0, -25
+    # new_axisline = ax2.get_grid_helper().new_fixed_axis
+    # ax2.axis["bottom"] = new_axisline(loc="bottom", axes=ax2, offset=offset)
+    # ax2.axis["top"].set_visible(False)
+    # ax2.set_axticks([0.0, 0.6, 1.0])
+    # ax2.xaxis.set_major_formatter(ticker.NullFormatter())
+    # ax2.xaxis.set_minor_locator(ticker.FixedLocator([0.3, 0.8]))
+    # ax2.xaxis.set_minor_formatter(ticker.FixedFormatter(["mammel", "reptile"]))
+
+    # plt.xticks(rotation=90)
+    # ax.set_yscale("log")
+    # ax.legend()
+
+    fig.tight_layout()
+    figure_path = os.path.join(figure_dir, "hw")
     for image_type in IMAGE_TYPES:
         plt.savefig(figure_path + "." + image_type)
     plt.close()
@@ -116,7 +219,12 @@ if __name__ == "__main__":
     if not os.path.exists(figure_dir):
         os.makedirs(figure_dir)
 
+    df = None
     for data, suffix in jacobi_data:
         path = os.path.abspath(data)
-        df = get_data(path)
-        analyze(df, figure_dir, suffix)
+        if df is None:
+            df = get_data(path, suffix)
+        else:
+            df = pd.concat([df, get_data(path, suffix)])
+    
+    analyze(df, figure_dir)

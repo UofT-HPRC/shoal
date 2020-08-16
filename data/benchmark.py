@@ -5,10 +5,25 @@ import numpy as np
 import pandas as pd
 import seaborn as sns
 
+from cycler import cycler
 import matplotlib
 # Force matplotlib to not use any Xwindows backend.
 matplotlib.use('Agg')
 import matplotlib.pyplot as plt
+# color_cycler = cycler(color=["#594F4F", "#547980", "#45ADA8", "#9DE0AD", "#E5FCC2", "#D8D8D8"])
+colors = ["#594F4F", "#566B70", "#4F8A8D", "#45ADA8", "#80CFAB", "#B8E5AC"]
+color_cycler = cycler(color=colors)
+plt.rc('axes', prop_cycle=color_cycler)
+import matplotlib.ticker as ticker
+
+fonts = {
+    "family": "sans-serif",
+    "sans-serif": "cmss10",
+    "serif": "cmr10"
+}
+plt.rc("font", **fonts)
+
+import itertools
 
 ITERATION_PRIORITY = [10000, 1000]
 TESTS = [
@@ -336,7 +351,13 @@ def plot_against_payloads(df, y_axis, y_label, title, filepath, include_short=Tr
     ax.set_xlabel("Payload Size (bytes)")
     ax.set_xticks(x)
     ax.set_xticklabels(labels)
-    ax.legend()
+    ax.legend(bbox_to_anchor=(0,1.02,1,0.2), loc="lower left", 
+        mode="expand", borderaxespad=0, ncol=4)
+    if y_axis == "speedup":
+        ax.axhline(1, label=None, linestyle="-", color=colors[0])
+        # ylims = ax.get_ylim()
+        # if ylims[1] < 1:
+        ax.set_ylim(top=2.5)
     # plt.xticks(rotation=90)
     # ax.set_title(title)
 
@@ -344,6 +365,9 @@ def plot_against_payloads(df, y_axis, y_label, title, filepath, include_short=Tr
     for image_type in IMAGE_TYPES:
         plt.savefig(filepath + "." + image_type)
     plt.close()
+
+def flip_list(items, ncol):
+    return itertools.chain(*[items[i::ncol] for i in range(ncol)])
 
 def plot_topo_against_payloads(df, y_axis, y_label, title, filepath, include_same=True):
     labels = [0]
@@ -370,9 +394,22 @@ def plot_topo_against_payloads(df, y_axis, y_label, title, filepath, include_sam
     ax.set_xticks(x)
     ax.set_xticklabels(labels)
     handles, _labels = ax.get_legend_handles_labels()
-    ax.legend(handles, legend_labels)
+
+    if "sw-sw-diff-optimized" not in df["configuration"].values:
+        handles = [handles[1], handles[3]]
+        legend_labels = [legend_labels[1], legend_labels[3]]
+
     if not include_same:
-        ax.axhline(0, label=None, linestyle="-", color="k")
+        ax.legend(flip_list(handles, 4), flip_list(legend_labels, 4), bbox_to_anchor=(0,1.02,1,0.2), loc="lower left", 
+        mode="expand", borderaxespad=0, ncol=4)
+        ax.axhline(1, label=None, linestyle="-", color=colors[0])
+        ax.set_ylim(top=2.5)
+    else:
+        ax.legend(flip_list(handles, 3), flip_list(legend_labels, 3), bbox_to_anchor=(0,1.02,1,0.2), loc="lower left", 
+        mode="expand", borderaxespad=0, ncol=3)
+        ax.set_yscale("log")
+        ticks_x = ticker.FuncFormatter(lambda x, pos: str(x*1E3))
+        ax.yaxis.set_major_formatter(ticks_x)
     # ax.legend()
     # plt.xticks(rotation=90)
     # ax.set_title(title)
@@ -547,12 +584,14 @@ def latency_summary(df, path):
             df_subset_tcp["payload_throughput_0"].replace(0, np.nan, inplace=True)
             df_subset_tcp["payload_throughput_1"].replace(0, np.nan, inplace=True)
         df_subset_tcp["key"] = df_subset_tcp["configuration"] + df_subset_tcp["Test"].astype(str) + df_subset_tcp["Payload"].astype(str)
+        # if test_type == "latency":
+        #     print(df_subset_tcp[df_subset_tcp["configuration"] == "sw-sw-diff-optimized"])
         grouped_df = df_subset_tcp.groupby(["configuration", "Payload"], as_index=False).agg(np.nanmean) #["median"].transform("mean")
         # print(grouped_df)
         if test_type == "latency":
-            plot_topo_against_payloads(grouped_df, "median", "Time (ms)", "Average Median Latency by Topology", os.path.join(path, f"tcp_summary_latency"))
+            plot_topo_against_payloads(grouped_df, "median", "Time (us)", "Average Median Latency by Topology", os.path.join(path, f"tcp_summary_latency"))
         else:
-            plot_topo_against_payloads(grouped_df, f"payload_{test_type}", "Throughput (Gb/s)", "Average Non-Blocking THroughput by Topology", os.path.join(path, f"tcp_summary_{test_type}"))
+            plot_topo_against_payloads(grouped_df, f"payload_{test_type}", "Throughput (Mb/s)", "Average Non-Blocking THroughput by Topology", os.path.join(path, f"tcp_summary_{test_type}"))
 
         df_subset_udp = df[
             (df["Test_Type"] == test_id) & 
@@ -579,10 +618,10 @@ def latency_summary(df, path):
         else:
             df_subset_udp = df_subset_udp.drop(columns=["mean", "5th %tile", "95th %tile", "median", "payload_throughput"])
         # if test_type == "latency":
-        #     print(df_subset_udp[(df_subset_udp["configuration"] == "sw-hw-optimized") & (df_subset_udp["Payload"] == 0)]["median"])
-        #     print(df_subset_tcp[(df_subset_tcp["configuration"] == "sw-hw-optimized") & (df_subset_tcp["Payload"] == 0)]["median"])
-        df_subset_udp["key"] = df_subset_udp["configuration"] + df_subset_udp["Test"].astype(str) + df_subset_udp["Payload"].astype(str)
+        #     print(df_subset_udp[(df_subset_udp["configuration"] == "sw-sw-diff")])
+            # print(df_subset_tcp[(df_subset_tcp["configuration"] == "sw-hw-optimized") & (df_subset_tcp["Payload"] == 0)]["median"])
         df_subset_udp["configuration"].replace({"sw-sw-diff": "sw-sw-diff-optimized"}, inplace=True)
+        df_subset_udp["key"] = df_subset_udp["configuration"] + df_subset_udp["Test"].astype(str) + df_subset_udp["Payload"].astype(str)
         
         if test_type == "latency":
             # tmp = (df_subset_tcp.set_index("key")["median"] - df_subset_udp.set_index("key")["median"]) / df_subset_tcp.set_index("key")["median"] * 100
@@ -594,9 +633,9 @@ def latency_summary(df, path):
             # tmp.replace(100.0, np.nan, inplace=True)
             tmp = df_subset_udp.set_index("key")[f"payload_{test_type}"] / df_subset_tcp.set_index("key")[f"payload_{test_type}"]
         tmp = tmp.rename("udp_diff")
-        if test_type == "throughput_0":
-            print(df_subset_udp[(df_subset_udp["configuration"] == "sw-hw-optimized") & (df_subset_udp["Payload"] == 64)])#[f"payload_{test_type}"])
-            print(df_subset_tcp[(df_subset_tcp["configuration"] == "sw-hw-optimized") & (df_subset_tcp["Payload"] == 64)])#[f"payload_{test_type}"])
+        # if test_type == "throughput_0":
+        #     print(df_subset_udp[(df_subset_udp["configuration"] == "sw-hw-optimized") & (df_subset_udp["Payload"] == 64)])#[f"payload_{test_type}"])
+        #     print(df_subset_tcp[(df_subset_tcp["configuration"] == "sw-hw-optimized") & (df_subset_tcp["Payload"] == 64)])#[f"payload_{test_type}"])
         df_subset_udp = df_subset_udp.merge(tmp, on="key")
         grouped_df = df_subset_udp.groupby(["configuration", "Payload"], as_index=False).agg(np.nanmean) #["median"].transform("mean")
         plot_topo_against_payloads(grouped_df, "udp_diff", "Speedup", "Average Median Improvement in UDP vs TCP", os.path.join(path, f"udp_vs_tcp_{test_type}"), False)    # print(grouped_df)
@@ -676,7 +715,7 @@ if __name__ == "__main__":
         save_data=False,
         load_data=True,
         analyze_single_data=False,
-        analyze_group_data=False
+        analyze_group_data=True
     )
 
     args = parser.parse_args()

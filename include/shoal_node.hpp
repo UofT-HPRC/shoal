@@ -33,8 +33,10 @@ namespace shoal{
                 setup_network(_kern_info_table, _my_address, use_TCP)
             ) {};
             void init(int kernel_num);
+            // void add_kernel(short id, void (*func)(short , galapagos::interface <word_t> *, galapagos::interface <word_t> *));
             void end();
         private:
+            // std::vector <std::thread*> handler_threads;
             #if LOG_LEVEL > 0
             static std::vector<galapagos::external_driver<word_t> *> setup_network(
                 std::vector <std::string> & _kern_info_table,

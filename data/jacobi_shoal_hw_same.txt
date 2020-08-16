@@ -7184,3 +7184,263 @@ barrier_2 cycles: 156214835
 Cumulative barrier_2 time: 0.999775
 Node 8 done.
 Node finished
+Here we go...
+Memory required: 67108864
+Allocating 67108864 bytes
+Grid_size: 4096
+Node_count: 9
+Iteration_count: 1025
+Nodes: 4
+Cumulative memory_init time: 5.77e-07
+Node 8 ready.
+Node	Iteration	Sum of sqdiffs	Largest gradient
+Time: 2.019 s
+Node 00 stats: 	Iteration 0000	22500000000000000	0
+Node 01 stats: 	Iteration 0000	0	0
+Node 02 stats: 	Iteration 0000	0	0
+Node 03 stats: 	Iteration 0000	0	0
+Node 04 stats: 	Iteration 0000	0	0
+Node 05 stats: 	Iteration 0000	0	0
+Node 06 stats: 	Iteration 0000	0	0
+Node 07 stats: 	Iteration 0000	0	0
+7777	------------------------------------------------------------------------------------------
+Time: 2.05694 s
+Node 00 stats: 	Iteration 0002	22500000000000000	0
+Node 01 stats: 	Iteration 0002	0	0
+Node 02 stats: 	Iteration 0002	0	0
+Node 03 stats: 	Iteration 0002	0	0
+Node 04 stats: 	Iteration 0002	0	0
+Node 05 stats: 	Iteration 0002	0	0
+Node 06 stats: 	Iteration 0002	0	0
+Node 07 stats: 	Iteration 0002	0	0
+7777	------------------------------------------------------------------------------------------
+Time: 2.09537 s
+Node 00 stats: 	Iteration 0004	22500000000000000	0
+Node 01 stats: 	Iteration 0004	0	0
+Node 02 stats: 	Iteration 0004	0	0
+Node 03 stats: 	Iteration 0004	0	0
+Node 04 stats: 	Iteration 0004	0	0
+Node 05 stats: 	Iteration 0004	0	0
+Node 06 stats: 	Iteration 0004	0	0
+Node 07 stats: 	Iteration 0004	0	0
+7777	------------------------------------------------------------------------------------------
+Time: 2.17258 s
+Node 00 stats: 	Iteration 0008	22500000000000000	0
+Node 01 stats: 	Iteration 0008	0	0
+Node 02 stats: 	Iteration 0008	0	0
+Node 03 stats: 	Iteration 0008	0	0
+Node 04 stats: 	Iteration 0008	0	0
+Node 05 stats: 	Iteration 0008	0	0
+Node 06 stats: 	Iteration 0008	0	0
+Node 07 stats: 	Iteration 0008	0	0
+7777	------------------------------------------------------------------------------------------
+Time: 2.32721 s
+Node 00 stats: 	Iteration 0016	22500000000000000	0
+Node 01 stats: 	Iteration 0016	0	0
+Node 02 stats: 	Iteration 0016	0	0
+Node 03 stats: 	Iteration 0016	0	0
+Node 04 stats: 	Iteration 0016	0	0
+Node 05 stats: 	Iteration 0016	0	0
+Node 06 stats: 	Iteration 0016	0	0
+Node 07 stats: 	Iteration 0016	0	0
+7777	------------------------------------------------------------------------------------------
+Time: 2.63642 s
+Node 00 stats: 	Iteration 0032	22500000000000000	0
+Node 01 stats: 	Iteration 0032	0	0
+Node 02 stats: 	Iteration 0032	0	0
+Node 03 stats: 	Iteration 0032	0	0
+Node 04 stats: 	Iteration 0032	0	0
+Node 05 stats: 	Iteration 0032	0	0
+Node 06 stats: 	Iteration 0032	0	0
+Node 07 stats: 	Iteration 0032	0	0
+7777	------------------------------------------------------------------------------------------
+Time: 3.25293 s
+Node 00 stats: 	Iteration 0064	22500000000000000	0
+Node 01 stats: 	Iteration 0064	0	0
+Node 02 stats: 	Iteration 0064	0	0
+Node 03 stats: 	Iteration 0064	0	0
+Node 04 stats: 	Iteration 0064	0	0
+Node 05 stats: 	Iteration 0064	0	0
+Node 06 stats: 	Iteration 0064	0	0
+Node 07 stats: 	Iteration 0064	0	0
+7777	------------------------------------------------------------------------------------------
+Time: 4.49294 s
+Node 00 stats: 	Iteration 0128	22500000000000000	0
+Node 01 stats: 	Iteration 0128	0	0
+Node 02 stats: 	Iteration 0128	0	0
+Node 03 stats: 	Iteration 0128	0	0
+Node 04 stats: 	Iteration 0128	0	0
+Node 05 stats: 	Iteration 0128	0	0
+Node 06 stats: 	Iteration 0128	0	0
+Node 07 stats: 	Iteration 0128	0	0
+7777	------------------------------------------------------------------------------------------
+Time: 6.96722 s
+Node 00 stats: 	Iteration 0256	22500000000000000	0
+Node 01 stats: 	Iteration 0256	0	0
+Node 02 stats: 	Iteration 0256	0	0
+Node 03 stats: 	Iteration 0256	0	0
+Node 04 stats: 	Iteration 0256	0	0
+Node 05 stats: 	Iteration 0256	0	0
+Node 06 stats: 	Iteration 0256	0	0
+Node 07 stats: 	Iteration 0256	0	0
+7777	------------------------------------------------------------------------------------------
+Time: 11.8792 s
+Node 00 stats: 	Iteration 0512	22500000000000000	0
+Node 01 stats: 	Iteration 0512	0	0
+Node 02 stats: 	Iteration 0512	0	0
+Node 03 stats: 	Iteration 0512	0	0
+Node 04 stats: 	Iteration 0512	0	0
+Node 05 stats: 	Iteration 0512	0	0
+Node 06 stats: 	Iteration 0512	0	0
+Node 07 stats: 	Iteration 0512	0	0
+7777	------------------------------------------------------------------------------------------
+Time: 21.7431 s
+Node 00 stats: 	Iteration 1024	22500000000000000	0
+Node 01 stats: 	Iteration 1024	0	0
+Node 02 stats: 	Iteration 1024	0	0
+Node 03 stats: 	Iteration 1024	0	0
+Node 04 stats: 	Iteration 1024	0	0
+Node 05 stats: 	Iteration 1024	0	0
+Node 06 stats: 	Iteration 1024	0	0
+Node 07 stats: 	Iteration 1024	0	0
+7777	------------------------------------------------------------------------------------------
+Communication cycles: 257705267
+Cumulative communication time: 1.64931
+barrier_1 cycles: 30750
+Cumulative barrier_1 time: 0.0001968
+computation cycles: 2600829224
+Cumulative computation time: 16.6453
+barrier_2 cycles: 133043669
+Cumulative barrier_2 time: 0.851479
+Node 8 done.
+Node finished
+Here we go...
+Memory required: 67108864
+Allocating 67108864 bytes
+Grid_size: 4096
+Node_count: 9
+Iteration_count: 1025
+Nodes: 4
+Cumulative memory_init time: 5.76e-07
+Node 8 ready.
+Node	Iteration	Sum of sqdiffs	Largest gradient
+Time: 2.01908 s
+Node 00 stats: 	Iteration 0000	22500000000000000	0
+Node 01 stats: 	Iteration 0000	0	0
+Node 02 stats: 	Iteration 0000	0	0
+Node 03 stats: 	Iteration 0000	0	0
+Node 04 stats: 	Iteration 0000	0	0
+Node 05 stats: 	Iteration 0000	0	0
+Node 06 stats: 	Iteration 0000	0	0
+Node 07 stats: 	Iteration 0000	0	0
+7777	------------------------------------------------------------------------------------------
+Time: 2.05768 s
+Node 00 stats: 	Iteration 0002	22500000000000000	0
+Node 01 stats: 	Iteration 0002	0	0
+Node 02 stats: 	Iteration 0002	0	0
+Node 03 stats: 	Iteration 0002	0	0
+Node 04 stats: 	Iteration 0002	0	0
+Node 05 stats: 	Iteration 0002	0	0
+Node 06 stats: 	Iteration 0002	0	0
+Node 07 stats: 	Iteration 0002	0	0
+7777	------------------------------------------------------------------------------------------
+Time: 2.09623 s
+Node 00 stats: 	Iteration 0004	22500000000000000	0
+Node 01 stats: 	Iteration 0004	0	0
+Node 02 stats: 	Iteration 0004	0	0
+Node 03 stats: 	Iteration 0004	0	0
+Node 04 stats: 	Iteration 0004	0	0
+Node 05 stats: 	Iteration 0004	0	0
+Node 06 stats: 	Iteration 0004	0	0
+Node 07 stats: 	Iteration 0004	0	0
+7777	------------------------------------------------------------------------------------------
+Time: 2.173 s
+Node 00 stats: 	Iteration 0008	22500000000000000	0
+Node 01 stats: 	Iteration 0008	0	0
+Node 02 stats: 	Iteration 0008	0	0
+Node 03 stats: 	Iteration 0008	0	0
+Node 04 stats: 	Iteration 0008	0	0
+Node 05 stats: 	Iteration 0008	0	0
+Node 06 stats: 	Iteration 0008	0	0
+Node 07 stats: 	Iteration 0008	0	0
+7777	------------------------------------------------------------------------------------------
+Time: 2.32737 s
+Node 00 stats: 	Iteration 0016	22500000000000000	0
+Node 01 stats: 	Iteration 0016	0	0
+Node 02 stats: 	Iteration 0016	0	0
+Node 03 stats: 	Iteration 0016	0	0
+Node 04 stats: 	Iteration 0016	0	0
+Node 05 stats: 	Iteration 0016	0	0
+Node 06 stats: 	Iteration 0016	0	0
+Node 07 stats: 	Iteration 0016	0	0
+7777	------------------------------------------------------------------------------------------
+Time: 2.63689 s
+Node 00 stats: 	Iteration 0032	22500000000000000	0
+Node 01 stats: 	Iteration 0032	0	0
+Node 02 stats: 	Iteration 0032	0	0
+Node 03 stats: 	Iteration 0032	0	0
+Node 04 stats: 	Iteration 0032	0	0
+Node 05 stats: 	Iteration 0032	0	0
+Node 06 stats: 	Iteration 0032	0	0
+Node 07 stats: 	Iteration 0032	0	0
+7777	------------------------------------------------------------------------------------------
+Time: 3.25093 s
+Node 00 stats: 	Iteration 0064	22500000000000000	0
+Node 01 stats: 	Iteration 0064	0	0
+Node 02 stats: 	Iteration 0064	0	0
+Node 03 stats: 	Iteration 0064	0	0
+Node 04 stats: 	Iteration 0064	0	0
+Node 05 stats: 	Iteration 0064	0	0
+Node 06 stats: 	Iteration 0064	0	0
+Node 07 stats: 	Iteration 0064	0	0
+7777	------------------------------------------------------------------------------------------
+Time: 4.48413 s
+Node 00 stats: 	Iteration 0128	22500000000000000	0
+Node 01 stats: 	Iteration 0128	0	0
+Node 02 stats: 	Iteration 0128	0	0
+Node 03 stats: 	Iteration 0128	0	0
+Node 04 stats: 	Iteration 0128	0	0
+Node 05 stats: 	Iteration 0128	0	0
+Node 06 stats: 	Iteration 0128	0	0
+Node 07 stats: 	Iteration 0128	0	0
+7777	------------------------------------------------------------------------------------------
+Time: 6.94431 s
+Node 00 stats: 	Iteration 0256	22500000000000000	0
+Node 01 stats: 	Iteration 0256	0	0
+Node 02 stats: 	Iteration 0256	0	0
+Node 03 stats: 	Iteration 0256	0	0
+Node 04 stats: 	Iteration 0256	0	0
+Node 05 stats: 	Iteration 0256	0	0
+Node 06 stats: 	Iteration 0256	0	0
+Node 07 stats: 	Iteration 0256	0	0
+7777	------------------------------------------------------------------------------------------
+Time: 11.8619 s
+Node 00 stats: 	Iteration 0512	22500000000000000	0
+Node 01 stats: 	Iteration 0512	0	0
+Node 02 stats: 	Iteration 0512	0	0
+Node 03 stats: 	Iteration 0512	0	0
+Node 04 stats: 	Iteration 0512	0	0
+Node 05 stats: 	Iteration 0512	0	0
+Node 06 stats: 	Iteration 0512	0	0
+Node 07 stats: 	Iteration 0512	0	0
+7777	------------------------------------------------------------------------------------------
+Time: 21.7395 s
+Node 00 stats: 	Iteration 1024	22500000000000000	0
+Node 01 stats: 	Iteration 1024	0	0
+Node 02 stats: 	Iteration 1024	0	0
+Node 03 stats: 	Iteration 1024	0	0
+Node 04 stats: 	Iteration 1024	0	0
+Node 05 stats: 	Iteration 1024	0	0
+Node 06 stats: 	Iteration 1024	0	0
+Node 07 stats: 	Iteration 1024	0	0
+7777	------------------------------------------------------------------------------------------
+Communication cycles: 255783425
+Cumulative communication time: 1.63701
+barrier_1 cycles: 30750
+Cumulative barrier_1 time: 0.0001968
+computation cycles: 2600886130
+Cumulative computation time: 16.6457
+barrier_2 cycles: 130817843
+Cumulative barrier_2 time: 0.837234
+Node 8 done.
+Node finished

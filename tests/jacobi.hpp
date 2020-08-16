@@ -17,7 +17,7 @@
 #define KERNEL_NUM_TOTAL 9
 #endif
 #ifndef NODES
-#define NODES 2
+#define NODES 4
 #endif
 
 // in bytes

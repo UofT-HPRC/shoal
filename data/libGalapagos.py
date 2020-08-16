@@ -13,6 +13,10 @@ import matplotlib
 matplotlib.use('Agg')
 import matplotlib.pyplot as plt
 from matplotlib.ticker import ScalarFormatter
+from benchmark import color_cycler
+from benchmark import fonts
+plt.rc('axes', prop_cycle=color_cycler)
+plt.rc('font', **fonts)
 
 from benchmark import IMAGE_TYPES
 
@@ -151,6 +155,9 @@ def cross_analyze(data, path):
     if not os.path.exists(figure_path):
         os.makedirs(figure_path)
 
+    markers = ["o","^","s","v", "X", "D"]
+    dashes = [(5, 0)]*6
+
     for test_mode in ["throughput_0", "throughput_1"]:
         labels = [x * 8 for x in PAYLOADS]
         hue_order = ["no_busy_1core", "busy_1core", "no_busy_affinity", "no_busy", "busy"]
@@ -167,7 +174,7 @@ def cross_analyze(data, path):
             (df_sorted["test_mode"] == test_mode) &
             (df_sorted["test"] != "no_busy_10k") 
         ]
-        sns.lineplot(x="payload", y="time", hue="test", data=df_subset, marker="o", ax=ax, hue_order=hue_order)
+        sns.lineplot(x="payload", y="time", hue="test", data=df_subset, markers=markers, dashes=dashes, style="test", ax=ax, hue_order=hue_order)
         ax.set_ylabel("Throughput (Mb/s)")
         ax.set_xlabel("Payload Size (bytes)")
         # ax.set_xticks(x)
@@ -176,6 +183,7 @@ def cross_analyze(data, path):
         ax.xaxis.set_major_formatter(ScalarFormatter())
         handles, _labels = ax.get_legend_handles_labels()
         ax.legend(handles[1:], legend_labels)
+        plt.ylim(0, 4600)
         # ax.legend()
         # plt.xticks(rotation=90)
         # ax.set_title("Throughput vs Payload Size")
@@ -192,6 +200,7 @@ def cross_analyze(data, path):
     legend_labels = ["Non-Blocking (one node)", "Blocking (one node)", "Non-Blocking (two nodes)", "Blocking (two nodes)"]
 
     fig, ax = plt.subplots()
+    fig.set_size_inches(6.4, 4)
     df_sorted = data.sort_values(["test", "payload"])
     df_subset = df_sorted[
         (df_sorted["test_id"] == "reply") & 
@@ -202,9 +211,9 @@ def cross_analyze(data, path):
     ]
     df_subset["id"] = df_subset["test_mode"] + "-" + df_subset["test"]
     # print(df_subset)
-    sns.lineplot(x="payload", y="time", hue='id', data=df_subset, ax=ax, hue_order=hue_order, marker=".")
+    sns.lineplot(x="payload", y="time", hue='id', data=df_subset, ax=ax, hue_order=hue_order, markers=markers, dashes=dashes, style="id")
     ax.set_ylabel("Throughput (Mb/s)")
-    ax.set_xlabel("Payload (bytes)")
+    ax.set_xlabel("Payload Size (bytes)")
     ax.set_xticklabels(labels)
     ax.set_xscale("log", basex=2)
     ax.xaxis.set_major_formatter(ScalarFormatter())

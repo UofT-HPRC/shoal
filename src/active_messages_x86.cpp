@@ -110,7 +110,7 @@ inline void _writeWord(
     gc_AMsrc_t src
 ){
     // printWord("   Sending - ", axis_word);
-    axis_word.id = 0;
+    axis_word.id = 4;
     axis_out.write(axis_word);
     #if ENABLE_PROFILE == 1
     profile_write(src, axis_word);
