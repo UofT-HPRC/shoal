@@ -73,7 +73,7 @@ def get_data(path, suffix):
     df["total_time"] = df["communication"] + df["barrier_1"] + df["computation"] + df["barrier_2"]
     df_sorted = df.sort_values(["nodes", "node_count", "grid_size"])
     df_sorted = df_sorted.reset_index(drop=True)
-    print(df_sorted)
+    # print(df_sorted)
     return df_sorted
 
 
@@ -143,6 +143,8 @@ def analyze(df, path):
     ax.set_ylabel("Time (s)")
     ax.set_xlabel("Grid Size")
     ax.set_yscale("log")
+    ticks_x = ticker.FuncFormatter(lambda x, pos: str(x))
+    ax.yaxis.set_major_formatter(ticks_x)
     ax.legend(title="Kernels")
 
     fig.tight_layout()
@@ -157,12 +159,12 @@ def analyze(df, path):
     ]
     df_subset["label"] = df_subset.apply(add_label, axis=1)
 
-    print(df_subset)
+    # print(df_subset)
 
     fig, ax = plt.subplots()
 
     labels = {
-        "HW": {
+        "Hardware": {
             '1 Node': {
                 '8': 0,
             },
@@ -174,7 +176,7 @@ def analyze(df, path):
                 '16': 0
             }
         },
-        "SW": {
+        "Software": {
             '1 Node': {
                 '8': 0,
                 '16': 0
@@ -186,8 +188,9 @@ def analyze(df, path):
 
     sns.barplot(x="label", y="total_time", data=df_subset, ax=ax)
     ax.set_ylabel("Time (s)")
+    # ax.set_xlabel("Total Number of Kernels     ")
     ax.set_xlabel("")
-    ax.set_xticklabels(["8", "8", "16", "16", "8", "16"])
+    ax.set_xticklabels(["8 kernels", "8 kernels", "16 kernels", "16 kernels", "8 kernels", "16 kernels"])
 
     # ax2 = ax.twiny()
     # offset = 0, -25
@@ -215,7 +218,7 @@ if __name__ == "__main__":
         ("./data/jacobi_shoal_sw.txt", "sw")
     ]
     figure_dir = os.path.join(os.path.abspath("./data"), "build", "jacobi")
-    print(figure_dir)
+    # print(figure_dir)
     if not os.path.exists(figure_dir):
         os.makedirs(figure_dir)
 

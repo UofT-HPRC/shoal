@@ -1,5 +1,10 @@
 #!/usr/bin/env bash
 
+python data/benchmark.py 
+python data/extract_jacobi.py
+python data/cross_analyze.py
+python data/libGalapagos.py
+
 source_dir="./data/build"
 export_dir="../thesis/5d47860467573e3c760ed5d5"
 export_image_dir=$export_dir/images

@@ -102,7 +102,7 @@ def analyze(df, path, figure_dir):
             markers = ["o","s","^","v"]*3
             dashes = [(5, 1)]*4 + [(5, 0)]*4 + [(5, 5)]*4
             sns.lineplot(x="payload", y="time", hue='wr_mode', data=df_latency, ax=ax, markers=markers, dashes=dashes, style="wr_mode")
-            ax.set_ylabel("Time (us)")
+            ax.set_ylabel("Time ($\mu$s)")
             ax.set_xlabel("Payload Size (bytes)")
             ax.set_xticks(x)
             ax.set_xticklabels(labels)
@@ -161,7 +161,7 @@ def cross_analyze(data, path):
     for test_mode in ["throughput_0", "throughput_1"]:
         labels = [x * 8 for x in PAYLOADS]
         hue_order = ["no_busy_1core", "busy_1core", "no_busy_affinity", "no_busy", "busy"]
-        legend_labels = ["No busy loop (1 core)", "With busy loop (1 core)", "No busy loop (with core affinity)", "No busy loop", "With busy loop"]
+        legend_labels = ["No busy loop (1 core)", "With busy loop (1 core)", "No busy loop (with core affinity)", "No busy loop (unrestricted)", "With busy loop (unrestricted)"]
 
         # x = np.arange(len(labels))
         # width = 0.20
@@ -182,8 +182,19 @@ def cross_analyze(data, path):
         ax.set_xscale("log", basex=2)
         ax.xaxis.set_major_formatter(ScalarFormatter())
         handles, _labels = ax.get_legend_handles_labels()
-        ax.legend(handles[1:], legend_labels)
+
+        # reorder legend based on line orders
+        if test_mode == "throughput_0":
+            new_handles = [handles[5], handles[3], handles[4], handles[1], handles[2]]
+            new_labels = [legend_labels[4], legend_labels[2], legend_labels[3], legend_labels[0], legend_labels[1]]
+        else:
+            new_handles = [handles[2], handles[1], handles[3], handles[4], handles[5]]
+            new_labels = [legend_labels[1], legend_labels[0], legend_labels[2], legend_labels[3], legend_labels[4]]
+        ax.legend(new_handles, new_labels)
         plt.ylim(0, 4600)
+        # plt.rc("font", size=20)
+        for item in ([ax.xaxis.label, ax.yaxis.label] + ax.get_xticklabels() + ax.get_yticklabels() + ax.get_legend().get_texts()):
+            item.set_fontsize(14)
         # ax.legend()
         # plt.xticks(rotation=90)
         # ax.set_title("Throughput vs Payload Size")
@@ -200,7 +211,7 @@ def cross_analyze(data, path):
     legend_labels = ["Non-Blocking (one node)", "Blocking (one node)", "Non-Blocking (two nodes)", "Blocking (two nodes)"]
 
     fig, ax = plt.subplots()
-    fig.set_size_inches(6.4, 4)
+    fig.set_size_inches(6.4, 3.6)
     df_sorted = data.sort_values(["test", "payload"])
     df_subset = df_sorted[
         (df_sorted["test_id"] == "reply") & 
@@ -218,7 +229,9 @@ def cross_analyze(data, path):
     ax.set_xscale("log", basex=2)
     ax.xaxis.set_major_formatter(ScalarFormatter())
     handles, _labels = ax.get_legend_handles_labels()
-    ax.legend(handles[1:], legend_labels)
+    new_handles = [handles[2], handles[1], handles[3], handles[4]]
+    new_labels = [legend_labels[1], legend_labels[0], legend_labels[2], legend_labels[3]]
+    ax.legend(new_handles, new_labels)
     # ax.set_title("Throughput 0 vs Payload Size")
 
     fig.tight_layout()

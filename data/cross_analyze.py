@@ -38,7 +38,7 @@ def libGal_vs_shoal(gal_data, shoal_data, path):
             # shoal_data_subset["percent_change"] = (shoal_data_subset[f"payload_{test_mode}"] - gal_data_subset["time"]) / gal_data_subset["time"] * 100
             shoal_data_subset["speedup"] = shoal_data_subset[f"payload_{test_mode}"] / gal_data_subset["time"]
 
-            plot_against_payloads(shoal_data_subset, "speedup", "Speedup", "shoal throughput vs libGalapagos", os.path.join(figure_dir_2, f"payload_{test_mode}"), False)
+            plot_against_payloads(shoal_data_subset, "speedup", "Speedup", "shoal throughput vs libGalapagos", os.path.join(figure_dir_2, f"payload_{test_mode}"), False, True)
 
 
 

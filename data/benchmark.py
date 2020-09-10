@@ -22,6 +22,7 @@ fonts = {
     "serif": "cmr10"
 }
 plt.rc("font", **fonts)
+plt.rc("mathtext", default="regular")
 
 import itertools
 
@@ -317,7 +318,7 @@ def analyze_latency_iterations(df, path, row_label):
         plt.savefig(os.path.join(path, f"{row_label}.{image_type}"))
     plt.close()
 
-def plot_against_payloads(df, y_axis, y_label, title, filepath, include_short=True):
+def plot_against_payloads(df, y_axis, y_label, title, filepath, include_short=True, enlarge_font=False):
     if include_short:
         labels = [0]
         labels.extend([2**x * 8 for x in range(PAYLOAD_MIN, PAYLOAD_MAX)])
@@ -361,6 +362,10 @@ def plot_against_payloads(df, y_axis, y_label, title, filepath, include_short=Tr
     # plt.xticks(rotation=90)
     # ax.set_title(title)
 
+    if enlarge_font:
+        for item in ([ax.xaxis.label, ax.yaxis.label] + ax.get_xticklabels() + ax.get_yticklabels() + ax.get_legend().get_texts()):
+            item.set_fontsize(14)
+
     fig.tight_layout()
     for image_type in IMAGE_TYPES:
         plt.savefig(filepath + "." + image_type)
@@ -369,9 +374,12 @@ def plot_against_payloads(df, y_axis, y_label, title, filepath, include_short=Tr
 def flip_list(items, ncol):
     return itertools.chain(*[items[i::ncol] for i in range(ncol)])
 
-def plot_topo_against_payloads(df, y_axis, y_label, title, filepath, include_same=True):
-    labels = [0]
-    labels.extend([2**x * 8 for x in range(PAYLOAD_MIN, PAYLOAD_MAX)])
+def plot_topo_against_payloads(df, y_axis, y_label, title, filepath, include_same=True, include_short=True):
+    if include_short:
+        labels = [0]
+        labels.extend([2**x * 8 for x in range(PAYLOAD_MIN, PAYLOAD_MAX)])
+    else:
+        labels = [2**x * 8 for x in range(PAYLOAD_MIN, PAYLOAD_MAX)]
     if include_same:
         hue_order = ["sw-sw-same-optimized", "sw-sw-diff-optimized", "sw-hw-optimized", 
             "hw-sw-optimized", "hw-hw-same-optimized", "hw-hw-diff"]
@@ -410,6 +418,12 @@ def plot_topo_against_payloads(df, y_axis, y_label, title, filepath, include_sam
         ax.set_yscale("log")
         ticks_x = ticker.FuncFormatter(lambda x, pos: str(x*1E3))
         ax.yaxis.set_major_formatter(ticks_x)
+        # if y_axis == "median":
+        #     lines = [0.001, 0.01, 0.1]
+        # else:
+        #     lines = [0.001, 0.01, 0.1, 1]
+        # for line in lines:
+        #     ax.axhline(line, label=None, linestyle="--", color=colors[0])
     # ax.legend()
     # plt.xticks(rotation=90)
     # ax.set_title(title)
@@ -589,9 +603,9 @@ def latency_summary(df, path):
         grouped_df = df_subset_tcp.groupby(["configuration", "Payload"], as_index=False).agg(np.nanmean) #["median"].transform("mean")
         # print(grouped_df)
         if test_type == "latency":
-            plot_topo_against_payloads(grouped_df, "median", "Time (us)", "Average Median Latency by Topology", os.path.join(path, f"tcp_summary_latency"))
+            plot_topo_against_payloads(grouped_df, "median", "Time ($\mu$s)", "Average Median Latency by Topology", os.path.join(path, f"tcp_summary_latency"))
         else:
-            plot_topo_against_payloads(grouped_df, f"payload_{test_type}", "Throughput (Mb/s)", "Average Non-Blocking THroughput by Topology", os.path.join(path, f"tcp_summary_{test_type}"))
+            plot_topo_against_payloads(grouped_df[grouped_df["Payload"] > 0], f"payload_{test_type}", "Throughput (Mb/s)", "Average Non-Blocking THroughput by Topology", os.path.join(path, f"tcp_summary_{test_type}"), True, False)
 
         df_subset_udp = df[
             (df["Test_Type"] == test_id) & 
@@ -638,7 +652,10 @@ def latency_summary(df, path):
         #     print(df_subset_tcp[(df_subset_tcp["configuration"] == "sw-hw-optimized") & (df_subset_tcp["Payload"] == 64)])#[f"payload_{test_type}"])
         df_subset_udp = df_subset_udp.merge(tmp, on="key")
         grouped_df = df_subset_udp.groupby(["configuration", "Payload"], as_index=False).agg(np.nanmean) #["median"].transform("mean")
-        plot_topo_against_payloads(grouped_df, "udp_diff", "Speedup", "Average Median Improvement in UDP vs TCP", os.path.join(path, f"udp_vs_tcp_{test_type}"), False)    # print(grouped_df)
+        if test_type == "latency":
+            plot_topo_against_payloads(grouped_df, "udp_diff", "Speedup", "Average Median Improvement in UDP vs TCP", os.path.join(path, f"udp_vs_tcp_{test_type}"), False)    # print(grouped_df)
+        else:
+            plot_topo_against_payloads(grouped_df[grouped_df["Payload"] > 0], "udp_diff", "Speedup", "Average Median Improvement in UDP vs TCP", os.path.join(path, f"udp_vs_tcp_{test_type}"), False, False)
     
 
 def summarize(data_dir, args):
