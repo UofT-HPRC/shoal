@@ -64,4 +64,8 @@ Boost can be installed with:
 
 There are also some dependencies of building parts of the project with different versions of Vivado (see notes above).
 
-conda: python=2.7, enum34
+The last version of Galapagos tested is commit [76765c9](https://github.com/UofT-HPRC/galapagos/tree/76765c95467346ea783661f0dfe85d1719a77229).
+
+## Further Reading
+
+This project (and repository) has been further described in my Master's thesis titled: PGAS Communication for Heterogeneous Clusters with FPGAs.
