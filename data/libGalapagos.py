@@ -113,7 +113,7 @@ def analyze(df, path, figure_dir):
             for label in _labels[1:]:
                 label_split = label.split("-")
                 custom_labels.append(label_split[0] + " (R) | " + label_split[1] + " (W)")
-            ax.legend(handles[1:], custom_labels)
+            ax.legend(handles[1:], custom_labels, frameon=False)
             # ax.legend()
             # # ax.set_title("Average Latency vs Payload Size")
 
@@ -142,7 +142,7 @@ def analyze(df, path, figure_dir):
                 ax.set_xscale("log", basex=2)
                 ax.xaxis.set_major_formatter(ScalarFormatter())
                 handles, _labels = ax.get_legend_handles_labels()
-                ax.legend(handles[1:], legend_labels)
+                ax.legend(handles[1:], legend_labels, frameon=False)
                 # ax.set_title("Throughput 0 vs Payload Size")
 
                 fig.tight_layout()
@@ -190,7 +190,7 @@ def cross_analyze(data, path):
         else:
             new_handles = [handles[2], handles[1], handles[3], handles[4], handles[5]]
             new_labels = [legend_labels[1], legend_labels[0], legend_labels[2], legend_labels[3], legend_labels[4]]
-        ax.legend(new_handles, new_labels)
+        ax.legend(new_handles, new_labels, frameon=False)
         plt.ylim(0, 4600)
         # plt.rc("font", size=20)
         for item in ([ax.xaxis.label, ax.yaxis.label] + ax.get_xticklabels() + ax.get_yticklabels() + ax.get_legend().get_texts()):
@@ -231,7 +231,7 @@ def cross_analyze(data, path):
     handles, _labels = ax.get_legend_handles_labels()
     new_handles = [handles[2], handles[1], handles[3], handles[4]]
     new_labels = [legend_labels[1], legend_labels[0], legend_labels[2], legend_labels[3]]
-    ax.legend(new_handles, new_labels)
+    ax.legend(new_handles, new_labels, frameon=False)
     # ax.set_title("Throughput 0 vs Payload Size")
 
     fig.tight_layout()

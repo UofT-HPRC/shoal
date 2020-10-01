@@ -145,7 +145,7 @@ def analyze(df, path):
     ax.set_yscale("log")
     ticks_x = ticker.FuncFormatter(lambda x, pos: str(x))
     ax.yaxis.set_major_formatter(ticks_x)
-    ax.legend(title="Kernels")
+    ax.legend(title="Kernels", frameon=False)
 
     fig.tight_layout()
     figure_path = os.path.join(figure_dir, "sw")

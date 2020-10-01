@@ -23,6 +23,7 @@ fonts = {
 }
 plt.rc("font", **fonts)
 plt.rc("mathtext", default="regular")
+plt.rc("pdf", fonttype=42) # force use of TrueType fonts instead of type 3
 
 import itertools
 
@@ -353,7 +354,7 @@ def plot_against_payloads(df, y_axis, y_label, title, filepath, include_short=Tr
     ax.set_xticks(x)
     ax.set_xticklabels(labels)
     ax.legend(bbox_to_anchor=(0,1.02,1,0.2), loc="lower left", 
-        mode="expand", borderaxespad=0, ncol=4)
+        mode="expand", borderaxespad=0, ncol=4, frameon=False)
     if y_axis == "speedup":
         ax.axhline(1, label=None, linestyle="-", color=colors[0])
         # ylims = ax.get_ylim()
@@ -374,7 +375,7 @@ def plot_against_payloads(df, y_axis, y_label, title, filepath, include_short=Tr
 def flip_list(items, ncol):
     return itertools.chain(*[items[i::ncol] for i in range(ncol)])
 
-def plot_topo_against_payloads(df, y_axis, y_label, title, filepath, include_same=True, include_short=True):
+def plot_topo_against_payloads(df, y_axis, y_label, title, filepath, include_same=True, include_short=True, enlarge_font=False):
     if include_short:
         labels = [0]
         labels.extend([2**x * 8 for x in range(PAYLOAD_MIN, PAYLOAD_MAX)])
@@ -409,12 +410,12 @@ def plot_topo_against_payloads(df, y_axis, y_label, title, filepath, include_sam
 
     if not include_same:
         ax.legend(flip_list(handles, 4), flip_list(legend_labels, 4), bbox_to_anchor=(0,1.02,1,0.2), loc="lower left", 
-        mode="expand", borderaxespad=0, ncol=4)
+        mode="expand", borderaxespad=0, ncol=4, frameon=False)
         ax.axhline(1, label=None, linestyle="-", color=colors[0])
         ax.set_ylim(top=2.5)
     else:
         ax.legend(flip_list(handles, 3), flip_list(legend_labels, 3), bbox_to_anchor=(0,1.02,1,0.2), loc="lower left", 
-        mode="expand", borderaxespad=0, ncol=3)
+        mode="expand", borderaxespad=0, ncol=3, frameon=False)
         ax.set_yscale("log")
         ticks_x = ticker.FuncFormatter(lambda x, pos: str(x*1E3))
         ax.yaxis.set_major_formatter(ticks_x)
@@ -427,6 +428,10 @@ def plot_topo_against_payloads(df, y_axis, y_label, title, filepath, include_sam
     # ax.legend()
     # plt.xticks(rotation=90)
     # ax.set_title(title)
+
+    if enlarge_font:
+        for item in ([ax.xaxis.label, ax.yaxis.label] + ax.get_xticklabels() + ax.get_yticklabels() + ax.get_legend().get_texts()):
+            item.set_fontsize(14)
 
     fig.tight_layout()
     for image_type in IMAGE_TYPES:
@@ -655,7 +660,7 @@ def latency_summary(df, path):
         if test_type == "latency":
             plot_topo_against_payloads(grouped_df, "udp_diff", "Speedup", "Average Median Improvement in UDP vs TCP", os.path.join(path, f"udp_vs_tcp_{test_type}"), False)    # print(grouped_df)
         else:
-            plot_topo_against_payloads(grouped_df[grouped_df["Payload"] > 0], "udp_diff", "Speedup", "Average Median Improvement in UDP vs TCP", os.path.join(path, f"udp_vs_tcp_{test_type}"), False, False)
+            plot_topo_against_payloads(grouped_df[grouped_df["Payload"] > 0], "udp_diff", "Speedup", "Average Median Improvement in UDP vs TCP", os.path.join(path, f"udp_vs_tcp_{test_type}"), False, False, True)
     
 
 def summarize(data_dir, args):
